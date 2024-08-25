@@ -4,8 +4,7 @@ import fs from 'fs';
  * mdbook preprocessor to replace <siteswap> tags with inline SVG images
  */
 
-import { siteswapToSvg } from './svggen.js';
-import { replaceSiteswapElements } from './index.js';
+import { replaceSiteswapElements, siteswapToSvg } from './svggen.js';
 
 
 if (process.argv[2] === "supports") {
