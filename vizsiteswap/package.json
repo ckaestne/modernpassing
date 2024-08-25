@@ -1,0 +1,26 @@
+{
+    "name": "vizsiteswap",
+    "version": "0.1.0",
+    "main": "index.js",
+    "type": "module",
+    "author": "",
+    "license": "GPL-4.0",
+    "description": "",
+    "dependencies": {
+        "@svgdotjs/svg.js": "^3.2.4",
+        "@types/node": "^22.5.0",
+        "commander": "^12.1.0",
+        "jsdom": "^24.1.1",
+        "svgdom": "^0.1.19",
+        "yargs": "^17.7.2"
+    },
+    "devDependencies": {
+        "@types/jsdom": "^21.1.7",
+        "@types/svgdom": "^0.1.2",
+        "@types/yargs": "^17.0.33",
+        "typescript": "^5.5.4"
+    },
+    "scripts": {
+        "build": "tsc"
+    }
+}

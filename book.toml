@@ -1,0 +1,13 @@
+[book]
+authors = ["Christian Kaestner"]
+language = "en"
+multilingual = false
+src = "."
+title = "Modern Club Passing"
+
+[preprocessor.siteswapsvg]
+command = "node vizsiteswap/dist/mdbook-siteswapsvg.js"
+
+[output.html]
+additional-css = [".mdbook/svgstyle.css"]
+smart-punctuation = true

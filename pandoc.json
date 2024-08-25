@@ -1,0 +1,9 @@
+{
+    "author": "Christian Kaestner",
+    "title": "Modern Club Passing",
+    "subtitle": "An introduction and guide",
+    "documentclass": "scrbook",
+    "classoption": "openany",
+    "toc": true,
+    "graphics": "yes"
+}
