@@ -21,7 +21,12 @@ export class FourHandedSiteswap {
 
     isValid(){
         if (this.length()===0) return false;
+
+        // check if the sum of the throws is divisible by the length
+        if (this.sw_.reduce((a, b) => a + b, 0) % this.sw_.length != 0)
+            return false
         
+        // check if the throws land on distinct beats and on all beats
         const landing: number[] = [];
         for (let i = 0; i < this.length(); i++) 
             landing.push((this.causes(i)+this.length()) % this.length());
@@ -29,6 +34,11 @@ export class FourHandedSiteswap {
         const distinctLanding = new Set(landing);
         return distinctLanding.size === landing.length         
         
+    }
+
+    isValidStart() {
+        const nrObjects = this.sw_.reduce((a, b) => a + b, 0) / this.sw_.length;
+        return nrObjects == this.getStartingHands(0)[0] + this.getStartingHands(1)[0]+ this.getStartingHands(0)[1] + this.getStartingHands(1)[1];
     }
 
 

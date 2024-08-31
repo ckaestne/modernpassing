@@ -33,7 +33,8 @@ export interface Config {
     extraCausalLineColor: string;
     labelTextColor: string;
     labelTextSize: number;
-    startingHandsTextSize: number
+    startingHandsTextSize: number,
+    startingJuggler: 0 | 1
 }
 
 export const defaultConfig: Config = {
@@ -63,7 +64,8 @@ export const defaultConfig: Config = {
     extraCausalLineColor: "gray",
     labelTextColor: "black",
     labelTextSize: 10,
-    startingHandsTextSize: 16
+    startingHandsTextSize: 16,
+    startingJuggler: 0
 };
 
 export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>): Svg {
@@ -98,7 +100,8 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
         extraCausalLineColor,
         labelTextColor,
         labelTextSize,
-        startingHandsTextSize
+        startingHandsTextSize,
+        startingJuggler
     } = { ...defaultConfig, ...config }
 
     const hasLabel = showStraightCross || showLeftRight
@@ -115,11 +118,11 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
 
     function yo(idx: number): number {
         return yMargin + (hasLabel ? labelMargin : 0) + circleSize / 2 +
-            (sw.jugglerAt(idx)) * yDist;
+            ((sw.jugglerAt(idx) + startingJuggler)%2) * yDist;
     }
 
     function yom(idx: number): number {
-        return (sw.throwOriginAt(idx) + 1) * yDist;
+        return ((sw.throwOriginAt(idx) + startingJuggler)%2+1) * yDist;
     }
 
     const width = xMargin * 2 + circleSize +
@@ -190,14 +193,14 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
         if (showLeftRight || (showStraightCross && sw.throwAt(idx) % 2 === 1)) {
             let text = []
             if (showLeftRight)
-                text.push(idx % 4 < 2 ? "R" : "L")
+                text.push((idx+startingJuggler) % 4 < 2 ? "R" : "L")
 
             if ((showStraightCross && sw.throwAt(idx) % 2 === 1)) {
-                text.push(getStraightCrossText(sw.jugglerAt(idx), sw.throwAt(idx)))
+                text.push(getStraightCrossText((sw.jugglerAt(idx)+startingJuggler)%2, sw.throwAt(idx)))
             }
 
-            const offset = sw.jugglerAt(idx) === 0 ? -circleSize / 2 : circleSize / 2;
-            const baseline = sw.jugglerAt(idx) === 0 ? "text-after-edge" : "text-before-edge";
+            const offset = (sw.jugglerAt(idx)+startingJuggler)%2 === 0 ? -circleSize / 2 : circleSize / 2;
+            const baseline = (sw.jugglerAt(idx)+startingJuggler)%2 === 0 ? "text-after-edge" : "text-before-edge";
 
             svg.text("").plain(text.join(" ")).
                 amove(xo(idx), yo(idx) + offset).
@@ -208,13 +211,21 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
 
     }
 
-    if (showStartingHands)
-        for (const juggler of [0, 1]) {
-            svg.text("").plain(sw.getStartingHands(juggler).join("|")).
-                amove(xMargin + startingHandsOffset / 2, yo(juggler)).
-                addClass("starting-hands").
-                font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: labelTextColor, 'dominant-baseline': "central" })
+    if (showStartingHands) {
+        if (sw.isValidStart()) {
+            for (const juggler of [0, 1]) {
+                let startingHands = sw.getStartingHands(juggler % 2)
+                if (juggler === 1 && startingJuggler===1) 
+                    startingHands = [startingHands[1], startingHands[0]]
+                svg.text("").plain(startingHands.join("|")).
+                    amove(xMargin + startingHandsOffset / 2, yo(juggler)).
+                    addClass("starting-hands").
+                    font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: labelTextColor, 'dominant-baseline': "central" })
+            }
+        } else { 
+            svg.rect(startingHandsOffset, Math.abs(yo(1) - yo(0))).dx(xMargin).dy(Math.min(yo(0),yo(1))).fill("red");
         }
+    }
 
     return svg
 }

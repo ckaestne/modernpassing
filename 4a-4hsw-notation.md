@@ -1,4 +1,4 @@
-# Reading Four-Handed Siteswaps (Notation)
+# Introduction to Four-Handed Siteswaps & Notation
 
 Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps]()
 
@@ -30,6 +30,8 @@ Now we can read the actions of juggler A in the first row and the actions of the
 ## Starting a pattern
 
 Juggler A always starts the pattern with a right-hand action (the first digit of the siteswap) and juggler B always follows slightly afterward with a right-hand action (the second digit of the siteswap). Technically, juggler B should start between juggler A's first and second action; in practice most patterns are fairly forgiving to fudge the timing a bit.
+
+It is possible to start a siteswap on any beat, or conversely to shift siteswaps -- for example, *786* is the same pattern as *867* and *678*. In most lists, siteswaps are normalized to start with the highest digit, but in this book, we write all siteswaps as they would usually be started.
 
 While there are ways to figure out who is holding how many clubs in each hand, it's mostly the obvious start of both jugglers having the same number of clubs or juggler A having one more club (for 5 and 7 club patterns). If the obvious start does not seem to work, look up the start with an online tool like [passist.org](http://passist.org). 
 
