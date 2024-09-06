@@ -1,5 +1,5 @@
 {
-    "name": "compatsiteswaps",
+    "name": "compatsiteswaps-loader",
     "version": "0.1.0",
     "main": "index.js",
     "type": "module",

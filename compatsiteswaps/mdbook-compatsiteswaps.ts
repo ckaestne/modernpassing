@@ -1,8 +1,19 @@
-import { program } from 'commander';
 import fs from 'fs';
 import { defaultConfig, loadCompatSiteswapList, Pattern } from './load-siteswaplist.js';
 
+/**
+ * mdbook preprocessor to replace $siteswapslist with a complete, sorted list of siteswaps
+ */
 
+
+if (process.argv[2] === "supports") {
+    process.exit(process.argv.includes("html") ? 0 : 1);
+}
+
+const file = fs.readFileSync(0, 'utf-8');
+
+
+const [_, book] = JSON.parse(file);
 
 const config = {
     includeB: false,
@@ -11,37 +22,12 @@ const config = {
     maxLength: 7
 }
 
-program
-    .name("compatsiteswaps")
 
-program.option('-i, --input <file>', 'input file to read')
-    .option('-o, --output <file>', 'target file to write')
-    .action((options) => {
-        main(options.input, options.output);
-    });
+for (const sec of book.sections)
+    if (sec.Chapter && sec.Chapter.content) {
+        sec.Chapter.content = sec.Chapter.content.replace("$siteswapslist", await genCompatSiteswapList())
+    }
 
-program.parse(process.argv);
-
-
-
-
-
-
-async function main(input: string | undefined, output: string | undefined) {
-
-
-    const file = input ? fs.readFileSync(input, 'utf8') : fs.readFileSync(0, 'utf8');
-
-    const newFile = file.replace("$siteswapslist", await genCompatSiteswapList())
-
-
-    if (output)
-        fs.writeFileSync(output, newFile);
-    else console.log(newFile);
-
-
-
-}
 
 
 
@@ -68,7 +54,9 @@ async function genCompatSiteswapList(): Promise<string> {
 }
 
 function formatPattern(p: Pattern): string {
-    return p.siteswap + (p.hasDragon ? config.dragonPostfix : "")
+    return `[${p.siteswap}](${p.link})` + (p.hasDragon ? config.dragonPostfix : "")
 }
 
 
+
+console.log(JSON.stringify(book));
