@@ -25,14 +25,13 @@
 - [Beginner patterns](./4b-4hsw-beginner.md)
 - [Doubles](./4c-4hsw-doubles.md)
 - [Heffs](./4d-4hsw-heffs.md)
-- [](./4e-4hsw-zaps.md)
-- [](./4f-4hsw-trelfs.md)
-- [](./4g-4hsw-named.md)
-- [](./4h-4hsw-compatible.md)
-- [](./4i-4hsw-holygrail.md)
-- [](./4j-4hsw-8club1count.md)
-- [](./4k-4hsw-improve.md)
-- [](./4l-4hsw-theory.md)
+- [Zaps](./4e-4hsw-zaps.md)
+- [Trelfs](./4f-4hsw-trelfs.md)
+- [Advanced patterns](./4g-4hsw-named.md)
+- [Dragons and holy grail](./4i-4hsw-holygrail.md)
+- [Compatible siteswaps](./4h-4hsw-compatible.md)
+- [Improve your siteswap passing](./4k-4hsw-improve.md)
+- [Theory and lore](./4l-4hsw-theory.md)
 
 # Group Patterns
 
@@ -58,4 +57,4 @@
 
 # Appendix
 
-<!-- - [](./7-appendix-siteswaplist.md) -->
+- [Siteswap list](./7-appendix-siteswaplist.md)

@@ -4,3 +4,4 @@ gen
 node_modules
 pandoc
 modernpassing.pdf
+target/

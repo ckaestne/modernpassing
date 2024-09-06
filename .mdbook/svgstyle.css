@@ -4,3 +4,7 @@
 .throw-label {
     fill: var(--fg)
 }
+
+img + em {
+    display: block
+}

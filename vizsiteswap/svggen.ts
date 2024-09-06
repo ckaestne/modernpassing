@@ -17,6 +17,7 @@ export interface Config {
     beyondMax: (n: number) => number;
     showExtraThrows: boolean;
     showCausalLines: boolean;
+    showLadderLines: boolean; //supporting only causes OR ladder lines; using causalLineColor etc for styling of either
     showEarlyCausalLines: boolean;
     showLeftRight: boolean;
     showStraightCross: boolean;
@@ -34,7 +35,14 @@ export interface Config {
     labelTextColor: string;
     labelTextSize: number;
     startingHandsTextSize: number,
-    startingJuggler: 0 | 1
+    startingJuggler: 0 | 1,
+    emphasizeThrows: number[],
+    emphasizeCircleColor: string,
+    emphasizeTextColor: string,
+    emphasizeCausal: number[],
+    emphasizeCausalLineColor: string,
+    emphasizeCausalLineWith: number,
+    emphasizeCausalLineDash: string
 }
 
 export const defaultConfig: Config = {
@@ -48,6 +56,7 @@ export const defaultConfig: Config = {
     beyondMax: (length) => length * 2 + 1,
     showExtraThrows: false,
     showCausalLines: false,
+    showLadderLines: false,
     showEarlyCausalLines: true,
     showLeftRight: true,
     showStraightCross: true,
@@ -65,7 +74,14 @@ export const defaultConfig: Config = {
     labelTextColor: "black",
     labelTextSize: 10,
     startingHandsTextSize: 16,
-    startingJuggler: 0
+    startingJuggler: 0,
+    emphasizeThrows: [],
+    emphasizeCircleColor: "red",
+    emphasizeTextColor: "white",
+    emphasizeCausal: [],
+    emphasizeCausalLineColor: "red",
+    emphasizeCausalLineWith: 3,
+    emphasizeCausalLineDash: "",
 };
 
 export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>): Svg {
@@ -84,6 +100,7 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
         beyondMax,
         showExtraThrows,
         showCausalLines,
+        showLadderLines,
         showEarlyCausalLines,
         showLeftRight,
         showStraightCross,
@@ -101,7 +118,14 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
         labelTextColor,
         labelTextSize,
         startingHandsTextSize,
-        startingJuggler
+        startingJuggler,
+        emphasizeThrows,
+        emphasizeCircleColor,
+        emphasizeTextColor,
+        emphasizeCausal,
+        emphasizeCausalLineColor,
+        emphasizeCausalLineWith,
+        emphasizeCausalLineDash
     } = { ...defaultConfig, ...config }
 
     const hasLabel = showStraightCross || showLeftRight
@@ -118,12 +142,12 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
 
     function yo(idx: number): number {
         return yMargin + (hasLabel ? labelMargin : 0) + circleSize / 2 +
-            ((sw.jugglerAt(idx) + startingJuggler)%2) * yDist;
+            ((sw.jugglerAt(idx) + startingJuggler) % 2) * yDist;
     }
 
-    function yom(idx: number): number {
-        return ((sw.throwOriginAt(idx) + startingJuggler)%2+1) * yDist;
-    }
+    // function yom(idx: number): number {
+    //     return ((sw.throwOriginAt(idx) + startingJuggler) % 2 + 1) * yDist;
+    // }
 
     const width = xMargin * 2 + circleSize +
         (showStartingHands ? startingHandsOffset : 0) +
@@ -143,22 +167,33 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
     // svg.rect("100%", "100%").fill("white").stroke("black")
 
 
+    const ladderOffset = showLadderLines ? 4 : 0
     function causalLineFrom(svg: Svg, idx: number) {
         let color = causalLineColor
-        if (idx < 0 || sw.causes(idx) < 0)
+        let width = causalLineWidth
+        let dash = causalLineDash
+        if (idx < 0 || sw.causes(idx) + ladderOffset < 0)
             color = earlyCausalLineColor
         if (idx > max)
             color = extraCausalLineColor
+        if (emphasizeCausal.includes(idx)) {
+            color = emphasizeCausalLineColor
+            width = emphasizeCausalLineWith
+            dash = emphasizeCausalLineDash
+        }
+
 
         if (sw.throwAt(idx) % 2 !== 0) {
-            svg.line(xo(idx), yom(idx), xo(sw.causes(idx)), yo(sw.causes(idx))).
-                stroke({ color: color, width: causalLineWidth, dasharray: causalLineDash })
+            svg.line(xo(idx), yo(idx), xo(sw.causes(idx) + ladderOffset), yo(sw.causes(idx))).
+                stroke({ color: color, width: width, dasharray: dash })
         } else {
             const dir = sw.jugglerAt(idx) === 0 ? -1 : 1;
             const heffoffset = (() => {
                 switch (sw.throwAt(idx)) {
                     case 2:
                         return yDist / 90 * 0;
+                    case 4:
+                        return yDist / 90 * 20;
                     case 6:
                         return yDist / 90 * 30;
                     case 8:
@@ -168,41 +203,47 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
                     default:
                         return 0;
                 }
-            })();
-            svg.path(`M ${xo(idx)} ${yom(idx)} C ${xo(idx) + heffoffset} ${yo(idx) + dir * heffoffset}, ${xo(sw.causes(idx)) - heffoffset} ${yo(sw.causes(idx)) + dir * heffoffset}, ${xo(sw.causes(idx))} ${yo(sw.causes(idx))}`).
-                stroke({ color: color, width: causalLineWidth, dasharray: causalLineDash }).fill("transparent")
+            })() * (showLadderLines ? 1.2 : 1);
+
+            svg.path(`M ${xo(idx)} ${yo(idx)} C ${xo(idx) + heffoffset} ${yo(idx) + dir * heffoffset}, ${xo(sw.causes(idx) + ladderOffset) - heffoffset} ${yo(sw.causes(idx)) + dir * heffoffset}, ${xo(sw.causes(idx) + ladderOffset)} ${yo(sw.causes(idx))}`).
+                stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
         }
     }
 
 
-    if (showCausalLines) {
+    if (showCausalLines || showLadderLines || emphasizeCausal.length > 0) {
         const maxIdx = max + (showExtraThrows ? beyondMax(sw.length()) : 0)
         for (let idx = showEarlyCausalLines ? -1 * sw.length() : 0; idx < maxIdx + 2; idx++)
-            if ((showEarlyCausalLines || sw.causes(idx) >= 0) && (idx < maxIdx || sw.causes(idx) < maxIdx))
-                causalLineFrom(svg, idx)
+            if (showCausalLines || showLadderLines || emphasizeCausal.includes(idx))
+                if ((showEarlyCausalLines || (sw.causes(idx) + ladderOffset) >= 0) && (idx < maxIdx || (sw.causes(idx) + ladderOffset) < maxIdx))
+                    causalLineFrom(svg, idx)
     }
 
     for (let idx = 0; idx < max + (showExtraThrows ? beyondMax(sw.length()) : 0); idx++) {
+        const circleColor = emphasizeThrows.includes(idx) ? emphasizeCircleColor :
+            (idx >= max ? throwExtraCircleColor : throwCircleColor)
+        const circleTextColor = emphasizeThrows.includes(idx) ? emphasizeTextColor :
+            idx >= max ? throwExtraTextColor : throwTextColor
         svg.circle(circleSize).
             center(xo(idx), yo(idx)).
-            fill(idx >= max ? throwExtraCircleColor : throwCircleColor)
+            fill(circleColor)
         svg.text("").plain(sw.throwLetterAt(idx)).
             amove(xo(idx), yo(idx)).
-            font({ size: throwTextSize, 'text-anchor': "middle", fill: idx >= max ? throwExtraTextColor : throwTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
+            font({ size: throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
 
         if (showLeftRight || (showStraightCross && sw.throwAt(idx) % 2 === 1)) {
             let text = []
             if (showLeftRight)
-                text.push((idx+startingJuggler) % 4 < 2 ? "R" : "L")
+                text.push((idx + startingJuggler) % 4 < 2 ? "R" : "L")
 
             if ((showStraightCross && sw.throwAt(idx) % 2 === 1)) {
-                text.push(getStraightCrossText((sw.jugglerAt(idx)+startingJuggler)%2, sw.throwAt(idx)))
+                text.push(getStraightCrossText((sw.jugglerAt(idx) + startingJuggler) % 2, sw.throwAt(idx)))
             }
 
-            const offset = (sw.jugglerAt(idx)+startingJuggler)%2 === 0 ? -circleSize / 2 : circleSize / 2;
-            const baseline = (sw.jugglerAt(idx)+startingJuggler)%2 === 0 ? "text-after-edge" : "text-before-edge";
+            const offset = (sw.jugglerAt(idx) + startingJuggler) % 2 === 0 ? -circleSize / 2 : circleSize / 2;
+            const baseline = (sw.jugglerAt(idx) + startingJuggler) % 2 === 0 ? "text-after-edge" : "text-before-edge";
 
-            svg.text("").plain(text.join(" ")).
+            svg.text("").tspan(text.join(" ")).
                 amove(xo(idx), yo(idx) + offset).
                 addClass("throw-label").
                 font({ size: labelTextSize, 'text-anchor': "middle", fill: labelTextColor, 'dominant-baseline': baseline })
@@ -213,17 +254,18 @@ export function siteswapToSvg(sw: FourHandedSiteswap, config?: Partial<Config>):
 
     if (showStartingHands) {
         if (sw.isValidStart()) {
+            const hands = sw.getStartingHands()
             for (const juggler of [0, 1]) {
-                let startingHands = sw.getStartingHands(juggler % 2)
-                if (juggler === 1 && startingJuggler===1) 
+                let startingHands = hands[juggler]
+                if (juggler === 1 && startingJuggler === 1)
                     startingHands = [startingHands[1], startingHands[0]]
                 svg.text("").plain(startingHands.join("|")).
                     amove(xMargin + startingHandsOffset / 2, yo(juggler)).
                     addClass("starting-hands").
                     font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: labelTextColor, 'dominant-baseline': "central" })
             }
-        } else { 
-            svg.rect(startingHandsOffset, Math.abs(yo(1) - yo(0))).dx(xMargin).dy(Math.min(yo(0),yo(1))).fill("red");
+        } else {
+            svg.rect(startingHandsOffset, Math.abs(yo(1) - yo(0))).dx(xMargin).dy(Math.min(yo(0), yo(1))).fill("red");
         }
     }
 

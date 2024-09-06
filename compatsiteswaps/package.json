@@ -1,5 +1,5 @@
 {
-    "name": "vizsiteswap",
+    "name": "compatsiteswaps",
     "version": "0.1.0",
     "main": "index.js",
     "type": "module",
@@ -7,15 +7,12 @@
     "license": "GPL-4.0",
     "description": "",
     "dependencies": {
-        "@svgdotjs/svg.js": "^3.2.4",
-        "commander": "^12.1.0",
         "jsdom": "^24.1.1",
-        "svgdom": "^0.1.19"
+        "commander": "^12.1.0"
     },
     "devDependencies": {
-        "@types/node": "^22.5.0",
         "@types/jsdom": "^21.1.7",
-        "@types/svgdom": "^0.1.2",
+        "@types/node": "^22.5.0",
         "typescript": "^5.5.4"
     },
     "scripts": {

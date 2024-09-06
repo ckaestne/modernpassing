@@ -1,4 +1,3 @@
-import assert from "assert";
 
 function parseBeat(character: string): number {
     if (character >= '0' && character <= '9') {
@@ -38,7 +37,8 @@ export class FourHandedSiteswap {
 
     isValidStart() {
         const nrObjects = this.sw_.reduce((a, b) => a + b, 0) / this.sw_.length;
-        return nrObjects == this.getStartingHands(0)[0] + this.getStartingHands(1)[0]+ this.getStartingHands(0)[1] + this.getStartingHands(1)[1];
+        const hands = this.getStartingHands()
+        return nrObjects == hands[0][0] + hands[1][0]+ hands[0][1] + hands[1][1];
     }
 
 
@@ -75,20 +75,37 @@ export class FourHandedSiteswap {
         throw new Error(`No throw causes ${idx}`);
     }
 
-    /** returns number of clubs in right and left hand at start ([right, left]),
+    /** the beat on which the club thrown on idx was previously thrown
+     *  (this is tracking a club as in a ladder diagram, not the throw
+     *   that caused this to be thrown)
+     */
+    thrownPreviously(idx: number): number {
+        for (let offset = 0; offset >= -1*this.highestThrow(); offset--) 
+            if (this.throwAt(idx+offset) + offset === 0) 
+                return idx + offset;
+        throw new Error(`No throw causes ${idx}`);
+    }
+
+    thrownNext(idx: number): number {
+        return idx + this.throwAt(idx);
+    }
+
+    numberOfObjects(): number {
+        return this.sw_.reduce((a, b) => a + b, 0) / this.sw_.length
+    }
+
+
+    /** returns number of clubs in right and left hand at start for jugglers
+     * A and B ([rightA, leftA], [rightB, leftB]),
      * assuming juggler 0 starts and both jugglers start right handed
      */
-    getStartingHands(juggler: number): number[] {
-        assert(juggler === 0 || juggler === 1);
-        let hands = [1, 1];
-        for (let idx = juggler; idx < this.length()*2; idx=idx+2) {
-            if (this.causedBy(idx)<0 && this.causes(idx)>=0) 
-                hands[idx % 4 < 2?0:1] += 1
-            //skip an initial zip
-            if (this.causedBy(idx)<0 && this.causes(idx)<0) {
-                hands[idx % 4 < 2?0:1] += 1
-                hands[idx % 4 < 2?1:0] -= 1
-            }
+    getStartingHands(): number[][] {
+        let hands = [[0, 0],[0,0]];
+
+
+        for (let idx = 0; idx < this.numberOfObjects() + this.highestThrow(); idx=idx+1) {
+            if (this.thrownPreviously(idx)<0) 
+                hands[idx%2][idx % 4 < 2?0:1] += 1
         }
         return hands
     }
