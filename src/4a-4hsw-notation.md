@@ -2,13 +2,13 @@
 
 Four-handed siteswaps describe a large class of two-person passing patterns. They are all ambidextrous and symmetric, performing the same sequence both one the right and the left side. They are all characterized by an asynchronous beat where both passers juggle the same sequence but offset from each other and by having one passer throw crossing passes. 
 
-Four-handed siteswaps come at all difficulty levels and can be learned as the first patterns, before [synchronous patterns](). We strongly recommend to learn [how to read the notation]() first and then try the [beginner patterns](). After that [doubles](), [heffs](), [zaps](), and [trelfs]() can be added in any order. 
+Four-handed siteswaps come at all difficulty levels and can be learned as the first patterns, before [synchronous patterns](). We strongly recommend to learn [how to read the notation](4a-4hsw-notation.md) first and then try the [beginner patterns](4b-4hsw-beginner.md). After that [doubles](4c-4hsw-doubles.md), [heffs](4d-4hsw-heffs.md), [zaps](4e-4hsw-zaps.md), and [trelfs](4f-4hsw-trelfs.md) can be added in any order. 
 
 # Introduction to Four-Handed Siteswaps & Notation
 
-Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps]()
+Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
 
-*Here we only describe how to read a pattern; for understanding why the notation works this way and why some passes are crossing, see [four-handed siteswap theory]().*
+*Here we only describe how to read a pattern; for understanding why the notation works this way and why some passes are crossing, see [four-handed siteswap theory](4l-4hsw-theory.md).*
 
 A four-handed siteswap is written as a sequence of numbers such as *744*, *77722* or *8686777*. Similarly to the [letters used for synchronous patterns](), each number denotes a throw: 
 

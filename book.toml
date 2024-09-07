@@ -2,7 +2,7 @@
 authors = ["Christian Kaestner"]
 language = "en"
 multilingual = false
-src = "."
+src = "src"
 title = "Modern Club Passing"
 
 [preprocessor.siteswapsvg]

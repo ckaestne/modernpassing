@@ -15,9 +15,6 @@
 - [](./2e-tedious.md)
 - [](./2f-improve.md) -->
 
-# Minis and Prechac
-
-<!-- - [](./3-minis.md) -->
 
 # Four-Handed Siteswaps
 
@@ -32,6 +29,12 @@
 - [Compatible siteswaps](./4h-4hsw-compatible.md)
 - [Improve your siteswap passing](./4k-4hsw-improve.md)
 - [Theory and lore](./4l-4hsw-theory.md)
+
+
+# Minis and Prechac
+
+<!-- - [](./3-minis.md) -->
+
 
 # Group Patterns
 
