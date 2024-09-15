@@ -8,3 +8,14 @@
 img + em {
     display: block
 }
+
+crossreference {
+    background-color: var(--quote-bg);
+    color: var(--quote-fg);
+    display: block;
+    padding: 8px;
+}
+
+video {
+    display: none;
+}

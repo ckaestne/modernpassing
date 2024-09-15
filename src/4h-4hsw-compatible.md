@@ -59,3 +59,13 @@ Such patterns are fairly uncommon in the passing community right now, but there 
 <siteswap>77a666</siteswap>
 
 To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an even length and exclude any patterns with 1 or 3s. 
+
+## Programming
+
+TODO
+
+7->77772->77722
+
+77[s,h,7...]
+
+common combination

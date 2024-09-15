@@ -14,3 +14,7 @@ command = "node compatsiteswaps/dist/mdbook-compatsiteswaps.js"
 [output.html]
 additional-css = [".mdbook/svgstyle.css"]
 smart-punctuation = true
+
+#[output.typst]
+#[output.typst.output]
+#format = "pdf"

@@ -1,12 +1,12 @@
-# Chapter: Four-Handed Siteswaps
+# Introduction to Four-Handed Siteswaps & Notation
+
+Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
 
 Four-handed siteswaps describe a large class of two-person passing patterns. They are all ambidextrous and symmetric, performing the same sequence both one the right and the left side. They are all characterized by an asynchronous beat where both passers juggle the same sequence but offset from each other and by having one passer throw crossing passes. 
 
 Four-handed siteswaps come at all difficulty levels and can be learned as the first patterns, before [synchronous patterns](). We strongly recommend to learn [how to read the notation](4a-4hsw-notation.md) first and then try the [beginner patterns](4b-4hsw-beginner.md). After that [doubles](4c-4hsw-doubles.md), [heffs](4d-4hsw-heffs.md), [zaps](4e-4hsw-zaps.md), and [trelfs](4f-4hsw-trelfs.md) can be added in any order. 
 
-# Introduction to Four-Handed Siteswaps & Notation
-
-Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
+## Notation
 
 *Here we only describe how to read a pattern; for understanding why the notation works this way and why some passes are crossing, see [four-handed siteswap theory](4l-4hsw-theory.md).*
 
@@ -38,7 +38,6 @@ Passer A always starts the pattern with a right-hand action (the first digit of 
 It is possible to start a siteswap on any beat of the sequence, or conversely to shift siteswaps -- for example, *786* is the same pattern as *867* and *678*. Here, we write all featured siteswaps as they would usually be started and we indicate how many clubs are in each hand (read "right|left") -- see the [theory]() section for how to select a start and figure out clubs or use an online tool like [passist.org](http://passist.org)). We additionally include hints about which hand does the action for the initial throws (R and L for right and left), whether to throw a pass straight (||) or crossing (X), and how many clubs are in each hand at the start ():
 
 <siteswap>75864</siteswap>
-
 
 
 
