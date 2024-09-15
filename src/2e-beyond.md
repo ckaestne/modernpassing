@@ -10,20 +10,27 @@ For a number of one-sided patters it is common to juggle them lower than standar
 
 **7-club two-count on singles, 8-club two-count on doubles, and 9-club two-count on triples.** The most common galloped patterns are to throw 7-club two-count with lofty singles instead of doubles, followed quickly by a fast self from the left hand, and to throw 8-club two-count on doubles (instead of the triple needed for a non-galloped pattern). 
 
-TODO: gallop rendering
+<sync style='{gallop: true}'>4p,o -> 34p,4p3</sync>
+
+<sync style='{gallop: true}'>5p3</sync>
+
+
+<!-- TODO: gallop rendering
 
 dsdsdsds
 -dsdsdsd
 
 tstststs //gallop rendering
-tstststs
+tstststs -->
 
 **6-count popcorn on singles.** The standard [6-count popcorn]() can be juggled on singles and with a double-self instead of trelf if the pattern is galloped.
 
 **Long beach popcorn.** This 8-club pattern has the right-hand sequence lofty-triple pass (instead of a quad), double-self (instead of a trelf), lofty single pass (instead of a double), while all left-hand actions are quick, galloped selfs.
 
-qstsdsqstsdsqstsds // render gallop
-tsdsqstsdsqstsdsqs
+<sync style='{gallop: true}'>6p3534p3,534p36p3</sync>
+
+<!-- qstsdsqstsdsqstsds // render gallop
+tsdsqstsdsqstsdsqs -->
 
 See [Will Murray's pattern collection](https://home.csulb.edu/~wmurray/jugglingArticles/WillPatterns.pdf) for many more galloped patterns and theory of how to create more of them.
 

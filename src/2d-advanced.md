@@ -8,17 +8,21 @@ There are many more variations of synchronous patterns, especially when explorin
 
 We already introduced *early doubles* as a crossing double pass in [basic synchronous patterns](). Those are a good way to practice double passes. In fact, continuous early doubles in *6-club three-count* (after a first normal pass) are a good way to practice doubles with both hands:
 
-psspsspsspsspss
-psdfsdfsdfsdfsd
+<sync>3p3 -> 33p3, 4p23</sync>
+
+<!-- psspsspsspsspss
+psdfsdfsdfsdfsd -->
 
 **7-club two-count.** Many passers learn *7-club two-count* as a milestone. Being one-sided, I consider this traditional passing, not modern passing and recommend the four-handed siteswap *7-club three-count* instead (see four-handed siteswaps with [doubles]()).
 
 The conventional setup is the following: Both passers, throw straight double passes with every right hand; passer A starts with four clubs and a double pass as the first throw; passer B starts with three clubs and a double pass on the *second* beat. That is, passer B throws a right-hand pass when passer A throws a left-handed self.
 
-//TODO the x notation is not great, since it's just the pattern flipped, not an individual decision about one pass
+<sync style='{flipStraightCrossing: true}'>4p,o -> 34p,4p3</sync>
+
+<!-- //TODO the x notation is not great, since it's just the pattern flipped, not an individual decision about one pass
 
 dxsdxsdxsdxsdxs 
--dxsdxsdxsdxsdx
+-dxsdxsdxsdxsdx -->
 
 When learning 7-club two-count aim for consistent passes. Since both passers cannot see their passes land, provide feedback on placement and spin. Remember the spot on the ceiling where the first club peaks, and try to throw all following passes that they peak in the same place. Consistency is usually more important than the exact placement. 
 
@@ -31,47 +35,57 @@ The patterns are indeed from the same family. By default, passers in synchronous
 
 The most natural approach for 7-club two-count would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw (actually a fairly nice pattern for one passer to practice left-handed doubles):
 
-dsdsdsdsds
-sdsdsdsdsd
+<sync style='{flipStraightCrossing: false}'>4p3,34p</sync>
+
+<!-- dsdsdsdsds
+sdsdsdsdsd -->
 
 By flipping straight and crossing passes, we get a pattern with straight doubles, but where passer B starts with a left-handed self. In practice, most passers leave out that first left-handed self to start on a right-handed pass one beat later.
 
-dxsdxsdxsdxsdxs
-sdxsdxsdxsdxsdx
+<sync style='{flipStraightCrossing: true}'>4p3,34p</sync>
+<!-- dxsdxsdxsdxsdxs
+sdxsdxsdxsdxsdx -->
 
 **7-club four-count.** To explore one-sided triple passes, 7-club four-count is a common, albeit boring, pattern.
 
-rsssrsssrsssrsss
-ssrsssrsssrsssrs
+<sync>5p333,335p3</sync>
+
+
+<!-- rsssrsssrsssrsss
+ssrsssrsssrsssrs -->
 
 **6-count popcorn.** One of several one-sided popcorn patterns, named after the trelfs that pop up on alternating sides. Can also be thrown with heff-heff instead of trelf-self.
 
-dssstsdssstsdsssts
-tsdssstsdssstsdsss
+<sync style='{flipStraightCrossing: true}'>4p33353,3534p33</sync>
+<!-- dssstsdssstsdsssts
+tsdssstsdssstsdsss -->
 
 <crossreference>See 5-count popcorn with heffs ([heffs]()) or trelfs ([trelfs]()) for an ambidextrous version.</crossreference>
 
 
 **7-club pass-pass-self.** With odd-length patterns, there are no synchronous patterns where both passers throw the same sequence. The most common 7-club pass-pass-self pattern has passer A throws single-double-self and passer B throws double-self-double (pds vs dsd):
 
-pdspdspds
-dsddsddsd
+<sync>3p4p3,4p34p</sync>
+
+<!-- pdspdspds
+dsddsddsd -->
 
 Another common variation is double-self-single versus single-double-heff:
 
-dspdspdsp
-pdhpdhpdh
+<sync>4p33p,3p4p4</sync>
+<!-- dspdspdsp
+pdhpdhpdh -->
 
 As discussed above, all of these can be also passed with crossing single passes and straight double passes if one passer starts left-handed.
 
 Other variations of *7-club pass-pass-self,* often with one side being substantially harder than the other, are:
 
-* psp vs hdd
-* pph vs dds
-* pph vs dhp
-* spd vs tpp
-* pph vs tpp
-* ddz vs dts
+* 3p 3 3p vs 4 4p 4p
+* 3p 3p 4 vs 4p 4p 3
+* 3p 3p 4 vs 4p 4 3p
+* 3 3p 4p vs 5 3p 3p
+* 3p 3p 4 vs 5 3p 3p
+* 4p 4p 1 vs 4p 5 3p
 
 In the [appendix](), we list a few more patterns with triple passes.
 
@@ -80,11 +94,11 @@ In the [appendix](), we list a few more patterns with triple passes.
 
 **7-club synchronous three-counts.** For three-counts that are not [four-handed siteswaps](4c-4hsw-doubles.md), there are many possible variations that again combine two different throw sequences; none of them are common patterns:
 
-* psh vs hhp
-* phh vs dss
-* shd vs dss
-* sps vs dhh
-* sps vs tph
+* 3p 3 4 vs 4 4 3p
+* 3p 4 4 vs 4p 3 3
+* 3 4 4p vs 4p 3 3 
+* 3 3p 3 vs 4p 4 4
+* 3 3p 3 vs 5 3p 4
 
 In the [appendix](), we list a few more of these patterns.
 

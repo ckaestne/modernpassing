@@ -62,7 +62,7 @@ To find more patterns, use any siteswap generator (such as [passist.org](https:/
 
 ## Programming
 
-TODO
+**TODO**
 
 7->77772->77722
 
