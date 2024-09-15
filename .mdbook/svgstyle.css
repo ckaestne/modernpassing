@@ -1,11 +1,12 @@
 .starting-hands {
     fill: var(--fg)
 }
+
 .throw-label {
     fill: var(--fg)
 }
 
-img + em {
+img+em {
     display: block
 }
 
@@ -18,4 +19,13 @@ crossreference {
 
 video {
     display: none;
+}
+
+sync {
+    background-color: red;
+    display: block;
+}
+
+sync:before {
+    content: "TODO: "
 }
