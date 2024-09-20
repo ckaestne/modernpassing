@@ -67,7 +67,7 @@ Several diagrams are common to depict siteswaps, usually developed for solo site
 
 Moreover, there are two common ways of showing the throws in a pattern as lines: ladder diagrams and causal diagrams. In a *ladder diagram*, a line illustrates the path of an object from where it is thrown to where it is thrown again next. This is a ladder diagram for French three-count (786):
 
-<siteswap style='{"showLadderLines": true, "iterations":6, "causalLineWidth":3,"causalLineColor":"green","yDist":60,"yMargin":10}'>786</siteswap>  
+<siteswap style='{"showLines": true, "lineKind": "ladder", "iterations":6, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>786</siteswap>  
 
 In such diagram, we can observe the path that a club takes, for example, that the self in 786 is always the same club and that all heffs turn into a passes.
 
@@ -75,7 +75,7 @@ Note that a throw lands quite a bit before it gets thrown again. It lands somewh
 
 A *causal diagram* illustrates how throws cause the passer to do other actions to empty their hands, that is, they illustrate which throw triggers which other throw rather than illustrating the path of individual objects. This is the causal diagram for the same pattern French three-count (786):
 
-<siteswap style='{"showCausalLines": true, "iterations":6, "causalLineWidth":3,"causalLineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
+<siteswap style='{"showLines": true, "lineKind": "causal", "iterations":6, "lineWidth":3,"lineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
 
 We can see that we always throw a single pass to catch an incoming single pass (i.e., 7 causes 7), and we always throw a self to catch a heff (8 causes 6) and vice versa. The fact that singles cause singles in patterns of length 3 (and doubles cause doubles in patterns of length 5) is why these patterns easily fall apart when those passes are too low and fast (see [Improve your siteswap passing]()).
 
@@ -87,7 +87,7 @@ In the passing community, ladder diagrams are rarely used other than for determi
 
 This also works for less intuitive starts like the start of 972, where we can see that passer A has only one right-handed throw without an incoming club but two left-handed throws:
 
-<siteswap style='{"showLadderLines": true, "iterations":4, "causalLineWidth":3,"causalLineColor":"green","yDist":60,"yMargin":10}'>972</siteswap>  
+<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>972</siteswap>  
 
 Similarly, we can count the hand without incoming lines in causal diagram and add one club to each hand (one less if the very first action is a zip).
 
@@ -99,13 +99,13 @@ Similarly, we can count the hand without incoming lines in causal diagram and ad
 
 We usually do not consider starts where a club would need to be caught with a non-empty hand, such as the first throw of starting 972 on the 2:
 
-<siteswap style='{"showLadderLines": true, "iterations":4, "causalLineWidth":3,"causalLineColor":"green","yDist":60,"yMargin":10}'>297</siteswap>  
+<siteswap style='{"showLines": true,  "lineKind": "ladder", "iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>297</siteswap>  
 
 Beyond that, we usually prefer starts where (1) the first throw of passer A is a pass, (2) the first throw of passer B is a pass, (3) the number of starting clubs is the same in both hands or the right hand has one more club, and (4) the number of starting clubs are relatively balanced between the passers. 
 
 It is not always possible to satisfy all four preferences. For example, among the two remaining starts of 972, both violate at least one preference: Starting with the double requires juggler A to start with two clubs in the left hand (violating preference 3). Starting with the single requires juggler B to start with a non-pass, with two clubs in the right and an empty left hand (violating preferences 2 and 3). Despite not satisfying all preferences, the start with the double seems overall the better start.
 
-<siteswap style='{"showLadderLines": true, "iterations":4, "causalLineWidth":3,"causalLineColor":"green","yDist":60,"yMargin":10}'>729</siteswap>
+<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>729</siteswap>
 
 With a siteswap animator like [passist.org]() it is easy to cycle through the various starts and pick a nice one.
 
@@ -113,7 +113,7 @@ With a siteswap animator like [passist.org]() it is easy to cycle through the va
 
 Following a pass in a ladder diagram identifies its orbit, that is the sequence of throws until the club repeats the same path through the pattern. Clubs that always repeat only a single action are called magic and can be highlighted by using a club of a different color. Zaps and trelfs in siteswaps of length 5 are always magic, and so are selfs and doubles in siteswaps of length 3 and singles in siteswaps of length 7. 
 
-<siteswap style='{"showLadderLines": true, "iterations":4, "causalLineWidth":3,"causalLineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[0,5,10,15], "emphasizeCausal":[0,5,10,15]}'>56784</siteswap>
+<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[0,5,10,15], "emphasizeLines":[0,5,10,15]}'>56784</siteswap>
 
 ## Terminology
 
