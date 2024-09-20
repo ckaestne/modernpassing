@@ -99,8 +99,8 @@ export class FourHandedSiteswap {
      * A and B ([rightA, leftA], [rightB, leftB]),
      * assuming juggler 0 starts and both jugglers start right handed
      */
-    getStartingHands(): number[][] {
-        let hands = [[0, 0],[0,0]];
+    getStartingHands(): [number, number][] {
+        let hands: [number, number][] = [[0, 0],[0,0]];
 
 
         for (let idx = 0; idx < this.numberOfObjects() + this.highestThrow(); idx=idx+1) {

@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "strict": true,
-    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": false,
   },
   "lib": ["es2015"]
 }
