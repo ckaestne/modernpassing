@@ -5,6 +5,7 @@ import { createSiteswapPattern } from "./pattern-fromsiteswap.js";
 import { checkValidPattern } from "./pattern-structure.js";
 import { renderPattern } from "./renderer-svg.js";
 import fs from "node:fs";
+import { createSyncPattern } from "./pattern-fromsync.js";
 
 test("simple siteswap", async (t) => {
     const p = createSiteswapPattern(new FourHandedSiteswap("972"),{})
@@ -12,7 +13,7 @@ test("simple siteswap", async (t) => {
 })
 
 
-test("create examples file", async (t) => {
+test("create siteswap examples file", async (t) => {
 
     const patterns =["77722","972","759","45678","456789a","77a","567","786"]
 
@@ -27,7 +28,26 @@ test("create examples file", async (t) => {
     }
 
     content += "</html>"
-    fs.writeFileSync("test/test.html", content);
+    fs.writeFileSync("test/siteswaps.html", content);
+
+
+})
+
+test("create sync examples file", async (t) => {
+
+    const patterns =["3p33","4p3,34p"]
+
+    let content = "<!DOCTYPE html><html>"
+    
+    for (const p of patterns) {
+        const pattern = createSyncPattern(p,{})
+        const svg = renderPattern(pattern, {showLines:true, lineKind:"causal",showStraightCross:true,iterations:4})
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/sync.html", content);
 
 
 })

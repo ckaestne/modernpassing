@@ -45,7 +45,7 @@ export interface RendererConfig {
 }
 
 export const defaultRendererConfig: RendererConfig = {
-    xDist: 32,
+    xDist: 64,
     yDist: 40,
     xMargin: 4,
     yMargin: 4,
