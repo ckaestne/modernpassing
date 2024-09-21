@@ -17,7 +17,7 @@ psdfsdfsdfsdfsd -->
 
 The conventional setup is the following: Both passers, throw straight double passes with every right hand; passer A starts with four clubs and a double pass as the first throw; passer B starts with three clubs and a double pass on the *second* beat. That is, passer B throws a right-hand pass when passer A throws a left-handed self.
 
-<sync style='{"flipStraightCrossing": true}'>4p,o -> 34p,4p3</sync>
+<sync style='{"flipStraightCrossing": true, "iterations":3}'>4p,o -> 34p,4p3</sync>
 
 <!-- //TODO the x notation is not great, since it's just the pattern flipped, not an individual decision about one pass
 

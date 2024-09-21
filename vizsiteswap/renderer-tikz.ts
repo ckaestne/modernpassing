@@ -49,7 +49,6 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
     const annotationMargin = hasAnnotation ? annotationTextSize : 0;
 
     const maxTime = p.prefixPeriod + p.period * iterations;
-    const prefixTimeShift = p.prefixPeriod;
 
 
 
@@ -57,7 +56,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
     function xo(time: number): number {
         return xMargin +
             (showStartingHands ? startingHandsOffset : 0) +
-            throwCircleSize / 2 + (prefixTimeShift + time) * xDist;
+            throwCircleSize / 2  + time * xDist;
     }
 
     // y offset of a throw
@@ -116,7 +115,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         }
     }
 
-    const allThrows: Throw[] = p.prefixThrows.concat(repeatThrows(p, iterations))
+    const allThrows: Throw[] = p.getThrows(iterations)
 
     if (showLines || emphasizeLines.length>0) {
         const maxIdx = maxTime

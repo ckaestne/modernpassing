@@ -3,6 +3,10 @@
  * and the throws in it, but not logic for creating it or the
  * the actual rendering
  */
+export enum Hand {
+    Right, Left
+}
+
 
 export type Throw = {
     // time starts at 0 and usually increments by 1 for sync and 0.5 for async patterns; 
@@ -17,8 +21,8 @@ export type Throw = {
     toPasserIdx: number;
 
     // the index of the hand throwing and receiving
-    fromHandIdx: 0 | 1; // 0 = right, 1 = left
-    toHandIdx: 0 | 1; // 0 = right, 1 = left
+    fromHandIdx: Hand;
+    toHandIdx: Hand;
 
     // the label for the throw (e.g "3p" or "a") and a possible annotation (e.g., "X", "||")
     label: string;
@@ -33,13 +37,10 @@ export type Pattern = {
     // [right, left] clubs at the start for each passer
     startingHands: [number, number][];
 
-    // optionally, the setup throws in the beginning of the pattern that do not repeat
-    prefixPeriod: number // time length of the prefix
-    prefixThrows: Throw[]
-
     // the throws in the pattern
+    prefixPeriod: number // time length of the prefix
     period: number // time until it repeats
-    getThrows(iterationNr: number): Throw[]
+    getThrows(iteration: number): Throw[] // throw sequence, including prefix throws, for both passers, for n iterations
 
 }
 
@@ -51,14 +52,10 @@ export type Pattern = {
 export function checkValidPattern(p: Pattern): string[] {
     const r: string[] = []
     if (p.getThrows(1).length === 0) r.push(`pattern has no throws`)
-    p.getThrows(1).map((t) => r.push(...checkValidThrow(t, p)))
+    p.getThrows(3).map((t) => r.push(...checkValidThrow(t, p)))
     for (const t of p.getThrows(1)) {
         if (t.throwTime < 0) r.push(`throw ${JSON.stringify(t)} thrown before 0`)
-        if (t.throwTime >= p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
-    }
-    for (const t of p.prefixThrows) {
-        if (t.throwTime >= 0) r.push(`prefix throw ${JSON.stringify(t)} thrown at or after 0`)
-        if (t.throwTime < p.prefixPeriod) r.push(`prefix throw ${JSON.stringify(t)} before length of prefix period`)
+        if (t.throwTime >= p.prefixPeriod+ p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
     }
 
     return r

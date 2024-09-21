@@ -48,7 +48,7 @@ In siteswaps of an even length, both passers perform their own sequence. The mos
 
 All combinations of two odd-length siteswaps, discussed above, turn into even-length siteswaps. For example, the combination of *maybe* (72786) and *maybe not* (96627) turns into the siteswap **7**2**7**9**6**6**2**7**8**6, as visible in the diagram above. Since it is interleaving the *local* actions of each passer and requires finding the right start, doing this combination manually is nontrivial.
 
-More interestingly, even-length siteswaps open possibilities for combining two sequences that are *not* a valid four-handed siteswap on their own. A typical example is 777726, where the passers throw pass-pass-zip versus pass-pass-self:
+More interestingly, even-length siteswaps open possibilities for combining two sequences that are *not* a valid four-handed siteswap on their own. A typical example is 777726, where the passers throw pass-pass-zip (very good for beginners after one-counts) versus pass-pass-self:
 
 <siteswap>777726</siteswap>
 
