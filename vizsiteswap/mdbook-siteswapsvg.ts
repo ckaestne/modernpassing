@@ -8,7 +8,7 @@ import { createSiteswapPattern, SiteswapPatternConfig } from './pattern-fromsite
 import { renderPattern } from './renderer-svg.js';
 import { RendererConfig } from './renderer-config.js';
 import fs from 'fs';
-import { JSDOM } from 'jsdom';
+import { replaceSiteswapElements } from './replace-util.js';
 
 
 if (process.argv[2] === "supports") {
@@ -45,35 +45,4 @@ console.error(`mdbook-siteswapsvg processed ${nrPatterns} patterns in ${elapsedT
 
 console.log(JSON.stringify(book));
 
-
-
-export function replaceSiteswapElements(text: string, transform: (raw: string, siteswap: FourHandedSiteswap, config: any) => string): string {
-    return text.replace(/<siteswap(.*?)>(.*?)<\/siteswap>/g, (match: string, config: string, siteswap: string) => {
-        const sw = new FourHandedSiteswap(siteswap)
-        if (!sw.isValid()) {
-            console.error(`Invalid siteswap: ${siteswap}`);
-            process.exit(1);
-        }
-        let c = {}
-        if (config)
-            try {
-                const el = JSDOM.fragment(match);
-                const configStr = el.firstElementChild?.getAttribute("style");
-                if (configStr)
-                    try {
-                        c = JSON.parse(configStr);
-                    } catch (e) {
-                        console.error(`Invalid config: ${configStr}: ${e}`);
-                        process.exit(1);
-                    }
-
-            } catch (e) {
-                console.error(`Invalid html: ${match}, ${e}`);
-                process.exit(1);
-            }
-
-
-        return transform(match, sw, c)
-    });
-}
 

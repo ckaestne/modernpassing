@@ -6,7 +6,7 @@ Jim's patterns are a common variation for basic synchronous patterns that mess w
 
 **Jim's three-count.** If passer B throws crossing passes, passer A will receive their first pass to the right hand, rather than to the left. Hence, they throw their first self also from the right hand, very quickly after just having thrown a right-handed pass; their next pass is again from the right hand. Notice the hands in this diagram, the hurries are highlighted, and the passes happen in a right-right-left-left sequence. 
 
-<sync  style='{highlight: [2,9,14,21]}'>3ph33 3p33,3px33 3pxh33</sync>
+<sync  style='{"emphasizeThrows": [2,9,14,21]}'>3ph33 3p33,3px33 3pxh33</sync>
 
 
 <!-- 
@@ -22,7 +22,7 @@ Even with the hurries, both passers should throw passes and selfs at roughly the
 
 **Jim's four-count and two-count.** The same idea of crossing passes, turns the one-sided four-count and two-count patterns into ambidextrous patterns with hurries. Here is the diagram and hand sequence for Jim's two-count.
 
-<sync  style='{highlight: [2,7,10,15]}'>3ph3 3p3,3px3 3pxh3</sync>
+<sync  style='{"emphasizeThrows": [2,7,10,15]}'>3ph3 3p3,3px3 3pxh3</sync>
 
 <!-- 
 p**s**psp**s**ps
@@ -33,7 +33,7 @@ pxspx**s**pxspx**s** -->
 
 **Brainstorming (Jim's ppsps).** This pattern is a tricky milestone for many passers, that may not be physically hard but requires a lot of concentration. It is a long sequence that only repeats after 20 beats. Rather than memorizing the entire sequence, just count the pass-pass-self-pass-self sequence (aloud) and throw those regardless of which hand is next.
 
-<sync  style='{highlight: [2,7,10,15]}'>3ph3p33p3 3p3p33p3,3px3px33px3 3px3pxh33px3</sync>
+<sync  style='{"emphasizeThrows": [2,7,10,15]}'>3ph3p33p3 3p3p33p3,3px3px33px3 3px3pxh33px3</sync>
 
 
 <!-- p**p**spsppspsppspsppsps

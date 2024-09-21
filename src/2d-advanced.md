@@ -17,7 +17,7 @@ psdfsdfsdfsdfsd -->
 
 The conventional setup is the following: Both passers, throw straight double passes with every right hand; passer A starts with four clubs and a double pass as the first throw; passer B starts with three clubs and a double pass on the *second* beat. That is, passer B throws a right-hand pass when passer A throws a left-handed self.
 
-<sync style='{flipStraightCrossing: true}'>4p,o -> 34p,4p3</sync>
+<sync style='{"flipStraightCrossing": true}'>4p,o -> 34p,4p3</sync>
 
 <!-- //TODO the x notation is not great, since it's just the pattern flipped, not an individual decision about one pass
 
@@ -35,14 +35,14 @@ The patterns are indeed from the same family. By default, passers in synchronous
 
 The most natural approach for 7-club two-count would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw (actually a fairly nice pattern for one passer to practice left-handed doubles):
 
-<sync style='{flipStraightCrossing: false}'>4p3,34p</sync>
+<sync style='{"flipStraightCrossing": false}'>4p3,34p</sync>
 
 <!-- dsdsdsdsds
 sdsdsdsdsd -->
 
 By flipping straight and crossing passes, we get a pattern with straight doubles, but where passer B starts with a left-handed self. In practice, most passers leave out that first left-handed self to start on a right-handed pass one beat later.
 
-<sync style='{flipStraightCrossing: true}'>4p3,34p</sync>
+<sync style='{"flipStraightCrossing": true}'>4p3,34p</sync>
 <!-- dxsdxsdxsdxsdxs
 sdxsdxsdxsdxsdx -->
 
@@ -56,7 +56,7 @@ ssrsssrsssrsssrs -->
 
 **6-count popcorn.** One of several one-sided popcorn patterns, named after the trelfs that pop up on alternating sides. Can also be thrown with heff-heff instead of trelf-self.
 
-<sync style='{flipStraightCrossing: true}'>4p33353,3534p33</sync>
+<sync style='{"flipStraightCrossing": true}'>4p33353,3534p33</sync>
 <!-- dssstsdssstsdsssts
 tsdssstsdssstsdsss -->
 

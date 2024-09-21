@@ -18,14 +18,14 @@ In all these 6-club patterns, both passers start with two clubs in the right and
 
 **Early doubles and triples.** In all patterns (except one-count), instead of a self-pass combination, we can throw a *crossing* double pass followed by a wait (or flip) -- that is, replace any *3 3p* with *4p 2*. This works because the double is thrown one beat before the single pass would have been and is thrown to the same hand. For the receiving passer, if the double is thrown well, this should not make a difference -- the early double can be thrown to replace any single pass and does not need to be announced. It may require some practice though to get the timing and placement right.
 
-<sync style='{highlight: [10,11,12,13]}'>3p33 3p33 3p33 3p33,3p33 3p34p 2p33 3p33</sync>
+<sync style='{"emphasizeThrows": [10,11,12,13]}'>3p33 3p33 3p33 3p33,3p33 3p34p 2p33 3p33</sync>
 
 <!-- pssps**sp**sspss
 pssps**df**sspss -->
 
 The same idea also works with triple passes. Any self-self-pass combination can be replaced with a straight triple pass and two waiting beats (triple-flip-flip) -- that is replace any *3 3 3p* with *5p 2 2*.
 
-<sync style='{highlight: [8,9,10,11,12,13]}'>3p33 3p33 3p33 3p33,3p33 3p5p2 233 3p33</sync>
+<sync style='{"emphasizeThrows": [8,9,10,11,12,13]}'>3p33 3p33 3p33 3p33,3p33 3p5p2 233 3p33</sync>
 
 <!-- pssp**ssp**sspss
 pssp**rff**sspss -->
@@ -34,9 +34,9 @@ When first learning doubles and triples, focus on throwing them high and at the 
 
 **Variations on selfs.** As solo jugglers might know, every two selfs can be replaced by heff-flip (as in solo siteswap 342) and every three selfs can be replaced by trelf-self-zip or heff-heff-zip (as in solo siteswaps 531 and 441). These can be easily integrated as tricks in *three-count* and *four-count*.
 
-<sync style='{highlight: [8,9,10,11]}'>3p33 3p33 3p33,3p33 3p42 3p33</sync>
+<sync style='{"emphasizeThrows": [8,9,10,11]}'>3p33 3p33 3p33,3p33 3p42 3p33</sync>
 
-<sync style='{highlight: [10,11,12,13,14,15]}'>3p333 3p333 3p333,3p333 3p531 3p333</sync>
+<sync style='{"emphasizeThrows": [10,11,12,13,14,15]}'>3p333 3p333 3p333,3p333 3p531 3p333</sync>
 
 <!-- pssp**ss**pss
 pssp**hf**pss
