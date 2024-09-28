@@ -42,11 +42,16 @@ export interface RendererConfig {
     emphasizeLineColor: string,
     emphasizeLineWith: number,
     emphasizeLineDash: string
+
+    //show left and right hand in different rows, mostly for fully sync patterns
+    separateleftRightRows: boolean
+    yHandDist: number; // distance between left and right hand rows (if different from yDist)
 }
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
     yDist: 40,
+    yHandDist: 34,
     xMargin: 4,
     yMargin: 4,
     throwCircleSize: 40,
@@ -74,5 +79,6 @@ export const defaultRendererConfig: RendererConfig = {
     emphasizeLineColor: "red",
     emphasizeLineWith: 3,
     emphasizeLineDash: "",
-    selectLinesForThrows: undefined
+    selectLinesForThrows: undefined,
+    separateleftRightRows: false
 };

@@ -54,7 +54,7 @@ export function checkValidPattern(p: Pattern): string[] {
     if (p.getThrows(1).length === 0) r.push(`pattern has no throws`)
     p.getThrows(3).map((t) => r.push(...checkValidThrow(t, p)))
     for (const t of p.getThrows(1)) {
-        if (t.throwTime < 0) r.push(`throw ${JSON.stringify(t)} thrown before 0`)
+        if (t.throwTime < -.5) r.push(`throw ${JSON.stringify(t)} thrown before 0`)
         if (t.throwTime >= p.prefixPeriod+ p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
     }
 

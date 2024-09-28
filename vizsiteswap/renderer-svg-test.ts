@@ -104,11 +104,14 @@ test("advanced sync patterns", async (t) => {
 
 
 
-test("jims sync patterns", async (t) => {
+test("jims and galloped sync patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21] }, '3p33 3p33,3px33 3px33'],
+        [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21],xDist:80,yDist:80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],
-        [{ "emphasizeThrows": [2, 5, 8,13,14,19,22, 25, 28,33,34,39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
+        [{ showLines: true, lineKind: "ladder",xDist:80,yDist:80,"emphasizeThrows": [2, 5, 8,13,14,19,22, 25, 28,33,34,39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
+        [{"gallop": true,flipStraightCrossing:true,iterations:4},'4p,o -> 34p,4p3'],
+        [{"gallop": true,iterations:4},'5p3'],
+        [{"gallop": true,flipStraightCrossing:true,showLines:true},'6p3534p3,3534p36p'],
     ]
 
 
@@ -123,6 +126,44 @@ test("jims sync patterns", async (t) => {
 
     content += "</html>"
     fs.writeFileSync("test/sync_jims.html", content);
+
+
+})
+
+
+test("fully synchronous patterns", async (t) => {
+    const patterns: [any, string][] = [
+        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false },
+            '(4p,4x)(4x,2)(4x,4p)(2,4x),(4x,2)(4x,4px)(2,4x)(4px,4x)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:8 },
+            '(4px,4x),(4px,4x)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:4 },
+            '(4px,4x)(4x,4px),(4px,4x)(4x,4px)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:4 },
+            '(4px,4x)(4px,4x),(4px,4x)(4,4p)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:8 },
+            '(6px,4x)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showLines:true,iterations:4,lineKind:"ladder",yDist:80,yHandDist:70,xDist:80         },
+            '(6px,4px)(2,2),(6px,2)(2,4px)']      ,  
+        [{separateleftRightRows:true,showLeftRight:false,showLines:true,iterations:4,lineKind:"ladder",yDist:80,yHandDist:60,xDist:80         },
+            '(4px,6)(2,2)(6,4px)(2,2),(2,2)(4p,6)(2,2)(6,4p)']      ,  
+            // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       
+    ]
+
+
+    let content = "<!DOCTYPE html><html>"
+
+    for (const [conf, p] of patterns) {
+        const pattern = createSyncPattern(p, conf)
+        // console.log(pattern)
+        // console.log(pattern.getThrows(1))
+        const svg = renderPattern(pattern, conf)
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/sync_sync.html", content);
 
 
 })

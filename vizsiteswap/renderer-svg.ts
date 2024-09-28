@@ -4,6 +4,7 @@ import { FourHandedSiteswap } from './siteswap.js'
 import { JSDOM } from 'jsdom'; // Import the JSDOM class
 import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.js';
 import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.js';
+import { sep } from 'node:path';
 
 
 
@@ -43,9 +44,11 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         emphasizeLines,
         emphasizeLineColor,
         emphasizeLineWith,
-        emphasizeLineDash
+        emphasizeLineDash,
+        separateleftRightRows,
+        yHandDist
     } = { ...defaultRendererConfig, ...config };
-    
+
 
 
     const hasAnnotation = showStraightCross || showLeftRight;
@@ -59,20 +62,22 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     function xo(time: number): number {
         return xMargin +
             (showStartingHands ? startingHandsOffset : 0) +
-            throwCircleSize / 2  + time * xDist;
+            throwCircleSize / 2 + time * xDist;
     }
 
     // y offset of a throw
     function yo(passerIdx: number, handIdx: 0 | 1 | null): number {
         // TODO: support rendering synchronous throws with both hands
         return yMargin + (hasAnnotation ? annotationMargin : 0) + throwCircleSize / 2 +
-            (passerIdx % 2) * yDist;
+            passerIdx * yDist +
+            (separateleftRightRows && handIdx == 1 ? yHandDist : 0) + (separateleftRightRows ? passerIdx * yHandDist : 0);
     }
 
     const width = xMargin * 2 + throwCircleSize +
         (showStartingHands ? startingHandsOffset : 0) +
         (p.prefixPeriod + p.period * iterations - 1) * xDist
     const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist
+        + (separateleftRightRows ? yHandDist * 2 : 0)
 
 
     // returns a window with a document and an svg root node
@@ -89,6 +94,9 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     const ladderOffset = lineKind === "ladder" ? 4 : 0
     function causalLine(svg: Svg, t: Throw) {
+        //no lines for 0s
+        if (t.throwTime === t.rethrowTime) return
+
         const startTime = t.throwTime
         const endTime = lineKind === "ladder" ? t.rethrowTime : t.causeTime
         const bendAdjustment = lineKind === "ladder" ? .6 : 1
@@ -116,7 +124,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             const dir = lineBendOrientation[t.fromPasserIdx];
             const xDiff = xo(endTime) - xo(startTime)
             //backward arrows are straight, the rest follows some heuristic
-            const bendOffset = xDiff<=0 ? 0 : yDist / 5.5 * xDiff/xDist * bendAdjustment
+            const bendOffset = xDiff <= 0 ? 0 : yDist / 5.5 * xDiff / xDist * bendAdjustment
 
             svg.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHandIdx)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHandIdx) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHandIdx) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHandIdx)}`).
                 stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
@@ -125,10 +133,10 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     const allThrows: Throw[] = p.getThrows(iterations)
 
-    if (showLines || emphasizeLines.length>0) {
+    if (showLines || emphasizeLines.length > 0) {
         const maxIdx = maxTime
         for (let idx = 0; idx < allThrows.length; idx++)
-            if (showLines&&(selectLinesForThrows === undefined || selectLinesForThrows.includes(idx)) || emphasizeLines.includes(idx))
+            if (showLines && (selectLinesForThrows === undefined || selectLinesForThrows.includes(idx)) || emphasizeLines.includes(idx))
                 causalLine(svg, allThrows[idx])
     }
 
@@ -171,15 +179,24 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     if (showStartingHands) {
         const hands = p.startingHands
-        for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
-            let startingHands = hands[passerIdx]
-            svg.text("").plain(startingHands.join("|")).
-                amove(xMargin + startingHandsOffset / 2, yo(passerIdx, null)).
-                addClass("starting-hands").
-                font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
+        if (!separateleftRightRows) {
+            for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
+                let startingHands = hands[passerIdx]
+                svg.text("").plain(startingHands.join("|")).
+                    amove(xMargin + startingHandsOffset / 2, yo(passerIdx, null)).
+                    addClass("starting-hands").
+                    font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
+            }
+        } else {
+            for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++)
+                for (let handIdx of [0,1]) {
+                    let startingHand = hands[passerIdx][handIdx]
+                    svg.text("").plain((handIdx===0?"R: ":"L: ")+startingHand).
+                        amove(xMargin + startingHandsOffset / 2, yo(passerIdx, handIdx as 0|1)).
+                        addClass("starting-hands").
+                        font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })            }
         }
-    }
 
-    return svg
-}
+        return svg
+    }
 

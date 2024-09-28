@@ -1,5 +1,5 @@
 import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { Hand, Pattern, Throw } from "./pattern-structure";
+import { Hand, Pattern, Throw } from "./pattern-structure.js";
 import assert from "node:assert";
 import { start } from "node:repl";
 
@@ -42,7 +42,7 @@ Multiplex = "(" SimplePattern ("," SimplePattern)* ")"
 SimplePattern = Throw+
  */
 
-type TThrow = string | [string, string] // single throw or multiplex
+type TThrow = string | [string, string] // single throw or sync throw with both hands
 type TSequence = TThrow[] // one passer's sequence of throws
 type TPattern = TSequence[] // a sequence for each passer
 
@@ -130,8 +130,8 @@ export function parseSyncPattern(expr: string): [TPattern, TPattern] {
 // const crossingThrows
 const straightPasses = ["1p", "2px", "3p", "4px", "5p", "6px", "7p", "8px", "9p"]
 const crossingPasses = ["1px", "2p", "3px", "4p", "5px", "6p", "7px", "8p", "9px"]
-const straightSelfs = ["1x","2","3x","4","5x","6","7x","8","9x"] // R to R or L to L (even if it's the other person's hand)
-const crossingSelfs = ["1","2x","3","4x","5","6x","7","8x","9"] // R to L or L to R
+const straightSelfs = ["1x", "2", "3x", "4", "5x", "6", "7x", "8", "9x"] // R to R or L to L (even if it's the other person's hand)
+const crossingSelfs = ["1", "2x", "3", "4x", "5", "6x", "7", "8x", "9"] // R to L or L to R
 
 
 export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>): Pattern {
@@ -153,55 +153,68 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
     const crossingPass = flipStraightCrossing ? straightPasses : crossingPasses
     const toSameHandThrows = straightSelfs.concat(crossingPass)
 
+    function gallopOffset(time: number, hand: Hand): number {
+        if (!gallop) return time
+        const offset = 0.1
+        return hand === Hand.Right ? time + offset : time - offset
+    }
+
+    let allSync: Boolean | undefined = undefined
+
+    function genThrows(iterations: number): Throw[] {
+        const throws: Throw[] = [];
+        const handSequence: (0 | 1)[][] = altHands([startingHands[0], (startingHands[1] + (flipStraightCrossing ? 1 : 0)) % 2], prefixLength + iterations * sequenceLength + 9);
 
 
-    function genThrows(iterations: number): [Throw, boolean][] {
-        const throws: [Throw, boolean][] = [];
-        const handSequence: (0 | 1)[][] = altHands([startingHands[0], (startingHands[1] + (flipStraightCrossing ? 1 : 0)) % 2], prefixLength + iterations * sequenceLength+9);
+
+        function genThrow(throwToken: string, time: number, passerIdx: number, fromHandIdx: Hand, timeFactor: number = 1): Throw {
+            const [value, isPass, isCrossing] = parseThrow(throwToken)
+            const causeTime = time + (value - 2)*timeFactor;
+            const rethrowTime = time + value*timeFactor;
+            const toPasserIdx = isPass ? (passerIdx + 1) % 2 : passerIdx;
+            const toHand: Hand = toSameHandThrows.includes(throwToken) ? fromHandIdx : (fromHandIdx + 1) % 2
+            //updates to handsequence do not matter in sync throws, but also
+            const expectedToHandIdx: Hand = handSequence[toPasserIdx][causeTime];
+            if (toHand !== expectedToHandIdx) {
+                //found hurry, swapping handsequence at caused time
+                swapHands(handSequence, toPasserIdx, causeTime)
+                // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
+            }
+            let annotation = isPass ? (fromHandIdx===toHand ? "X" : "||") : ""
+            return { 
+                throwTime: gallopOffset(time, fromHandIdx),
+                fromPasserIdx: passerIdx,
+                fromHandIdx,
+                causeTime: gallopOffset(causeTime, toHand),
+                rethrowTime: gallopOffset(rethrowTime, toHand),
+                toPasserIdx,
+                toHandIdx: toHand,
+                label: throwToken,
+                annotation
+            }
+        }
+
 
         for (let time = 0; time < prefixLength + iterations * sequenceLength; time++)
             for (const passerIdx of [0, 1]) {
                 const t = time < prefixLength ? prefix[passerIdx][time] :
                     pattern[passerIdx][(time - prefixLength) % sequenceLength];
                 if (typeof t === "string" && t !== "o") {
-                    const [value, isPass, isCrossing] = parseThrow(t)
-                    const causeTime = time + value - 2;
-                    const rethrowTime = time + value;
-                    const toPasserIdx = isPass ? (passerIdx + 1) % 2 : passerIdx;
+                    //single throw and we keep track of which hand it comes from
+                    assert(allSync === undefined || allSync === false, "found single throw after sync throws")
+                    allSync = false
                     const fromHandIdx: Hand = handSequence[passerIdx][time];
-                    const toHand: Hand = toSameHandThrows.includes(t) ? fromHandIdx : (fromHandIdx + 1) % 2
-                    const expectedToHandIdx: Hand = handSequence[toPasserIdx][causeTime];
-                    let annotation = isPass ? (crossingPass.includes(t) ? "X" : "||") : ""
-                    if (toHand !== expectedToHandIdx) {
-                        //found hurry, swapping handsequence at caused time
-                        swapHands(handSequence, toPasserIdx, causeTime)
-                        // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
-                        annotation+="H"
-                    }
-                    throws.push([{
-                        throwTime: time,
-                        causeTime,
-                        rethrowTime,
-                        fromPasserIdx: passerIdx,
-                        toPasserIdx,
-                        fromHandIdx,
-                        toHandIdx:toHand,
-                        label: t,
-                        annotation
-                    }, true])
-                } else if (t === "o") {
-                    //push fake throw, that is only needed for starting hands computation, but ignored filtered out otherwise
-                    throws.push([{
-                        throwTime: time,
-                        causeTime: time,
-                        rethrowTime: time,
-                        fromPasserIdx: passerIdx,
-                        toPasserIdx: passerIdx,
-                        fromHandIdx: handSequence[passerIdx][time],
-                        toHandIdx: handSequence[passerIdx][time],
-                        label: "o",
-                        annotation: ""
-                    }, false])
+                    throws.push(genThrow(t, time, passerIdx, fromHandIdx))
+                } else if (typeof t !== "string" && t.length === 2) {                    
+                    //two throws at the same time, and we know which hand each comes from
+                    assert(allSync === undefined || allSync === true, "found sync throw after single throws")
+                    allSync = true
+                    const [tRight, tLeft] = t
+                    throws.push(genThrow(tRight, time, passerIdx, Hand.Right,0.5))
+                    throws.push(genThrow(tLeft, time, passerIdx, Hand.Left,0.5))
+                } else {
+                    if (t !== "o")
+                        throw Error("unexpected throw " + t)
                 }
             }
         return throws
@@ -210,12 +223,10 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
 
     return {
         passerNames: ["A", "B"],
-        startingHands: getStartingHands(genThrows(2).map(v => v[0]), prefixLength + sequenceLength * 2),
+        startingHands: getStartingHands(genThrows(2), prefixLength + sequenceLength * 2,allSync===true),
         prefixPeriod: prefixLength,
         period: sequenceLength,
-        getThrows(n: number) {
-            return genThrows(n).filter(v => v[1]).map(v => v[0])
-        }
+        getThrows: genThrows
     }
 }
 
@@ -242,33 +253,48 @@ function parseThrow(t: string): [number, boolean, boolean] {
     return [value, isPass, isCrossing]
 }
 
-function getStartingHands(throws: Throw[], beats: number): [number, number][] {
+function getStartingHands(throws: Throw[], beats: number, allSync:boolean): [number, number][] {
     // console.log(throws)
-    const starts: number[][] = [Array(beats).fill(1), Array(beats).fill(1)];
-    const handOrder: (Hand | undefined)[][] = [Array(beats).fill(undefined), Array(beats).fill(undefined)];
+
+    // (time, passer, hand) combinations when a throw happens
+    // collect all throws
+    const throwingHands: [number, number, Hand][] = []
     for (const t of throws) {
-        assert(handOrder[t.fromPasserIdx][t.throwTime] === undefined, `two or more throws from the same passer on the same beat ${t.rethrowTime} not yet supported`)
-        handOrder[t.fromPasserIdx][t.throwTime] = t.fromHandIdx
-        if (t.rethrowTime < beats) {
-            assert(starts[t.toPasserIdx][t.rethrowTime] === 1, `two or more throws landing on the same beat ${t.rethrowTime}, ${starts}`)
-            starts[t.toPasserIdx][t.rethrowTime] = 0
-        }
+        const v: [number, number, Hand] = [t.throwTime, t.fromPasserIdx, t.fromHandIdx]    
+        assert(throwingHands.find(x => v[0] === x[0] && v[1] === x[1] && v[2] === x[2]) === undefined,
+            `two or more throws from the same passer ${t.fromPasserIdx} and the same hand ${t.fromHandIdx} on the same beat ${t.rethrowTime} not supported`)
+        throwingHands.push(v)
     }
 
-    assert(handOrder[0].filter(v => v === undefined).length === 0, `missing throws from passer A ${handOrder[0]}`)
-    assert(handOrder[1].filter(v => v === undefined).length === 0, `missing throws from passer B ${handOrder[1]}`)
 
+    // remove throws that are received
+    for (const t of throws) {
+        const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHandIdx]    
+        //for only for all-sync patterns we actually check the hands (otherwise hurrys won't work)
+        const tIdx = throwingHands.findIndex(x => v[0] === x[0] && v[1] === x[1] && (!allSync||v[2] === x[2])) 
+        if (tIdx>=0)
+            throwingHands.splice(tIdx, 1)
+    }
+
+    // // check that no more than one throw is received by the same hand on the same beat
+    // const receivingHands: [number, number, Hand][] = []
+    // for (const t of throws) {
+    //     const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHandIdx]    
+    //     assert(receivingHands.find(x => v[0] === x[0] && v[1] === x[1] && v[2] === x[2]) === undefined,
+    //         `two or more throws arriving to the same passer ${t.fromPasserIdx} and the same hand ${t.fromHandIdx} on the same beat ${t.rethrowTime}`)
+    //     receivingHands.push(v)
+    // }
+
+    // console.log(throwingHands)
     const result: [number, number][] = [[0, 0], [0, 0]]
-    for (let i = 0; i < beats; i++) {
-        for (let passerIdx = 0; passerIdx < 2; passerIdx++) {
-            result[passerIdx][handOrder[passerIdx][i]!] += starts[passerIdx][i]
-        }
+    for (const [time, passer, hand] of throwingHands) {
+        result[passer][hand] += 1
     }
     return result
 }
 
 function swapHands(handSequence: Hand[][], toPasserIdx: number, causeTime: number) {
-    const seq=handSequence[toPasserIdx]
+    const seq = handSequence[toPasserIdx]
     for (let i = causeTime; i < seq.length; i++) {
         seq[i] = (seq[i] + 1) % 2
     }

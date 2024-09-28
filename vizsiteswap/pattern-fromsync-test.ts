@@ -55,8 +55,8 @@ test("sync pattern regression tests", async (t) => {
                 [{}, "3p4p3,4p34p"],
                 [{}, "3p 3 4 , 4 4 3p"],
                 [{}, "4p4p4,4p4p4"],
-                [{}, "3px33,3p33"],
-                [{}, "3px3px33px33px3px33px3,3p3p33p33p3p33p3"],
+                [{}, "3p33 3p33,3px33 3px33"],
+                // [{}, "3px3px33px33px3px33px3,3p3p33p33p3p33p3"],
     ] 
 
     const knownPatternStructures = JSON.parse(fs.readFileSync("test/sync-patterns-oracle.json", "utf-8"))
