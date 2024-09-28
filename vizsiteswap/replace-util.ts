@@ -1,17 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { FourHandedSiteswap } from './siteswap.js';
 
-export function replaceSiteswapElements(text: string, transform: (raw: string, siteswap: FourHandedSiteswap, config: any) => string): string {
-    return replaceElement("siteswap", text, (match, inner, config) => {
-        const sw = new FourHandedSiteswap(inner)
-        if (!sw.isValid()) {
-            console.error(`Invalid siteswap: ${inner}`);
-            process.exit(1);
-        }
-        return transform(match, sw, config)
-    })
-}
-
 
 export function replaceElement( elementName:string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any) => string): string {
     const re = new RegExp(`<${elementName}(.*?)>(.*?)</${elementName}>`, "g");

@@ -8,7 +8,8 @@ import { createSiteswapPattern, SiteswapPatternConfig } from './pattern-fromsite
 import { renderPattern } from './renderer-svg.js';
 import { RendererConfig } from './renderer-config.js';
 import fs from 'fs';
-import { replaceSiteswapElements } from './replace-util.js';
+import { replaceElement } from './replace-util.js';
+import { createSyncPattern } from './pattern-fromsync.js';
 
 
 if (process.argv[2] === "supports") {
@@ -17,7 +18,7 @@ if (process.argv[2] === "supports") {
 
 const file = fs.readFileSync(0, 'utf-8');
 
-// fs.writeFileSync("tmp/mdbook.json", file);
+// fs.writeFileSync("tmp_mdbook.json", file);
 
 
 const [_, book] = JSON.parse(file);
@@ -25,12 +26,23 @@ const [_, book] = JSON.parse(file);
 
 
 const startTime = Date.now();
-let nrPatterns =0
+let nrPatterns =[0,0]
 for (const sec of book.sections) {
     if (sec.Chapter && sec.Chapter.content) {
-        sec.Chapter.content = replaceSiteswapElements(sec.Chapter.content, (match, sw, config) => {
-            nrPatterns++
+        sec.Chapter.content = replaceElement("siteswap",sec.Chapter.content, (match, inner, config) => {
+            nrPatterns[0]++
+            const sw = new FourHandedSiteswap(inner)
+            if (!sw.isValid()) {
+                console.error(`Invalid siteswap: ${inner}`);
+                process.exit(1);
+            }   
             const pattern = createSiteswapPattern(sw, config);
+            const svg = renderPattern(pattern, config);
+            return svg.svg();
+        });
+        sec.Chapter.content = replaceElement("sync", sec.Chapter.content, (match, p, config) => {
+            nrPatterns[1]++
+            const pattern = createSyncPattern(p, config)
             const svg = renderPattern(pattern, config);
             return svg.svg();
         });
@@ -39,10 +51,11 @@ for (const sec of book.sections) {
 
 const endTime = Date.now();
 const elapsedTime = endTime - startTime;
-console.error(`mdbook-siteswapsvg processed ${nrPatterns} patterns in ${elapsedTime} milliseconds`);
+console.error(`mdbook-siteswapsvg processed ${nrPatterns[1]} sync patterns and ${nrPatterns[0]} siteswap patterns in ${elapsedTime} milliseconds`);
 
 
 
 console.log(JSON.stringify(book));
+
 
 
