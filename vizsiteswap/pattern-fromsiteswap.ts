@@ -33,7 +33,7 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
         getThrows(iterationNr: number): Throw[] {
             if (iterationNr < 1) throw new Error("iterationNr must be >= 1");
             const ts: Throw[] = [];
-            for (let idx = (iterationNr-1)*sw.length(); idx < iterationNr* sw.length(); idx++) {
+            for (let idx = 0; idx < iterationNr* sw.length(); idx++) {
                 const passerIdx = (idx + startingJuggler) % 2;
         
                 const t: Throw = {

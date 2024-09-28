@@ -22,6 +22,7 @@ test("create siteswap examples file", async (t) => {
     for (const p of patterns) {
         const pattern = createSiteswapPattern(new FourHandedSiteswap(p), {})
         const errors = checkValidPattern(pattern)
+        // console.log(JSON.stringify(pattern.getThrows(2)))
         const svg = renderPattern(pattern, { showLines: true, lineKind: "ladder", showStraightCross: false, iterations: 4, yMargin: 30 })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p><br/>${errors}`
@@ -111,7 +112,7 @@ test("jims and galloped sync patterns", async (t) => {
         [{ showLines: true, lineKind: "ladder",xDist:80,yDist:80,"emphasizeThrows": [2, 5, 8,13,14,19,22, 25, 28,33,34,39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
         [{"gallop": true,flipStraightCrossing:true,iterations:4},'4p,o -> 34p,4p3'],
         [{"gallop": true,iterations:4},'5p3'],
-        [{"gallop": true,flipStraightCrossing:true,showLines:true},'6p3534p3,3534p36p'],
+        [{"gallop": true,flipStraightCrossing:true,showLines:true,xDist:80,yDist:80,lineKind:"ladder"},'6p3534p3,34p36p35'],
     ]
 
 

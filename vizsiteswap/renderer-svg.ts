@@ -73,9 +73,9 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             (separateleftRightRows && handIdx == 1 ? yHandDist : 0) + (separateleftRightRows ? passerIdx * yHandDist : 0);
     }
 
-    const width = xMargin * 2 + throwCircleSize +
+    const width = xMargin * 2 + throwCircleSize/2 +
         (showStartingHands ? startingHandsOffset : 0) +
-        (p.prefixPeriod + p.period * iterations - 1) * xDist
+        (p.prefixPeriod + p.period * iterations) * xDist
     const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist
         + (separateleftRightRows ? yHandDist * 2 : 0)
 
@@ -88,7 +88,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     registerWindow(window, document)
     // @ts-ignore
     const svg: Svg = SVG(document.documentElement)
-    svg.size(width, height)
+    svg.size(width, height).viewbox(0,0,width,height)
     // svg.rect("100%", "100%").fill("white").stroke("black")
 
 
@@ -189,14 +189,14 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             }
         } else {
             for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++)
-                for (let handIdx of [0,1]) {
+                for (let handIdx of [0, 1]) {
                     let startingHand = hands[passerIdx][handIdx]
-                    svg.text("").plain((handIdx===0?"R: ":"L: ")+startingHand).
-                        amove(xMargin + startingHandsOffset / 2, yo(passerIdx, handIdx as 0|1)).
+                    svg.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
+                        amove(xMargin + startingHandsOffset / 2, yo(passerIdx, handIdx as 0 | 1)).
                         addClass("starting-hands").
-                        font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })            }
+                        font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
+                }
         }
-
-        return svg
     }
-
+    return svg
+}
