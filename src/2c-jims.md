@@ -33,7 +33,7 @@ pxspx**s**pxspx**s** -->
 
 **Brainstorming (Jim's ppsps).** This pattern is a tricky milestone for many passers, that may not be physically hard but requires a lot of concentration. It is a long sequence that only repeats after 20 beats. Rather than memorizing the entire sequence, just count the pass-pass-self-pass-self sequence (aloud) and throw those regardless of which hand is next.
 
-<sync  style='{"emphasizeThrows": [2,7,10,15]}'>3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3</sync>
+<sync  style='{"emphasizeThrows": [2, 5, 8,13,14,19,22, 25, 28,33,34,39]}'>3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3</sync>
 
 
 <!-- p**p**spsppspsppspsppsps

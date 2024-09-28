@@ -35,14 +35,14 @@ The patterns are indeed from the same family. By default, passers in synchronous
 
 The most natural approach for 7-club two-count would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw (actually a fairly nice pattern for one passer to practice left-handed doubles):
 
-<sync style='{"flipStraightCrossing": false}'>4p3,34p</sync>
+<sync style='{"flipStraightCrossing": false, "iterations":4}'>4p3,34p</sync>
 
 <!-- dsdsdsdsds
 sdsdsdsdsd -->
 
 By flipping straight and crossing passes, we get a pattern with straight doubles, but where passer B starts with a left-handed self. In practice, most passers leave out that first left-handed self to start on a right-handed pass one beat later.
 
-<sync style='{"flipStraightCrossing": true}'>4p3,34p</sync>
+<sync style='{"flipStraightCrossing": true, "iterations":4}'>4p3,34p</sync>
 <!-- dxsdxsdxsdxsdxs
 sdxsdxsdxsdxsdx -->
 
