@@ -4,14 +4,14 @@
 
 # Getting Started
 
-- [Learning to Pass / Teaching to Pass](./1-learn-teach.md) 
+- [Learning to pass / teaching to pass](./1-learn-teach.md) 
 
 # Synchronous Passing Patterns
 
-- [Introdction & Notation](./2a-intro-notation.md)
+- [Introduction & notation](./2a-intro-notation.md)
 - [Basic patterns](./2b-basic-sync.md)
 - [Jim's pattern](./2c-jims.md)
-- [Advanced patterns](./2d-advanced.md)
+- [7-club and 8-club patterns](./2d-advanced.md)
 - [Beyond classic patterns](2e-beyond.md)
 - [Tedious patterns](./2e-tedious.md)
 - [Improve your passing](./2f-improve.md) 
@@ -19,7 +19,7 @@
 
 # Four-Handed Siteswaps
 
-- [Introduction & Notation](./4a-4hsw-notation.md)
+- [Introduction & notation](./4a-4hsw-notation.md)
 - [Beginner patterns](./4b-4hsw-beginner.md)
 - [Doubles](./4c-4hsw-doubles.md)
 - [Heffs](./4d-4hsw-heffs.md)

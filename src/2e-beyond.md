@@ -2,7 +2,18 @@
 
 Prerequisite: [Advanced synchronous patterns](https://en.wikipedia.org/wiki/Siteswap#Synchronous) | Next: [Four-handed siteswaps](https://en.wikipedia.org/wiki/Siteswap#Synchronous)
 
-There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the timing or hand order.
+There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md):
+
+| Symbol | Description     |
+| ------ | ---- |
+| 4x | Lofty single-spin self |
+| 4p | Lofty single-spin crossing pass |
+| 4px | Lofty single-spin straight pass |
+| 5 | Double-spin self |
+| 5p | Lofty double-spin straight pass |
+| 6 | Heff: A double-spun self to the same hand |
+| 6p | Triple-spin straight crossing pass in galloped patterns, double-spin in fully sync patterns |
+
 
 ## Gallops
 
@@ -10,7 +21,9 @@ For a number of one-sided patters it is common to juggle them lower than standar
 
 **7-club two-count on singles, 8-club two-count on doubles, and 9-club two-count on triples.** The most common galloped patterns are to throw 7-club two-count with lofty singles instead of doubles, followed quickly by a fast self from the left hand, and to throw 8-club two-count on doubles (instead of the triple needed for a non-galloped pattern). 
 
-<sync style='{"gallop": true, "flipStraightCrossing":true,"iterations":4}'>4p,o -> 34p,4p3</sync>
+<sync style='{"gallop": true, "iterations":4}'>4p,o -> 34p,4p3</sync>
+
+As explained for [7-club two-count on doubles](2d-advanced.md), it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands
 
 <sync style='{"gallop": true, "iterations":4}'>5p3</sync>
 
@@ -75,7 +88,8 @@ This is also compatible against various scratch your hand patterns (see below). 
 
 **Scratch your head.** Throw a single pass and a heff at the same time; one passer is crossing (this can technically be seen as a siteswap transformation in techno, replacing self-self with heff-flip, though the flip is usually just held). While technically all synchronous, the actions of both jugglers alternate since they only hold a club on the off beat and only throw every other beat.
 
-<sync style='{"separateleftRightRows":true,"showLeftRight":false,"showStraightCross":false,"iterations":4,"yDist":50,"throwTextSize": 22}'>(3px,4)(2,0),(2,0)(4,3p)</sync>
+<sync style='{"separateleftRightRows":true,"showLeftRight":false,"showStraightCross":false,"iterations":2,"yDist":50,"throwTextSize": 22}'>(4px,6)(2,2)(6,4px)(2,2),(2,2)(4p,6)(2,2)(6,4p)</sync>
+
 
 <video>https://www.juggle.org/tricks-in-three-count-causal-diagrams/</video>
 
