@@ -2,28 +2,27 @@
 
 Prerequisite: [Advanced synchronous patterns](https://en.wikipedia.org/wiki/Siteswap#Synchronous) | Next: [Four-handed siteswaps](https://en.wikipedia.org/wiki/Siteswap#Synchronous)
 
-There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md):
+There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md). We use a asterisk to note these throws are lower than they should be if they were juggled as traditional synchronous patterns:
 
-| Symbol | Description     |
-| ------ | ---- |
-| 4x | Lofty single-spin self |
-| 4p | Lofty single-spin crossing pass |
-| 4px | Lofty single-spin straight pass |
-| 5 | Double-spin self |
-| 5p | Lofty double-spin straight pass |
-| 6 | Heff: A double-spun self to the same hand |
-| 6p | Triple-spin straight crossing pass in galloped patterns, double-spin in fully sync patterns |
+| Symbol | Description     | Solo-siteswap equivalent without fudging the timing |
+| ------ | ---- | ---- |
+| l* | Heffling: Single-spin self to the same hand, like a single-spun heff or a lofty flip (instead of a heff) | 4 |
+| s* | Lofty single-spin self | 4x |
+| p* | Lofty single-spin pass (instead of a double pass)| 4p |
+| h* | Heff: Double-spin self to the same hand | 6| 
+| d* | Double-spin pass (instead of a triple pass) |5p in gallop, 6p in all sync|
+| r* | Triple-spin pass (instead of a quad pass) | 6p in gallop |
 
 
 ## Gallops
 
 For a number of one-sided patters it is common to juggle them lower than standard timing would require, but to fudge the timing by *galloping* the pattern, that is throwing a fast left-hand self quickly after the right-hand.
 
-**7-club two-count on singles, 8-club two-count on doubles, and 9-club two-count on triples.** The most common galloped patterns are to throw 7-club two-count with lofty singles instead of doubles, followed quickly by a fast self from the left hand, and to throw 8-club two-count on doubles (instead of the triple needed for a non-galloped pattern). 
+**7-club two-count on singles and 8-club two-count on doubles.** The most common galloped patterns are to throw 7-club two-count with lofty singles instead of doubles, followed quickly by a fast self from the left hand, and to throw 8-club two-count on doubles (instead of the triple needed for a non-galloped pattern). 
 
-<sync style='{"gallop": true, "iterations":4}'>4p,o -> 34p,4p3</sync>
+<sync style='{"gallop": true, "iterations":4,"flipStraightCrossing":true}'>4p,o -> 34p,4p3</sync>
 
-As explained for [7-club two-count on doubles](2d-advanced.md), it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands
+(Technically, we fudge the timing and throw lofty singles instead of doubles. By default, we would expect crossing passes, but just as in [7-club two-count on doubles](2d-advanced.md) it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands.)
 
 <sync style='{"gallop": true, "iterations":4}'>5p3</sync>
 

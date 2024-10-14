@@ -7,12 +7,14 @@ import { start } from "node:repl";
 export const defaultSyncPatternConfig: SyncPatternConfig = {
     startingHands: [0, 0],
     flipStraightCrossing: false,
-    gallop: false
+    gallop: false,
+    useSimpleLabels: true
 }
 export type SyncPatternConfig = {
     startingHands: number[], // one number per passer, 0 for right hand, 1 for left hand
     flipStraightCrossing: boolean,
-    gallop: boolean
+    gallop: boolean,
+    useSimpleLabels: boolean // use s and p instead of 3 and 3p, etc.
 }
 
 
@@ -138,7 +140,8 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
     const {
         flipStraightCrossing,
         gallop,
-        startingHands
+        startingHands,
+        useSimpleLabels
     } = { ...defaultSyncPatternConfig, ...config }
 
     const [prefix, pattern] = parseSyncPattern(sw)
@@ -181,6 +184,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
                 // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
             }
             let annotation = isPass ? (fromHandIdx===toHand ? "X" : "||") : ""
+            let label = useSimpleLabels ? convertToLabel(throwToken, gallop, allSync!) : throwToken
             return { 
                 throwTime: gallopOffset(time, fromHandIdx),
                 fromPasserIdx: passerIdx,
@@ -189,7 +193,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
                 rethrowTime: gallopOffset(rethrowTime, toHand),
                 toPasserIdx,
                 toHandIdx: toHand,
-                label: throwToken,
+                label: label,
                 annotation
             }
         }
@@ -299,3 +303,41 @@ function swapHands(handSequence: Hand[][], toPasserIdx: number, causeTime: numbe
         seq[i] = (seq[i] + 1) % 2
     }
 }
+function convertToLabel(throwToken: string, gallop: boolean, allSync: Boolean): string {
+    if (gallop) switch (throwToken) {
+        case "4x": return "s*"
+        case "4p": return "p*"
+        case "4px": return "p*"
+        case "5p": return "d*"
+        case "5px": return "d*"
+        case "6p": return "r*"
+        case "6px": return "r*"
+    }
+    if (allSync) switch (throwToken) {
+        case "2": return ""
+        case "4": return "l*"
+        case "4x": return "s*"
+        case "4p": return "p*"
+        case "4px": return "p*"
+        case "5p": return "d*"
+        case "5px": return "d*"
+        case "6": return "h*"
+        case "6p": return "d*"
+        case "6px": return "d*"
+    }
+    switch (throwToken) {
+        case "1": return "z"
+        case "2": return "f"
+        case "3": return "s"
+        case "4": return "h"
+        case "5": return "t"
+        case "3p": return "p"
+        case "3px": return "p"
+        case "4p": return "d"
+        case "4px": return "d"
+        case "5p": return "r"
+        case "5px": return "r"
+    }
+    throw Error("unknown throw " + throwToken)
+}
+

@@ -1,6 +1,6 @@
-# Jim's Patterns (sync)
+# Jim's patterns (sync)
 
-Prerequisite: [Basic Synchronous Passing Patterns]() | Next: [Four-handed siteswaps]() or [advanced synchronous patterns]().
+Prerequisite: [Basic Synchronous Passing Patterns](2b-basic-sync.md) | Next: [Four-handed siteswaps](6b-notation.md) or [7-club and 8-club synchronous patterns](2d-advanced.md).
 
 Jim's patterns are a common variation for basic synchronous patterns that mess with the timing and the hand sequence. They turn one-sided patterns into ambidextrous patterns. The basic idea is that one passer will throw crossing passes, while the other passer keeps throwing straight passes. As a consequence passers will sometimes receive an incoming pass to a hand that they do not expect, but they fix it by quickly making the next throw from that wrong hand instead. This forced, quick action from the same hand is known as a *hurry*.
 

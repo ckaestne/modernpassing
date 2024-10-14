@@ -10,23 +10,18 @@ Learning a specialized notation can make reading and understanding different pat
 
 We use the following symbols for different throws:
 
-| Symbol | Description     |
-| ------ | ---- |
-| 0 | Empty hand |
-| 1 | Zip / hand-across: Directly handing a club from one hand to the other without throwing it |
-| 2 | Flip / hold: Holding a club in a hand without throwing it or flipping it quickly |
-| 3 | Self as in a normal cascade |
-| 3p | Single-spin straight pass  |
-| 3px | Single-spin crossing pass  |
-| 3x | Heffling: A self to the same hand, like a single-spun heff or a lofty flip |
-| 4 | Heff: A double-spun self to the same hand, as in a four-club solo fountain |
-| 4x | Crossing double self, like a heff but changing hands |
-| 4p | Double-spin crossing pass |
-| 4px | Double-spin straight pass |
-| 5 | Trelf: triple-self to the other hand |
-| 5p | Triple-spin straight pass |
+| Symbol | Description     | Solo-siteswap equivalent |
+| ------ | ---- | ---- |
+| z | Zip / hand-across: Directly handing a club from one hand to the other without throwing it | 1 |
+| f | Flip / hold: Holding a club in a hand without throwing it or flipping it quickly | 2 |
+| s | Self as in a normal cascade | 3 |
+| p | Single-spin straight pass, usually straight  | 3p |
+| h | Heff: A double-spun self to the same hand, as in a four-club solo fountain | 4 |
+| d | Double-spin crossing pass, usually crossing | 4p |
+| t | Trelf: triple-self to the other hand | 5 |
+| tp | Triple-spin straight pass | 5p |
 
-A pattern where both passers make the same throws at the same time can now be written as a sequence of throws, such as "3p 3 3" or just "3p33" for *6-club three-count* where both passers throw a single pass on every third beat. This can also be visualized as follows:
+A pattern where both passers make the same throws at the same time can now be written as a sequence of throws, such as "p s s" or just "pss" for *6-club three-count* where both passers throw a single pass on every third beat. This can also be visualized as follows:
 
 <sync>3p33</sync>
 
