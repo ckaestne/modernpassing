@@ -22,7 +22,7 @@ Importantly, it does not matter when clubs are thrown, but when they land, since
 
 Note that *ppxxx*, *xppxx*, *xxppx* and so forth are all the same interface, simply by shifting where to start each siteswap.
 
-Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper -- or simply look it up in a table like in the [appendix](). Many standard siteswap transformations preserve the interface, as we will discuss in [siteswap theory](). Also figuring out how to start is not always obvious and may require some trial and error or scribbling of causal diagrams.
+Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper -- or simply look it up in a table like in the [appendix](). Many standard siteswap transformations preserve the interface, as we will discuss in [siteswap theory](4l-4hsw-theory.md). Also figuring out how to start is not always obvious and may require some trial and error or scribbling of causal diagrams. **[TODO: better approach to explaining starts in appendix]**
 
 ## Compatible Common Patterns
 
@@ -60,7 +60,7 @@ Such patterns are fairly uncommon in the passing community right now, but there 
 
 To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an even length and exclude any patterns with 1 or 3s. 
 
-## Programming
+## Hijacking / Programming
 
 **TODO**
 
@@ -69,3 +69,5 @@ To find more patterns, use any siteswap generator (such as [passist.org](https:/
 77[s,h,7...]
 
 common combination
+
+

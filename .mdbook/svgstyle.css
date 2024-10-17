@@ -21,13 +21,27 @@ video {
     display: none;
 }
 
-sync {
-    background-color: red;
+ 
+
+svg { max-width: 100%;}
+
+
+sync-group {
     display: block;
+    white-space: pre;
+    background-color: red;
 }
 
-sync:before {
+sync-group:before {
     content: "TODO: "
 }
 
-svg { max-width: 100%;}
+siteswap-group {
+    display: block;
+    white-space: pre;
+    background-color: red;
+}
+
+siteswap-group:before {
+    content: "TODO: "
+}

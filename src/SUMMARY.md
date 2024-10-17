@@ -39,13 +39,13 @@
 
 # Group Patterns
 
-<!-- - [](./5a-intro.md)
-- [](./5b-feeds.md)
-- [](./5c-static-groups.md)
-- [](./5d-moving.md)
+ - [Introduction](./5a-intro.md)
+ - [Feeds](./5b-feeds.md)
+ - [Static group patterns](./5c-static-groups.md)
+<!---- [](./5d-moving.md)
 - [](./5e-large-patterns.md) -->
 
-# Takeout Group Patterns
+# Group Patterns with Manipulators
 
 <!-- - [](./6a-intro.md)
 - [](./6b-notation.md)
