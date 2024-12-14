@@ -11,7 +11,7 @@ const offset = 50
 
 //big circle
 const bc = 250
-svg.circle(bc).move(offset, offset).fill('none').stroke({ color: 'lightgrey' })
+const bigCircle = svg.circle(bc).move(offset, offset).fill('none').stroke({ color: 'lightgrey' })
 
 const passer = 50
 
@@ -172,6 +172,10 @@ svg.animate(beatDuration * beatCount).loop().during(function (pos: number) {
 
 
             const walkingPath = svg.path(`M ${gp(from)[0]} ${gp(from)[1]} A ${bc / 2} ${bc / 2} 0 0 0 ${gp(to)[0]},${gp(to)[1]}`).fill('none')
+            walkingPath.stroke({ color: 'grey', width:2 }).marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill('grey')).
+                after(jugglers[whoIsWalkingIdx]).
+                animate(walkDuration, walkDelay).after(()=>walkingPath.remove())
+
             jugglers[whoIsWalkingIdx].animate(walkDuration, walkDelay).
                 during(function (pos: number) {
                     var p = walkingPath.pointAt(pos * walkingPath.length())
