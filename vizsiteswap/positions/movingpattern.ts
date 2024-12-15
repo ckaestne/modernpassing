@@ -28,6 +28,22 @@ export function nextState(state: State, pattern: Pattern): State {
     const newBeatIdx = newBeat % pattern.passes.length
 
 
+    let oldWalkingState: State | null = state
+    for (let beatLookbackForWalking = 1; beatLookbackForWalking <= pattern.walkPositionChange.length && oldWalkingState; beatLookbackForWalking++) {
+        const whoWasWalking = pattern.walking[oldWalkingState.beat % pattern.passes.length]
+        // console.log(`beat ${newBeat} beatLookbackForWalking: ${beatLookbackForWalking} ${whoWasWalking}`)
+        if (whoWasWalking !== null) {
+            const whoWasWalkingJugglerIdx = oldWalkingState.labels.indexOf(whoWasWalking)
+            const from = state.positionsOnCircle[whoWasWalkingJugglerIdx]
+            // console.log(whoWasWalkingJugglerIdx, pattern.walkPositionChange[beatLookbackForWalking-1])
+            const to = (from + pattern.walkPositionChange[beatLookbackForWalking-1]) % 360
+            newPositionsOnCircle[whoWasWalkingJugglerIdx] = to
+            // console.log(state.positionsOnCircle, newPositionsOnCircle)
+        }
+        oldWalkingState = oldWalkingState.prior
+    }
+
+
     // check manipulator relabel; happens on the beat after the intercept
     for (let [b/*beat*/, m, p] of pattern.swapManipulator) {
         if (newBeatIdx === (b + 1) % pattern.passes.length && state.prior) {
@@ -36,7 +52,7 @@ export function nextState(state: State, pattern: Pattern): State {
             newLabels[p1idx] = p
             newLabels[p2idx] = m
 
-            newPositionsOnCircle[p1idx] = state.prior.positionsOnCircle[p2idx]
+            newPositionsOnCircle[p1idx] = newPositionsOnCircle[p2idx]
         }
     }
 
@@ -47,18 +63,6 @@ export function nextState(state: State, pattern: Pattern): State {
         }
 
 
-
-    let oldWalkingState: State | null = state
-    for (let beatLookbackForWalking = 1; beatLookbackForWalking <= pattern.walkPositionChange.length && oldWalkingState; beatLookbackForWalking++) {
-        const whoWasWalking = pattern.walking[oldWalkingState.beat % pattern.passes.length]
-        if (whoWasWalking !== null) {
-            const whoWasWalkingJugglerIdx = oldWalkingState.labels.indexOf(whoWasWalking)
-            const from = state.positionsOnCircle[whoWasWalkingJugglerIdx]
-            const to = (from + pattern.walkPositionChange[pattern.walkPositionChange.length - beatLookbackForWalking]) % 360
-            newPositionsOnCircle[whoWasWalkingJugglerIdx] = to
-        }
-        oldWalkingState = oldWalkingState.prior
-    }
 
 
     return {

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert";
 import { nextState, Pattern, State } from "./movingpattern.js";
+import { getAiden } from "./aidengen.js";
 
 
 
@@ -34,26 +35,36 @@ test("state updates in scrambled V", async (t) => {
     assert(state.beat === 0)
     assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
     assert(state.positionsOnCircle[initialCJuggler] === 120)
-    assert(state.positionsOnCircle[initialBJuggler] === 60)
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
     console.log(state.positionsOnCircle)
 
     state = nextState(state, pattern)
     assert(state.beat === 1)
     assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
+    //B not moving yet
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
     
     state = nextState(state, pattern)
     assert(state.beat === 2)
     assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
     assert(state.positionsOnCircle[initialCJuggler] === 120)
+    //B not moving yet
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
     
     state = nextState(state, pattern)
     assert(state.beat === 3)
     assert.deepStrictEqual(state.labels, ['B', 'C', 'M', 'A'])
     //M ends up in C's old location
     assert(state.positionsOnCircle[initialMJuggler] === 120)
+    //B walking now, but only small progress in first part
+    assert.equal(state.positionsOnCircle[initialBJuggler], 30)
     
     
     state = nextState(state, pattern)
+    assert(state.beat === 4)
+    //B now in new position
+    assert.equal(state.positionsOnCircle[initialBJuggler], -30)
+
     state = nextState(state, pattern)
     assert(state.beat === 5)
     //B has walked
@@ -65,4 +76,64 @@ test("state updates in scrambled V", async (t) => {
 
 
     
+})
+
+test("positions in toast", async (t) => {
+    const pattern: Pattern = getAiden('SBICCC')
+    const initialState: State = {
+        prior: null,
+        positionsOnCircle: pattern.initialJugglerPositionsOnCircle.slice(),
+        labels: pattern.jugglerLabels.slice(),
+        passes: pattern.passes[0],
+        beat: 0
+    }
+
+    const initialMJuggler = 3
+    const initialCJuggler = 2
+    const initialBJuggler = 1
+    let state = initialState
+    assert(state.beat === 0)
+    assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
+    assert(state.positionsOnCircle[initialCJuggler] === 120)
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
+    console.log(state.positionsOnCircle)
+
+    state = nextState(state, pattern)
+    assert(state.beat === 1)
+    assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
+    //B not moving yet
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
+    
+    state = nextState(state, pattern)
+    assert(state.beat === 2)
+    assert.deepStrictEqual(state.labels, ['A', 'B', 'M', 'C'])
+    assert(state.positionsOnCircle[initialCJuggler] === 120)
+    //B not moving yet
+    assert.equal(state.positionsOnCircle[initialBJuggler], 60)
+    
+    state = nextState(state, pattern)
+    assert(state.beat === 3)
+    assert.deepStrictEqual(state.labels, ['B', 'C', 'M', 'A'])
+    //M ends up in C's old location
+    assert(state.positionsOnCircle[initialMJuggler] === 120)
+    //B walking now, but only small progress in first part
+    assert.equal(state.positionsOnCircle[initialBJuggler], 30)
+    
+    
+    state = nextState(state, pattern)
+    assert(state.beat === 4)
+    //B now in new position
+    assert.equal(state.positionsOnCircle[initialBJuggler], -30)
+
+    state = nextState(state, pattern)
+    assert(state.beat === 5)
+    //B has walked
+    assert(state.positionsOnCircle[initialBJuggler] === -30)
+    assert.equal(state.positionsOnCircle[initialCJuggler], -30)
+    // state = nextState(state, pattern)
+    // assert(state.beat === 6)
+    // // initial C ends up where initial B walked to
+    // assert(state.positionsOnCircle[initialCJuggler] === -30)
+
+
 })
