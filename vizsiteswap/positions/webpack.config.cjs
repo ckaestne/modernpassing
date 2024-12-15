@@ -14,6 +14,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+
+      fallback: {
+        assert: require.resolve('assert'),
+      }  
   },
   plugins: [
     new HtmlWebpackPlugin({
