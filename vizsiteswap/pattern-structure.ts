@@ -44,6 +44,44 @@ export type Pattern = {
 
 }
 
+
+
+
+
+
+
+export type GroupPattern = {
+    pattern: Pattern,
+    layout?: {
+        positions: PositionLayout[],
+        passes: { passId: PassId, label: string }[]
+        animations: PassAnimation[]
+        frames: {
+            positions: PositionLayout[],
+            passes: { passId: PassId, label: string }[]
+        }[]
+    }
+}
+export type PositionLayout = {
+    role: string, // unique Id, single uppercase letter
+    x: number,
+    y: number
+}
+export type PassId = number
+export type PassLayout = {
+    id: PassId,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number
+}
+export type PassAnimation = {
+    pass: PassLayout,
+    fromTime: number,
+    toTime: number,
+    beatLabel: number
+}
+
 /**
  * checks a pattern, returns a list of problems, if any
  * @param p pattern

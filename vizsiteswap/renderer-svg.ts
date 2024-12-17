@@ -5,6 +5,7 @@ import { JSDOM } from 'jsdom'; // Import the JSDOM class
 import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.js';
 import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.js';
 import { sep } from 'node:path';
+import assert from 'node:assert';
 
 
 
@@ -14,7 +15,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
 
 
-    const {
+    let {
         xDist,
         yDist,
         xMargin,
@@ -46,7 +47,10 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         emphasizeLineWith,
         emphasizeLineDash,
         separateleftRightRows,
-        yHandDist
+        yHandDist,
+        showPasserRoles,
+        passerRolesOffset,
+        passerRolesTextSize,
     } = { ...defaultRendererConfig, ...config };
 
 
@@ -57,26 +61,31 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     const maxTime = p.prefixPeriod + p.period * iterations;
 
 
+    if (lineBendOrientation.length <= p.passerNames.length)
+        lineBendOrientation = p.passerNames.map(() => -1)
+
 
     // x offset of any point in the pattern (negative numbers for prefix)
     function xo(time: number): number {
         return xMargin +
-            (showStartingHands ? startingHandsOffset : 0) +
+            (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
             throwCircleSize / 2 + time * xDist;
     }
 
     // y offset of a throw
     function yo(passerIdx: number, handIdx: 0 | 1 | null): number {
         // TODO: support rendering synchronous throws with both hands
-        return yMargin + (hasAnnotation ? annotationMargin : 0) + throwCircleSize / 2 +
+        const r = yMargin + (hasAnnotation ? annotationMargin : 0) + throwCircleSize / 2 +
             passerIdx * yDist +
             (separateleftRightRows && handIdx == 1 ? yHandDist : 0) + (separateleftRightRows ? passerIdx * yHandDist : 0);
+        if (isNaN(r)) throw new Error(`yo(${passerIdx}, ${handIdx}) is NaN`)
+        return r
     }
 
-    const width = xMargin * 2 + throwCircleSize/2 +
-        (showStartingHands ? startingHandsOffset : 0) +
+    const width = xMargin * 2 + throwCircleSize / 2 +
+        (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
         (p.prefixPeriod + p.period * iterations) * xDist
-    const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist
+    const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist * (p.passerNames.length - 1)
         + (separateleftRightRows ? yHandDist * 2 : 0)
 
 
@@ -88,7 +97,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     registerWindow(window, document)
     // @ts-ignore
     const svg: Svg = SVG(document.documentElement)
-    svg.size(width, height).viewbox(0,0,width,height)
+    svg.size(width, height).viewbox(0, 0, width, height)
     // svg.rect("100%", "100%").fill("white").stroke("black")
 
 
@@ -177,13 +186,22 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     }
 
+    if (showPasserRoles) {
+        for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
+            svg.text("").plain(p.passerNames[passerIdx]+":").
+                addClass("passer-roles").
+                font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
+                amove(0,yo(passerIdx, null)).cx(xMargin+passerRolesOffset/2)                
+            }
+    }
+
     if (showStartingHands) {
         const hands = p.startingHands
         if (!separateleftRightRows) {
             for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
                 let startingHands = hands[passerIdx]
                 svg.text("").plain(startingHands.join("|")).
-                    amove(xMargin + startingHandsOffset / 2, yo(passerIdx, null)).
+                    amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, null)).
                     addClass("starting-hands").
                     font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
             }
@@ -192,7 +210,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
                 for (let handIdx of [0, 1]) {
                     let startingHand = hands[passerIdx][handIdx]
                     svg.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
-                        amove(xMargin + startingHandsOffset / 2, yo(passerIdx, handIdx as 0 | 1)).
+                        amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, handIdx as 0 | 1)).
                         addClass("starting-hands").
                         font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
                 }

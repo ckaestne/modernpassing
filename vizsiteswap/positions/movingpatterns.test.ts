@@ -36,7 +36,7 @@ test("state updates in scrambled V", async (t) => {
     assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
     assert(state.positionsOnCircle[initialCJuggler] === 120)
     assert.equal(state.positionsOnCircle[initialBJuggler], 60)
-    console.log(state.positionsOnCircle)
+    // console.log(state.positionsOnCircle)
 
     state = nextState(state, pattern)
     assert(state.beat === 1)
@@ -96,7 +96,7 @@ test("positions in toast", async (t) => {
     assert.deepStrictEqual(state.labels, ['A', 'B', 'C', 'M'])
     assert(state.positionsOnCircle[initialCJuggler] === 120)
     assert.equal(state.positionsOnCircle[initialBJuggler], 60)
-    console.log(state.positionsOnCircle)
+    // console.log(state.positionsOnCircle)
 
     state = nextState(state, pattern)
     assert(state.beat === 1)

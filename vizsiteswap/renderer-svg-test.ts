@@ -6,6 +6,7 @@ import { checkValidPattern } from "./pattern-structure.js";
 import { renderPattern } from "./renderer-svg.js";
 import fs from "node:fs";
 import { createSyncPattern } from "./pattern-fromsync.js";
+import { createSyncGroupPattern } from "./pattern-fromgroup.js";
 
 test("simple siteswap", async (t) => {
     const p = createSiteswapPattern(new FourHandedSiteswap("972"), {})
@@ -107,12 +108,12 @@ test("advanced sync patterns", async (t) => {
 
 test("jims and galloped sync patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21],xDist:80,yDist:80 }, '3p33 3p33,3px33 3px33'],
+        [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21], xDist: 80, yDist: 80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],
-        [{ showLines: true, lineKind: "ladder",xDist:80,yDist:80,"emphasizeThrows": [2, 5, 8,13,14,19,22, 25, 28,33,34,39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
-        [{"gallop": true,flipStraightCrossing:true,iterations:4},'4p,o -> 34p,4p3'],
-        [{"gallop": true,iterations:4},'5p3'],
-        [{"gallop": true,flipStraightCrossing:true,showLines:true,xDist:80,yDist:80,lineKind:"ladder"},'6p3534p3,34p36p35'],
+        [{ showLines: true, lineKind: "ladder", xDist: 80, yDist: 80, "emphasizeThrows": [2, 5, 8, 13, 14, 19, 22, 25, 28, 33, 34, 39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
+        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,o -> 34p,4p3'],
+        [{ "gallop": true, iterations: 4 }, '5p3'],
+        [{ "gallop": true, flipStraightCrossing: true, showLines: true, xDist: 80, yDist: 80, lineKind: "ladder" }, '6p3534p3,34p36p35'],
     ]
 
 
@@ -134,21 +135,21 @@ test("jims and galloped sync patterns", async (t) => {
 
 test("fully synchronous patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false },
-            '(4p,4x)(4x,2)(4x,4p)(2,4x),(4x,2)(4x,4px)(2,4x)(4px,4x)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:8 },
-            '(4px,4x),(4px,4x)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:4 },
-            '(4px,4x)(4x,4px),(4px,4x)(4x,4px)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:4 },
-            '(4px,4x)(4px,4x),(4px,4x)(4,4p)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showStraightCross:false,showLines:true,iterations:8 },
-            '(6px,4x)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showLines:true,iterations:4,lineKind:"ladder",yDist:80,yHandDist:70,xDist:80         },
-            '(6px,4px)(2,2),(6px,2)(2,4px)']      ,  
-        [{separateleftRightRows:true,showLeftRight:false,showLines:true,iterations:4,lineKind:"ladder",yDist:80,yHandDist:60,xDist:80         },
-            '(4px,6)(2,2)(6,4px)(2,2),(2,2)(4p,6)(2,2)(6,4p)']      ,  
-            // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       
+        [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false },
+            '(4p,4x)(4x,2)(4x,4p)(2,4x),(4x,2)(4x,4px)(2,4x)(4px,4x)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
+            '(4px,4x),(4px,4x)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 4 },
+            '(4px,4x)(4x,4px),(4px,4x)(4x,4px)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 4 },
+            '(4px,4x)(4px,4x),(4px,4x)(4,4p)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
+            '(6px,4x)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 70, xDist: 80 },
+            '(6px,4px)(2,2),(6px,2)(2,4px)'],
+        [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 60, xDist: 80 },
+            '(4px,6)(2,2)(6,4px)(2,2),(2,2)(4p,6)(2,2)(6,4p)'],
+        // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       
     ]
 
 
@@ -165,6 +166,27 @@ test("fully synchronous patterns", async (t) => {
 
     content += "</html>"
     fs.writeFileSync("test/sync_sync.html", content);
+
+
+})
+
+
+
+test("create basic group sync examples", async (t) => {
+
+    const patterns = ["A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)"]
+
+    let content = "<!DOCTYPE html><html>"
+
+    for (const p of patterns) {
+        const pattern = createSyncGroupPattern(p, {})
+        const svg = renderPattern(pattern.pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/group_sync.html", content);
 
 
 })

@@ -24,6 +24,7 @@ export interface RendererConfig {
     showStraightCross: boolean;
     annotationTextColor: string;
     annotationTextSize: number;
+    //TODO: show annotations above each row, not just above the top and below the bottom row (needed for more than two rows)
 
     //lines
     showLines: boolean;
@@ -46,6 +47,11 @@ export interface RendererConfig {
     //show left and right hand in different rows, mostly for fully sync patterns
     separateleftRightRows: boolean
     yHandDist: number; // distance between left and right hand rows (if different from yDist)
+
+    //passer roles
+    showPasserRoles: boolean
+    passerRolesOffset: number;
+    passerRolesTextSize: number,    
 }
 
 export const defaultRendererConfig: RendererConfig = {
@@ -80,5 +86,8 @@ export const defaultRendererConfig: RendererConfig = {
     emphasizeLineWith: 3,
     emphasizeLineDash: "",
     selectLinesForThrows: undefined,
-    separateleftRightRows: false
+    separateleftRightRows: false,
+    showPasserRoles: false,
+    passerRolesOffset: 30,
+    passerRolesTextSize: 28
 };

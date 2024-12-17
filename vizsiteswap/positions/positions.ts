@@ -1,4 +1,4 @@
-import { SVG, registerWindow, Svg, Element } from '@svgdotjs/svg.js'
+import { SVG, registerWindow, Svg, Element, Line } from '@svgdotjs/svg.js'
 import { skip } from 'node:test'
 import { Pattern, State, nextState as getNextState } from './movingpattern'
 import { getAiden } from './aidengen'
@@ -70,8 +70,10 @@ function halfway([x1, y1]: [number, number], [x2, y2]: [number, number]): [numbe
     return [(x1 + x2) / 2, (y1 + y2) / 2]
 }
 
-function arrow(x1: number, y1: number, x2: number, y2: number, color: string = 'blue') {
-    return svg.line(x1, y1, x2, y2).stroke({ color }).marker('end', 10, 10, add => add.path('M0,0 L10,5 L0,10').fill(color))
+function arrow(x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
+    const line = svg.line(x1, y1, x2, y2).stroke({ color })
+    line.marker('end', 10, 10, add => add.path('M0,0 L10,5 L0,10').fill(color))
+    return line
 }
 function pass([x1, y1]: [number, number], hand1: 0 | 1, [x2, y2]: [number, number], hand2: 0 | 1) {
     //angle between the two points
@@ -134,10 +136,10 @@ const three = getAiden('CCSAIB')
 //     passes: [[['M', 'B'], ['B', 'A']], [['A', 'C'], ['C', 'A'], ['B', 'M'], ['M', 'B']], [['A', 'B'], ['B', 'A'], ['C', 'M']]]
 // }
 
-const pattern = toast
+const pattern = three
 
 const beatDuration = 2000/*ms*/
-const walkDuration = beatDuration * 1.5
+const walkDuration = beatDuration * 1.49
 const walkDelay = beatDuration * .5
 const passDuration = beatDuration * .4
 
@@ -166,7 +168,7 @@ const svgJugglers = pattern.jugglerLabels.map((_, idx) =>
 )
 
 // todo: should be between locations
-function drawPass(p1: number, p2: number) {
+function drawPass(p1: number, p2: number): Line {
     return pass([svgJugglers[p1].cx(), svgJugglers[p1].cy()], 0, [svgJugglers[p2].cx(), svgJugglers[p2].cy()], 1)
 }
 
@@ -200,12 +202,16 @@ function animateStep(currentState: State, nextState: State) {
     for (let pass of currentState.passes) {
         const passerFrom = currentState.labels.indexOf(pass[0])
         const passerTo = currentState.labels.indexOf(pass[1])
-        if (pass[1] === 'M')
-            console.log(pass, passerFrom, passerTo)
         const p = drawPass(passerFrom, passerTo)
-        p.animate(passDuration).after(function () {
-            p.remove()
-        })
+        // const lineLength = p.node.getTotalLength()
+        // p.stroke({ dasharray: '0', dashoffset: 0 })
+        p.animate(passDuration).
+            // during(function (pos: number) {
+            //     p.stroke({dasharray:                 `0,${lineLength * pos},${lineLength*(1-pos)},0`})
+            // }).
+            after(function () {
+                p.remove()
+            })
     }
 
 

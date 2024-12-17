@@ -18,13 +18,13 @@ export type SyncPatternConfig = {
 }
 
 
-enum TokenKind {
+export enum TokenKind {
     Throw, Comma, Arrow, Empty, Hurry,
     LParen,
     RParen,
     Space,
 }
-const tokenizer = buildLexer([
+export const tokenizer = buildLexer([
     [true, /^(\d(p)?(x)?)/g, TokenKind.Throw],
     [true, /^o/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
@@ -44,14 +44,14 @@ Multiplex = "(" SimplePattern ("," SimplePattern)* ")"
 SimplePattern = Throw+
  */
 
-type TThrow = string | [string, string] // single throw or sync throw with both hands
-type TSequence = TThrow[] // one passer's sequence of throws
-type TPattern = TSequence[] // a sequence for each passer
+export type TThrow = string | [string, string] // single throw or sync throw with both hands
+export type TSequence = TThrow[] // one passer's sequence of throws
+export type TPattern = TSequence[] // a sequence for each passer
 
-const PFullPattern = rule<TokenKind, [TPattern, TPattern]>();
-const PPattern = rule<TokenKind, TPattern>();
-const PSequence = rule<TokenKind, TSequence>();
-const PThrow = rule<TokenKind, TThrow>();
+export const PFullPattern = rule<TokenKind, [TPattern, TPattern]>();
+export const PPattern = rule<TokenKind, TPattern>();
+export const PSequence = rule<TokenKind, TSequence>();
+export const PThrow = rule<TokenKind, TThrow>();
 
 PThrow.setPattern(
     alt(
@@ -130,10 +130,10 @@ export function parseSyncPattern(expr: string): [TPattern, TPattern] {
 
 
 // const crossingThrows
-const straightPasses = ["1p", "2px", "3p", "4px", "5p", "6px", "7p", "8px", "9p"]
-const crossingPasses = ["1px", "2p", "3px", "4p", "5px", "6p", "7px", "8p", "9px"]
-const straightSelfs = ["1x", "2", "3x", "4", "5x", "6", "7x", "8", "9x"] // R to R or L to L (even if it's the other person's hand)
-const crossingSelfs = ["1", "2x", "3", "4x", "5", "6x", "7", "8x", "9"] // R to L or L to R
+export const straightPasses = ["1p", "2px", "3p", "4px", "5p", "6px", "7p", "8px", "9p"]
+export const crossingPasses = ["1px", "2p", "3px", "4p", "5px", "6p", "7px", "8p", "9px"]
+export const straightSelfs = ["1x", "2", "3x", "4", "5x", "6", "7x", "8", "9x"] // R to R or L to L (even if it's the other person's hand)
+export const crossingSelfs = ["1", "2x", "3", "4x", "5", "6x", "7", "8x", "9"] // R to L or L to R
 
 
 export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>): Pattern {
@@ -235,7 +235,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
 }
 
 
-function altHands(startingHands: Hand[], sequenceLength: number): Hand[][] {
+export function altHands(startingHands: Hand[], sequenceLength: number): Hand[][] {
     const result = []
     for (let s of startingHands) {
         const seq: Hand[] = []
@@ -303,7 +303,7 @@ function swapHands(handSequence: Hand[][], toPasserIdx: number, causeTime: numbe
         seq[i] = (seq[i] + 1) % 2
     }
 }
-function convertToLabel(throwToken: string, gallop: boolean, allSync: Boolean): string {
+export function convertToLabel(throwToken: string, gallop: boolean, allSync: Boolean): string {
     if (gallop) switch (throwToken) {
         case "4x": return "s*"
         case "4p": return "p*"
