@@ -41,11 +41,11 @@
 
  - [Introduction](./5a-intro.md)
  - [Feeds](./5b-feeds.md)
- - [Static group patterns](./5c-static-groups.md)
-<!---- [](./5d-moving.md)
-- [](./5e-large-patterns.md) -->
+ - [Static patterns](./5c-static-groups.md)
+ - [Moving patterns](./5d-moving.md)
+<!-- - [](./5e-large-patterns.md) --> -->
 
-# Group Patterns with Manipulators
+# Manipulator Patterns
 
 <!-- - [](./6a-intro.md)
 - [](./6b-notation.md)

@@ -17,7 +17,7 @@ A good first pattern is to juggle three-count with *inside* throws, that is righ
 <sync-group>
 A: 3pB333pC33
 B: 3pC333pA33
-C: 3pA333pBC33
+C: 3pA333pB33
 positions: Circe(A,B,C)
 </sync-group>
 
@@ -177,6 +177,9 @@ positions: Circle(A,B,C,D,E)
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
+**Adding clubs.** The easiest way to add a 16th club is to pass five-count on doubles all in one direction (i.e., left and right-hand passes go to the same person), either with all passes crossing or with every other passer starting left-handed. To add another club (17 total), pass-self-pass-pass-self on doubles is a good sequence to try, and in theory every other self can be replaced by a double pass if adding one more club. A simpler 20-club version is simply two-count on doubles, where everybody starts with 4 clubs and passes the gallopy [8-club two-count on doubles](2e-beyond.md).
+
+
 
 **Ten-handed siteswaps.**
 Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by throwing slightly lower or higher passes, many four-handed siteswaps have equivalent ten-handed versions, such as french three-count with very lofty singles ([jkf](https://passist.org/siteswap/jkf?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)) and seven-count popcorn with either lofty zaps or doubles ([efkfkfk](https://passist.org/siteswap/efkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl) or [lfkfkfk](https://passist.org/siteswap/lfkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)), but none of those are common or intuitive to figure out.
@@ -196,6 +199,8 @@ D: 3   3pA 3   3   3pA 3   3   3pB 3   3   3pB 3
 E: 3   3   3pB 3   3   3pA 3   3   3pA 3   3   3pB
 positions: Trapezoid(A,B,C,D,E)
 </sync-group>
+
+Rotate through all positions and let the passer who previously held a position explain the sequence to the new passer in that position.
 
 ## Other Shapes for Static Patterns
 
