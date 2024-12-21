@@ -52,15 +52,17 @@ export type Pattern = {
 
 export type GroupPattern = {
     pattern: Pattern,
-    layout?: {
-        positions: PositionLayout[],
-        passes: { passId: PassId, label: string }[]
-        animations: PassAnimation[]
-        frames: {
-            positions: PositionLayout[],
-            passes: { passId: PassId, label: string }[]
-        }[]
-    }
+    layout?: GroupPatternLayout
+}
+export type GroupPatternLayout = {
+    positions: PositionLayout[],
+    passes?: { passId: PassId, label: string }[]
+    animations?: PassAnimation[]
+    frames?: GroupPatternFrame[]
+}
+export type GroupPatternFrame = {
+    positions: PositionLayout[],
+    passes: { passId: PassId, label: string }[]
 }
 export type PositionLayout = {
     role: string, // unique Id, single uppercase letter

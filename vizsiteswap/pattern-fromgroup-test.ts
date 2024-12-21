@@ -59,6 +59,7 @@ test("test pattern creation", async (t) => {
     assertContainsThrow(throws, 'B', 3, 'B', 1)
     assertContainsThrow(throws, 'C', 3, 'C', 1)
     assertContainsThrow(throws, 'A', 3, 'C', 3)
+    console.log(gp.layout)
     // console.log(throws)
 })
 

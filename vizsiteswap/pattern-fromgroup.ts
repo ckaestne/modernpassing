@@ -1,5 +1,5 @@
 import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kleft, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { GroupPattern, Hand, Pattern, Throw } from "./pattern-structure.js";
+import { GroupPattern, GroupPatternLayout, Hand, Pattern, PositionLayout, Throw } from "./pattern-structure.js";
 import assert from "node:assert";
 import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, TokenKind, TPattern, TSequence } from "./pattern-fromsync.js";
 
@@ -181,7 +181,29 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncGroupPatt
             prefixPeriod: 0,
             period: sequenceLength,
             getThrows: genThrows
-        }
+        },
+        layout: genLayout(layout, genThrows(1))
+    }
+}
+
+function genLayout(layout: TLayout, throws: Throw[]):GroupPatternLayout{
+
+    const positions: PositionLayout[] = []
+    assert(layout.length === 1, "only one shape supported")
+    assert(layout[0].shape === TShape.Circle, "only circle supported")
+    const roles = layout[0].roles
+
+    // all x and y positions are relative between 0 and 1; that is on a circle with a radius of 0.5
+    let angle = -Math.PI / 2
+    for (let i = 0; i < roles.length; i++) {
+        const x = Math.cos(angle) * 0.5 + 0.5
+        const y = Math.sin(angle) * 0.5 + 0.5
+        positions.push({ role: roles[i], x, y })
+        angle += 2 * Math.PI / roles.length
+    }
+
+    return {
+        positions: positions
     }
 }
 

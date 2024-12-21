@@ -3,7 +3,7 @@ import { FourHandedSiteswap } from './siteswap.js'
 import assert from "node:assert";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.js";
 import { checkValidPattern } from "./pattern-structure.js";
-import { renderPattern } from "./renderer-svg.js";
+import { renderGroupPattern, renderPattern } from "./renderer-svg.js";
 import fs from "node:fs";
 import { createSyncPattern } from "./pattern-fromsync.js";
 import { createSyncGroupPattern } from "./pattern-fromgroup.js";
@@ -180,7 +180,7 @@ test("create basic group sync examples", async (t) => {
 
     for (const p of patterns) {
         const pattern = createSyncGroupPattern(p, {})
-        const svg = renderPattern(pattern.pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
+        const svg = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }

@@ -1,9 +1,9 @@
 import { createSVGWindow } from 'svgdom'
-import { SVG, registerWindow, Svg } from '@svgdotjs/svg.js'
+import { SVG, registerWindow, Svg, G } from '@svgdotjs/svg.js'
 import { FourHandedSiteswap } from './siteswap.js'
 import { JSDOM } from 'jsdom'; // Import the JSDOM class
 import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.js';
-import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.js';
+import { checkValidPattern, GroupPattern, GroupPatternLayout, Pattern, repeatThrows, Throw } from './pattern-structure.js';
 import { sep } from 'node:path';
 import assert from 'node:assert';
 
@@ -97,7 +97,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     registerWindow(window, document)
     // @ts-ignore
     const svg: Svg = SVG(document.documentElement)
-    svg.size(width, height).viewbox(0, 0, width, height)
+    svg.size(width, height)//.viewbox(0, 0, width, height)
     // svg.rect("100%", "100%").fill("white").stroke("black")
 
 
@@ -217,4 +217,44 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         }
     }
     return svg
+}
+
+
+export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererConfig>): Svg {
+
+    const svg = renderPattern(gp.pattern, config)
+    if (gp.layout){
+        const height: number = Number(svg.height())
+        const width: number = Number(svg.width())
+        svg.width(width + height)
+        const g = svg.group()
+        const config = { positionCircle: 40, roleLabelFontSize: 28, colors: ["red", "green", "blue"] }
+        renderLayout(gp.layout, height, height, g, config)
+        g.move(width, 0)
+    }
+    return svg
+}
+
+
+type RenderLayoutConfig = {
+    positionCircle: number
+    roleLabelFontSize: number
+    colors: string[]
+}
+
+function renderLayout(layout: GroupPatternLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
+    const left = config.positionCircle/2
+    const s = Math.min(width,height) - config.positionCircle
+    const top = config.positionCircle/2
+
+    canvas.circle(s).center(left+s/2,top+s/2).fill("none").stroke("lightgrey")
+    canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
+    for (let roleIdx = 0; roleIdx < layout.positions.length; roleIdx++) {
+        const pos = layout.positions[roleIdx]
+        const c = canvas.circle(config.positionCircle).center(left + pos.x * s, top + pos.y * s).fill(config.colors[roleIdx])
+        canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(c.cx()).cy(c.cy()).fill("white")
+    }
+
+
+    canvas.rect(width, height).fill('none').stroke("blue")
 }
