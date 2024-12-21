@@ -19,7 +19,7 @@ We use the following symbols for different throws:
 | h | Heff: A double-spun self to the same hand, as in a four-club solo fountain | 4 |
 | d | Double-spin crossing pass, usually crossing | 4p |
 | t | Trelf: triple-self to the other hand | 5 |
-| tp | Triple-spin straight pass | 5p |
+| r | Triple-spin straight pass | 5p |
 
 A pattern where both passers make the same throws at the same time can now be written as a sequence of throws, such as "p s s" or just "pss" for *6-club three-count* where both passers throw a single pass on every third beat. This can also be visualized as follows:
 
