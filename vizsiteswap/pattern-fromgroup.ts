@@ -1,7 +1,7 @@
-import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kleft, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { GroupPattern, GroupPatternLayout, Hand, Pattern, PositionLayout, Throw } from "./pattern-structure.ts";
 import assert from "node:assert";
-import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, TokenKind, TPattern, TSequence } from "./pattern-fromsync.ts";
+import { apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, rep, rule, seq, tok } from "typescript-parsec";
+import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, TokenKind, TSequence } from "./pattern-fromsync.ts";
+import { GroupPattern, GroupPatternLayout, Hand, PositionLayout, Throw } from "./pattern-structure.ts";
 
 
 type TLayout = TPosition[]
@@ -143,8 +143,8 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncGroupPatt
                 console.log("hurry throw", throwLabel, "from", fromHandIdx, "to", toHand, "expected", expectedToHandIdx, "at", causeTime)
                 throw new Error("hurry throws not supported in group patterns")
             }
-            let annotation = isPass ? (fromHandIdx === toHand ? "X" : "||") : ""
-            let label = (useSimpleLabels ? convertToLabel(throwLabel, false, false) : throwLabel) + labelSubfix
+            const annotation = isPass ? (fromHandIdx === toHand ? "X" : "||") : ""
+            const label = (useSimpleLabels ? convertToLabel(throwLabel, false, false) : throwLabel) + labelSubfix
             return {
                 throwTime: time, // gallopOffset(time, fromHandIdx),
                 fromPasserIdx: passerIdx,

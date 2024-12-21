@@ -1,16 +1,13 @@
-import { SVG, registerWindow, Svg, Element, Line } from '@svgdotjs/svg.js'
-import { skip } from 'node:test'
-import { Pattern, State, nextState as getNextState } from './movingpattern'
+import { Element, Line, SVG, Svg } from '@svgdotjs/svg.js'
 import { getAiden } from './aidengen'
+import { Pattern, State, nextState as getNextState } from './movingpattern'
+import assert from 'node:assert';
 
 
 
-function assert(condition: any) {
-    if (!condition) throw new Error('assertion failed')
-}
 
-// @ts-ignore
-const svg: Svg = SVG().addTo(window.document.documentElement)
+// @ts-ignore hacking to make `document` work
+const svg: Svg = SVG().addTo(globalThis.document.documentElement)
 svg.size(350, 350)//.viewbox(0,0,width,height)
 svg.rect("100%", "100%").fill("white").stroke("black")
 
@@ -118,9 +115,12 @@ const jugglerColors = ['darkblue', 'darkred', 'darkgreen', 'purple']
 
 
 
+// deno-lint-ignore no-unused-vars
 const scrambledV = getAiden('CBSBIC')
+// deno-lint-ignore no-unused-vars
 const toast = getAiden('SBICCC')
 const three = getAiden('CCSAIB')
+
 // Pattern = {
 //     //needed spec
 //     initialJugglerPositionsOnCircle: [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30, 0],
@@ -199,7 +199,7 @@ function animateStep(currentState: State, nextState: State) {
         svgLabels[jugglerIdx].text(currentState.labels[jugglerIdx])
     }
 
-    for (let pass of currentState.passes) {
+    for (const pass of currentState.passes) {
         const passerFrom = currentState.labels.indexOf(pass[0])
         const passerTo = currentState.labels.indexOf(pass[1])
         const p = drawPass(passerFrom, passerTo)
@@ -228,14 +228,14 @@ function animateStep(currentState: State, nextState: State) {
 
         svgJugglers[whoIsWalkingIdx].animate(walkDuration, walkDelay).
             during(function (pos: number) {
-                var p = walkingPath.pointAt(pos * walkingPath.length())
+                const p = walkingPath.pointAt(pos * walkingPath.length())
                 svgJugglers[whoIsWalkingIdx].center(p.x, p.y)
             })
 
 
     }
     //if we just relabeled the manipulator, move the former manipulator to the right place
-    for (let id of pattern.manipulatorIds) {
+    for (const id of pattern.manipulatorIds) {
         const jugglerMIdx = currentState.labels.indexOf(id)
         const nextJugglerMIdx = nextState.labels.indexOf(id)
         if (jugglerMIdx !== nextJugglerMIdx) {
@@ -246,7 +246,7 @@ function animateStep(currentState: State, nextState: State) {
     }
 
     //update manipulator position after every beat
-    for (let id of pattern.manipulatorIds) {
+    for (const id of pattern.manipulatorIds) {
         const jugglerIdx = nextState.labels.indexOf(id)
         // find manipulator's location on the next beat
         const [x, y] = getLocation(nextState, jugglerIdx, pattern)

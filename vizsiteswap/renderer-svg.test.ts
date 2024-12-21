@@ -1,12 +1,13 @@
-import test from "node:test";
-import { FourHandedSiteswap } from './siteswap.ts'
+// deno-lint-ignore-file no-explicit-any
 import assert from "node:assert";
+import fs from "node:fs";
+import test from "node:test";
+import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+import { createSyncPattern } from "./pattern-fromsync.ts";
 import { checkValidPattern } from "./pattern-structure.ts";
 import { renderGroupPattern, renderPattern } from "./renderer-svg.ts";
-import fs from "node:fs";
-import { createSyncPattern } from "./pattern-fromsync.ts";
-import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
+import { FourHandedSiteswap } from './siteswap.ts';
 
 Deno.test("simple siteswap", async (t) => {
     const p = createSiteswapPattern(new FourHandedSiteswap("972"), {})

@@ -3,12 +3,13 @@
  * mdbook preprocessor to replace <siteswap> tags with inline SVG images
  */
 
-import { FourHandedSiteswap } from './siteswap.ts';
-import { createSiteswapPattern, SiteswapPatternConfig } from './pattern-fromsiteswap.ts';
-import { renderPattern } from './renderer-svg.ts';
 import fs from 'node:fs';
-import { replaceElement } from './replace-util.ts';
+import process from "node:process";
+import { createSiteswapPattern } from './pattern-fromsiteswap.ts';
 import { createSyncPattern } from './pattern-fromsync.ts';
+import { renderPattern } from './renderer-svg.ts';
+import { replaceElement } from './replace-util.ts';
+import { FourHandedSiteswap } from './siteswap.ts';
 
 
 if (process.argv[2] === "supports") {
@@ -25,7 +26,7 @@ const [_, book] = JSON.parse(file);
 
 
 const startTime = Date.now();
-let nrPatterns =[0,0]
+const nrPatterns =[0,0]
 for (const sec of book.sections) {
     if (sec.Chapter && sec.Chapter.content) {
         sec.Chapter.content = replaceElement("siteswap",sec.Chapter.content, (match, inner, config) => {

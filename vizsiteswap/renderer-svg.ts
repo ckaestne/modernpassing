@@ -1,11 +1,7 @@
-import { createSVGWindow } from 'svgdom'
-import { SVG, registerWindow, Svg, G } from '@svgdotjs/svg.js'
-import { FourHandedSiteswap } from './siteswap.ts'
-import { JSDOM } from 'jsdom'; // Import the JSDOM class
-import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.ts';
-import { checkValidPattern, GroupPattern, GroupPatternLayout, Pattern, repeatThrows, Throw } from './pattern-structure.ts';
-import { sep } from 'node:path';
-import assert from 'node:assert';
+import { G, registerWindow, SVG, Svg } from '@svgdotjs/svg.js';
+import { createSVGWindow } from 'svgdom';
+import { checkValidPattern, GroupPattern, GroupPatternLayout, Pattern, Throw } from './pattern-structure.ts';
+import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
 
@@ -95,7 +91,6 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     // register window and document
     registerWindow(window, document)
-    // @ts-ignore
     const svg: Svg = SVG(document.documentElement)
     svg.size(width, height)//.viewbox(0, 0, width, height)
     // svg.rect("100%", "100%").fill("white").stroke("black")
@@ -165,7 +160,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             font({ size: throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
 
         if (showLeftRight || (showStraightCross && t.annotation !== "")) {
-            let text = []
+            const text = []
             if (showLeftRight)
                 text.push(t.fromHandIdx ? "L" : "R")
 
@@ -199,7 +194,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         const hands = p.startingHands
         if (!separateleftRightRows) {
             for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
-                let startingHands = hands[passerIdx]
+                const startingHands = hands[passerIdx]
                 svg.text("").plain(startingHands.join("|")).
                     amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, null)).
                     addClass("starting-hands").
@@ -207,7 +202,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             }
         } else {
             for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++)
-                for (let handIdx of [0, 1]) {
+                for (const handIdx of [0, 1]) {
                     const startingHand = hands[passerIdx][handIdx]
                     svg.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
                         amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, handIdx as 0 | 1)).

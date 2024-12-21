@@ -1,7 +1,6 @@
-import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { Hand, Pattern, Throw } from "./pattern-structure.ts";
 import assert from "node:assert";
-import { start } from "node:repl";
+import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
+import { Hand, Pattern, Throw } from "./pattern-structure.ts";
 
 
 export const defaultSyncPatternConfig: SyncPatternConfig = {
@@ -89,7 +88,7 @@ function check<TKind, TResult>(p: Parser<TKind, TResult>, checker: (v: TResult) 
     return {
         parse(token: Token<TKind> | undefined): ParserOutput<TKind, TResult> {
             let error: ParseError | undefined;
-            let result: ParseResult<TKind, TResult>[] = [];
+            const result: ParseResult<TKind, TResult>[] = [];
             let successful = false;
             const output = p.parse(token);
             error = betterError(error, output.error);
@@ -162,7 +161,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
         return hand === Hand.Right ? time + offset : time - offset
     }
 
-    let allSync: Boolean | undefined = undefined
+    let allSync: boolean | undefined = undefined
 
     function genThrows(iterations: number): Throw[] {
         const throws: Throw[] = [];
@@ -171,7 +170,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
 
 
         function genThrow(throwToken: string, time: number, passerIdx: number, fromHandIdx: Hand, timeFactor: number = 1): Throw {
-            const [value, isPass, isCrossing] = parseThrow(throwToken)
+            const [value, isPass, _isCrossing] = parseThrow(throwToken)
             const causeTime = time + (value - 2)*timeFactor;
             const rethrowTime = time + value*timeFactor;
             const toPasserIdx = isPass ? (passerIdx + 1) % 2 : passerIdx;
@@ -183,8 +182,8 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
                 swapHands(handSequence, toPasserIdx, causeTime)
                 // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
             }
-            let annotation = isPass ? (fromHandIdx===toHand ? "X" : "||") : ""
-            let label = useSimpleLabels ? convertToLabel(throwToken, gallop, allSync!) : throwToken
+            const annotation = isPass ? (fromHandIdx===toHand ? "X" : "||") : ""
+            const label = useSimpleLabels ? convertToLabel(throwToken, gallop, allSync!) : throwToken
             return { 
                 throwTime: gallopOffset(time, fromHandIdx),
                 fromPasserIdx: passerIdx,
@@ -237,12 +236,12 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
 
 export function altHands(startingHands: Hand[], sequenceLength: number): Hand[][] {
     const result = []
-    for (let s of startingHands) {
+    for (const s of startingHands) {
         const seq: Hand[] = []
         let hand = s
         for (let i = 0; i < sequenceLength; i++) {
-            seq.push(s)
-            s = (s + 1) % 2
+            seq.push(hand)
+            hand= (hand + 1) % 2
         }
         result.push(seq)
     }
@@ -257,7 +256,7 @@ function parseThrow(t: string): [number, boolean, boolean] {
     return [value, isPass, isCrossing]
 }
 
-function getStartingHands(throws: Throw[], beats: number, allSync:boolean): [number, number][] {
+function getStartingHands(throws: Throw[], _beats: number, allSync:boolean): [number, number][] {
     // console.log(throws)
 
     // (time, passer, hand) combinations when a throw happens
@@ -291,7 +290,7 @@ function getStartingHands(throws: Throw[], beats: number, allSync:boolean): [num
 
     // console.log(throwingHands)
     const result: [number, number][] = [[0, 0], [0, 0]]
-    for (const [time, passer, hand] of throwingHands) {
+    for (const [_, passer, hand] of throwingHands) {
         result[passer][hand] += 1
     }
     return result
@@ -303,7 +302,7 @@ function swapHands(handSequence: Hand[][], toPasserIdx: number, causeTime: numbe
         seq[i] = (seq[i] + 1) % 2
     }
 }
-export function convertToLabel(throwToken: string, gallop: boolean, allSync: Boolean): string {
+export function convertToLabel(throwToken: string, gallop: boolean, allSync: boolean): string {
     if (gallop) switch (throwToken) {
         case "4x": return "s*"
         case "4p": return "p*"

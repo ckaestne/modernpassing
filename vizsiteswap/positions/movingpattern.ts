@@ -45,7 +45,7 @@ export function nextState(state: State, pattern: Pattern): State {
 
 
     // check manipulator relabel; happens on the beat after the intercept
-    for (let [b/*beat*/, m, p] of pattern.swapManipulator) {
+    for (const [b/*beat*/, m, p] of pattern.swapManipulator) {
         if (newBeatIdx === (b + 1) % pattern.passes.length && state.prior) {
             const p1idx = state.prior.labels.indexOf(m)
             const p2idx = state.prior.labels.indexOf(p)

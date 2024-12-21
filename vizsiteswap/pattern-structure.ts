@@ -101,7 +101,7 @@ export function checkValidPattern(p: Pattern): string[] {
     return r
 }
 
-function checkValidThrow(t: Throw, p: Pattern): string[] {
+function checkValidThrow(t: Throw, _p: Pattern): string[] {
     const r = []
     if (t.causeTime > t.rethrowTime) r.push(`throw ${JSON.stringify(t)} rethrown before cause`)
     return r

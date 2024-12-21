@@ -1,5 +1,5 @@
-import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.ts';
-import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.ts';
+import { checkValidPattern, Pattern, Throw } from './pattern-structure.ts';
+import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): string {
@@ -138,7 +138,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
 
 
         if (showLeftRight || (showStraightCross && t.annotation !== "")) {
-            let text = []
+            const text = []
             if (showLeftRight)
                 text.push(t.fromHandIdx ? "L" : "R")
 
@@ -158,7 +158,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
     if (showStartingHands) {
         const hands = p.startingHands
         for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
-            let startingHands = hands[passerIdx]
+            const startingHands = hands[passerIdx]
 
             result += `\\draw (${xMargin + startingHandsOffset / 2}pt, ${yo(passerIdx, null)}pt) node [text=${annotationTextColor},font=\\small] {${startingHands.join("|")}};\n`
         }

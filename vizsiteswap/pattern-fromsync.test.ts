@@ -1,7 +1,8 @@
-import assert, { fail } from "node:assert";
+// deno-lint-ignore-file no-explicit-any no-unused-vars
+import assert from "node:assert";
 import fs from "node:fs";
 import test from "node:test";
-import { createSyncPattern, parseSyncPattern } from "./pattern-fromsync.ts";
+import { parseSyncPattern } from "./pattern-fromsync.ts";
 import { replaceElement } from "./replace-util.ts";
 
 test("parse simple pattern", async (t) => {
