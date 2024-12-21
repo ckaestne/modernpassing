@@ -1,14 +1,14 @@
 import test from "node:test";
-import { FourHandedSiteswap } from './siteswap.js'
+import { FourHandedSiteswap } from './siteswap.ts'
 import assert from "node:assert";
-import { createSiteswapPattern } from "./pattern-fromsiteswap.js";
-import { checkValidPattern } from "./pattern-structure.js";
-import { renderGroupPattern, renderPattern } from "./renderer-svg.js";
+import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+import { checkValidPattern } from "./pattern-structure.ts";
+import { renderGroupPattern, renderPattern } from "./renderer-svg.ts";
 import fs from "node:fs";
-import { createSyncPattern } from "./pattern-fromsync.js";
-import { createSyncGroupPattern } from "./pattern-fromgroup.js";
+import { createSyncPattern } from "./pattern-fromsync.ts";
+import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
 
-test("simple siteswap", async (t) => {
+Deno.test("simple siteswap", async (t) => {
     const p = createSiteswapPattern(new FourHandedSiteswap("972"), {})
     assert.deepStrictEqual(checkValidPattern(p), []);
 })

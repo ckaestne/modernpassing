@@ -1,7 +1,7 @@
 {
     "name": "compatsiteswaps-loader",
     "version": "0.1.0",
-    "main": "index.js",
+    "main": "mdbook-compatsiteswaps.ts",
     "type": "module",
     "author": "",
     "license": "GPL-4.0",
@@ -16,6 +16,6 @@
         "typescript": "^5.5.4"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "deno compile -A mdbook-compatsiteswaps.ts"
     }
 }

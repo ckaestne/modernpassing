@@ -1,5 +1,4 @@
 import { JSDOM } from 'jsdom';
-import { FourHandedSiteswap } from './siteswap.js';
 
 
 export function replaceElement( elementName:string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any) => string): string {

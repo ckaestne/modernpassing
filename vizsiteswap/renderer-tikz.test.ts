@@ -1,10 +1,10 @@
 import test from "node:test";
-import { FourHandedSiteswap } from './siteswap.js'
+import { FourHandedSiteswap } from './siteswap.ts'
 import assert from "node:assert";
-import { createSiteswapPattern } from "./pattern-fromsiteswap.js";
-import { checkValidPattern } from "./pattern-structure.js";
+import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+import { checkValidPattern } from "./pattern-structure.ts";
 import fs from "node:fs";
-import { renderPattern } from "./renderer-tikz.js";
+import { renderPattern } from "./renderer-tikz.ts";
 
 
 

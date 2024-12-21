@@ -1,8 +1,8 @@
 import assert, { fail } from "node:assert";
 import fs from "node:fs";
 import test from "node:test";
-import { createSyncPattern, parseSyncPattern } from "./pattern-fromsync.js";
-import { replaceElement } from "./replace-util.js";
+import { createSyncPattern, parseSyncPattern } from "./pattern-fromsync.ts";
+import { replaceElement } from "./replace-util.ts";
 
 test("parse simple pattern", async (t) => {
     parseSyncPattern("3 -> (3px,4) 3(3,3p),333")

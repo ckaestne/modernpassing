@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert";
-import { nextState, Pattern, State } from "./movingpattern.js";
-import { getAiden } from "./aidengen.js";
+import { nextState, Pattern, State } from "./movingpattern.ts";
+import { getAiden } from "./aidengen.ts";
 
 
 

@@ -1,7 +1,7 @@
 import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kleft, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { GroupPattern, GroupPatternLayout, Hand, Pattern, PositionLayout, Throw } from "./pattern-structure.js";
+import { GroupPattern, GroupPatternLayout, Hand, Pattern, PositionLayout, Throw } from "./pattern-structure.ts";
 import assert from "node:assert";
-import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, TokenKind, TPattern, TSequence } from "./pattern-fromsync.js";
+import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, TokenKind, TPattern, TSequence } from "./pattern-fromsync.ts";
 
 
 type TLayout = TPosition[]

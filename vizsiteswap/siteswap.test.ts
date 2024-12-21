@@ -1,5 +1,5 @@
 import test from "node:test";
-import { FourHandedSiteswap } from './siteswap.js'
+import { FourHandedSiteswap } from './siteswap.ts'
 import assert from "node:assert";
 
 test("siteswap thrownNext", async (t) => {

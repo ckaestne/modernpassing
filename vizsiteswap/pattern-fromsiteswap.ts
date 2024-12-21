@@ -1,5 +1,5 @@
-import { Pattern, Throw } from "./pattern-structure";
-import { FourHandedSiteswap } from "./siteswap";
+import { Pattern, Throw } from "./pattern-structure.ts";
+import { FourHandedSiteswap } from "./siteswap.ts";
 
 
 export const defaultSiteswapPatternConfig: SiteswapPatternConfig = {

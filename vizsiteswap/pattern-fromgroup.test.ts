@@ -1,11 +1,8 @@
 import assert, { fail } from "node:assert";
-import fs from "node:fs";
 import test from "node:test";
-import { createSyncPattern, parseSyncPattern } from "./pattern-fromsync.js";
-import { replaceElement } from "./replace-util.js";
-import { createSyncGroupPattern, parseGroupSyncPattern, PLayout, PRow, PRows, PShapes, tokenizer, TShape } from "./pattern-fromgroup.js";
+import { createSyncGroupPattern, parseGroupSyncPattern, PLayout, PRow, PRows, PShapes, tokenizer, TShape } from "./pattern-fromgroup.ts";
 import { expectEOF, expectSingleResult } from "typescript-parsec";
-import { GroupPattern, Throw } from "./pattern-structure.js";
+import { GroupPattern, Throw } from "./pattern-structure.ts";
 
 
 test("parse simple group pattern", async (t) => {
@@ -59,7 +56,7 @@ test("test pattern creation", async (t) => {
     assertContainsThrow(throws, 'B', 3, 'B', 1)
     assertContainsThrow(throws, 'C', 3, 'C', 1)
     assertContainsThrow(throws, 'A', 3, 'C', 3)
-    console.log(gp.layout)
+    // console.log(gp.layout)
     // console.log(throws)
 })
 

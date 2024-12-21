@@ -1,9 +1,9 @@
 import { createSVGWindow } from 'svgdom'
 import { SVG, registerWindow, Svg, G } from '@svgdotjs/svg.js'
-import { FourHandedSiteswap } from './siteswap.js'
+import { FourHandedSiteswap } from './siteswap.ts'
 import { JSDOM } from 'jsdom'; // Import the JSDOM class
-import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.js';
-import { checkValidPattern, GroupPattern, GroupPatternLayout, Pattern, repeatThrows, Throw } from './pattern-structure.js';
+import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.ts';
+import { checkValidPattern, GroupPattern, GroupPatternLayout, Pattern, repeatThrows, Throw } from './pattern-structure.ts';
 import { sep } from 'node:path';
 import assert from 'node:assert';
 
@@ -208,7 +208,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         } else {
             for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++)
                 for (let handIdx of [0, 1]) {
-                    let startingHand = hands[passerIdx][handIdx]
+                    const startingHand = hands[passerIdx][handIdx]
                     svg.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
                         amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, handIdx as 0 | 1)).
                         addClass("starting-hands").

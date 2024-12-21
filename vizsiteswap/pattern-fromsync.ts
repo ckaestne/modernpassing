@@ -1,5 +1,5 @@
 import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, list, nil, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "typescript-parsec";
-import { Hand, Pattern, Throw } from "./pattern-structure.js";
+import { Hand, Pattern, Throw } from "./pattern-structure.ts";
 import assert from "node:assert";
 import { start } from "node:repl";
 

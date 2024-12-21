@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { defaultConfig, loadCompatSiteswapList, Pattern } from './load-siteswaplist.js';
+import fs from 'node:fs';
+import { defaultConfig, loadCompatSiteswapList, Pattern } from './load-siteswaplist.ts';
 
 /**
  * mdbook preprocessor to replace $siteswapslist with a complete, sorted list of siteswaps

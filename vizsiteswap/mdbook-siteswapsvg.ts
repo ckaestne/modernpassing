@@ -3,13 +3,12 @@
  * mdbook preprocessor to replace <siteswap> tags with inline SVG images
  */
 
-import { FourHandedSiteswap } from './siteswap.js';
-import { createSiteswapPattern, SiteswapPatternConfig } from './pattern-fromsiteswap.js';
-import { renderPattern } from './renderer-svg.js';
-import { RendererConfig } from './renderer-config.js';
-import fs from 'fs';
-import { replaceElement } from './replace-util.js';
-import { createSyncPattern } from './pattern-fromsync.js';
+import { FourHandedSiteswap } from './siteswap.ts';
+import { createSiteswapPattern, SiteswapPatternConfig } from './pattern-fromsiteswap.ts';
+import { renderPattern } from './renderer-svg.ts';
+import fs from 'node:fs';
+import { replaceElement } from './replace-util.ts';
+import { createSyncPattern } from './pattern-fromsync.ts';
 
 
 if (process.argv[2] === "supports") {

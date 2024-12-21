@@ -1,11 +1,9 @@
 import { program, Option } from 'commander';
-import { FourHandedSiteswap } from './siteswap.js';
-import fs from 'fs';
-import child_process from 'child_process';
-import crypto from 'crypto';
-import { RendererConfig } from './renderer-config.js';
-import { createSiteswapPattern } from './pattern-fromsiteswap.js';
-import { renderPattern } from './renderer-svg.js';
+import { FourHandedSiteswap } from './siteswap.ts';
+import fs from 'node:fs';
+import { createSiteswapPattern } from './pattern-fromsiteswap.ts';
+import { renderPattern } from './renderer-svg.ts';
+import process  from 'node:process';
 
 
 program

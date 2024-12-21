@@ -1,7 +1,7 @@
 {
     "name": "vizsiteswap",
     "version": "0.1.0",
-    "main": "index.js",
+    "main": "index.ts",
     "type": "module",
     "author": "",
     "license": "GPL-4.0",
@@ -26,6 +26,6 @@
         "typescript": "^5.5.4"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "deno compile --allow-read --allow-write --allow-env mdbook-siteswapsvg.ts & deno compile --allow-read --allow-write --allow-env index.ts"
     }
 }

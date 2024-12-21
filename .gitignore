@@ -5,3 +5,6 @@ node_modules
 pandoc
 modernpassing.pdf
 target/
+compatsiteswaps/mdbook-compatsiteswaps
+vizsiteswap/mdbook-siteswapsvg
+vizsiteswap/vizsiteswap

@@ -1,5 +1,5 @@
-import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.js';
-import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.js';
+import { RendererConfig as RendererConfig, defaultRendererConfig as defaultRendererConfig } from './renderer-config.ts';
+import { checkValidPattern, Pattern, repeatThrows, Throw } from './pattern-structure.ts';
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): string {
