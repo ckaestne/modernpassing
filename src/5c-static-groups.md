@@ -18,7 +18,7 @@ A good first pattern is to juggle three-count with *inside* throws, that is righ
 A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33
-positions: Circe(A,B,C)
+positions: Circle(A,B,C)
 </sync-group>
 
 Once this works, there are many more variations to explore that are interestingly different without drastically increasing difficulty.
@@ -30,8 +30,8 @@ Actively provide feedback about incoming passes and where you would like to rece
 <sync-group>
 A: 3pC333pB33
 B: 3pA333pC33
-C: 3pB333pAC33
-positions: Circe(A,B,C)
+C: 3pB333pA33
+positions: Circle(A,B,C)
 </sync-group>
 
 
@@ -50,7 +50,7 @@ Similar to variations in a feed, it is possible to design many different passing
 A: 3pB 3pC 3
 B: 3pC 3   3
 C: 3pA 3pA 3
-positions: Circe(A,B,C)
+positions: Circle(A,B,C)
 </sync-group>
 
 To extend this sequence for a more challenging pattern, we can swap roles after every *n* iterations. For example, a passer starts in role A (pass-pass-self feed) for two iterations, followed by two iterations in role B (three-count), followed by two iterations in role C (pass-pass-self to the right), the others similarly shift through the roles but start with a different role.
@@ -64,7 +64,7 @@ With all passes thrown as crossing doubles, it is easy to add a 10th club to a t
 A: 4pB33   
 B: 34pC3 
 C: 334pA 
-positions: Circe(A,B,C)
+positions: Circle(A,B,C)
 </sync-group>
 
 (All passers start at the same time with the same hand. Crossing passes can be awkward to throw in a triangle with left-hand passes being much longer than right-hand passes; provide feedback.)
@@ -89,7 +89,7 @@ B: 3pA33 3  33 3pC33 3pD33 3pE33
 C: 3pE33 3pA33 3pB33 3  33 3pD33
 D: 3  33 3pE33 3pA33 3pB33 3pC33
 E: 3pC33 3pD33 3  33 3pA33 3pB33
-positions: Circe(A,B,C,D,E)
+positions: Circle(A,B,C,D,E)
 </sync-group>
 
 (Notice the starting partners A+B and C+E resulting in parallel passes and passer D starting with a self. Notice that everybody passes with every other passer in order, including themselves.)
@@ -102,7 +102,7 @@ Three passers juggling the *feast* in a *one-count*  results in an interesting t
 A: 3pB 3pC 3   3pB 3pC 3
 B: 3pA 3   3pC 3pA 3   3pC
 C: 3   3pA 3pB 3   3pA 3pB
-positions: Circe(A,B,C)
+positions: Circle(A,B,C)
 </sync-group>
 
 **Scaling the feast.**
@@ -119,11 +119,11 @@ For more than 6 or 7 passers, the length of different passes starts to differ a 
 By arranging four passers in a rectangle with two facing the other two, each passer can feed two other passers. The challenge is to find patterns that do not collide in the middle, sometimes involving selective double passes. The most elegant of these patterns is a *double pass-pass-self feed*:
 
 <sync-group>
-A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3
-B: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3
-C: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3
-D: 3pA 3 3pB 3 3pB 3 3pC 3 3pD 3 3pD 3
-positions: Circle(A,B,C,D)
+A: 3pD 3   3pC 
+B: 3pC 3pD 3   
+C: 3pB 3   3pA 
+D: 3pA 3pB 3   
+positions: Box(A,B,C,D)
 </sync-group>
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
@@ -139,10 +139,10 @@ positions: Circle(A,B,C,D)
 In a square arrangement, everybody can pass with everybody. Aside from feasts (see above), the following pattern combines two-count and three-count in a somewhat interesting arrangement:
 
 <sync-group>
-A: 3pC 3pD 3
-B: 3pD 3   3pC
-C: 3pA 3   3pB
-D: 3pB 3pA 3
+A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3
+B: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3
+C: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3
+D: 3pA 3 3pB 3 3pB 3 3pC 3 3pB 3 3pB 3
 positions: Circle(A,B,C,D)
 </sync-group>
 
@@ -165,6 +165,7 @@ positions: Circle(A,B,C,D)
 A common pattern for a group of five passers is in a circle where each passer juggles with the two people opposite in the circle, resulting in a five-pointed star formation. Like in standard triangle patterns, all passers pass to a different person than from whom they receive the incoming pass; like in triangle patterns many variations are possible by deciding the sequence of *"inside"* and *"outside"* passes. Since all passes go through the middle on the same beat, it is important to be consistent on timing and length of all passes, especially *inside* passes.
 
 Here is a standard 5-passer star pattern on three-count with all outside throws:
+
 
 <sync-group>
 A: 3pD33 3pC33

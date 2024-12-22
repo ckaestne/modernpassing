@@ -42,8 +42,8 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
                     rethrowTime: sw.thrownNext(idx)/2,
                     fromPasserIdx: passerIdx,
                     toPasserIdx: (sw.jugglerAt(sw.thrownNext(idx))+ startingJuggler) % 2,
-                    fromHandIdx: (idx + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
-                    toHandIdx: (sw.thrownNext(idx) + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
+                    fromHand: (idx + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
+                    toHand: (sw.thrownNext(idx) + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
                     label: sw.throwLetterAt(idx),
                     annotation: getStraightCrossText(passerIdx, sw.throwAt(idx))
                 }

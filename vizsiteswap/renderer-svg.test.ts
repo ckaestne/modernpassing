@@ -1,4 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
+import { Svg } from "@svgdotjs/svg.js";
 import assert from "node:assert";
 import fs from "node:fs";
 import test from "node:test";
@@ -6,7 +7,7 @@ import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
 import { createSyncPattern } from "./pattern-fromsync.ts";
 import { checkValidPattern } from "./pattern-structure.ts";
-import { renderGroupPattern, renderPattern } from "./renderer-svg.ts";
+import { renderGroupPattern, renderLayoutFrames, renderPattern } from "./renderer-svg.ts";
 import { FourHandedSiteswap } from './siteswap.ts';
 
 Deno.test("simple siteswap", async (t) => {
@@ -175,7 +176,16 @@ test("fully synchronous patterns", async (t) => {
 
 test("create basic group sync examples", async (t) => {
 
-    const patterns = ["A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)"]
+    const patterns = [
+        "\nA: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)",
+        "A: 3pB333pB33\n           B: 3pC333pC33\n            C: 3pA333pA33\n            positions: Circle(A,B,C)\n\n",
+        "A: 3pB3pC3\n  B: 3pA33\n C: 4pA23\n positions: V(A,B,C)",
+        "A: 3pB33 3pC33 3pD33 3pE33 3  33\nB: 3pA33 3  33 3pC33 3pD33 3pE33\nC: 3pE33 3pA33 3pB33 3  33 3pD33\nD: 3  33 3pE33 3pA33 3pB33 3pC33\nE: 3pC33 3pD33 3  33 3pA33 3pB33\npositions: Circle(A,B,C,D,E)",
+        "A: 3pD 3   3pC \nB: 3pC 3pD 3   \nC: 3pB 3   3pA \nD: 3pA 3pB 3   \npositions: Circle(A,B,C,D)",
+        "A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3\nB: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3\nC: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3\nD: 3pA 3 3pB 3 3pB 3 3pC 3 3pB 3 3pB 3\npositions: Circle(A,B,C,D)",
+        "A:3\nB:3\nC:3\nD:3\nE:3\npositions: Circle(A,B,C,D,E)",
+        "A: 3pC 3pD 3   3   3pD 3pE 3   3   3pE 3pC 3   3\nB: 3   3   3pE 3pC 3   3   3pC 3pD 3   3   3pD 3pE\nC: 3pA 3   3   3pB 3   3   3pB 3   3   3pA 3   3\nD: 3   3pA 3   3   3pA 3   3   3pB 3   3   3pB 3 \nE: 3   3   3pB 3   3   3pA 3   3   3pA 3   3   3pB\npositions: Trapezoid(A,B,C,D,E)",
+    ]
 
     let content = "<!DOCTYPE html><html>"
 
@@ -183,7 +193,12 @@ test("create basic group sync examples", async (t) => {
         const pattern = createSyncGroupPattern(p, {})
         const svg = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
 
-        content += `<h2>${p}</h2><p>${svg.svg()}</p>`
+        let staticFrames: Svg[] = []
+        if (pattern.layout && pattern.layout.frames) {
+             staticFrames = renderLayoutFrames(pattern.layout.frames, 200,200)
+        }
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s=>s.svg())}</p>`
     }
 
     content += "</html>"

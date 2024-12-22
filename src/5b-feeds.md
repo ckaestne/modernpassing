@@ -52,25 +52,25 @@ As another beginner-friendly feed, a feeder juggling *[6-club one-count](1-learn
 **Chaining multiple feeds.** 
 To integrate more passers, it is possible to have more than one feeder in a pattern, producing N-shaped or W-shaped layouts, for example here is a pattern with two feeders (B, C):
 
-<sync-group>
+<todo-sync-group>
 A: 3pB33
 B: 3pA3pC3
 C: 3pD3pB3
 D: 3pC33
 positions: V(B,A,C) V(C,D,B)
-</sync-group>
+</todo-sync-group>
 
 
 **Getting creative.** It is easily possible to come up with various different variations by deciding whether and to whom the feeders should pass on each beat. For example, a feeder juggling *[6-club one-count](1-learn-teach.md)* could pass to one feedee in *[bookends (pass-pass-self-pass-self)](2b-basic-sync.md)* and to two more feedees in *five-count.* To further extend this, one of those feedees could act as a feeder themselves, feeding the first feeder in *five-count* and a fifth passer in *pass-pass-self-self-self*:
 
-<sync-group>
+<todo-sync-group>
 A: 3pB3pB3pC3pB3pD
 B: 3pA3pA33pA3
 C: 333p33
 D: 3pE3pE333pA
 E: 3pD3pD333
 positions: V(A,B,C,D) V(D,E,A)
-</sync-group>
+</todo-sync-group>
 
 It is similarly possible to introduce (crossing) double passes as [early doubles](2b-basic-sync.md), either as a trick throw or continuously, for example:
 
@@ -86,23 +86,23 @@ positions: V(A,B,C)
 **Adding clubs to synchronous feeds.**
 It is possible to add extra clubs to a feed. The most common traditional pattern is a feeder passing [7-club two-count](2d-advanced.md) to two feedees passing 7-club four-count on doubles:
 
-<sync-group style='{"swaphands":["B","C"]}'>
+<todo-sync-group style='{"swaphands":["B","C"]}'>
 A: 4pB34pC3
 B: 34pA33
 C: 3334pA
 positions: V(A,B,C)
-</sync-group>
+</todo-sync-group>
 
 (Note that, as for *[7-club two-count](2d-advanced.md)*, rather than crossing all doubles, the feedees conventionally start left-handed or a beat late. Also the two feedees each juggle a pattern that would not work with two passers, since they split the extra club between them.)
 
 Also *[8-club pass-pass-self](2d-advanced.md)* can straightforwardly feed two feedees juggling *[8-club three-count](2d-advanced.md)*:
 
-<sync-group>
+<todo-sync-group style='{"swaphands":["B","C"]}'>
 A: 4pB4pC4
 B: 4pA44
 C: 44pA4
 positions: V(A,B,C)
-</sync-group>
+</todo-sync-group>
 
 (As with 6-club patterns above, any sequence of double passes to feedes and heffs can be combined to create more patterns.)
 

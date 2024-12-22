@@ -4,7 +4,7 @@ import process from "node:process";
 
 // deno-lint-ignore no-explicit-any
 export function replaceElement( elementName:string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any) => string): string {
-    const re = new RegExp(`<${elementName}(.*?)>(.*?)</${elementName}>`, "g");
+    const re = new RegExp(`<${elementName}(.*?)>(.*?)</${elementName}>`, "gms");
     return text.replace(re, (match: string, config: string, inner: string) => {
         let c = {}
         if (config)

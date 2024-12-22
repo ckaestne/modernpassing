@@ -26,22 +26,22 @@ video {
 svg { max-width: 100%;}
 
 
-sync-group {
+todo-sync-group {
     display: block;
     white-space: pre;
     background-color: red;
 }
 
-sync-group:before {
+todo-sync-group:before {
     content: "TODO: "
 }
 
-siteswap-group {
+todo-siteswap-group {
     display: block;
     white-space: pre;
     background-color: red;
 }
 
-siteswap-group:before {
+todo-siteswap-group:before {
     content: "TODO: "
 }

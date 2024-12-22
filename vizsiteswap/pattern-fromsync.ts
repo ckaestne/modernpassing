@@ -169,12 +169,12 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
 
 
 
-        function genThrow(throwToken: string, time: number, passerIdx: number, fromHandIdx: Hand, timeFactor: number = 1): Throw {
+        function genThrow(throwToken: string, time: number, passerIdx: number, fromHand: Hand, timeFactor: number = 1): Throw {
             const [value, isPass, _isCrossing] = parseThrow(throwToken)
             const causeTime = time + (value - 2)*timeFactor;
             const rethrowTime = time + value*timeFactor;
             const toPasserIdx = isPass ? (passerIdx + 1) % 2 : passerIdx;
-            const toHand: Hand = toSameHandThrows.includes(throwToken) ? fromHandIdx : (fromHandIdx + 1) % 2
+            const toHand: Hand = toSameHandThrows.includes(throwToken) ? fromHand : (fromHand + 1) % 2
             //updates to handsequence do not matter in sync throws, but also
             const expectedToHandIdx: Hand = handSequence[toPasserIdx][causeTime];
             if (toHand !== expectedToHandIdx) {
@@ -182,16 +182,16 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
                 swapHands(handSequence, toPasserIdx, causeTime)
                 // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
             }
-            const annotation = isPass ? (fromHandIdx===toHand ? "X" : "||") : ""
+            const annotation = isPass ? (fromHand===toHand ? "X" : "||") : ""
             const label = useSimpleLabels ? convertToLabel(throwToken, gallop, allSync!) : throwToken
             return { 
-                throwTime: gallopOffset(time, fromHandIdx),
+                throwTime: gallopOffset(time, fromHand),
                 fromPasserIdx: passerIdx,
-                fromHandIdx,
+                fromHand,
                 causeTime: gallopOffset(causeTime, toHand),
                 rethrowTime: gallopOffset(rethrowTime, toHand),
                 toPasserIdx,
-                toHandIdx: toHand,
+                toHand: toHand,
                 label: label,
                 annotation
             }
@@ -263,16 +263,16 @@ function getStartingHands(throws: Throw[], _beats: number, allSync:boolean): [nu
     // collect all throws
     const throwingHands: [number, number, Hand][] = []
     for (const t of throws) {
-        const v: [number, number, Hand] = [t.throwTime, t.fromPasserIdx, t.fromHandIdx]    
+        const v: [number, number, Hand] = [t.throwTime, t.fromPasserIdx, t.fromHand]    
         assert(throwingHands.find(x => v[0] === x[0] && v[1] === x[1] && v[2] === x[2]) === undefined,
-            `two or more throws from the same passer ${t.fromPasserIdx} and the same hand ${t.fromHandIdx} on the same beat ${t.rethrowTime} not supported`)
+            `two or more throws from the same passer ${t.fromPasserIdx} and the same hand ${t.fromHand} on the same beat ${t.rethrowTime} not supported`)
         throwingHands.push(v)
     }
 
 
     // remove throws that are received
     for (const t of throws) {
-        const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHandIdx]    
+        const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHand]    
         //for only for all-sync patterns we actually check the hands (otherwise hurrys won't work)
         const tIdx = throwingHands.findIndex(x => v[0] === x[0] && v[1] === x[1] && (!allSync||v[2] === x[2])) 
         if (tIdx>=0)

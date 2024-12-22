@@ -17,8 +17,16 @@ Here is an example, of three passers passing 3-count in a triangle:
 A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33
-positions: Circe(A,B,C)
+positions: Circle(A,B,C)
 </sync-group>
+
+
+<!-- <sync-group style='{"renderFramesOnly":true}'>
+A: 3pB333pC33
+B: 3pC333pA33
+C: 3pA333pB33
+positions: Circle(A,B,C)
+</sync-group> -->
 
 
 

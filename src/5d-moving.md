@@ -13,13 +13,13 @@ With walking and takeout patterns, it is common to write down only one transitio
 
 For illustration, here is the full notation for the *rotating feed* in two-count vs four-count (described in more detail below). It is 18 beats long to get back to the start where passer A feeds (though the orientation in the room will have changed). However, the first six beats already describe all that is happening in the pattern. After those six beats, a different passer (who started as C before) will now feed; after another six beats the third passer will be the feeder.
 
-<sync-group frames="1,3,5,7,9,11,13,15,17">
+<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3     3pA3  3  3  3pA3w     3w 3w 3pA3  3  3  -> A
 B: 3pA3  3  3  3pA3w    3w 3w 3pA3  3  3      3pB3  3pC3  3pB3  -> B
 C: 3w 3w 3pA3  3  3     3pB3  3pC3  3pB3      3pA3  3  3  3pA3w -> C
 positions: V(A,B,C)
 move: Vmove(B)Vmove(A)Vmove(C)
-</sync-group>
+</todo-sync-group>
 
 
 **Relabeling.**
@@ -27,13 +27,13 @@ The standard approach to notate those patterns compactly is to describe only one
 That is, the same passer (identified with a colored circle in the diagram) will go through all three roles -- in this pattern, first A, then B, then C. The role changes (how passers are relabeled) are indicated as arrows at the end of each line in the notation.
 While relabeling approach makes patterns much more compact to notate, it can require some practice to read to notation and follow how roles change for each passer during the pattern.
 
-<sync-group frames="1,3,5,7,9,11,13,15,17">
+<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3  -> B
 B: 3pA3  3  3  3pA3w -> C
 C: 3w 3w 3pA3  3  3  -> A
 positions: V(A,B,C)
 move: Vmove(B)
-</sync-group>
+</todo-sync-group>
 
 **Changing starts: Turning back.**
 While learning longer patterns, it is good idea to change the start when the first beats of the pattern work well, but the group rarely gets to later beats to practice them. The best way to change the start is to go *backward* in the pattern by one segment. This way, everybody can learn the new segment and then gets to a point that they already know (whereas turning forward, everybody gets to more unknown parts of the pattern and never practices previous parts again until getting around).
@@ -55,14 +55,14 @@ A good beginner pattern with easy movement is the *Rotating Y*. The Y is a forma
 
 The rotating Y is commonly juggled in [four-count](2b-basic-sync.md) with movement after every other pass or after every pass. To learn the pattern, it is common to try every position without moving during the pattern, and move to the new positions between attempts when resetting. When moving during the pattern, only fairly little movement is needed, typically only a step or two without turning, making this a good beginner pattern.
 
-<sync-group frames="1,5,9,13">
+<todo-sync-group frames="1,5,9,13">
 A: 3pB333 3pB3w3w3w -> D
 B: 3pC333 3pC3w3w3w -> A
 C: 3pD333 3pD3w3w3w -> B
 D: 3pA333 3pA3w3w3w -> C
 positions: Y(A,B,C,D)
 move: circleCC(A,C), circleCC(B,D)
-</sync-group>
+</todo-sync-group>
 
 
 
@@ -82,13 +82,13 @@ To begin, the left feedee can walk across the pattern after any pass with or wit
 
 The most common pattern is for the left feedee to walk every six beats, which passer is currently in the left feedee position will change. The feeder  typically counts the two-count passes as 1 - 2 - 3 and the left feeder would start walking after the pass on 3. After this, the right feedee takes over counting (and feeding) 1 - 2 - 3 after that, which is when the next passer (the first feeder) will start walking, and so forth.
 
-<sync-group frames="1,3,5,7,9,11,13,15,17">
+<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3  -> B
 B: 3pA3  3  3  3pA3w -> C
 C: 3w 3w 3pA3  3  3  -> A
 positions: V(A,B,C)
 move: Vmove(B)
-</sync-group>
+</todo-sync-group>
 
 
 Walking and turning while juggling can initially be somewhat challenging. Usually the passer walking will walk immediately after their pass and catch the incoming pass somewhat along the way (ask the feeder to throw it shorter if necessary). It is possible to practice walking and turning while juggling alone, simply walking around while maintaining a 3-club cascade. Less confident passers can also collect all clubs and walk across the pattern holding all three clubs to then restart with a pass on the other side.
@@ -99,24 +99,24 @@ Walking and turning while juggling can initially be somewhat challenging. Usuall
 **Pass-pass-self feeds.**
 The following pattern is a nice approximation of a pass-pass-self feed (technically pass-pass-self-pass-pass-self-pass-self), which still allows walking on a right-handed four count. That is, the pattern is ambidextrous and slightly more challenging, but the walking is the same as in the two-count vs. four-count version.
 
-<sync-group>
+<todo-sync-group>
 A: 3pC3pB3 3pC3pB3 3pC3  -> B
 B: 33pA3   33pA3w  3w3w -> C
 C: 3pA33   3pA3  3 3pA3  -> A
 positions: V(A,B,C)
 move: Vmove(B)
-</sync-group>
+</todo-sync-group>
 
 
 A pure pass-pass-self feed is also possible, but substantially harder. It requires walking on a three-count and alternates between walking on a right-handed three-count and a left-handed three-count. Walking after a left-handed pass is harder for most people, because it is easier to turn with the angle of the incoming pass.
 
-<sync-group>
+<todo-sync-group>
 A: 3pB3pC3 3pB3pC3 3pB3pC3  33pC3   33pC3   33pC3w  -> C
 B: 3pA33   3pA33   3pA3w3w  3pC33   3pC33   3pC33   -> A
 C: 3w3pA3  33pA3   33pA3    3pB3pA3 3pB3pA3 3pB3pA3 -> B
 positions: V(A,B,C)
 move: Vmove(B)Vmove(A)
-</sync-group>
+</todo-sync-group>
 
 
 **Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across. **[TODO: one more example]**
@@ -124,13 +124,13 @@ move: Vmove(B)Vmove(A)
 It is also possible that multiple passers walk in one sequence (as already shown in the rotating pure pass-pass-self feed above). Here is another example of a very short pattern, with a lot of walking on right-handed three-counts:
 
 
-<sync-group>
+<todo-sync-group>
 A: 3pB3pC3 3pB3w3w   -> C
 B: 3pA33   3pA3pC3   -> A
 C: 33pA3w   3w3pB3     -> B
 positions: V(A,B,C)
 move: Vmove(C)Vmove(B)
-</sync-group>
+</todo-sync-group>
 
 
 
@@ -144,13 +144,13 @@ In this pattern, on all double passes, the feeder throws one more pass to their 
 
 To maintain the usual approach to throw all double passes straight instead of crossing, the feedees start left-handed or one beat late (see *[7-club two-count](2d-advanced.md)* and [adding clubs to synchronous feeds](5b-feeds.md)). Since the walking technically changes from the left-handed to the right-handed side of the pattern, there can only be three selfs in the five-count and passer walking needs to take one of these options: (a) juggle a four-count very slowly to match the speed of a five-count, (b) throw one of the three selfs of a four-count as a double self followed by a wait to gain an extra beat of time, or (c) walk on a normal four-count and throw an early triple pass followed by a wait. In either case, timing is right if, after walking, the first pass responds to an incoming pass with the offset timing common for *7-club two count*.
 
-<sync-group>
+<todo-sync-group>
 A: 4pB3  4pC3  4pB3  4pC -> B
 B: 34pA  3  3  34pA  3w  -> C
 C: 3w3w  3w4pA 3  3  3   -> A
 positions: V(A,B,C)
 move: Vmove(B)
-</sync-group>
+</todo-sync-group>
 
 With a bit of galloping, this pattern can also be juggled on single passes (see [7-club two-count on singles](2e-beyond.md)).
 
@@ -165,13 +165,13 @@ In the basic Bruno's nightmare pattern, the passers start in a V shape and one f
 
 The standard way to juggle this pattern is on *three-count vs. six-count*, which is giving passers a lot of time to walk and turn. 
 
-<sync-group>
+<todo-sync-group>
 A: 3pB33 3pC33 3pB33 -> B
 B: 3pA33 333   3pA33 -> C
 C: 333   3pA33 333   -> A
 positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
-</sync-group>
+</todo-sync-group>
 
 The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging.
 
@@ -197,26 +197,26 @@ Beyond solo patterns, Bruno's patterns can also be extended to passing patterns,
 
 **Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking juggler turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
 
-<sync-group>
+<todo-sync-group>
 A: 3pB3 3pC3 33   -> B
 B: 3pA3 33   3pC3 -> C
 C: 33   3pA3 3pB3 -> A
 positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
-</sync-group>
+</todo-sync-group>
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
 
 **Bruno's one count.** A particularly challenging (and exhausting) variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
 
-<sync-group>
+<todo-sync-group>
 A: 3pB 3pC 3pB -> B
 B: 3pA 3   3pA -> C
 C: 3   3pA 3   -> A
 positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
-</sync-group>
+</todo-sync-group>
 
 This pattern is very difficult to learn from scratch. By far the best way to learn this pattern is with two passers who can run it. Here are a couple of hints: Juggle very lofty and slow; count out loud to synchronize. After the first pass of the feed, the walking passer should take a step forward to give the "falling" passer space, but should not yet move sideways. The second pass of the feed needs to be long to avoid collisions with the short pass after; for the passer walking through the pattern this is the first pass on the other side after turning (likely the most difficult pass of the pattern); collisions are most commonly caused by the walking passer's pass being too short here. The third pass of the feed needs to be lofty but very short; usually the feeder is leading the walking passer quite a bit; the outgoing and incoming passes usually cross, the walking passer should aim to the nose or even the wrong hand of the feeder. For the feeder, the second and third pass are usually roughly in the same direction, the third pass is just much shorter. The walking passer has a single self to turn all the way around; usually they already turn a lot after throwing their short pass *before* catching the incoming short pass, so that they need to turn much less under the self.
 
@@ -226,14 +226,14 @@ Bruno's one-count is possible on all the other variations, like *Magermix* for s
 
 **Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles. Again, the feedees start with the opposite hand than the feeder; the feeder has an extra pass at the end of their sequence; and there is an extra beat while walking (7-count instead of 6-count). To make the pattern work, the feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. In contrast to the rotating feed, with the mixed straight and crossing passes, the 7-count can be juggled as a normal 7-count, no need to kill a beat.
 
-<sync-group>
+<todo-sync-group>
 **TODO is this 966 and walking on 6.5 count?**
 A: 4pB33 4pC33 4pB33 4pC -> B
 B: .34pA3 333   34pA3 3   -> C
 C: .333   34pA3 333   3   -> A
 positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
-</sync-group>
+</todo-sync-group>
 
 (Technically the approach also works for 10-club Bruno's one count by leaving out the extra selfs.)
 
@@ -246,14 +246,14 @@ move: Bmove(B)Bfall(C),mirror
 The feeder feeds the feedees in the following order: middle feedee, left feedee, right feedee, and middle feedee. First the left feedee walks in three-count after their pass, and then the middle feedee after their second pass, turning the right feedee into the new feeder. The pattern is usually started left-handed so that all walking happens after right-hand passes.
 
 
-<sync-group>
+<todo-sync-group>
 A: 3pC 3pB 3pD 3pC -> B
 B: 3   3pA 3w   3w -> C 
 C: 3pA 3   3   3pA -> D
 D: 3   3   3pA 3   -> A
 positions: V(A,B,C,D)
 move: Vmove(B),Vmove(C)
-</sync-group>
+</todo-sync-group>
 
 
 ## Shooting Star (4 passers)
@@ -262,14 +262,14 @@ move: Vmove(B),Vmove(C)
 
 The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer will not receive clubs and one passer would pass into a hole. In the standard four-count version, the passer who would pass into the hole starts with two clubs and skips the first pass, whereas the passer who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
 
-<sync-group>
+<todo-sync-group>
 A: 3pC 333 -> D
 B: 3pD 3w3w3w -> C 
 C: 2   333 -> A
 D: 3pA   333   -> B
 positions: Circle(A,B,C,D,_)
 move: Cmove(B,direct,angle)
-</sync-group>
+</todo-sync-group>
 
 Note: The passer with role C starts with 2 clubs.
 
@@ -287,14 +287,14 @@ The [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/
 **3-leaf clover.**
 In this pattern, all passers continuously walk in an out of the middle of the pattern, through three loops (see diagram below). Essentially, a feeder throws two-count to three feedees in six-count. The Madison book has many more variations, including ambidextrous ones.
 
-<sync-group>
+<todo-sync-group>
 A: 3pD3 3pB3  -> D
 B: 33   3pA3 -> C
 C: 33   33   -> A
 D: 3pA3 33   -> B
 positions: Clover(A,B,C,D)
 move: clover(A,B,C,D?)
-</sync-group>
+</todo-sync-group>
 
 
 
@@ -302,7 +302,7 @@ move: clover(A,B,C,D?)
 **The weave.** 
 In the weave, three passers walk in a figure of 8 on six-count all while facing a feeder outside the pattern who feeds them in two-count. This pattern does not cycle through all positions, since the feeder stays fixed, but it is intuitive and easy to learn and there are many variations (including ambidextrous ones) in the Madison book.
 
-<sync-group>
+<todo-sync-group>
 TODO: fix
 <!-- A: 3pB3 3pC3 3pD3 3pB3 3pC3 3pD -> A
 B: 3pA3 33   33   3pA3 33   33  -> C
@@ -310,5 +310,5 @@ C: 33   3pA3 33   33   3pA3 33  -> B
 D: 3p3  33   3pA3 33   33   3pA3 ->  -->
 positions: 8(B,C,D),V(A,B,C,D)
 move: 8(B,C,D)
-</sync-group>
+</todo-sync-group>
 

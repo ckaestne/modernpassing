@@ -23,7 +23,9 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - uses: actions/checkout@v2
-
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
@@ -31,10 +33,10 @@ jobs:
           # mdbook-version: 'latest'
 
       - name: Install vizsiteswap dependencies
-        run: cd vizsiteswap; npm install; npx tsc
+        run: cd vizsiteswap; deno install; deno task build
 
       - name: Install compatsiteswaps dependencies
-        run: cd compatsiteswaps; npm install; npx tsc
+        run: cd compatsiteswaps; deno install; deno task build
 
       - run: mdbook build
 

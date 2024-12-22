@@ -21,8 +21,8 @@ export type Throw = {
     toPasserIdx: number;
 
     // the index of the hand throwing and receiving
-    fromHandIdx: Hand;
-    toHandIdx: Hand;
+    fromHand: Hand;
+    toHand: Hand;
 
     // the label for the throw (e.g "3p" or "a") and a possible annotation (e.g., "X", "||")
     label: string;
@@ -55,27 +55,34 @@ export type GroupPattern = {
     layout?: GroupPatternLayout
 }
 export type GroupPatternLayout = {
-    positions: PositionLayout[],
-    passes?: { passId: PassId, label: string }[]
-    animations?: PassAnimation[]
-    frames?: GroupPatternFrame[]
+    // group pattern layouts have three forms: static overall, static frames, and animation
+    // they are separately, and partially redundantly encoded
+    static: GroupPatternStaticLayout,
+    frames?: FrameLayout[],
+    animation?: {
+        length: number,
+        elements: PassAnimation[]
+    }
 }
-export type GroupPatternFrame = {
+export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
+
+export type GroupPatternStaticLayout = {
     positions: PositionLayout[],
-    passes: { passId: PassId, label: string }[]
+    passes: PassLayout[]
 }
 export type PositionLayout = {
     role: string, // unique Id, single uppercase letter
     x: number,
     y: number
 }
-export type PassId = number
 export type PassLayout = {
-    id: PassId,
     fromX: number,
     fromY: number,
+    fromHand: Hand,
     toX: number,
-    toY: number
+    toY: number,
+    toHand: Hand,
+    label: string
 }
 export type PassAnimation = {
     pass: PassLayout,
@@ -95,7 +102,7 @@ export function checkValidPattern(p: Pattern): string[] {
     p.getThrows(3).map((t) => r.push(...checkValidThrow(t, p)))
     for (const t of p.getThrows(1)) {
         if (t.throwTime < -.5) r.push(`throw ${JSON.stringify(t)} thrown before 0`)
-        if (t.throwTime >= p.prefixPeriod+ p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
+        if (t.throwTime >= p.prefixPeriod + p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
     }
 
     return r

@@ -98,9 +98,9 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         }
 
 
-        if (yo(t.fromPasserIdx, t.fromHandIdx) !== yo(t.toPasserIdx, t.toHandIdx)) {
+        if (yo(t.fromPasserIdx, t.fromHand) !== yo(t.toPasserIdx, t.toHand)) {
             // diagonal lines are straight
-            result += `\\draw[${color}, line width=${width}pt] (${xo(startTime)}pt, ${yo(t.fromPasserIdx, t.fromHandIdx)}pt) -- (${xo(endTime)}pt, ${yo(t.toPasserIdx, t.toHandIdx)}pt);\n`
+            result += `\\draw[${color}, line width=${width}pt] (${xo(startTime)}pt, ${yo(t.fromPasserIdx, t.fromHand)}pt) -- (${xo(endTime)}pt, ${yo(t.toPasserIdx, t.toHand)}pt);\n`
         } else {
             // self throws are curved
             const dir = lineBendOrientation[t.fromPasserIdx];
@@ -109,7 +109,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
             const bendOffset = xDiff<=0 ? 0 : yDist / 5.5 * xDiff/xDist * bendAdjustment
 
             result += `\\draw[${color}, line width=${width}pt] `+
-                `(${xo(startTime)}pt, ${yo(t.fromPasserIdx, t.fromHandIdx)}pt) .. controls (${xo(startTime) + bendOffset}pt, ${yo(t.fromPasserIdx, t.fromHandIdx) + dir * bendOffset}pt) and (${xo(endTime) - bendOffset}pt, ${yo(t.toPasserIdx, t.toHandIdx) + dir * bendOffset}pt) .. (${xo(endTime)}pt, ${yo(t.toPasserIdx, t.toHandIdx)}pt);`
+                `(${xo(startTime)}pt, ${yo(t.fromPasserIdx, t.fromHand)}pt) .. controls (${xo(startTime) + bendOffset}pt, ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}pt) and (${xo(endTime) - bendOffset}pt, ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}pt) .. (${xo(endTime)}pt, ${yo(t.toPasserIdx, t.toHand)}pt);`
             // svg.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHandIdx)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHandIdx) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHandIdx) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHandIdx)}`).
             //     stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
         }
@@ -133,14 +133,14 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         // t.throwTime >= maxTime ? throwExtraTextColor : throwTextColor
 
 
-        result += `\\draw[fill=${circleColor}] (${xo(t.throwTime)}pt, ${yo(t.fromPasserIdx, t.fromHandIdx)}pt) `+
+        result += `\\draw[fill=${circleColor}] (${xo(t.throwTime)}pt, ${yo(t.fromPasserIdx, t.fromHand)}pt) `+
                  `circle (${throwCircleSize/2}pt) node [text=${circleTextColor}, font=\\Large]{${t.label}};\n`
 
 
         if (showLeftRight || (showStraightCross && t.annotation !== "")) {
             const text = []
             if (showLeftRight)
-                text.push(t.fromHandIdx ? "L" : "R")
+                text.push(t.fromHand ? "L" : "R")
 
             if ((showStraightCross && t.annotation !== "")) {
                 text.push(t.annotation)
@@ -150,7 +150,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
             const offset = t.fromPasserIdx === 0 ? -throwCircleSize / 2 : throwCircleSize / 2;
             const dir = t.fromPasserIdx === 0 ? "-" : "+"
 
-            result += `\\draw (${xo(t.throwTime)}pt, ${yo(t.fromPasserIdx, t.fromHandIdx) + offset}pt ${dir} 1em) node [text=${annotationTextColor},font=\\small] {${text.join(" ")}};\n`
+            result += `\\draw (${xo(t.throwTime)}pt, ${yo(t.fromPasserIdx, t.fromHand) + offset}pt ${dir} 1em) node [text=${annotationTextColor},font=\\small] {${text.join(" ")}};\n`
         }
 
     }

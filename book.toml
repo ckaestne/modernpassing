@@ -5,11 +5,15 @@ multilingual = false
 src = "src"
 title = "Modern Club Passing"
 
-[preprocessor.siteswapsvg]
-command = "vizsiteswap/mdbook-siteswapsvg"
 
-[preprocessor.compatsiteswaps]
-command = "compatsiteswaps/mdbook-compatsiteswaps"
+[build]
+extra-watch-dirs = ["vizsiteswap"] 
+
+[preprocessor.siteswapsvg]
+command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
+
+#[preprocessor.compatsiteswaps]
+#command = "compatsiteswaps/mdbook-compatsiteswaps"
 
 [output.html]
 additional-css = [".mdbook/svgstyle.css"]
