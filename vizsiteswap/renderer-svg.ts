@@ -1,6 +1,6 @@
 import { Circle, Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { AnimationLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, Role, Throw } from './pattern-structure.ts';
+import { AnimationLayout, BackgroundLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, Role, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
@@ -362,6 +362,32 @@ function genId(): string {
     return `id${idCounter++}`
 }
 
+export function renderBackground(layouts: BackgroundLayout[], width: number, height: number, canvas: Container, config: RenderLayoutConfig) {
+    const w = width - config.positionCircle
+    const h = height - config.positionCircle
+    let left = config.positionCircle / 2
+    let top = config.positionCircle / 2
+    console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
+    function scalex(x: number): number {
+        return Math.round(left + x * w)
+    }
+    function scaley(y: number): number {
+        return Math.round(top + y * h)
+    }
+
+    for (const layout of layouts) {
+        if (layout.type === "circle") {
+            canvas.ellipse(layout.r*2*w,layout.r*2*h).center(scalex(layout.x), scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
+        } else if (layout.type === "line") {
+            canvas.line(scalex(layout.x1), scaley(layout.y1), scalex(layout.x2), scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
+        } else if (layout.type === "path") {
+            canvas.path(layout.segments.join(" ")).stroke({ color: layout.stroke, width: layout.strokeWidth })
+        } else 
+            throw new Error(`unknown background layout type ${layout}`)
+    }
+}
+
+
 export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig, patternLength: number): string {
     let javascript = `    const data = {
         positions: [],
@@ -374,10 +400,11 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     let top = config.positionCircle / 2
     const strokeWidth = 3
 
-    //shift the layout to the center
-    const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
-    const bottomMost = layout.initialPositions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
-    top = top + (s - (bottomMost - topMost)) / 2
+    // //shift the layout to the center
+    // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
+    // const bottomMost = layout.initialPositions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
+    // top = top + (s - (bottomMost - topMost)) / 2
+    console.log(`rendering background ${width} ${height} ${s} ${left} ${top}`)
 
 
     function scale(x: number, y: number): [number, number] {
@@ -410,7 +437,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         throw new Error(`invalid path ${path}`)
     }
 
-    canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
+    // canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
     const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
@@ -426,7 +453,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
             amove(config.positionCircle / 2, config.positionCircle / 2).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
         g.add(c).add(l)
-        g.move(x - config.positionCircle / 2, y - config.positionCircle / 2)
+        g.center(x, y)
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
         l.children()[0].attr({ x: null })
 

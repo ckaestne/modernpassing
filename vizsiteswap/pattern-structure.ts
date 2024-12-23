@@ -59,7 +59,8 @@ export type GroupPatternLayout = {
     // they are separately, and partially redundantly encoded
     static: GroupPatternStaticLayout,
     frames?: FrameLayout[],
-    animation?: AnimationLayout
+    animation?: AnimationLayout,
+    background?: BackgroundLayout[]
 }
 export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
 
@@ -80,6 +81,32 @@ export type PassLayout = {
     toRole: Role,
     toHand: Hand,
     label: string
+}
+
+export type BackgroundLayout = BackgroundCircleLayout | BackgroundLineLayout | BackgroundPathLayout
+type BackgroundCircleLayout = {
+    type: "circle",
+    x: number,
+    y: number,
+    r: number,
+    fill: string,
+    stroke: string,
+    strokeWidth: number
+}
+type BackgroundLineLayout = {
+    type: "line",
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    stroke: string,
+    strokeWidth: number
+}
+type BackgroundPathLayout = {
+    type: "path",
+    segments: (number|string)[],
+    stroke: string,
+    strokeWidth: number
 }
 
 /**
