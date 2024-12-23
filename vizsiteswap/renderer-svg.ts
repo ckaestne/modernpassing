@@ -1,4 +1,4 @@
-import { Circle, Element, G, Line, registerWindow, SVG, Svg } from '@svgdotjs/svg.js';
+import { Circle, Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
 import { AnimationLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, PassLayout, Pattern, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
@@ -264,7 +264,7 @@ function renderLayout(layout: GroupPatternStaticLayout, width: number, height: n
         const pos = layout.positions[roleIdx]
         const [x, y] = [Math.round(left + pos.x * s), Math.round(top + pos.y * s)]
         canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
-        canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+        canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
     }
     for (const pass of layout.passes) {
         const [fromX, fromY, toX, toY, labelX, labelY] = computePass(left + pass.fromX * s, top + pass.fromY * s, pass.fromHand, left + pass.toX * s, top + pass.toY * s, pass.toHand)
@@ -277,7 +277,7 @@ function renderLayout(layout: GroupPatternStaticLayout, width: number, height: n
     canvas.rect(width, height).fill('none').stroke("none")
 }
 
-function arrow(svg: G, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
+function arrow(svg: Containable, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
     const line = svg.line(x1, y1, x2, y2).stroke({ color })
     line.marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill(color))
     return line
@@ -355,7 +355,7 @@ function genId(): string {
     return `id${idCounter++}`
 }
 
-export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig): string {
+export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig): string {
     let javascript = ""
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
@@ -387,52 +387,76 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
 
     canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
-    const positions: Map<string, [number, number,Element]> = new Map()
+    const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
         const pos = layout.initialPositions[roleIdx]
         const [x, y] = scale(pos.x, pos.y)
-        const c=canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
-        canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+        // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })        
+        // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+        const g = canvas.group()
+        g.size(config.positionCircle, config.positionCircle)
+        const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        const l = canvas.text(pos.label).
+            amove(config.positionCircle / 2, config.positionCircle / 2).
+            font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
+        g.add(c).add(l)
+        g.cx(x).cy(y)
+        //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
+        l.children()[0].attr({ x: null })
 
-        positions.set(pos.role, [pos.x, pos.y, c])
+
+
+        positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
     }
 
 
     let js4 = ""
-    
+
     for (const passAnimation of layout.passAnimations) {
         const pass = passAnimation.pass
 
         const [fromX, fromY, toX, toY, labelX, labelY] = computePassp(scale(pass.fromX, pass.fromY), pass.fromHand, scale(pass.toX, pass.toY), pass.toHand)
+        const g= canvas.group()
         const a = arrow(canvas, fromX, fromY, toX, toY, "black")
-        if (pass.label)
-            canvas.text(pass.label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black")
+        g.add(a)
+        if (pass.label) 
+            g.add(canvas.text(pass.label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black"))
+        g.hide()
 
-        const v = genId()          
+        const v = genId()
         js4 += `
-        const ${v} =  SVG('#${a.id()}');
-        ${v}.animate({duration:${passAnimation.duration*1000},when:'now',delay:${(passAnimation.onBeat)*1000}}).on(
+        const ${v} =  SVG('#${g.id()}');
+        ${v}.animate({duration:${passAnimation.duration * 1000},when:'now',delay:${(passAnimation.onBeat) * 1000}}).on(
         'start',()=>{${v}.show()}).after(()=>{${v}.hide()})
         `
     }
     for (const movementTrigger of layout.movementTriggers) {
-        const c = positions.get(movementTrigger.role)![2]
+        const c = positions.get(movementTrigger.passerIdx)![2]
         const seg = layout.movementSegments[movementTrigger.movementSegment]
 
         const cid = genId()
         js4 += `
         const ${cid} =  SVG('#${c.id()}');
         ${cid}.
-            // move(${scalex(seg.fromX)},${scaley(seg.fromY)}).
-            animate({duration:${movementTrigger.duration*1000},when:'now',delay:${(movementTrigger.onBeat)*1000}}).
-            center(${scalex(seg.toX)},${scaley(seg.toY)})
+           animate({duration:${movementTrigger.duration * 1000},when:'now',delay:${(movementTrigger.onBeat) * 1000}}).
+           cx(${scalex(seg.toX)}).cy(${scaley(seg.toY)})
+        `
+    }
+    for (const relabelTrigger of layout.relabeling) {
+        const changes = relabelTrigger.changes.map(([passerIdx, newLabel]) => [positions.get(passerIdx)![3].id(),newLabel])
+
+        js4 += `
+        s.animate({duration:1,when:'now',delay:${relabelTrigger.onBeat * 1000}}).
+          after(()=>{
+                ${changes.map(([l,newLabel])=> `SVG('#${l}').text('${newLabel}');`).join("\n")}
+          })
         `
 
     }
 
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
-    const mod=4
+    const mod = 4
     javascript += `
     const s = SVG('#${canvas.id()}')
     const counter = SVG('#${counter.id()}')
@@ -455,7 +479,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         ${js4}
     }
 
-     beat() 
+    beat() 
 
     timeline.play()
     `

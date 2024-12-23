@@ -68,9 +68,10 @@ export type GroupPatternStaticLayout = {
     passes: PassLayout[]
 }
 export type PositionLayout = {
-    role: string, // unique Id, single uppercase letter
+    passerIdx: number, // unique, permanent id, despite relabeling
     x: number,
-    y: number
+    y: number,
+    label: string
 }
 export type PassLayout = {
     fromX: number,
@@ -144,14 +145,14 @@ export type MovementSegment = {
 export type MovementTrigger = {
     onBeat: number,
     mod: number,
-    role: string,
+    passerIdx: number,
     movementSegment: number
     duration: number,
 }
 export type Relabel = {
     onBeat: number,
     mod: number,
-    changes: [string, string][]
+    changes: [number, string][] // passerIdx, newLabel
 }
 
 

@@ -211,7 +211,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angle) * 0.5 + 0.5
             const y = Math.sin(angle) * 0.5 + 0.5
-            positions.push({ role: roles[i], x, y })
+            positions.push({ passerIdx: i, label: roles[i], x, y })
             angle += 2 * Math.PI / roles.length
         }
     } else if (layout[0].shape === TShape.V) {
@@ -219,21 +219,21 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angles[i]* Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            positions.push({ role: roles[i], x, y })
+            positions.push({ passerIdx: i, label: roles[i], x, y })
         }
     } else if (layout[0].shape === TShape.Box) {
         const angles = [-30,30,150,210].map(a => a-90)
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angles[i]* Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            positions.push({ role: roles[i], x, y })
+            positions.push({ passerIdx: i, label: roles[i], x, y })
         }
     } else if (layout[0].shape === TShape.Trapezoid) {
-        positions.push({ role: roles[0], x: 0.25, y: 0 })
-        positions.push({ role: roles[1], x: 0.75, y: 0 })
-        positions.push({ role: roles[2], x: 0.0, y: 1 })
-        positions.push({ role: roles[3], x: 0.5, y: 1 })
-        positions.push({ role: roles[4], x: 1, y: 1 })
+        positions.push({ passerIdx:0, label: roles[0], x: 0.25, y: 0 })
+        positions.push({passerIdx:1, label: roles[1], x: 0.75, y: 0 })
+        positions.push({ passerIdx:2,label: roles[2], x: 0.0, y: 1 })
+        positions.push({ passerIdx:3,label: roles[3], x: 0.5, y: 1 })
+        positions.push({ passerIdx:4,label: roles[4], x: 1, y: 1 })
     }
 
     function pass(t: Throw): PassLayout {
