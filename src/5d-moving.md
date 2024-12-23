@@ -263,12 +263,12 @@ move: Vmove(B),Vmove(C)
 The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer will not receive clubs and one passer would pass into a hole. In the standard four-count version, the passer who would pass into the hole starts with two clubs and skips the first pass, whereas the passer who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
 
 <todo-sync-group>
-A: 3pC 333 -> D
-B: 3pD 3w3w3w -> C 
-C: 2   333 -> A
-D: 3pA   333   -> B
+A: 3pC 333   -> C
+B: 3pD 333-> D
+C: 2   333   -> B
+D: 3pA   333 -> A
 positions: Circle(A,B,C,D,_)
-move: Cmove(B,direct,angle)
+move: Cmove(C,2,3,144,'direct')
 </todo-sync-group>
 
 Note: The passer with role C starts with 2 clubs.

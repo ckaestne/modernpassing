@@ -219,8 +219,8 @@ export function createSVG(width: number, height: number): Svg {
     return svg;
 }
 
-export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererConfig>): Svg {
-
+export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererConfig>): [Svg, string] {
+    let javascript = ""
     const changedRenderDefaults = { iterations: 1, showPasserRoles: true }
     const svg = renderPattern(gp.pattern, { ...changedRenderDefaults, ...config })
     if (gp.layout) {
@@ -228,10 +228,15 @@ export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererCo
         const width: number = Number(svg.width())
         svg.width(width + height)
         const g = svg.group()
-        renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
+        if (gp.layout.background)
+            renderBackground(gp.layout.background, width, height, g, defaultRenderLayoutConfig)
+        if (gp.layout.animation)
+            javascript += renderAnimation(gp.layout.animation!, width, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period)
+        else
+            renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.move(width, 0)
     }
-    return svg
+    return [svg,javascript]
 }
 
 
@@ -367,7 +372,7 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
     const h = height - config.positionCircle
     let left = config.positionCircle / 2
     let top = config.positionCircle / 2
-    console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
+    // console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
     function scalex(x: number): number {
         return Math.round(left + x * w)
     }
@@ -377,12 +382,12 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
 
     for (const layout of layouts) {
         if (layout.type === "circle") {
-            canvas.ellipse(layout.r*2*w,layout.r*2*h).center(scalex(layout.x), scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scalex(layout.x), scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
         } else if (layout.type === "line") {
             canvas.line(scalex(layout.x1), scaley(layout.y1), scalex(layout.x2), scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
         } else if (layout.type === "path") {
             canvas.path(layout.segments.join(" ")).stroke({ color: layout.stroke, width: layout.strokeWidth })
-        } else 
+        } else
             throw new Error(`unknown background layout type ${layout}`)
     }
 }
@@ -393,7 +398,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         positions: [],
         segmentOffset: 0,
         segments: []
-    };  `
+    }; const g = SVG('#${canvas.id()}'); `
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -404,7 +409,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
     // const bottomMost = layout.initialPositions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
     // top = top + (s - (bottomMost - topMost)) / 2
-    console.log(`rendering background ${width} ${height} ${s} ${left} ${top}`)
+    // console.log(`rendering background ${width} ${height} ${s} ${left} ${top}`)
 
 
     function scale(x: number, y: number): [number, number] {
@@ -423,7 +428,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         return {
             fromX: scalex(seg.fromX),
             fromY: scaley(seg.fromY),
-            path: scalePath(seg.path),    
+            path: scalePath(seg.path),
             toX: scalex(seg.toX),
             toY: scaley(seg.toY),
         }
@@ -448,7 +453,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         const g = canvas.group()
         g.size(config.positionCircle, config.positionCircle)
         const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth }).
-            move(strokeWidth/2, strokeWidth/2)
+            move(strokeWidth / 2, strokeWidth / 2)
         const l = canvas.text(pos.role).
             amove(config.positionCircle / 2, config.positionCircle / 2).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
@@ -478,70 +483,55 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
 
         const v = genId()
 
-        addJs(passAnimation.mod, `
-        let ${v} = null
+        addJs(passAnimation.mod, `//
+        let ${v} = null;
         s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:${(passAnimation.onBeat) * 1000}}).
-           on('start',()=>{${v}=renderPass(data, s,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
-           after(()=>{${v}.remove()})
-        `)
+           on('start',function(){${v}=renderPass(data, g,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
+           after(function(){${v}.remove()});`)
     }
     for (const movementTrigger of layout.movementTriggers) {
         const seg = genId()
         const circle = genId()
         const path = genId()
-        addJs(movementTrigger.mod, `
+        addJs(movementTrigger.mod, `//
         const ${seg} = getSegment(data, ${movementTrigger.movementSegment});
         const ${circle} = getCircleByRole(data, '${movementTrigger.role}');
         const ${path} = genPath(s, ${seg});
-        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')).
-            after(${circle}).hide()
-
+        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).
+            after(${circle}).hide();
         ${circle}.
             animate({duration:${movementTrigger.duration * 1000},when:'now',delay:${(movementTrigger.onBeat) * 1000}}).
-            on('start', ()=>{${path}.show()}).
+            on('start', function(){${path}.show();}).
             during(function (pos) {
-                const p = ${path}.pointAt(pos * ${path}.length())
-                ${circle}.center(p.x, p.y)
+                const p = ${path}.pointAt(pos * ${path}.length());
+                ${circle}.center(p.x, p.y);
             }).
-            after(()=>{updateLocation(data, '${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove()})
-        `
+            after(function(){updateLocation(data, '${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove();});      `
         )
     }
 
     let relabelJs = ""
     for (const relabelTrigger of layout.relabeling) {
-        relabelJs += `
-        if (time%${relabelTrigger.mod}==${relabelTrigger.onBeat}) 
-                relabel(data, ${JSON.stringify(relabelTrigger.changes)}, ${relabelTrigger.shiftMovementSegments})
-        `
+        relabelJs += `if (time%${relabelTrigger.mod}==${relabelTrigger.onBeat}) 
+                        relabel(data, ${JSON.stringify(relabelTrigger.changes)}, ${relabelTrigger.shiftMovementSegments});        `
 
     }
 
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
-    javascript += `
-    const s = SVG('#${canvas.id()}')
-    const counter = SVG('#${counter.id()}')
-    timeline=s.timeline()    
-
-
-    let time=-1
+    javascript += `const s = SVG('#${canvas.id()}');
+    const counter = SVG('#${counter.id()}');
+    timeline=s.timeline();
+    let time=-1;
     function beat(first) {
-        time++
-        counter.text((time%${patternLength}).toString()+"/"+time.toString())
-
-        if (!first) {
-            ${relabelJs}
-        }
-        ${jsMod.keys().toArray().map(m=>  `if (time%${m}==0) scheduleMod${m}();`).join("")}
+        time++;
+        counter.text((time%${patternLength}).toString()+"/"+time.toString());
+        if (!first) {            ${relabelJs}        }${jsMod.keys().toArray().map(m => `if (time%${m}==0) scheduleMod${m}();`).join("")}
         s.animate({duration:1000,when:'now',delay:0}).
-            after(()=>{beat(false)})
+            after(function(){beat(false);});
     }
-
-    beat(true) 
-
-    timeline.play()
-    ` 
+    beat(true);
+    timeline.play();`
     for (const [mod, js] of jsMod) {
         javascript += `
         function scheduleMod${mod}() {

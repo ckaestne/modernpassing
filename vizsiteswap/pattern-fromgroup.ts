@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, Parser, rep, rule, seq, tok } from "typescript-parsec";
 import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
-import { GroupPattern, GroupPatternLayout, Hand, PassLayout, PositionLayout, Throw } from "./pattern-structure.ts";
+import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, PassAnimation, PassLayout, PositionLayout, Throw } from "./pattern-structure.ts";
 
 
 type TLayout = TPosition[]
@@ -95,8 +95,8 @@ export function parseLayout(input: string): TLayout {
     return p
 }
 
-export function createLayout(input: string): GroupPatternLayout {
-    return genLayout(parseLayout(input), [])
+export function createLayout(input: string, patternLength: number=0): GroupPatternLayout {
+    return genLayout(parseLayout(input), [], patternLength)
 }
 
 type SyncGroupPatternConfig = {
@@ -191,11 +191,11 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
             period: sequenceLength,
             getThrows: genThrows
         },
-        layout: genLayout(layout, genThrows(oddLength ? iterations * 2 : iterations))
+        layout: genLayout(layout, genThrows(oddLength ? iterations * 2 : iterations), sequenceLength)
     }
 }
 
-function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
+function genLayout(layout: TLayout, throws: Throw[], patternLength: number): GroupPatternLayout {
 
     const positions: PositionLayout[] = []
     assert(layout.length === 1, "only one shape supported")
@@ -204,6 +204,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
     assert(layout[0].shape !== TShape.Box || layout[0].roles.length === 4, "Box shape requires 4 roles")
     assert(layout[0].shape !== TShape.Trapezoid || layout[0].roles.length === 5, "Trapezoid shape requires 5 roles")
     const roles = layout[0].roles
+    const background: BackgroundLayout[] = []
 
     // all x and y positions are relative between 0 and 1; that is on a circle with a radius of 0.5
     if (layout[0].shape === TShape.Circle) {
@@ -214,6 +215,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
             positions.push({ passerIdx: i, role: roles[i], x, y })
             angle += 2 * Math.PI / roles.length
         }
+        background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
     } else if (layout[0].shape === TShape.V) {
         const angles = roles.length === 3 ? [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30] : [/*A*/ 270, /*B*/90 - 55, /*C*/90, /*D*/90 + 55]
         for (let i = 0; i < roles.length; i++) {
@@ -221,6 +223,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
             const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
             positions.push({ passerIdx: i, role: roles[i], x, y })
         }
+        background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
     } else if (layout[0].shape === TShape.Box) {
         const angles = [-30, 30, 150, 210].map(a => a - 90)
         for (let i = 0; i < roles.length; i++) {
@@ -234,6 +237,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
         positions.push({ passerIdx: 2, role: roles[2], x: 0.0, y: 1 })
         positions.push({ passerIdx: 3, role: roles[3], x: 0.5, y: 1 })
         positions.push({ passerIdx: 4, role: roles[4], x: 1, y: 1 })
+        background.push({ type: "path", segments:['M',0.25,0,'L',.75,0,'L',1,1,'L',0,1,'L',0.25,0], stroke: "lightgrey", strokeWidth: 1 })
     }
 
     function pass(t: Throw): PassLayout {
@@ -249,6 +253,7 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
     // console.log(throws)
     const passesToRender: Map<[number, number, number, number], PassLayout> = new Map()
     const passesPerBeat: Map<number, PassLayout[]> = new Map()
+    const passAnimations: PassAnimation[] = []
     for (const t of throws) if (t.fromPasserIdx !== t.toPasserIdx) {
         // update passes for overall static layout
         const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
@@ -262,6 +267,21 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
         // updated passes for individual frames
         const passesOnBeat = getOrUpdate(passesPerBeat, t.throwTime, () => [])
         passesOnBeat.push(pass(t))
+
+        // passes for animations
+        if (t.throwTime< patternLength)
+        passAnimations.push({
+          pass: {
+            fromRole: roles[t.fromPasserIdx],
+            fromHand: t.fromHand,
+            toRole: roles[t.toPasserIdx],
+            toHand: t.toHand,
+            label: ""
+          },
+          onBeat: t.throwTime,
+          mod: patternLength,
+          duration: 1
+        })
     }
 
     return {
@@ -271,7 +291,8 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
                 label: (k + 1).toString(),
                 static: { positions, passes: passesPerBeat.get(k)! }
             }
-        }).toArray()
+        }).toArray(),
+        animation: { initialPositions: positions, passAnimations: passAnimations, movementSegments: [], movementTriggers: [], relabeling: [] },
     }
 }
 
