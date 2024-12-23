@@ -19,7 +19,7 @@ if (process.argv[2] === "supports") {
 
 const file = fs.readFileSync(0, 'utf-8');
 
-fs.writeFileSync("tmp_mdbook.json", file);
+// fs.writeFileSync("tmp_mdbook.json", file);
 
 
 const [_, book] = JSON.parse(file);

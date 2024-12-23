@@ -59,10 +59,7 @@ export type GroupPatternLayout = {
     // they are separately, and partially redundantly encoded
     static: GroupPatternStaticLayout,
     frames?: FrameLayout[],
-    animation?: {
-        length: number,
-        elements: PassAnimation[]
-    }
+    animation?: AnimationLayout
 }
 export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
 
@@ -84,12 +81,79 @@ export type PassLayout = {
     toHand: Hand,
     label: string
 }
+
+/**
+ * animations consist of passes and movement and relabeling
+ * 
+ * relabeling is always performed first, then passes and movement are identified based on the updated labels
+ * 
+ * all animations run on a timer that's continuously counting up
+ * animations are triggered at a time identified by `onBeat` and `mod` 
+ * when `(time % mod) == onBeat`. In many cases, `mod` is the number of beats in a pattern
+ * (which is also the default if mod is not provided)
+ * so onBeat identifies triggers that happen at every iteration. However movement may
+ * happen distributed across many iterations, so larger mods are possible to express that
+ * 
+ * animations of movement may be much longer than the number of beats in a pattern
+ */
+export type AnimationLayout = {
+    initialPositions: PositionLayout[],
+    passAnimations: PassAnimation[],
+    movementSegments: MovementSegment[],
+    movementTriggers: MovementTrigger[],
+    relabeling: Relabel[]
+}
+
+/**
+ * passes are easy -- they are lines between the positions of two roles
+ * and are shown for a certain time, identified by beats
+ */
+
 export type PassAnimation = {
     pass: PassLayout,
-    fromTime: number,
-    toTime: number,
-    beatLabel: number
+    onBeat: number,
+    mod: number, // default to length of the pattern
+    duration: number,
 }
+/**
+ * movement is more complex -- 
+ * segments describe possible movement paths in the pattern; 
+ * a role may go through or all a subset of these segments in any order
+ * 
+ * locations are absolute, not relative to the previous location
+ * animations should be created such that the start position of the triggered segment
+ * is where the role is actually positioned to avoid jumps
+ */
+export type MovementSegment = {
+    fromX: number,
+    fromY: number,
+    path: (number|string)[], // path instructions using C or A for curves and arches in SVG path notation
+    toX: number,
+    toY: number,
+}
+/**
+ * a trigger identifies the time when a role should start moving
+ * with a provided segment and duration
+ * 
+ * for example in scrambled V, role B starts walking after beat
+ * 5; the walk animation may start at 5.5 for 3.5 beats.
+ * however, since walking does not immediately repeat, there are
+ * several triggers on a much longer mod, so that the right segment
+ * is identified in each iteration of the pattern
+ */
+export type MovementTrigger = {
+    onBeat: number,
+    mod: number,
+    role: string,
+    movementSegment: number
+    duration: number,
+}
+export type Relabel = {
+    onBeat: number,
+    mod: number,
+    changes: [string, string][]
+}
+
 
 /**
  * checks a pattern, returns a list of problems, if any

@@ -1,9 +1,13 @@
 import { Element, Line, SVG, Svg } from '@svgdotjs/svg.js'
 import { getAiden } from './aidengen'
 import { Pattern, State, nextState as getNextState } from './movingpattern'
-import assert from 'node:assert';
 
 
+function assert(condition: any, msg?: string): asserts condition {
+    if (!condition) {
+        throw new Error(msg);
+    }
+}
 
 
 // @ts-ignore hacking to make `document` work

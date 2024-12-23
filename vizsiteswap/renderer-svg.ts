@@ -1,6 +1,6 @@
-import { G, Line, registerWindow, SVG, Svg } from '@svgdotjs/svg.js';
+import { Circle, Element, G, Line, registerWindow, SVG, Svg } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, PassLayout, Pattern, Throw } from './pattern-structure.ts';
+import { AnimationLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, PassLayout, Pattern, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
@@ -209,7 +209,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 }
 
 
-function createSVG(width: number, height: number): Svg {
+export function createSVG(width: number, height: number): Svg {
     const window = createSVGWindow();
     const document = window.document;
     registerWindow(window, document);
@@ -240,7 +240,7 @@ type RenderLayoutConfig = {
     roleLabelFontSize: number
     colors: string[]
 }
-const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "blue", "black", "black", "black"] }
+export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "blue", "black", "black", "black"] }
 
 
 function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -263,7 +263,7 @@ function renderLayout(layout: GroupPatternStaticLayout, width: number, height: n
     for (let roleIdx = 0; roleIdx < layout.positions.length; roleIdx++) {
         const pos = layout.positions[roleIdx]
         const [x, y] = [Math.round(left + pos.x * s), Math.round(top + pos.y * s)]
-        canvas.circle(config.positionCircle-strokeWidth).center(x,y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
         canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
     }
     for (const pass of layout.passes) {
@@ -303,7 +303,11 @@ export function renderStaticLayout(frame: GroupPatternStaticLayout, frameWidth: 
 }
 
 
-function computePass(x1:number, y1:number, hand1: Hand, x2:number, y2:number, hand2: Hand, armLength: number=25, labelDistance:number=4): [number, number, number, number, number, number] {
+function computePassp(p1: [number, number], hand1: Hand, p2: [number, number], hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
+    return computePass(p1[0], p1[1], hand1, p2[0], p2[1], hand2, armLength, labelDistance)
+}
+
+function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
     //angle between the two points
     const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
     //move 20 pixel 45 degree from that angle from the first point
@@ -328,20 +332,135 @@ function computePass(x1:number, y1:number, hand1: Hand, x2:number, y2:number, ha
     const labelAngle =
         hand1 === Hand.Right && hand2 === Hand.Left ? 90 : // right hand pass to the right
             hand1 === Hand.Left && hand2 === Hand.Right ? 90 : // left hand pass to the left
-            hand1 === Hand.Right && hand2 === Hand.Right ? -90 :
-                90 // crossing pass toward the target
+                hand1 === Hand.Right && hand2 === Hand.Right ? -90 :
+                    90 // crossing pass toward the target
     // console.log(`${hand1} ${hand2} ${labelAngle}`)
 
 
     //sideways adjustment for label
     // if (labelAngle !== 0) {
-     labelX +=  labelDistance * Math.cos((angle + labelAngle) * Math.PI / 180)
-     labelY +=  labelDistance * Math.sin((angle + labelAngle) * Math.PI / 180)
+    labelX += labelDistance * Math.cos((angle + labelAngle) * Math.PI / 180)
+    labelY += labelDistance * Math.sin((angle + labelAngle) * Math.PI / 180)
     // }
     //forward adjustment for label
-    labelX +=  length/4 * Math.cos(passAngle * Math.PI / 180)
-    labelY +=  length/4 * Math.sin(passAngle * Math.PI / 180)
+    labelX += length / 4 * Math.cos(passAngle * Math.PI / 180)
+    labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
 
 
     return [Math.round(x3), Math.round(y3), Math.round(x4), Math.round(y4), Math.round(labelX), Math.round(labelY)]
+}
+
+let idCounter = 0
+function genId(): string {
+    return `id${idCounter++}`
+}
+
+export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig): string {
+    let javascript = ""
+    // console.log(layout)
+    const s = Math.min(width, height) - config.positionCircle
+    let left = config.positionCircle / 2
+    let top = config.positionCircle / 2
+    const strokeWidth = 3
+
+    //shift the layout to the center
+    const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
+    const bottomMost = layout.initialPositions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
+    top = top + (s - (bottomMost - topMost)) / 2
+    // const leftMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.x * s), 0)
+    // const rightMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.x * s), 0)
+    // left = left + (s - (rightMost - leftMost)) / 2
+
+
+    function scale(x: number, y: number): [number, number] {
+        return [Math.round(left + x * s), Math.round(top + y * s)]
+    }
+    function scalep(p: [number, number]): [number, number] {
+        return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
+    }
+    function scalex(x: number): number {
+        return Math.round(left + x * s)
+    }
+    function scaley(y: number): number {
+        return Math.round(top + y * s)
+    }
+
+    canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
+    // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
+    const positions: Map<string, [number, number,Element]> = new Map()
+    for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
+        const pos = layout.initialPositions[roleIdx]
+        const [x, y] = scale(pos.x, pos.y)
+        const c=canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+
+        positions.set(pos.role, [pos.x, pos.y, c])
+    }
+
+
+    let js4 = ""
+    
+    for (const passAnimation of layout.passAnimations) {
+        const pass = passAnimation.pass
+
+        const [fromX, fromY, toX, toY, labelX, labelY] = computePassp(scale(pass.fromX, pass.fromY), pass.fromHand, scale(pass.toX, pass.toY), pass.toHand)
+        const a = arrow(canvas, fromX, fromY, toX, toY, "black")
+        if (pass.label)
+            canvas.text(pass.label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black")
+
+        const v = genId()          
+        js4 += `
+        const ${v} =  SVG('#${a.id()}');
+        ${v}.animate({duration:${passAnimation.duration*1000},when:'now',delay:${(passAnimation.onBeat)*1000}}).on(
+        'start',()=>{${v}.show()}).after(()=>{${v}.hide()})
+        `
+    }
+    for (const movementTrigger of layout.movementTriggers) {
+        const c = positions.get(movementTrigger.role)![2]
+        const seg = layout.movementSegments[movementTrigger.movementSegment]
+
+        const cid = genId()
+        js4 += `
+        const ${cid} =  SVG('#${c.id()}');
+        ${cid}.
+            // move(${scalex(seg.fromX)},${scaley(seg.fromY)}).
+            animate({duration:${movementTrigger.duration*1000},when:'now',delay:${(movementTrigger.onBeat)*1000}}).
+            center(${scalex(seg.toX)},${scaley(seg.toY)})
+        `
+
+    }
+
+    const counter = canvas.text('_').cx(10).cy(10).fill("black")
+
+    const mod=4
+    javascript += `
+    const s = SVG('#${canvas.id()}')
+    const counter = SVG('#${counter.id()}')
+    timeline=s.timeline()    
+
+    let time=-1
+    function beat() {
+        time++
+        counter.text((time%${mod}).toString()+"/"+time.toString())
+
+        if (time%${mod}==0) {
+            scheduleMod${mod}()
+        }
+
+        s.animate({duration:1000,when:'now',delay:0}).
+            after(()=>{beat()})
+    }
+
+    function scheduleMod${mod}() {
+        ${js4}
+    }
+
+     beat() 
+
+    timeline.play()
+    `
+
+    canvas.rect(width, height).fill('none').stroke("none")
+
+    return javascript
 }
