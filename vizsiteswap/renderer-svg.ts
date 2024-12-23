@@ -270,7 +270,7 @@ function renderLayout(layout: GroupPatternStaticLayout, width: number, height: n
         canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
     }
     function lookupPosition(role: Role): [number, number] {
-        const r= layout.positions.find(p => p.role === role)!
+        const r = layout.positions.find(p => p.role === role)!
         return [r.x, r.y]
     }
     for (const pass of layout.passes) {
@@ -362,7 +362,7 @@ function genId(): string {
     return `id${idCounter++}`
 }
 
-export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig): string {
+export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig, patternLength: number): string {
     let javascript = ""
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
@@ -374,9 +374,6 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
     const bottomMost = layout.initialPositions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
     top = top + (s - (bottomMost - topMost)) / 2
-    // const leftMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.x * s), 0)
-    // const rightMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.x * s), 0)
-    // left = left + (s - (rightMost - leftMost)) / 2
 
 
     function scale(x: number, y: number): [number, number] {
@@ -395,10 +392,18 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         return {
             fromX: scalex(seg.fromX),
             fromY: scaley(seg.fromY),
-            path: seg.path,//TODO    
+            path: scalePath(seg.path),    
             toX: scalex(seg.toX),
             toY: scaley(seg.toY),
         }
+    }
+    function scalePath(path: (number | string)[]): (number | string)[] {
+        if (path.length === 0) return []
+        if (path[0] == 'C' && path.length == 5)
+            return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number)]
+        if (path[0] == 'A' && path.length == 6)
+            return ['A', scalex(path[1] as number), scaley(path[2] as number), path[3], path[4], path[5]]
+        throw new Error(`invalid path ${path}`)
     }
 
     canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
@@ -416,7 +421,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
             amove(config.positionCircle / 2, config.positionCircle / 2).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
         g.add(c).add(l)
-        g.move(x-config.positionCircle/2, y-config.positionCircle/2)
+        g.move(x - config.positionCircle / 2, y - config.positionCircle / 2)
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
         l.children()[0].attr({ x: null })
 
@@ -430,32 +435,45 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
 
     javascript += `segments = ${JSON.stringify(layout.movementSegments.map(scaleSegment))};\n`
 
-    let js4 = ""
+    let jsMod: Map<number, string> = new Map()
+    function addJs(mod: number, js: string) {
+        if (!jsMod.has(mod)) jsMod.set(mod, js)
+        else jsMod.set(mod, jsMod.get(mod) + js)
+    }
 
     for (const passAnimation of layout.passAnimations) {
         const pass = passAnimation.pass
 
         const v = genId()
 
-        js4 += `
+        addJs(passAnimation.mod, `
         let ${v} = null
         s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:${(passAnimation.onBeat) * 1000}}).
-           on('start',()=>{console.log('pass');${v}=renderPass(s,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
+           on('start',()=>{${v}=renderPass(s,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
            after(()=>{${v}.remove()})
-        `
+        `)
     }
     for (const movementTrigger of layout.movementTriggers) {
         const seg = genId()
         const circle = genId()
-        js4 += `
+        const path = genId()
+        addJs(movementTrigger.mod, `
         const ${seg} = getSegment(${movementTrigger.movementSegment});
         const ${circle} = getCircleByRole('${movementTrigger.role}');
-        console.log(${seg})
+        const ${path} = genPath(s, ${seg});
+        ${path}.stroke({ color: 'grey', width: 2 }).marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill('grey')).
+            after(${circle}).hide()
+
         ${circle}.
-           animate({duration:${movementTrigger.duration * 1000},when:'now',delay:${(movementTrigger.onBeat) * 1000}}).
-           cx(${seg}.toX).cy(${seg}.toY).
-           after(()=>{updateLocation('${movementTrigger.role}', ${seg}.toX, ${seg}.toY)})
+            animate({duration:${movementTrigger.duration * 1000},when:'now',delay:${(movementTrigger.onBeat) * 1000}}).
+            on('start', ()=>{${path}.show()}).
+            during(function (pos) {
+                const p = ${path}.pointAt(pos * ${path}.length())
+                ${circle}.center(p.x, p.y)
+            }).
+            after(()=>{updateLocation('${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove()})
         `
+        )
     }
 
     let relabelJs = ""
@@ -469,37 +487,35 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
 
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
-    const mod = 4
     javascript += `
     const s = SVG('#${canvas.id()}')
     const counter = SVG('#${counter.id()}')
     timeline=s.timeline()    
 
     let time=-1
-    function beat() {
+    function beat(first) {
         time++
-        counter.text((time%${mod}).toString()+"/"+time.toString())
+        counter.text((time%${patternLength}).toString()+"/"+time.toString())
 
         if (!first) {
             ${relabelJs}
-        } else  first = false
-
-        if (time%${mod}==0) {
-            scheduleMod${mod}()
         }
-
+        ${jsMod.keys().toArray().map(m=>  `if (time%${m}==0) scheduleMod${m}();`).join("")}
         s.animate({duration:1000,when:'now',delay:0}).
-            after(()=>{beat()})
+            after(()=>{beat(false)})
     }
 
-    function scheduleMod${mod}() {
-        ${js4}
-    }
-
-    beat() 
+    beat(true) 
 
     timeline.play()
-    `
+    ` 
+    for (const [mod, js] of jsMod) {
+        javascript += `
+        function scheduleMod${mod}() {
+            ${js}
+        }
+        `
+    }
 
     canvas.rect(width, height).fill('none').stroke("none")
 
