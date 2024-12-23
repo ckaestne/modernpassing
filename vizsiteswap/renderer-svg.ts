@@ -363,7 +363,11 @@ function genId(): string {
 }
 
 export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig, patternLength: number): string {
-    let javascript = ""
+    let javascript = `    const data = {
+        positions: [],
+        segmentOffset: 0,
+        segments: []
+    };  `
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -416,7 +420,8 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
         const g = canvas.group()
         g.size(config.positionCircle, config.positionCircle)
-        const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth }).
+            move(strokeWidth/2, strokeWidth/2)
         const l = canvas.text(pos.role).
             amove(config.positionCircle / 2, config.positionCircle / 2).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
@@ -430,10 +435,10 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
         //[role, x, y, svgCircle, svgLabel]
-        javascript += `positions.push(['${pos.role}', ${x}, ${y}, SVG('#${g.id()}'), SVG('#${l.id()}')])\n`
+        javascript += `data.positions.push(['${pos.role}', ${x}, ${y}, SVG('#${g.id()}'), SVG('#${l.id()}')])\n`
     }
 
-    javascript += `segments = ${JSON.stringify(layout.movementSegments.map(scaleSegment))};\n`
+    javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scaleSegment))};\n`
 
     let jsMod: Map<number, string> = new Map()
     function addJs(mod: number, js: string) {
@@ -449,7 +454,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         addJs(passAnimation.mod, `
         let ${v} = null
         s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:${(passAnimation.onBeat) * 1000}}).
-           on('start',()=>{${v}=renderPass(s,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
+           on('start',()=>{${v}=renderPass(data, s,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
            after(()=>{${v}.remove()})
         `)
     }
@@ -458,10 +463,10 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         const circle = genId()
         const path = genId()
         addJs(movementTrigger.mod, `
-        const ${seg} = getSegment(${movementTrigger.movementSegment});
-        const ${circle} = getCircleByRole('${movementTrigger.role}');
+        const ${seg} = getSegment(data, ${movementTrigger.movementSegment});
+        const ${circle} = getCircleByRole(data, '${movementTrigger.role}');
         const ${path} = genPath(s, ${seg});
-        ${path}.stroke({ color: 'grey', width: 2 }).marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill('grey')).
+        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')).
             after(${circle}).hide()
 
         ${circle}.
@@ -471,7 +476,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
                 const p = ${path}.pointAt(pos * ${path}.length())
                 ${circle}.center(p.x, p.y)
             }).
-            after(()=>{updateLocation('${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove()})
+            after(()=>{updateLocation(data, '${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove()})
         `
         )
     }
@@ -480,7 +485,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     for (const relabelTrigger of layout.relabeling) {
         relabelJs += `
         if (time%${relabelTrigger.mod}==${relabelTrigger.onBeat}) 
-                relabel(${JSON.stringify(relabelTrigger.changes)}, ${relabelTrigger.shiftMovementSegments})
+                relabel(data, ${JSON.stringify(relabelTrigger.changes)}, ${relabelTrigger.shiftMovementSegments})
         `
 
     }
@@ -491,6 +496,7 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     const s = SVG('#${canvas.id()}')
     const counter = SVG('#${counter.id()}')
     timeline=s.timeline()    
+
 
     let time=-1
     function beat(first) {
