@@ -66,7 +66,7 @@ export const PShapes = rule<Tok, TLayout>();
 PShapes.setPattern(
     rep(apply(
         seq(tok(MoreTokenKind.Shape), tok(TokenKind.LParen), seq(PRole, rep(kright(tok(TokenKind.Comma), PRole))), tok(TokenKind.RParen)),
-        v => { return { shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V  : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
+        v => { return { shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
     ))
 )
 export const PLayout = rule<Tok, TLayout>();
@@ -104,7 +104,7 @@ type SyncGroupPatternConfig = {
 }
 const defaultSyncPatternConfig: SyncGroupPatternConfig = { useSimpleLabels: true }
 
-export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternConfig & {iterations: number}>): GroupPattern {
+export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternConfig & { iterations: number }>): GroupPattern {
     const {
         // flipStraightCrossing,
         // gallop,
@@ -181,7 +181,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
         return throws
     }
 
-    const oddLength = (sequenceLength*iterations) % 2 === 1
+    const oddLength = (sequenceLength * iterations) % 2 === 1
 
     return {
         pattern: {
@@ -191,7 +191,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
             period: sequenceLength,
             getThrows: genThrows
         },
-        layout: genLayout(layout, genThrows(oddLength ? iterations*2: iterations))
+        layout: genLayout(layout, genThrows(oddLength ? iterations * 2 : iterations))
     }
 }
 
@@ -200,9 +200,9 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
     const positions: PositionLayout[] = []
     assert(layout.length === 1, "only one shape supported")
     assert([TShape.Circle, TShape.V, TShape.Box, TShape.Trapezoid].includes(layout[0].shape), "only circle supported")
-    assert(layout[0].shape !== TShape.V || [3,4].includes(layout[0].roles.length), "V shape requires 3 or 4 roles")
-    assert(layout[0].shape !== TShape.Box || layout[0].roles.length===4, "Box shape requires 4 roles")
-    assert(layout[0].shape !== TShape.Trapezoid || layout[0].roles.length===5, "Trapezoid shape requires 5 roles")
+    assert(layout[0].shape !== TShape.V || [3, 4].includes(layout[0].roles.length), "V shape requires 3 or 4 roles")
+    assert(layout[0].shape !== TShape.Box || layout[0].roles.length === 4, "Box shape requires 4 roles")
+    assert(layout[0].shape !== TShape.Trapezoid || layout[0].roles.length === 5, "Trapezoid shape requires 5 roles")
     const roles = layout[0].roles
 
     // all x and y positions are relative between 0 and 1; that is on a circle with a radius of 0.5
@@ -211,39 +211,37 @@ function genLayout(layout: TLayout, throws: Throw[]): GroupPatternLayout {
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angle) * 0.5 + 0.5
             const y = Math.sin(angle) * 0.5 + 0.5
-            positions.push({ passerIdx: i, label: roles[i], x, y })
+            positions.push({ passerIdx: i, role: roles[i], x, y })
             angle += 2 * Math.PI / roles.length
         }
     } else if (layout[0].shape === TShape.V) {
-        const angles = roles.length===3? [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30]: [/*A*/ 270, /*B*/90 - 55, /*C*/90 , /*D*/90 + 55]
+        const angles = roles.length === 3 ? [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30] : [/*A*/ 270, /*B*/90 - 55, /*C*/90, /*D*/90 + 55]
         for (let i = 0; i < roles.length; i++) {
-            const x = Math.cos(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            const y = Math.sin(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            positions.push({ passerIdx: i, label: roles[i], x, y })
+            const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            positions.push({ passerIdx: i, role: roles[i], x, y })
         }
     } else if (layout[0].shape === TShape.Box) {
-        const angles = [-30,30,150,210].map(a => a-90)
+        const angles = [-30, 30, 150, 210].map(a => a - 90)
         for (let i = 0; i < roles.length; i++) {
-            const x = Math.cos(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            const y = Math.sin(angles[i]* Math.PI / 180) * 0.5 + 0.5
-            positions.push({ passerIdx: i, label: roles[i], x, y })
+            const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            positions.push({ passerIdx: i, role: roles[i], x, y })
         }
     } else if (layout[0].shape === TShape.Trapezoid) {
-        positions.push({ passerIdx:0, label: roles[0], x: 0.25, y: 0 })
-        positions.push({passerIdx:1, label: roles[1], x: 0.75, y: 0 })
-        positions.push({ passerIdx:2,label: roles[2], x: 0.0, y: 1 })
-        positions.push({ passerIdx:3,label: roles[3], x: 0.5, y: 1 })
-        positions.push({ passerIdx:4,label: roles[4], x: 1, y: 1 })
+        positions.push({ passerIdx: 0, role: roles[0], x: 0.25, y: 0 })
+        positions.push({ passerIdx: 1, role: roles[1], x: 0.75, y: 0 })
+        positions.push({ passerIdx: 2, role: roles[2], x: 0.0, y: 1 })
+        positions.push({ passerIdx: 3, role: roles[3], x: 0.5, y: 1 })
+        positions.push({ passerIdx: 4, role: roles[4], x: 1, y: 1 })
     }
 
     function pass(t: Throw): PassLayout {
-        return { 
-            fromX: positions[t.fromPasserIdx].x, 
-            fromY: positions[t.fromPasserIdx].y, 
-            fromHand: t.fromHand, 
-            toX: positions[t.toPasserIdx].x,
-            toY: positions[t.toPasserIdx].y,
-            toHand: t.toHand, 
+        return {
+            fromRole: positions[t.fromPasserIdx].role,
+            fromHand: t.fromHand,
+            toRole: positions[t.toPasserIdx].role,
+            toHand: t.toHand,
             label: (t.throwTime + 1).toString()
         }
     }

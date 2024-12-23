@@ -63,6 +63,7 @@ export type GroupPatternLayout = {
 }
 export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
 
+export type Role = string
 export type GroupPatternStaticLayout = {
     positions: PositionLayout[],
     passes: PassLayout[]
@@ -71,14 +72,12 @@ export type PositionLayout = {
     passerIdx: number, // unique, permanent id, despite relabeling
     x: number,
     y: number,
-    label: string
+    role: Role
 }
 export type PassLayout = {
-    fromX: number,
-    fromY: number,
+    fromRole: Role,
     fromHand: Hand,
-    toX: number,
-    toY: number,
+    toRole: Role,
     toHand: Hand,
     label: string
 }
@@ -145,14 +144,15 @@ export type MovementSegment = {
 export type MovementTrigger = {
     onBeat: number,
     mod: number,
-    passerIdx: number,
+    role: Role,
     movementSegment: number
     duration: number,
 }
 export type Relabel = {
     onBeat: number,
     mod: number,
-    changes: [number, string][] // passerIdx, newLabel
+    changes: [Role, Role][] // oldRole, newRole
+    shiftMovementSegments: number // shift all movement segments to a lower index by this number
 }
 
 
