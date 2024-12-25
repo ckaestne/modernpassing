@@ -6,12 +6,13 @@ import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, PassAnimation
 
 type TLayout = TPosition[]
 type TRole = string
-type TPosition = { shape: TShape, roles: TRole[] }
+type TPosition = { shape: TShape, roles: (TRole|number)[] }
 export enum TShape {
     Trapezoid,
     V,
     Circle,
-    Box
+    Box,
+    Free
 }
 type TGroupPattern = {
     roles: TRole[],
@@ -38,7 +39,7 @@ type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^(\d(p)?(x)?[A-Z]?)/g, TokenKind.Throw],
     [true, /^positions/g, MoreTokenKind.Positions],
-    [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
+    [true, /^(Circle|V|Trapezoid|Box|Free)/g, MoreTokenKind.Shape],
     [true, /^[A-Z0]/g, MoreTokenKind.Role],
     [true, /^o/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
@@ -66,7 +67,7 @@ export const PShapes = rule<Tok, TLayout>();
 PShapes.setPattern(
     rep(apply(
         seq(tok(MoreTokenKind.Shape), tok(TokenKind.LParen), seq(PRole, rep(kright(tok(TokenKind.Comma), PRole))), tok(TokenKind.RParen)),
-        v => { return { shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
+        v => { return { shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : v[0].text === "Free" ? TShape.Free : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
     ))
 )
 export const PLayout = rule<Tok, TLayout>();
@@ -96,7 +97,7 @@ export function parseLayout(input: string): TLayout {
 }
 
 export function createLayout(input: string, patternLength: number=0): GroupPatternLayout {
-    return genLayout(parseLayout(input), [], patternLength)
+    return genLayout(parseLayout(input), [], ['A','B','C','D','E'], patternLength)
 }
 
 type SyncGroupPatternConfig = {
@@ -191,11 +192,11 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
             period: sequenceLength,
             getThrows: genThrows
         },
-        layout: genLayout(layout, genThrows(adjustedIterations), adjustedIterations*sequenceLength)
+        layout: genLayout(layout, genThrows(adjustedIterations), roles, adjustedIterations*sequenceLength)
     }
 }
 
-function genLayout(layout: TLayout, throws: Throw[], patternLength: number): GroupPatternLayout {
+function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patternLength: number): GroupPatternLayout {
 
     const positions: PositionLayout[] = []
     assert(layout.length === 1, "only one shape supported")
@@ -203,6 +204,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternLength: number): Gro
     assert(layout[0].shape !== TShape.V || [3, 4].includes(layout[0].roles.length), "V shape requires 3 or 4 roles")
     assert(layout[0].shape !== TShape.Box || layout[0].roles.length === 4, "Box shape requires 4 roles")
     assert(layout[0].shape !== TShape.Trapezoid || layout[0].roles.length === 5, "Trapezoid shape requires 5 roles")
+    assert(layout[0].shape !== TShape.Free || layout[0].roles.length%3===0, "Free shape requires two coordinates for each role")
     const roles = layout[0].roles
     const background: BackgroundLayout[] = []
 
@@ -212,7 +214,8 @@ function genLayout(layout: TLayout, throws: Throw[], patternLength: number): Gro
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angle) * 0.5 + 0.5
             const y = Math.sin(angle) * 0.5 + 0.5
-            positions.push({ passerIdx: i, role: roles[i], x, y })
+            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
             angle += 2 * Math.PI / roles.length
         }
         background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
@@ -221,7 +224,8 @@ function genLayout(layout: TLayout, throws: Throw[], patternLength: number): Gro
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-            positions.push({ passerIdx: i, role: roles[i], x, y })
+            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
         }
         background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
     } else if (layout[0].shape === TShape.Box) {
@@ -229,22 +233,41 @@ function genLayout(layout: TLayout, throws: Throw[], patternLength: number): Gro
         for (let i = 0; i < roles.length; i++) {
             const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-            positions.push({ passerIdx: i, role: roles[i], x, y })
+            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
         }
     } else if (layout[0].shape === TShape.Trapezoid) {
-        positions.push({ passerIdx: 0, role: roles[0], x: 0.25, y: 0 })
-        positions.push({ passerIdx: 1, role: roles[1], x: 0.75, y: 0 })
-        positions.push({ passerIdx: 2, role: roles[2], x: 0.0, y: 1 })
-        positions.push({ passerIdx: 3, role: roles[3], x: 0.5, y: 1 })
-        positions.push({ passerIdx: 4, role: roles[4], x: 1, y: 1 })
+        for (let i = 0; i < 5; i++) 
+            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+        positions.push({ passerIdx: patternRoles.indexOf(roles[0]), role: roles[0], x: 0.25, y: 0 })
+        positions.push({ passerIdx: patternRoles.indexOf(roles[1]), role: roles[1], x: 0.75, y: 0 })
+        positions.push({ passerIdx: patternRoles.indexOf(roles[2]), role: roles[2], x: 0.0, y: 1 })
+        positions.push({ passerIdx: patternRoles.indexOf(roles[3]), role: roles[3], x: 0.5, y: 1 })
+        positions.push({ passerIdx: patternRoles.indexOf(roles[4]), role: roles[4], x: 1, y: 1 })
         background.push({ type: "path", segments:['M',0.25,0,'L',.75,0,'L',1,1,'L',0,1,'L',0.25,0], stroke: "lightgrey", strokeWidth: 1 })
+    }
+    if (layout[0].shape === TShape.Free) {
+        for (let i = 0; i < roles.length; i+=3) {
+            assert(!isNaN(Number(roles[i+1])) && Number(roles[i+1]) >= 0 && Number(roles[i+1]) <= 1, "Invalid x coordinate")
+            assert(!isNaN(Number(roles[i+2])) && Number(roles[i+2]) >= 0 && Number(roles[i+2]) <= 1, "Invalid y coordinate")
+            const x = Number(roles[i+1])
+            const y = Number(roles[i+2])
+            assert(patternRoles.includes(roles[i/3]), `role ${roles[i/3]} not in pattern`)
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i/3]), role: roles[i], x, y })
+        }
+    }
+
+    function findPosition(passerIdx: number): PositionLayout {
+        const p = positions.find(p => p.passerIdx === passerIdx)
+        if (!p) throw new Error(`position for passer ${passerIdx} not found`)
+        return p
     }
 
     function pass(t: Throw): PassLayout {
         return {
-            fromRole: positions[t.fromPasserIdx].role,
+            fromRole: findPosition(t.fromPasserIdx).role,
             fromHand: t.fromHand,
-            toRole: positions[t.toPasserIdx].role,
+            toRole: findPosition(t.toPasserIdx).role,
             toHand: t.toHand,
             label: (t.throwTime + 1).toString()
         }
@@ -272,9 +295,9 @@ function genLayout(layout: TLayout, throws: Throw[], patternLength: number): Gro
         if (t.throwTime< patternLength)
         passAnimations.push({
           pass: {
-            fromRole: roles[t.fromPasserIdx],
+            fromRole: findPosition(t.fromPasserIdx).role,
             fromHand: t.fromHand,
-            toRole: roles[t.toPasserIdx],
+            toRole: findPosition(t.toPasserIdx).role,
             toHand: t.toHand,
             label: ""
           },
