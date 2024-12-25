@@ -191,7 +191,7 @@ test("create basic group sync examples", async (t) => {
 
     for (const p of patterns) {
         const pattern = createSyncGroupPattern(p, {})
-        const svg = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
+        const [svg, _] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
 
         let staticFrames: Svg[] = []
         if (pattern.layout && pattern.layout.frames) {

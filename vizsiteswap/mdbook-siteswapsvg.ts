@@ -56,7 +56,7 @@ for (const sec of book.sections) {
                 if (!config.renderFramesOnly && !config.renderLayoutOnly) {
                     const pattern = createSyncGroupPattern(p, config)
                     const [svg, js] = renderGroupPattern(pattern, config);
-                    result = svg.svg()+`\n<script>window.addEventListener("load",function(){console.log('start');\n${js}\n})\n</script>`;
+                    result = svg.svg()+`\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
                 }
                 if (config.renderFramesOnly) {
                     const pattern = createSyncGroupPattern(p, config)

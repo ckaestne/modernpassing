@@ -2,6 +2,7 @@ import { Circle, Containable, Container, Element, G, Line, registerWindow, SVG, 
 import { createSVGWindow } from 'svgdom';
 import { AnimationLayout, BackgroundLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, Role, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
+import { Tspan } from "@svgdotjs/svg.js";
 
 
 
@@ -10,7 +11,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         throw new Error(`Invalid pattern: ${p}: ${checkValidPattern(p)}`);
 
 
-
+    const cfg: RendererConfig = { ...defaultRendererConfig, ...config }
     let {
         xDist,
         yDist,
@@ -47,7 +48,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         showPasserRoles,
         passerRolesOffset,
         passerRolesTextSize,
-    } = { ...defaultRendererConfig, ...config };
+    } = cfg;
 
 
 
@@ -63,9 +64,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     // x offset of any point in the pattern (negative numbers for prefix)
     function xo(time: number): number {
-        return xMargin +
-            (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
-            throwCircleSize / 2 + time * xDist;
+        return getXOffset(cfg, time)
     }
 
     // y offset of a throw
@@ -219,10 +218,11 @@ export function createSVG(width: number, height: number): Svg {
     return svg;
 }
 
-export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererConfig>): [Svg, string] {
+export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
     let javascript = ""
-    const changedRenderDefaults = { iterations: 1, showPasserRoles: true }
-    const svg = renderPattern(gp.pattern, { ...changedRenderDefaults, ...config })
+    const changedRenderDefaults :Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
+    const renderConfig : RendererConfig = { ...defaultRendererConfig, ...changedRenderDefaults, ...config }
+    const svg = renderPattern(gp.pattern, renderConfig)
     if (gp.layout) {
         const height: number = Number(svg.height())
         const width: number = Number(svg.width())
@@ -230,11 +230,14 @@ export function renderGroupPattern(gp: GroupPattern, config?: Partial<RendererCo
         const g = svg.group()
         if (gp.layout.background)
             renderBackground(gp.layout.background, width, height, g, defaultRenderLayoutConfig)
-        if (gp.layout.animation)
-            javascript += renderAnimation(gp.layout.animation!, width, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period)
-        else
+        if (gp.layout.animation) {
+            const beatIndicator = svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+            const beatXOffsets:number[] = [...Array(gp.pattern.period+1).keys()].map((i) => getXOffset(renderConfig, i))
+            javascript += renderAnimation(gp.layout.animation!, width, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period, beatIndicator, beatXOffsets)
+        } else
             renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
-        g.move(width, 0)
+        g.transform({ translate: [width, 0] })
+        // g.move(width, 0)
     }
     return [svg,javascript]
 }
@@ -245,7 +248,7 @@ type RenderLayoutConfig = {
     roleLabelFontSize: number
     colors: string[]
 }
-export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "blue", "black", "black", "black"] }
+export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "black", "black", "black", "black"] }
 
 
 function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -393,7 +396,12 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
 }
 
 
-export function renderAnimation(layout: AnimationLayout, width: number, height: number, canvas: Container, config: RenderLayoutConfig, patternLength: number): string {
+export function renderAnimation(
+    layout: AnimationLayout, 
+    width: number, height: number, canvas: Container, 
+    config: RenderLayoutConfig, 
+    patternLength: number,
+    beatIndicator: Line | null = null, beatXOffsets: number[] | null): string {
     let javascript = `    const data = {
         positions: [],
         segmentOffset: 0,
@@ -451,18 +459,14 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
         // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })        
         // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
         const g = canvas.group()
-        g.size(config.positionCircle, config.positionCircle)
-        const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth }).
-            move(strokeWidth / 2, strokeWidth / 2)
+        const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        c.center(x, y)
         const l = canvas.text(pos.role).
-            amove(config.positionCircle / 2, config.positionCircle / 2).
-            font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "central", 'font-weight': "bold" })
+            font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "middle", 'font-weight': "bold" }).
+            center(x,y)
         g.add(c).add(l)
-        g.center(x, y)
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
         l.children()[0].attr({ x: null })
-
-
 
         positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
@@ -509,6 +513,11 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
             after(function(){updateLocation(data, '${movementTrigger.role}', ${seg}.toX, ${seg}.toY);${path}.remove();});      `
         )
     }
+    if (beatIndicator && beatXOffsets && beatXOffsets.length == patternLength+1) {
+        beatIndicator.x(beatXOffsets[0])
+        beatIndicator.show()
+        javascript += `const beatoffsets = ${JSON.stringify(beatXOffsets)}; const beatIndicator = SVG('#${beatIndicator.id()}');`
+    } else javascript += `const beatIndicator = null;`
 
     let relabelJs = ""
     for (const relabelTrigger of layout.relabeling) {
@@ -525,10 +534,16 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     let time=-1;
     function beat(first) {
         time++;
-        counter.text((time%${patternLength}).toString()+"/"+time.toString());
+        const beatIdx = time%${patternLength};
+        counter.text((beatIdx+1).toString());
         if (!first) {            ${relabelJs}        }${jsMod.keys().toArray().map(m => `if (time%${m}==0) scheduleMod${m}();`).join("")}
-        s.animate({duration:1000,when:'now',delay:0}).
+        s.animate({duration:1000,when:'now',delay:0}).            
             after(function(){beat(false);});
+        if (beatIndicator) {            
+            beatIndicator.
+                animate({duration:1000,when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
+                after(()=>beatIndicator.x(beatoffsets[(beatIdx+1)%${patternLength}]));
+        }
     }
     beat(true);
     timeline.play();`
@@ -543,4 +558,11 @@ export function renderAnimation(layout: AnimationLayout, width: number, height: 
     canvas.rect(width, height).fill('none').stroke("none")
 
     return `(function(){ ${javascript} })();`
+}
+
+function getXOffset(cfg: RendererConfig, time: number): number {
+    return cfg.xMargin +
+        (cfg.showStartingHands ? cfg.startingHandsOffset : 0) + 
+        (cfg.showPasserRoles ? cfg.passerRolesOffset : 0) +
+        cfg.throwCircleSize / 2 + time * cfg.xDist;
 }

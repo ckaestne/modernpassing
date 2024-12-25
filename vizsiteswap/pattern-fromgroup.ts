@@ -182,7 +182,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
     }
 
     const oddLength = (sequenceLength * iterations) % 2 === 1
-
+    const adjustedIterations = oddLength ? iterations + 1 : iterations
     return {
         pattern: {
             passerNames: roles,
@@ -191,7 +191,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
             period: sequenceLength,
             getThrows: genThrows
         },
-        layout: genLayout(layout, genThrows(oddLength ? iterations * 2 : iterations), sequenceLength)
+        layout: genLayout(layout, genThrows(adjustedIterations), adjustedIterations*sequenceLength)
     }
 }
 
