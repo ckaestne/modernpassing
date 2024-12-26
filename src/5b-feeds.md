@@ -69,7 +69,7 @@ B: 3pA3pA33pA3
 C: 333pA33
 D: 3pE3pE333pA
 E: 3pD3pD333
-positions: Free(A, 0.4, 0.1, B, 0.0, 0.9, C, 0.4,0.9, D, 0.8, 0.9,E,1.0,0.1)
+positions: Free(A, 0.4, 0.1, B, 0.0, 0.9, C, 0.4,1, D, 0.8, 0.9,E,1.0,0.1)
 </sync-group>
 <!-- positions: Trapezoid(A,E,B,C,D) -->
 <!-- positions: V(A,B,C,D) V(D,E,A)

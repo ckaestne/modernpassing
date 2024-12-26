@@ -18,7 +18,7 @@ A: 3pB3  3pC3  3pB3     3pA3  3  3  3pA3w     3w 3w 3pA3  3  3  -> A
 B: 3pA3  3  3  3pA3w    3w 3w 3pA3  3  3      3pB3  3pC3  3pB3  -> B
 C: 3w 3w 3pA3  3  3     3pB3  3pC3  3pB3      3pA3  3  3  3pA3w -> C
 positions: V(A,B,C)
-move: Vmove(B)Vmove(A)Vmove(C)
+move: Vmove(B,3.9,3)Vmove(A,7.9,3)Vmove(C,11.9,3)
 </todo-sync-group>
 
 
@@ -32,7 +32,7 @@ A: 3pB3  3pC3  3pB3  -> B
 B: 3pA3  3  3  3pA3w -> C
 C: 3w 3w 3pA3  3  3  -> A
 positions: V(A,B,C)
-move: Vmove(B)
+move: Vmove(B,3.9,3)
 </todo-sync-group>
 
 **Changing starts: Turning back.**
@@ -61,7 +61,7 @@ B: 3pC333 3pC3w3w3w -> A
 C: 3pD333 3pD3w3w3w -> B
 D: 3pA333 3pA3w3w3w -> C
 positions: Y(A,B,C,D)
-move: circleCC(A,C), circleCC(B,D)
+move: circleCC(A,0.9,3)circleCC(B,0.9,3)circleCC(D,0.9,3)circleCC(D,0.9,3)
 </todo-sync-group>
 
 
@@ -87,7 +87,7 @@ A: 3pB3  3pC3  3pB3  -> B
 B: 3pA3  3  3  3pA3w -> C
 C: 3w 3w 3pA3  3  3  -> A
 positions: V(A,B,C)
-move: Vmove(B)
+move: Vmove(B,3.9,3)
 </todo-sync-group>
 
 
@@ -104,7 +104,7 @@ A: 3pC3pB3 3pC3pB3 3pC3  -> B
 B: 33pA3   33pA3w  3w3w -> C
 C: 3pA33   3pA3  3 3pA3  -> A
 positions: V(A,B,C)
-move: Vmove(B)
+move: Vmove(B,4.9,3)
 </todo-sync-group>
 
 
@@ -115,7 +115,7 @@ A: 3pB3pC3 3pB3pC3 3pB3pC3  33pC3   33pC3   33pC3w  -> C
 B: 3pA33   3pA33   3pA3w3w  3pC33   3pC33   3pC33   -> A
 C: 3w3pA3  33pA3   33pA3    3pB3pA3 3pB3pA3 3pB3pA3 -> B
 positions: V(A,B,C)
-move: Vmove(B)Vmove(A)
+move: Vmove(B,6.9,3)Vmove(A,16.9,2)
 </todo-sync-group>
 
 
@@ -169,8 +169,8 @@ The standard way to juggle this pattern is on *three-count vs. six-count*, which
 A: 3pB33 3pC33 3pB33 -> B
 B: 3pA33 333   3pA33 -> C
 C: 333   3pA33 333   -> A
-positions: L(A,B,C)
-move: Bmove(B)Bfall(C),mirror
+positions: Brunos(A,B,C)
+move: Bmove(B,0.9,5)Bmove(C,3.9,5)
 </todo-sync-group>
 
 The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging.

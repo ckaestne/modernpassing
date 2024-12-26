@@ -1,7 +1,7 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
-import { createSyncGroupPattern, parseGroupSyncPattern, PLayout, PRow, PRows, PShapes, tokenizer, TShape } from "./pattern-fromgroup.ts";
-import { expectEOF, expectSingleResult } from "typescript-parsec";
+import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
+import { createSyncGroupPattern, parseGroupSyncPattern, PRow,  tokenizer } from "./pattern-fromgroup.ts";
 import { GroupPattern, Throw } from "./pattern-structure.ts";
 
 
@@ -14,9 +14,9 @@ test("parse simple group pattern", async (t) => {
     // }
 
     expectSingleResult(expectEOF(PRow.parse(tokenizer.parse("A: 3pB333pC33"))))
-    expectSingleResult(expectEOF(PRows.parse(tokenizer.parse("A: 3pB333pC33\n B: 3p"))))
-    expectSingleResult(expectEOF(PShapes.parse(tokenizer.parse("Circle(A,B,C)"))))
-    expectSingleResult(expectEOF(PLayout.parse(tokenizer.parse("positions: Circle(A,B,C)"))))
+    // expectSingleResult(expectEOF(PRows.parse(tokenizer.parse("A: 3pB333pC33\n B: 3p"))))
+    // expectSingleResult(expectEOF(PShapes.parse(tokenizer.parse("Circle(A,B,C)"))))
+    // expectSingleResult(expectEOF(PLayout.parse(tokenizer.parse("positions: Circle(A,B,C)"))))
 
     const input = "A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)"
 
@@ -27,7 +27,7 @@ test("parse simple group pattern", async (t) => {
     assert(p[0].length === 3)
     assert.deepStrictEqual([p[0][0][0], p[0][1][0], p[0][2][0]], ['A', 'B', 'C'])
     assert.deepStrictEqual(p[0][0][1], ['3pB', '3', '3', '3pC', '3', '3'])
-    assert.deepStrictEqual(p[1], [{ type:'standard', shape: TShape.Circle, roles: ['A', 'B', 'C'] }])
+    assert.deepStrictEqual(p[1], { type:'standard', shape: 'Circle', roles: ['A', 'B', 'C'] })
 
     // assert.deepStrictEqual(p[0], ['A', 'B', 'C'])
     // assert.equal(p[1].length, 3)

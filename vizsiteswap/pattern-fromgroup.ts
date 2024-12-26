@@ -1,24 +1,34 @@
 import assert from "node:assert";
-import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, Parser, rep, rule, seq, tok } from "typescript-parsec";
-import { altHands, convertToLabel, crossingPasses, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
+import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
+import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, PassAnimation, PassLayout, PositionLayout, Throw } from "./pattern-structure.ts";
 
 
-type TLayout = TPosition[]
+
 type TRole = string
-type TPosition =
+type TLayout =
     { type: "standard", shape: TShape, roles: TRole[] } |
     { type: "free", pos: [TRole, number, number][] }
-export enum TShape {
-    Trapezoid,
-    V,
-    Circle,
-    Box
+export type TShape =
+    'Trapezoid' |
+    'V' |
+    'Circle' |
+    'Box'
+
+type TMovement = TMovementStep[]
+type TMovementStep = {
+    type: TMovementType,
+    role: TRole,
+    when: number,
+    duration: number
 }
+type TMovementType = 'Vmove' | 'Bmove'
+
 type TGroupPattern = {
     roles: TRole[],
     throws: TSequence[],
-    layout: TLayout
+    layout: TLayout,
+    movement?: TMovement
 }
 
 
@@ -31,19 +41,19 @@ type TGroupPattern = {
 
 export enum MoreTokenKind {
     Colon,
-    NL,
+    //     NL,
     Role,
-    Positions,
-    Shape,
-    Free,
-    Number
+    //     Positions,
+    //     Shape,
+    //     Free,
+    //     Number
 }
 type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^(\d(p)?(x)?[A-Z]?)/g, TokenKind.Throw],
-    [true, /^positions/g, MoreTokenKind.Positions],
-    [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
-    [true, /^Free/g, MoreTokenKind.Free],
+    //     [true, /^positions/g, MoreTokenKind.Positions],
+    //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
+    //     [true, /^Free/g, MoreTokenKind.Free],
     [true, /^[A-Z0_]/g, MoreTokenKind.Role],
     [true, /^o/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
@@ -51,71 +61,153 @@ export const tokenizer = buildLexer<Tok>([
     [true, /^\(/g, TokenKind.LParen],
     [true, /^\)/g, TokenKind.RParen],
     [true, /^->/g, TokenKind.Arrow],
-    [true, /^\n/g, MoreTokenKind.NL],
+    //     [true, /^\n/g, MoreTokenKind.NL],
     [false, /^\s/g, TokenKind.Space],
-    [true, /^\d\.\d+/g, MoreTokenKind.Number]
+    //     [true, /^\d\.\d+/g, MoreTokenKind.Number]
 ]);
 
 
 const PRole = rule<Tok, TRole>();
 PRole.setPattern(apply(tok(MoreTokenKind.Role), v => v.text))
-const PNumber = rule<Tok, number>();
-PNumber.setPattern(apply(tok(MoreTokenKind.Number), v => Number(v.text)))
+// const PNumber = rule<Tok, number>();
+// PNumber.setPattern(apply(tok(MoreTokenKind.Number), v => Number(v.text)))
 export const PRow = rule<Tok, [TRole, TSequence]>();
 PRow.setPattern(
     seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence)
 )
-export const PRows = rule<Tok, [TRole, TSequence][]>();
-PRows.setPattern(
-    apply(seq(PRow, rep(kright(tok(MoreTokenKind.NL), PRow))),
-        v => [v[0], ...v[1]])
-)
+// export const PRows = rule<Tok, [TRole, TSequence][]>();
+// PRows.setPattern(
+//     apply(seq(PRow, rep(kright(tok(MoreTokenKind.NL), PRow))),
+//         v => [v[0], ...v[1]])
+// )
 
-const PLocation = rule<Tok, [TRole, number, number]>();
-PLocation.setPattern(
-    apply(seq(PRole, tok(TokenKind.Comma), PNumber, tok(TokenKind.Comma), PNumber),
-        v => [v[0], v[2], v[4]])
-)
-export const PShapes = rule<Tok, TLayout>();
-PShapes.setPattern(
-    //either standard pattern or Free pattern
-    rep(
-        alt(
-            apply(
-                seq(tok(MoreTokenKind.Shape), tok(TokenKind.LParen), seq(PRole, rep(kright(tok(TokenKind.Comma), PRole))), tok(TokenKind.RParen)),
-                v => { return { type: 'standard', shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
-            ),
-            apply(
-                seq(tok(MoreTokenKind.Free), tok(TokenKind.LParen), seq(PLocation, rep(kright(tok(TokenKind.Comma), PLocation))), tok(TokenKind.RParen)),
-                v => { return { type: 'free', pos: [v[2][0], ...v[2][1]] } })
-        )
-    )
-)
-export const PLayout = rule<Tok, TLayout>();
-PLayout.setPattern(
-    kright(seq(tok(MoreTokenKind.Positions), tok(MoreTokenKind.Colon)), PShapes)
-)
+// const PLocation = rule<Tok, [TRole, number, number]>();
+// PLocation.setPattern(
+//     apply(seq(PRole, tok(TokenKind.Comma), PNumber, tok(TokenKind.Comma), PNumber),
+//         v => [v[0], v[2], v[4]])
+// )
+// export const PShapes = rule<Tok, TLayout>();
+// PShapes.setPattern(
+//     //either standard pattern or Free pattern
+//     rep(
+//         alt(
+//             apply(
+//                 seq(tok(MoreTokenKind.Shape), tok(TokenKind.LParen), seq(PRole, rep(kright(tok(TokenKind.Comma), PRole))), tok(TokenKind.RParen)),
+//                 v => { return { type: 'standard', shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
+//             ),
+//             apply(
+//                 seq(tok(MoreTokenKind.Free), tok(TokenKind.LParen), seq(PLocation, rep(kright(tok(TokenKind.Comma), PLocation))), tok(TokenKind.RParen)),
+//                 v => { return { type: 'free', pos: [v[2][0], ...v[2][1]] } })
+//         )
+//     )
+// )
+// export const PLayout = rule<Tok, TLayout>();
+// PLayout.setPattern(
+//     kright(seq(tok(MoreTokenKind.Positions), tok(MoreTokenKind.Colon)), PShapes)
+// )
 
-const PGroupSyncPattern = rule<Tok, [[TRole, TSequence][], TLayout]>();
-PGroupSyncPattern.setPattern(
-    ignoreNL(seq(kleft(PRows, tok(MoreTokenKind.NL)), PLayout))
-)
-
-
-function ignoreNL<TResult>(p: Parser<Tok, TResult>): Parser<Tok, TResult> {
-    return kleft(kright(rep(tok(MoreTokenKind.NL)), p), rep(tok(MoreTokenKind.NL)))
-}
+// const PGroupSyncPattern = rule<Tok, [[TRole, TSequence][], TLayout]>();
+// PGroupSyncPattern.setPattern(
+//     ignoreNL(seq(kleft(PRows, tok(MoreTokenKind.NL)), PLayout))
+// )
 
 
-export function parseGroupSyncPattern(input: string): [[TRole, TSequence][], TLayout] {
-    const p = expectSingleResult(expectEOF(PGroupSyncPattern.parse(tokenizer.parse(input))));
-    return p
+// function ignoreNL<TResult>(p: Parser<Tok, TResult>): Parser<Tok, TResult> {
+//     return kleft(kright(rep(tok(MoreTokenKind.NL)), p), rep(tok(MoreTokenKind.NL)))
+// }
+
+
+export function parseGroupSyncPattern(input: string): [[TRole, TSequence][], TLayout, TMovement | undefined] {
+    const patternLines = input.split("\n")
+    let positionsLine: string = ""
+    let movementLine: string | null = null
+    const positionsLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("positions:"))
+    if (positionsLineIdx !== -1) {
+        positionsLine = patternLines[positionsLineIdx].split(":")[1]
+        patternLines.splice(positionsLineIdx, 1);
+    } else throw new Error("missing positions line")
+
+    const movementLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("move:"))
+    if (movementLineIdx !== -1) {
+        movementLine = patternLines[movementLineIdx].split(":")[1]
+        patternLines.splice(movementLineIdx, 1);
+    }
+
+    const rows = patternLines.filter(l => l.trim().length > 0).map(l => expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(l)))))
+    const layout: TLayout = parseLayout(positionsLine)
+    const movement = movementLine ? parseMovements(movementLine) : undefined
+
+    return [rows, layout, movement]
 }
 
 export function parseLayout(input: string): TLayout {
-    const p = expectSingleResult(expectEOF(PShapes.parse(tokenizer.parse(input))));
-    return p
+    // simple parser
+    // assert single pair of parentheses
+    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), "expecting a single pair of parentheses")
+    //remove whitespace
+    input = input.replace(/\s/g, "")
+
+    //split at commas and parentheses
+    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
+
+    if (['Circle', 'V', 'Box', 'Trapezoid'].includes(parts[0])) {
+        //standard layout
+        const shape = parts[0] as TShape
+        const roles = parts.slice(1)
+        roles.map(r => assert(/^[A-Z]$/.test(r), "role names must be single uppercase letters"))
+        return { type: 'standard', shape, roles }
+    } else if (parts[0] === 'Free') {
+        //free layout
+        const pos = parts.slice(1)
+        assert(pos.length % 3 === 0, "free layout must have 3 entries per role (role, x, y)")
+        const r: [TRole, number, number][] = []
+        for (let i = 0; i < pos.length; i += 3) {
+            const x = Number(pos[i + 1]);
+            const y = Number(pos[i + 2]);
+            const role = pos[i]
+            assert(!isNaN(x) && x >= 0 && x <= 1, "x coordinate must be a number between 0 and 1");
+            assert(!isNaN(y) && y >= 0 && y <= 1, "y coordinate must be a number between 0 and 1");
+            assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
+            r.push([role, x, y]);
+        }
+
+        return { type: 'free', pos: r }
+    }
+
+    throw new Error(`invalid layout ${input}`)
 }
+
+function parseMovements(input: string): TMovement {
+    //split after closing parenthesis
+    const parts = input.split(')').map(s => s + ')').filter(p => p.length > 0)
+    return parts.map(parseMovement)
+}
+
+function parseMovement(input: string): TMovementStep {
+    // simple parser
+    // assert single pair of parentheses
+    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), "expecting a single pair of parentheses")
+    //remove whitespace
+    input = input.replace(/\s/g, "")
+
+    //split at commas and parentheses
+    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
+
+    if (['Vmove', 'Bmove'].includes(parts[0])) {
+        //standard layout
+        const type = parts[0] as TMovementType
+        const role = parts[1]
+        const when = Number(parts[2])
+        const duration = Number(parts[3])
+        assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
+        assert(!isNaN(when), "when must be a number")
+        assert(!isNaN(duration), "duration must be a number")
+        return { type, role, when, duration }
+    }
+    throw new Error(`invalid movement ${input}`)
+}
+
+
 
 export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
     return genLayout(parseLayout(input), [], ['A', 'B', 'C', 'D', 'E'], patternLength)
@@ -135,7 +227,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
         iterations = 1
     } = { ...defaultSyncPatternConfig, ...config }
 
-    const [rows, layout] = parseGroupSyncPattern(sw)
+    const [rows, layout, movement] = parseGroupSyncPattern(sw)
 
     // if (rows.length < 3) throw new Error("Not enough rows for a group pattern")
     const sequenceLength = rows[0][1].length
@@ -220,17 +312,16 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
 function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patternLength: number): GroupPatternLayout {
 
     const positions: PositionLayout[] = []
-    assert(layout.length === 1, "only one shape supported")
-    if (layout[0].type === "standard") {
-        assert([TShape.Circle, TShape.V, TShape.Box, TShape.Trapezoid].includes(layout[0].shape), "only circle supported")
-        assert(layout[0].shape !== TShape.V || [3, 4].includes(layout[0].roles.length), "V shape requires 3 or 4 roles")
-        assert(layout[0].shape !== TShape.Box || layout[0].roles.length === 4, "Box shape requires 4 roles")
-        assert(layout[0].shape !== TShape.Trapezoid || layout[0].roles.length === 5, "Trapezoid shape requires 5 roles")
-        const roles = layout[0].roles
+    if (layout.type === "standard") {
+        assert(['Circle', 'V', 'Box', 'Trapezoid'].includes(layout.shape), "only circle supported")
+        assert(layout.shape !== 'V' || [3, 4].includes(layout.roles.length), "V shape requires 3 or 4 roles")
+        assert(layout.shape !== 'Box' || layout.roles.length === 4, "Box shape requires 4 roles")
+        assert(layout.shape !== 'Trapezoid' || layout.roles.length === 5, "Trapezoid shape requires 5 roles")
+        const roles = layout.roles
         const background: BackgroundLayout[] = []
 
         // all x and y positions are relative between 0 and 1; that is on a circle with a radius of 0.5
-        if (layout[0].shape === TShape.Circle) {
+        if (layout.shape === 'Circle') {
             let angle = -Math.PI / 2
             for (let i = 0; i < roles.length; i++) {
                 const x = Math.cos(angle) * 0.5 + 0.5
@@ -240,7 +331,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
                 angle += 2 * Math.PI / roles.length
             }
             background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
-        } else if (layout[0].shape === TShape.V) {
+        } else if (layout.shape === 'V') {
             const angles = roles.length === 3 ? [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30] : [/*A*/ 270, /*B*/90 - 55, /*C*/90, /*D*/90 + 55]
             for (let i = 0; i < roles.length; i++) {
                 const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
@@ -249,7 +340,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
                 positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
             }
             background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
-        } else if (layout[0].shape === TShape.Box) {
+        } else if (layout.shape === 'Box') {
             const angles = [-30, 30, 150, 210].map(a => a - 90)
             for (let i = 0; i < roles.length; i++) {
                 const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
@@ -257,7 +348,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
                 assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
                 positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
             }
-        } else if (layout[0].shape === TShape.Trapezoid) {
+        } else if (layout.shape === 'Trapezoid') {
             for (let i = 0; i < 5; i++)
                 assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
             positions.push({ passerIdx: patternRoles.indexOf(roles[0]), role: roles[0], x: 0.25, y: 0 })
@@ -267,9 +358,9 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
             positions.push({ passerIdx: patternRoles.indexOf(roles[4]), role: roles[4], x: 1, y: 1 })
             background.push({ type: "path", segments: ['M', 0.25, 0, 'L', .75, 0, 'L', 1, 1, 'L', 0, 1, 'L', 0.25, 0], stroke: "lightgrey", strokeWidth: 1 })
         }
-    } else if (layout[0].type === "free") {
-        for (let i = 0; i < layout[0].pos.length; i += 1) {
-            const poss = layout[0].pos
+    } else if (layout.type === "free") {
+        for (let i = 0; i < layout.pos.length; i += 1) {
+            const poss = layout.pos
             const x = poss[i][1]
             const y = poss[i][2]
             assert(!isNaN(x) && x >= 0 && x <= 1, "Invalid x coordinate")
