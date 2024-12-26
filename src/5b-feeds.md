@@ -57,7 +57,7 @@ A: 3pB33
 B: 3pA3pC3
 C: 3pD3pB3
 D: 3pC33
-positions: Box(A,C,D,B)
+positions: Free(A,0.1,0.0,B,0.35,1.0,D,0.85,1.0,C,0.6,0.0)
 </sync-group>
 
 
@@ -69,8 +69,9 @@ B: 3pA3pA33pA3
 C: 333pA33
 D: 3pE3pE333pA
 E: 3pD3pD333
-positions: Trapezoid(A,E,B,C,D)
+positions: Free(A, 0.4, 0.1, B, 0.0, 0.9, C, 0.4,0.9, D, 0.8, 0.9,E,1.0,0.1)
 </sync-group>
+<!-- positions: Trapezoid(A,E,B,C,D) -->
 <!-- positions: V(A,B,C,D) V(D,E,A)
  -->
 

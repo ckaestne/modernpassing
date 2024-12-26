@@ -401,7 +401,7 @@ export function renderAnimation(
     width: number, height: number, canvas: Container, 
     config: RenderLayoutConfig, 
     patternLength: number,
-    beatIndicator: Line | null = null, beatXOffsets: number[] | null): string {
+    beatIndicator: Line | null = null, beatXOffsets: number[] | null = null): string {
     let javascript = `    const data = {
         positions: [],
         segmentOffset: 0,

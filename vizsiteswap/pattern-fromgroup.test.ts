@@ -27,7 +27,7 @@ test("parse simple group pattern", async (t) => {
     assert(p[0].length === 3)
     assert.deepStrictEqual([p[0][0][0], p[0][1][0], p[0][2][0]], ['A', 'B', 'C'])
     assert.deepStrictEqual(p[0][0][1], ['3pB', '3', '3', '3pC', '3', '3'])
-    assert.deepStrictEqual(p[1], [{ shape: TShape.Circle, roles: ['A', 'B', 'C'] }])
+    assert.deepStrictEqual(p[1], [{ type:'standard', shape: TShape.Circle, roles: ['A', 'B', 'C'] }])
 
     // assert.deepStrictEqual(p[0], ['A', 'B', 'C'])
     // assert.equal(p[1].length, 3)
@@ -70,6 +70,6 @@ positions: Box(A,C,D,B)`
     const gp: GroupPattern = createSyncGroupPattern(pattern, {})
     const p = gp.pattern
     const roles = ['A', 'B', 'C']
-    console.log(gp.layout)
+    // console.log(gp.layout)
 })
 
