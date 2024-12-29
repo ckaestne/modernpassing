@@ -31,8 +31,9 @@ export type Throw = {
 
 export type Pattern = {
 
-    // the number of and names (A, B, ...) representing the passers
-    passerNames: string[];
+    // the number of and roles (A, B, ...) representing the passers
+    passerNames: Role[];
+    relabel?: [Role, Role][] // optional relabeling of roles
 
     // [right, left] clubs at the start for each passer
     startingHands: [number, number][];
@@ -127,6 +128,7 @@ export type AnimationLayout = {
     initialPositions: PositionLayout[],
     passAnimations: PassAnimation[],
     movementSegments: MovementSegment[],
+    movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
     movementTriggers: MovementTrigger[],
     relabeling: Relabel[]
 }
@@ -145,7 +147,7 @@ export type PassAnimation = {
 /**
  * movement is more complex -- 
  * segments describe possible movement paths in the pattern; 
- * a role may go through or all a subset of these segments in any order
+ * a juggler/role may go through or all a subset of these segments in any order
  * 
  * locations are absolute, not relative to the previous location
  * animations should be created such that the start position of the triggered segment
@@ -158,28 +160,39 @@ export type MovementSegment = {
     toX: number,
     toY: number,
 }
+
+/**
+ * a movement sequence is a list of segment indices that an 
+ * unmanipulated jugger (not role) goes through
+ * 
+ * a sequence corresponds to a starting position. each juggler
+ * tracks which part of the sequence they are on. a trigger identifies
+ * when a role is moving, which identifies the corresponding juggler
+ * and the next step in this sequence
+ * 
+ * the first segment is always the movement from the starting position
+ */
+export type MovementSequence = number[]
 /**
  * a trigger identifies the time when a role should start moving
- * with a provided segment and duration
+ * with a provided duration
+ * 
+ * the juggler in the identified role will always walk the next
+ * segment in their current sequence
  * 
  * for example in scrambled V, role B starts walking after beat
  * 5; the walk animation may start at 5.5 for 3.5 beats.
- * however, since walking does not immediately repeat, there are
- * several triggers on a much longer mod, so that the right segment
- * is identified in each iteration of the pattern
  */
 export type MovementTrigger = {
     onBeat: number,
     mod: number,
     role: Role,
-    movementSegment: number
     duration: number,
 }
 export type Relabel = {
     onBeat: number,
     mod: number,
     changes: [Role, Role][] // oldRole, newRole
-    shiftMovementSegments: number // shift all movement segments to a lower index by this number
 }
 
 

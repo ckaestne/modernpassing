@@ -73,3 +73,12 @@ positions: Box(A,C,D,B)`
     // console.log(gp.layout)
 })
 
+test('walking v', async(t)=>{
+    const pattern = `A: 3pB3  3pC3  3pB3  -> B
+B: 3pA3  3  3  3pA3 -> C
+C: 3 3 3pA3  3  3  -> A
+positions: V(A,B,C)
+move: Vmove(B,3.9,3)`
+        const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+        console.log(gp.layout?.animation)
+})

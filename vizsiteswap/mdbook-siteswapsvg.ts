@@ -51,6 +51,7 @@ for (const sec of book.sections) {
         sec.Chapter.content = replaceElement("sync-group", sec.Chapter.content, (match, p, config) => {
             nrPatterns[2]++
             let result = ""
+            config.showStartingHands = false
 
             try {
                 if (!config.renderFramesOnly && !config.renderLayoutOnly) {

@@ -27,13 +27,13 @@ The standard approach to notate those patterns compactly is to describe only one
 That is, the same passer (identified with a colored circle in the diagram) will go through all three roles -- in this pattern, first A, then B, then C. The role changes (how passers are relabeled) are indicated as arrows at the end of each line in the notation.
 While relabeling approach makes patterns much more compact to notate, it can require some practice to read to notation and follow how roles change for each passer during the pattern.
 
-<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
+<sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3  -> B
-B: 3pA3  3  3  3pA3w -> C
-C: 3w 3w 3pA3  3  3  -> A
+B: 3pA3  3  3  3pA3 -> C
+C: 3  3  3pA3  3  3  -> A
 positions: V(A,B,C)
-move: Vmove(B,3.9,3)
-</todo-sync-group>
+move: Vmove(B,4.9,3)
+</sync-group>
 
 **Changing starts: Turning back.**
 While learning longer patterns, it is good idea to change the start when the first beats of the pattern work well, but the group rarely gets to later beats to practice them. The best way to change the start is to go *backward* in the pattern by one segment. This way, everybody can learn the new segment and then gets to a point that they already know (whereas turning forward, everybody gets to more unknown parts of the pattern and never practices previous parts again until getting around).
@@ -82,13 +82,13 @@ To begin, the left feedee can walk across the pattern after any pass with or wit
 
 The most common pattern is for the left feedee to walk every six beats, which passer is currently in the left feedee position will change. The feeder  typically counts the two-count passes as 1 - 2 - 3 and the left feeder would start walking after the pass on 3. After this, the right feedee takes over counting (and feeding) 1 - 2 - 3 after that, which is when the next passer (the first feeder) will start walking, and so forth.
 
-<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
+<sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3  -> B
-B: 3pA3  3  3  3pA3w -> C
-C: 3w 3w 3pA3  3  3  -> A
+B: 3pA3  3  3  3pA3 -> C
+C: 3 3 3pA3  3  3  -> A
 positions: V(A,B,C)
-move: Vmove(B,3.9,3)
-</todo-sync-group>
+move: Vmove(B,4.9,3)
+</sync-group>
 
 
 Walking and turning while juggling can initially be somewhat challenging. Usually the passer walking will walk immediately after their pass and catch the incoming pass somewhat along the way (ask the feeder to throw it shorter if necessary). It is possible to practice walking and turning while juggling alone, simply walking around while maintaining a 3-club cascade. Less confident passers can also collect all clubs and walk across the pattern holding all three clubs to then restart with a pass on the other side.
@@ -99,38 +99,38 @@ Walking and turning while juggling can initially be somewhat challenging. Usuall
 **Pass-pass-self feeds.**
 The following pattern is a nice approximation of a pass-pass-self feed (technically pass-pass-self-pass-pass-self-pass-self), which still allows walking on a right-handed four count. That is, the pattern is ambidextrous and slightly more challenging, but the walking is the same as in the two-count vs. four-count version.
 
-<todo-sync-group>
+<sync-group>
 A: 3pC3pB3 3pC3pB3 3pC3  -> B
-B: 33pA3   33pA3w  3w3w -> C
+B: 33pA3   33pA3  33 -> C
 C: 3pA33   3pA3  3 3pA3  -> A
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)
-</todo-sync-group>
+</sync-group>
 
 
 A pure pass-pass-self feed is also possible, but substantially harder. It requires walking on a three-count and alternates between walking on a right-handed three-count and a left-handed three-count. Walking after a left-handed pass is harder for most people, because it is easier to turn with the angle of the incoming pass.
 
-<todo-sync-group>
-A: 3pB3pC3 3pB3pC3 3pB3pC3  33pC3   33pC3   33pC3w  -> C
-B: 3pA33   3pA33   3pA3w3w  3pC33   3pC33   3pC33   -> A
-C: 3w3pA3  33pA3   33pA3    3pB3pA3 3pB3pA3 3pB3pA3 -> B
+<sync-group>
+A: 3pB3pC3 3pB3pC3 3pB3pC3  33pC3   33pC3   33pC3  -> C
+B: 3pA33   3pA33   3pA33  3pC33   3pC33   3pC33   -> A
+C: 33pA3  33pA3   33pA3    3pB3pA3 3pB3pA3 3pB3pA3 -> B
 positions: V(A,B,C)
-move: Vmove(B,6.9,3)Vmove(A,16.9,2)
-</todo-sync-group>
+move: Vmove(B,6.9,2)Vmove(A,16.9,2)
+</sync-group>
 
 
 **Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across. **[TODO: one more example]**
 
-It is also possible that multiple passers walk in one sequence (as already shown in the rotating pure pass-pass-self feed above). Here is another example of a very short pattern, with a lot of walking on right-handed three-counts:
+It is also possible that multiple passers walk in one sequence (as already shown in the rotating pure pass-pass-self feed above). Here is another example of a very short pattern (the base pattern for [MiniEd]()), with a lot of walking on right-handed three-counts:
 
 
-<todo-sync-group>
-A: 3pB3pC3 3pB3w3w   -> C
-B: 3pA33   3pA3pC3   -> A
-C: 33pA3w   3w3pB3     -> B
+<sync-group>
+A: 3 3pC3pB3 3pC3   -> C
+B: 3 33pA3   33pC     -> A
+C: 3 3pA33   3pA3pB   -> B
 positions: V(A,B,C)
-move: Vmove(C)Vmove(B)
-</todo-sync-group>
+move: Vmove(A,4.9,2)Vmove(B,2.9,2)
+</sync-group>
 
 
 
@@ -144,13 +144,14 @@ In this pattern, on all double passes, the feeder throws one more pass to their 
 
 To maintain the usual approach to throw all double passes straight instead of crossing, the feedees start left-handed or one beat late (see *[7-club two-count](2d-advanced.md)* and [adding clubs to synchronous feeds](5b-feeds.md)). Since the walking technically changes from the left-handed to the right-handed side of the pattern, there can only be three selfs in the five-count and passer walking needs to take one of these options: (a) juggle a four-count very slowly to match the speed of a five-count, (b) throw one of the three selfs of a four-count as a double self followed by a wait to gain an extra beat of time, or (c) walk on a normal four-count and throw an early triple pass followed by a wait. In either case, timing is right if, after walking, the first pass responds to an incoming pass with the offset timing common for *7-club two count*.
 
-<todo-sync-group>
+**TODO: switch left and righthand start**
+<sync-group>
 A: 4pB3  4pC3  4pB3  4pC -> B
-B: 34pA  3  3  34pA  3w  -> C
-C: 3w3w  3w4pA 3  3  3   -> A
+B: 34pA  3  3  34pA  3  -> C
+C: 33  34pA 3  3  3   -> A
 positions: V(A,B,C)
-move: Vmove(B)
-</todo-sync-group>
+move: Vmove(B,5.9,3)
+</sync-group>
 
 With a bit of galloping, this pattern can also be juggled on single passes (see [7-club two-count on singles](2e-beyond.md)).
 
@@ -246,14 +247,26 @@ move: Bmove(B)Bfall(C),mirror
 The feeder feeds the feedees in the following order: middle feedee, left feedee, right feedee, and middle feedee. First the left feedee walks in three-count after their pass, and then the middle feedee after their second pass, turning the right feedee into the new feeder. The pattern is usually started left-handed so that all walking happens after right-hand passes.
 
 
-<todo-sync-group>
+<sync-group>
 A: 3pC 3pB 3pD 3pC -> B
-B: 3   3pA 3w   3w -> C 
+B: 3   3pA 3   3 -> C 
 C: 3pA 3   3   3pA -> D
 D: 3   3   3pA 3   -> A
 positions: V(A,B,C,D)
-move: Vmove(B),Vmove(C)
-</todo-sync-group>
+move: Vmove(B,1.9,2),Vmove(C,3.9,2)
+</sync-group>
+
+And a much faster version of the same idea (requires walking both on left and right-handed passes):
+
+
+<sync-group>
+A: 3pB 3pC  -> B
+B: 3pA   3  -> C 
+C: 3  3pA   -> D
+D: 3   3      -> A
+positions: V(A,B,C,D)
+move: Vmove(B,0.9,2),Vmove(C,1.9,2)
+</sync-group>
 
 
 ## Shooting Star (4 passers)

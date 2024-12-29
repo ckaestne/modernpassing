@@ -3,33 +3,43 @@
  */
 
 // type data = {
-//  positions: [role, x, y, svgCircle, svgLabel][]
-//  segmentOffset: number
+//  positions: [role, x, y, svgCircle, svgLabel, segmentSequence:number[]][]
 //  segments: MovementSegment[]
 // }
 
 
 function getSegment(data, idx) {
-    return data.segments[(idx+data.segmentOffset)%data.segments.length]
+    return data.segments[(idx + data.segmentOffset) % data.segments.length]
 }
 
 function getLocationByRole(data, role) {
-    const r= data.positions.find(([r]) => r === role)
+    const r = data.positions.find(([r]) => r === role)
     return [r[1], r[2]]
 }
-function getCircleByRole(data, role) {    
-    return data.positions.find(([r]) => r === role)[3]
+function getPositionByRole(data, role) {
+    return data.positions.find(([r]) => r === role)
 }
-function updateLocation(data, role, x, y) {
-    for (let idx = 0; idx < data.positions.length; idx++) {
-        if (data.positions[idx][0] === role) {
-            data.positions[idx][1] = x
-            data.positions[idx][2] = y
-        }
-    }
+function getCircleByRole(data, role) {
+    return getPositionByRole(data, role)[3]
 }
 
-function relabel(data, changes, shiftSegment) {
+//get the move and mark it as moved in the sequence
+function nextMove(data, role) /*:Segment*/ {
+    const p = getPositionByRole(data, role)
+    // console.log(p)
+    const nextSegment = p[5/*segmentSequence*/][0]
+    //shift the segment sequence
+    p[5] = p[5].slice(1)
+    p[5].push(nextSegment)
+    // console.log(nextSegment)
+    return data.segments[nextSegment]
+}
+function updateLocation(pos, x, y) {
+    pos[1] = x
+    pos[2] = y
+}
+
+function relabel(data, changes) {
     // console.log("relabel", changes, shiftSegment)
     for (let idx = 0; idx < data.positions.length; idx++) {
         const role = data.positions[idx][0]
@@ -39,18 +49,16 @@ function relabel(data, changes, shiftSegment) {
             data.positions[idx][4].text(change[1])
         }
     }
-
-    data.segmentOffset = (data.segmentOffset + shiftSegment) % data.segments.length
 }
 
 function renderPass(data, canvas, fromRole, fromHand, toRole, toHand, label) {
     const [x1, y1] = getLocationByRole(data, fromRole)
     const [x2, y2] = getLocationByRole(data, toRole)
     const [fromX, fromY, toX, toY, labelX, labelY] = computePass(x1, y1, fromHand, x2, y2, toHand)
-    const g= canvas.group()
+    const g = canvas.group()
     const a = arrow(canvas, fromX, fromY, toX, toY, "black")
     g.add(a)
-    if (label) 
+    if (label)
         g.add(canvas.text(label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black"))
     return g
 }
@@ -104,6 +112,7 @@ function computePass(x1, y1, hand1, x2, y2, hand2, armLength = 25, labelDistance
 
 
 function genPath(canvas, segment) {
+    // console.log(segment)
     let p = []
     if (segment.path.length === 0) p = ['M', segment.fromX, segment.fromY, 'L', segment.toX, segment.toY]
     else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]

@@ -35,7 +35,7 @@
 # Minis and Prechac
 
 <!-- - [](./3-minis.md) -->
-
+- [TODO](./introduction.md)
 
 # Group Patterns
 
@@ -47,6 +47,7 @@
 
 # Manipulator Patterns
 
+- [TODO](./introduction.md)
 <!-- - [](./6a-intro.md)
 - [](./6b-notation.md)
 - [](./6c-roundabout.md)
@@ -62,3 +63,5 @@
 # Appendix
 
 - [Siteswap list](./7-appendix-siteswaplist.md)
+- [TODO: Starting compatible siteswaps](./introduction.md)
+- [TODO: 8-club one counts](./introduction.md)

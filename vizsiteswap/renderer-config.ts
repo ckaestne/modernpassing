@@ -88,6 +88,6 @@ export const defaultRendererConfig: RendererConfig = {
     selectLinesForThrows: undefined,
     separateleftRightRows: false,
     showPasserRoles: false,
-    passerRolesOffset: 30,
+    passerRolesOffset: 36,
     passerRolesTextSize: 28
 };

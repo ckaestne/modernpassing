@@ -1,14 +1,14 @@
 import assert from "node:assert";
-import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
+import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
 import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
-import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, PassAnimation, PassLayout, PositionLayout, Throw } from "./pattern-structure.ts";
+import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
+import { Relabel } from "./pattern-structure.ts";
 
 
 
-type TRole = string
 type TLayout =
-    { type: "standard", shape: TShape, roles: TRole[] } |
-    { type: "free", pos: [TRole, number, number][] }
+    { type: "standard", shape: TShape, roles: Role[] } |
+    { type: "free", pos: [Role, number, number][] }
 export type TShape =
     'Trapezoid' |
     'V' |
@@ -18,14 +18,14 @@ export type TShape =
 type TMovement = TMovementStep[]
 type TMovementStep = {
     type: TMovementType,
-    role: TRole,
+    role: Role,
     when: number,
     duration: number
 }
 type TMovementType = 'Vmove' | 'Bmove'
 
 type TGroupPattern = {
-    roles: TRole[],
+    roles: Role[],
     throws: TSequence[],
     layout: TLayout,
     movement?: TMovement
@@ -67,21 +67,21 @@ export const tokenizer = buildLexer<Tok>([
 ]);
 
 
-const PRole = rule<Tok, TRole>();
+const PRole = rule<Tok, Role>();
 PRole.setPattern(apply(tok(MoreTokenKind.Role), v => v.text))
 // const PNumber = rule<Tok, number>();
 // PNumber.setPattern(apply(tok(MoreTokenKind.Number), v => Number(v.text)))
-export const PRow = rule<Tok, [TRole, TSequence]>();
+export const PRow = rule<Tok, [Role, TSequence, Role?]>();
 PRow.setPattern(
-    seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence)
+    seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence, opt(kright(tok(TokenKind.Arrow), PRole))),
 )
-// export const PRows = rule<Tok, [TRole, TSequence][]>();
+// export const PRows = rule<Tok, [Role, TSequence][]>();
 // PRows.setPattern(
 //     apply(seq(PRow, rep(kright(tok(MoreTokenKind.NL), PRow))),
 //         v => [v[0], ...v[1]])
 // )
 
-// const PLocation = rule<Tok, [TRole, number, number]>();
+// const PLocation = rule<Tok, [Role, number, number]>();
 // PLocation.setPattern(
 //     apply(seq(PRole, tok(TokenKind.Comma), PNumber, tok(TokenKind.Comma), PNumber),
 //         v => [v[0], v[2], v[4]])
@@ -106,7 +106,7 @@ PRow.setPattern(
 //     kright(seq(tok(MoreTokenKind.Positions), tok(MoreTokenKind.Colon)), PShapes)
 // )
 
-// const PGroupSyncPattern = rule<Tok, [[TRole, TSequence][], TLayout]>();
+// const PGroupSyncPattern = rule<Tok, [[Role, TSequence][], TLayout]>();
 // PGroupSyncPattern.setPattern(
 //     ignoreNL(seq(kleft(PRows, tok(MoreTokenKind.NL)), PLayout))
 // )
@@ -117,7 +117,7 @@ PRow.setPattern(
 // }
 
 
-export function parseGroupSyncPattern(input: string): [[TRole, TSequence][], TLayout, TMovement | undefined] {
+export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][], TLayout, TMovement?] {
     const patternLines = input.split("\n")
     let positionsLine: string = ""
     let movementLine: string | null = null
@@ -160,7 +160,7 @@ export function parseLayout(input: string): TLayout {
         //free layout
         const pos = parts.slice(1)
         assert(pos.length % 3 === 0, "free layout must have 3 entries per role (role, x, y)")
-        const r: [TRole, number, number][] = []
+        const r: [Role, number, number][] = []
         for (let i = 0; i < pos.length; i += 3) {
             const x = Number(pos[i + 1]);
             const y = Number(pos[i + 2]);
@@ -179,14 +179,14 @@ export function parseLayout(input: string): TLayout {
 
 function parseMovements(input: string): TMovement {
     //split after closing parenthesis
-    const parts = input.split(')').map(s => s + ')').filter(p => p.length > 0)
+    const parts = input.split(')').filter(p => p.length > 0).map(s => s + ')')
     return parts.map(parseMovement)
 }
 
 function parseMovement(input: string): TMovementStep {
     // simple parser
     // assert single pair of parentheses
-    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), "expecting a single pair of parentheses")
+    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), `expecting a single pair of parentheses in ${input}`)
     //remove whitespace
     input = input.replace(/\s/g, "")
 
@@ -208,9 +208,18 @@ function parseMovement(input: string): TMovementStep {
 }
 
 
+function getCirclePosition(degree: number): [number, number] {
+    const x = Math.cos(degree * Math.PI / 180) * 0.5 + 0.5
+    const y = Math.sin(degree * Math.PI / 180) * 0.5 + 0.5
+    return [x, y]
+}
+
+const initialV3Positions = [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30]
+const initialV4Positions = [/*A*/ 270, /*B*/90 - 45, /*C*/90, /*D*/90 + 45]
+
 
 export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
-    return genLayout(parseLayout(input), [], ['A', 'B', 'C', 'D', 'E'], patternLength)
+    return genLayout(parseLayout(input), undefined, [], 0, ['A', 'B', 'C', 'D', 'E'], [], patternLength)
 }
 
 type SyncGroupPatternConfig = {
@@ -224,7 +233,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
         // gallop,
         // startingHands,
         useSimpleLabels,
-        iterations = 1
+        iterations = 1,
     } = { ...defaultSyncPatternConfig, ...config }
 
     const [rows, layout, movement] = parseGroupSyncPattern(sw)
@@ -248,11 +257,11 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
 
 
         function genThrow(throwToken: string, time: number, passerIdx: number, fromHand: Hand, timeFactor: number = 1): Throw {
-            const [value, isPass, isCrossing, passTargetRole] = parseThrow(throwToken)
+            const [value, isPass, isCrossing, passTargeRole] = parseThrow(throwToken)
             const causeTime = time + (value - 2) * timeFactor;
             const rethrowTime = time + value * timeFactor
-            assert(!isPass || (passTargetRole && roles.includes(passTargetRole)), `invalid pass target ${passTargetRole} in pass ${throwToken}`)
-            const toPasserIdx = isPass ? roles.indexOf(passTargetRole!) : passerIdx;
+            assert(!isPass || (passTargeRole && roles.includes(passTargeRole)), `invalid pass target ${passTargeRole} in pass ${throwToken}`)
+            const toPasserIdx = isPass ? roles.indexOf(passTargeRole!) : passerIdx;
 
             const throwLabel = throwToken.replace(/[A-Z]/g, "")
             const labelSubfix = isPass ? throwToken.match(/[A-Z]/g)![0] : ""
@@ -295,6 +304,15 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
         return throws
     }
 
+
+    const relabelingAnimation: Relabel[] = []
+    const relabel: [Role, Role][] = []
+    if (!rows.every(r => r[2] === undefined)) {
+        for (const [from, _, to] of rows) if (to) relabel.push([from, to])
+        relabelingAnimation.push({ onBeat: 0, mod: sequenceLength, changes: relabel })
+    }
+
+
     const oddLength = (sequenceLength * iterations) % 2 === 1
     const adjustedIterations = oddLength ? iterations + 1 : iterations
     return {
@@ -303,13 +321,28 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
             startingHands:  /*TODO*/ roles.map(() => [2, 1]),
             prefixPeriod: 0,
             period: sequenceLength,
-            getThrows: genThrows
+            getThrows: genThrows,
+            relabel: relabel.length > 0 ? relabel : undefined
         },
-        layout: genLayout(layout, genThrows(adjustedIterations), roles, adjustedIterations * sequenceLength)
+        layout: genLayout(layout, movement, genThrows(adjustedIterations), adjustedIterations * sequenceLength, roles, relabelingAnimation, sequenceLength)
     }
 }
 
-function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patternLength: number): GroupPatternLayout {
+/**
+ * generates a layout from notation and some information about the passing sequence
+ * 
+ * as a issue, we need the full passing sequence with both left and right hands, so for
+ * odd period patterns, we consider a longer sequence that loops all the way around.
+ * hence, we have both the patternLength and the adjustedThrowSequenceLength
+ * @param layout 
+ * @param movement 
+ * @param adjustedThrows 
+ * @param patternRoles 
+ * @param endOfPatternRelabel 
+ * @param patternLength 
+ * @returns 
+ */
+function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThrows: Throw[], adjustedThrowSequenceLength: number, patternRoles: Role[], endOfPatternRelabel: Relabel[], patternLength: number): GroupPatternLayout {
 
     const positions: PositionLayout[] = []
     if (layout.type === "standard") {
@@ -332,7 +365,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
             }
             background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
         } else if (layout.shape === 'V') {
-            const angles = roles.length === 3 ? [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30] : [/*A*/ 270, /*B*/90 - 55, /*C*/90, /*D*/90 + 55]
+            const angles = roles.length === 3 ? initialV3Positions : initialV4Positions
             for (let i = 0; i < roles.length; i++) {
                 const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
                 const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
@@ -390,7 +423,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
     const passesToRender: Map<[number, number, number, number], PassLayout> = new Map()
     const passesPerBeat: Map<number, PassLayout[]> = new Map()
     const passAnimations: PassAnimation[] = []
-    for (const t of throws) if (t.fromPasserIdx !== t.toPasserIdx) {
+    for (const t of adjustedThrows) if (t.fromPasserIdx !== t.toPasserIdx) {
         // update passes for overall static layout
         const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
             const x = pass(t)
@@ -405,7 +438,7 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
         passesOnBeat.push(pass(t))
 
         // passes for animations
-        if (t.throwTime < patternLength)
+        if (t.throwTime < adjustedThrowSequenceLength)
             passAnimations.push({
                 pass: {
                     fromRole: findPosition(t.fromPasserIdx).role,
@@ -415,10 +448,13 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
                     label: ""
                 },
                 onBeat: t.throwTime,
-                mod: patternLength,
+                mod: adjustedThrowSequenceLength,
                 duration: 1
             })
     }
+
+
+    const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
 
     return {
         static: { positions: positions, passes: passesToRender.values().toArray() },
@@ -428,7 +464,14 @@ function genLayout(layout: TLayout, throws: Throw[], patternRoles: TRole[], patt
                 static: { positions, passes: passesPerBeat.get(k)! }
             }
         }).toArray(),
-        animation: { initialPositions: positions, passAnimations: passAnimations, movementSegments: [], movementTriggers: [], relabeling: [] },
+        animation: {
+            initialPositions: positions,
+            passAnimations: passAnimations,
+            movementSegments,
+            movementSequences,
+            movementTriggers,
+            relabeling: endOfPatternRelabel
+        },
     }
 }
 
@@ -455,7 +498,7 @@ function getOrUpdate4<B>(m: Map<[number, number, number, number], B>, key1: numb
 
 
 
-function parseThrow(t: string): [number, boolean, boolean, TRole | null] {
+function parseThrow(t: string): [number, boolean, boolean, Role | null] {
     const isPass = t.includes("p")
     const isCrossing = t.includes("x")
     const roleMatch = t.match(/[A-Z]/g);
@@ -465,4 +508,72 @@ function parseThrow(t: string): [number, boolean, boolean, TRole | null] {
     assert(!isNaN(value), `invalid throw ${t}`)
     assert(!isPass || role, "passing throw without target role")
     return [value, isPass, isCrossing, role]
+}
+
+// pattern roles is needed to have the right order to identify juggler index from role name
+function animateMovement(movement: TMovement | undefined, layout: TLayout, patternRoles: Role[], patternLength: number): [MovementSegment[], MovementSequence[], MovementTrigger[]] {
+    if (!movement || movement.length === 0) return [[], [], []]
+    function allMovement(type: TMovementType): boolean {
+        return movement?.every(m => m.type === type) || false
+    }
+    // supporting Vmove in V shape
+    if (layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement('Vmove')) {
+        assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
+        // get the movement path of each initial position, moving by 90 degree each
+        const initialAngles = layout.roles.length === 3 ? initialV3Positions : initialV4Positions
+
+        const segments: MovementSegment[] = []
+        let segmentIdx = 0
+        const sequences: MovementSequence[] = []
+        for (let passerIdx = 0; passerIdx < patternRoles.length; passerIdx++) {
+            const sequence: MovementSequence = []
+            const initialAngle = initialAngles[passerIdx]
+            for (let walkIdx = 0; walkIdx < 4; walkIdx++) {
+                const fromAngle = initialAngle - walkIdx * 90
+                const toAngle = initialAngle - (walkIdx + 1) * 90
+                const [fromX, fromY] = getCirclePosition(fromAngle)
+                const [toX, toY] = getCirclePosition(toAngle)
+                const path = ['A', 0.5, 0.5, 0, 0, 0]
+
+                segments.push({
+                    fromX,
+                    fromY,
+                    path,
+                    toX,
+                    toY
+                })
+                sequence.push(segmentIdx)
+
+                segmentIdx++
+            }
+            sequences.push(sequence)
+        }
+
+        const triggers: MovementTrigger[] = movement.map(m => ({
+            onBeat: m.when,
+            mod: patternLength,
+            role: m.role,
+            duration: m.duration
+        }))
+
+        return [segments, sequences, triggers]
+        // -- B0 A0 C0 B1 A1 C1 B2 A2 C2 B3 A3 C3
+        // 1-0 0-0 2-0 1-1 0-1 2-1 1-2 0-2 2-2 1-3 0-3 2-3
+        // V B90, shift 1
+        // 
+        // miniv
+        // B90 A90 shift 1
+
+
+        // Bruno l1 l0 m r1 r0 m
+        // init 0-r0 1-l0 2-l1
+        // 1-l0-m 2-l1-l0
+        // 1-m-r1
+        // 0-r1-m 1-r1-r0
+        // 1-m-l1
+        //TODO abstract computation for initial positions
+    }
+
+
+    throw new Error("Function not implemented.");
 }

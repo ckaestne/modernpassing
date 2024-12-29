@@ -177,14 +177,14 @@ test("fully synchronous patterns", async (t) => {
 test("create basic group sync examples", async (t) => {
 
     const patterns = [
-        "A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)",
-        // "A: 3pB333pB33\n           B: 3pC333pC33\n            C: 3pA333pA33\n            positions: Circle(A,B,C)\n\n",
-        // "A: 3pB3pC3\n  B: 3pA33\n C: 4pA23\n positions: V(A,B,C)",
-        // "A: 3pB33 3pC33 3pD33 3pE33 3  33\nB: 3pA33 3  33 3pC33 3pD33 3pE33\nC: 3pE33 3pA33 3pB33 3  33 3pD33\nD: 3  33 3pE33 3pA33 3pB33 3pC33\nE: 3pC33 3pD33 3  33 3pA33 3pB33\npositions: Circle(A,B,C,D,E)",
-        // "A: 3pD 3   3pC \nB: 3pC 3pD 3   \nC: 3pB 3   3pA \nD: 3pA 3pB 3   \npositions: Circle(A,B,C,D)",
-        // "A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3\nB: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3\nC: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3\nD: 3pA 3 3pB 3 3pB 3 3pC 3 3pB 3 3pB 3\npositions: Circle(A,B,C,D)",
-        // "A:3\nB:3\nC:3\nD:3\nE:3\npositions: Circle(A,B,C,D,E)",
-        // "A: 3pC 3pD 3   3   3pD 3pE 3   3   3pE 3pC 3   3\nB: 3   3   3pE 3pC 3   3   3pC 3pD 3   3   3pD 3pE\nC: 3pA 3   3   3pB 3   3   3pB 3   3   3pA 3   3\nD: 3   3pA 3   3   3pA 3   3   3pB 3   3   3pB 3 \nE: 3   3   3pB 3   3   3pA 3   3   3pA 3   3   3pB\npositions: Trapezoid(A,B,C,D,E)",
+        "\nA: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)",
+        "A: 3pB333pB33\n           B: 3pC333pC33\n            C: 3pA333pA33\n            positions: Circle(A,B,C)\n\n",
+        "A: 3pB3pC3\n  B: 3pA33\n C: 4pA23\n positions: V(A,B,C)",
+        "A: 3pB33 3pC33 3pD33 3pE33 3  33\nB: 3pA33 3  33 3pC33 3pD33 3pE33\nC: 3pE33 3pA33 3pB33 3  33 3pD33\nD: 3  33 3pE33 3pA33 3pB33 3pC33\nE: 3pC33 3pD33 3  33 3pA33 3pB33\npositions: Circle(A,B,C,D,E)",
+        "A: 3pD 3   3pC \nB: 3pC 3pD 3   \nC: 3pB 3   3pA \nD: 3pA 3pB 3   \npositions: Circle(A,B,C,D)",
+        "A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3\nB: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3\nC: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3\nD: 3pA 3 3pB 3 3pB 3 3pC 3 3pB 3 3pB 3\npositions: Circle(A,B,C,D)",
+        "A:3\nB:3\nC:3\nD:3\nE:3\npositions: Circle(A,B,C,D,E)",
+        "A: 3pC 3pD 3   3   3pD 3pE 3   3   3pE 3pC 3   3\nB: 3   3   3pE 3pC 3   3   3pC 3pD 3   3   3pD 3pE\nC: 3pA 3   3   3pB 3   3   3pB 3   3   3pA 3   3\nD: 3   3pA 3   3   3pA 3   3   3pB 3   3   3pB 3 \nE: 3   3   3pB 3   3   3pA 3   3   3pA 3   3   3pB\npositions: Trapezoid(A,B,C,D,E)",
     ]
 
     let content = "<!DOCTYPE html><html>"
