@@ -12,8 +12,8 @@ extra-watch-dirs = ["vizsiteswap"]
 [preprocessor.siteswapsvg]
 command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
 
-#[preprocessor.compatsiteswaps]
-#command = "compatsiteswaps/mdbook-compatsiteswaps"
+[preprocessor.compatsiteswaps]
+command = "deno run -A compatsiteswaps/mdbook-compatsiteswaps.ts"
 
 [output.html]
 additional-css = [".mdbook/svgstyle.css"]
