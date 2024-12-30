@@ -33,10 +33,12 @@ jobs:
           # mdbook-version: 'latest'
 
       - name: Install vizsiteswap dependencies
-        run: cd vizsiteswap; deno install; deno task build
+        run: cd vizsiteswap; deno install
+        #; deno task build
 
       - name: Install compatsiteswaps dependencies
-        run: cd compatsiteswaps; deno install; deno task build
+        run: cd compatsiteswaps; deno install
+        #; deno task build
 
       - run: mdbook build
 
