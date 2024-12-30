@@ -29,6 +29,7 @@
         "nodemon": "^3.1.7",
         "ts-loader": "^9.5.1",
         "typescript": "^5.7.2",
+        "webpack": "^5.97.1",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^5.2.0"
     },
@@ -37,6 +38,5 @@
         "start": "node ./dist/positions-playground.js",
         "watch": "webpack serve --mode development",
         "test": "node --test dist/"
-
     }
 }

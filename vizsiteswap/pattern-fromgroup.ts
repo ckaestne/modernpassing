@@ -3,6 +3,7 @@ import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, o
 import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
 import { Relabel } from "./pattern-structure.ts";
+import { PatternPaths } from "./pattern-paths.ts";
 
 
 
@@ -13,7 +14,8 @@ export type TShape =
     'Trapezoid' |
     'V' |
     'Circle' |
-    'Box'
+    'Box' |
+    'Brunos'
 
 type TMovement = TMovementStep[]
 type TMovementStep = {
@@ -150,7 +152,7 @@ export function parseLayout(input: string): TLayout {
     //split at commas and parentheses
     const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
 
-    if (['Circle', 'V', 'Box', 'Trapezoid'].includes(parts[0])) {
+    if (['Circle', 'V', 'Box', 'Trapezoid','Brunos'].includes(parts[0])) {
         //standard layout
         const shape = parts[0] as TShape
         const roles = parts.slice(1)
@@ -346,7 +348,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
 
     const positions: PositionLayout[] = []
     if (layout.type === "standard") {
-        assert(['Circle', 'V', 'Box', 'Trapezoid'].includes(layout.shape), "only circle supported")
+        assert(['Circle', 'V', 'Box', 'Trapezoid','Brunos'].includes(layout.shape), "only circle supported")
         assert(layout.shape !== 'V' || [3, 4].includes(layout.roles.length), "V shape requires 3 or 4 roles")
         assert(layout.shape !== 'Box' || layout.roles.length === 4, "Box shape requires 4 roles")
         assert(layout.shape !== 'Trapezoid' || layout.roles.length === 5, "Trapezoid shape requires 5 roles")
@@ -390,6 +392,11 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
             positions.push({ passerIdx: patternRoles.indexOf(roles[3]), role: roles[3], x: 0.5, y: 1 })
             positions.push({ passerIdx: patternRoles.indexOf(roles[4]), role: roles[4], x: 1, y: 1 })
             background.push({ type: "path", segments: ['M', 0.25, 0, 'L', .75, 0, 'L', 1, 1, 'L', 0, 1, 'L', 0.25, 0], stroke: "lightgrey", strokeWidth: 1 })
+        } else if (layout.shape === 'Brunos' && roles.length === 3) {
+            for (let i = 0; i < roles.length; i++) {
+                const s = PatternPaths.brunos.movementSegments[PatternPaths.brunos.initialPositions[i]]
+                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+            }
         }
     } else if (layout.type === "free") {
         for (let i = 0; i < layout.pos.length; i += 1) {
@@ -573,7 +580,28 @@ function animateMovement(movement: TMovement | undefined, layout: TLayout, patte
         // 1-m-l1
         //TODO abstract computation for initial positions
     }
+    if (layout.type === 'standard' && layout.shape === 'Brunos' && [3, 4].includes(layout.roles.length) && allMovement('Bmove')) {
+        assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
 
+        // get the movement path of each initial position, moving by 90 degree each
+
+        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s=>
+        {s.path = s.path.slice(3); return s}
+        )
+        const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
+        const triggers: MovementTrigger[] = movement.map(m => ({
+            onBeat: m.when,
+            mod: patternLength,
+            role: m.role,
+            duration: m.duration
+        }))
+
+        return [segments, sequences, triggers]
+    }
 
     throw new Error("Function not implemented.");
 }
+
+
+const brunosPath = [
+]

@@ -459,8 +459,8 @@ export function renderAnimation(
     }
     function scalePath(path: (number | string)[]): (number | string)[] {
         if (path.length === 0) return []
-        if (path[0] == 'C' && path.length == 5)
-            return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number)]
+        if (path[0] == 'C' && path.length == 7)
+            return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number), scalex(path[5] as number), scaley(path[6] as number)]
         if (path[0] == 'A' && path.length == 6)
             return ['A', scalex(path[1] as number), scaley(path[2] as number), path[3], path[4], path[5]]
         throw new Error(`invalid path ${path}`)

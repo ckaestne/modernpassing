@@ -166,13 +166,13 @@ In the basic Bruno's nightmare pattern, the passers start in a V shape and one f
 
 The standard way to juggle this pattern is on *three-count vs. six-count*, which is giving passers a lot of time to walk and turn. 
 
-<todo-sync-group>
+<sync-group>
 A: 3pB33 3pC33 3pB33 -> B
 B: 3pA33 333   3pA33 -> C
 C: 333   3pA33 333   -> A
 positions: Brunos(A,B,C)
-move: Bmove(B,0.9,5)Bmove(C,3.9,5)
-</todo-sync-group>
+move: Bmove(B,0.9,5)Bmove(B,6.9,5)Bmove(C,3.9,5)
+</sync-group>
 
 The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging.
 
@@ -275,13 +275,13 @@ move: Vmove(B,0.9,2),Vmove(C,1.9,2)
 
 The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer will not receive clubs and one passer would pass into a hole. In the standard four-count version, the passer who would pass into the hole starts with two clubs and skips the first pass, whereas the passer who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
 
-<todo-sync-group>
+<sync-group>
 A: 3pC 333   -> C
 B: 3pD 333-> D
 C: 2   333   -> B
 D: 3pA   333 -> A
 positions: Circle(A,B,C,D,_)
-move: Cmove(C,2,3,144,'direct')
+move: Cmove(C,0.9,3,144,1)
 </todo-sync-group>
 
 Note: The passer with role C starts with 2 clubs.
