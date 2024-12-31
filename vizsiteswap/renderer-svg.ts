@@ -497,20 +497,25 @@ export function renderAnimation(
 
     javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scaleSegment))};\n`
 
-    let jsMod: Map<number, string> = new Map()
-    function addJs(mod: number, js: string) {
-        if (!jsMod.has(mod)) jsMod.set(mod, js)
-        else jsMod.set(mod, jsMod.get(mod) + js)
+    const timers: [number/*beat*/, number/*mod*/, string/*code*/][]=[]
+    function addJs(when: number, mod: number, js: string) {
+        const beat = Math.floor(when % mod)
+        const delay = (when%mod) - beat
+        const t = timers.findIndex(([b, m, _]) => b === beat && m === mod)
+        js = js.replace(/\$DELAY/g, Math.round(delay*1000).toString())
+        if (t >= 0) timers[t][2] += js
+        else timers.push([beat, mod, js])
     }
+
 
     for (const passAnimation of layout.passAnimations) {
         const pass = passAnimation.pass
 
         const v = genId()
 
-        addJs(passAnimation.mod, `//
+        addJs(passAnimation.onBeat, passAnimation.mod, `//
         let ${v} = null;
-        s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:${(passAnimation.onBeat) * 1000}}).
+        s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:$DELAY}).
            on('start',function(){${v}=renderPass(data, g,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
            after(function(){${v}.remove()});`)
     }
@@ -518,14 +523,14 @@ export function renderAnimation(
         const seg = genId()
         const pos = genId()
         const path = genId()
-        addJs(movementTrigger.mod, `//
+        addJs(movementTrigger.onBeat, movementTrigger.mod, `//
         const ${seg} = nextMove(data, '${movementTrigger.role}');
         const ${pos} = getPositionByRole(data, '${movementTrigger.role}');
         const ${path} = genPath(s, ${seg});
         ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
             after(${pos}[3]).back().hide();
         ${pos}[3].
-            animate({duration:${movementTrigger.duration * 1000},when:'now',delay:${(movementTrigger.onBeat) * 1000}}).
+            animate({duration:${movementTrigger.duration * 1000},when:'now',delay:$DELAY}).
             on('start', function(){${path}.show();}).
             during(function (pos) {
                 const p = ${path}.pointAt(pos * ${path}.length());
@@ -553,28 +558,20 @@ export function renderAnimation(
     const counter = SVG('#${counter.id()}');
     timeline=s.timeline();
     let time=-1;
-    function beat(first) {
+    let first = true
+    addTimer(()=>{
         time++;
         const beatIdx = time%${patternLength};
         counter.text((beatIdx+1).toString());
-        if (!first) {            ${relabelJs}        }${jsMod.keys().toArray().map(m => `if (time%${m}==0) scheduleMod${m}();`).join("")}
-        s.animate({duration:1000,when:'now',delay:0}).            
-            after(function(){beat(false);});
+        if (!first) { ${relabelJs} } else first=false;
+        ${        timers.map(([beat, mod, js]) => `if ((time%${mod})==${beat}) { ${js} }`).join("\n")        }
         if (beatIndicator) {            
             beatIndicator.
                 animate({duration:1000,when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
                 after(()=>beatIndicator.x(beatoffsets[(beatIdx+1)%${patternLength}]));
         }
-    }
-    beat(true);
+    })
     timeline.play();`
-    for (const [mod, js] of jsMod) {
-        javascript += `
-        function scheduleMod${mod}() {
-            ${js}
-        }
-        `
-    }
 
     canvas.rect(width, height).fill('none').stroke("none")
 

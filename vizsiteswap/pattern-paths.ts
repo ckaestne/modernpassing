@@ -13,8 +13,8 @@ type PatternPath = {
 const brunos: PatternPath = {
     initialPositions:[
         0 /*A, left bottom*/,
-        2, /*B, right bottom*/
-        3, /*C, right top*/
+        3, /*B, right bottom*/
+        2, /*C, right top*/
     ],
   movementSegments: [
     {//left feeder to middle

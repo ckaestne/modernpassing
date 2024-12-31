@@ -118,3 +118,12 @@ function genPath(canvas, segment) {
     else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]
     return canvas.path(p.join(' '))
 }
+
+const timers = []
+function addTimer(f) {
+    timers.push(f)
+    if (timers.length===1)
+        setInterval(() => {
+            timers.forEach(f => f())
+        }, 1000)
+}

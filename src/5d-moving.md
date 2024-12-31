@@ -171,7 +171,7 @@ A: 3pB33 3pC33 3pB33 -> B
 B: 3pA33 333   3pA33 -> C
 C: 333   3pA33 333   -> A
 positions: Brunos(A,B,C)
-move: Bmove(B,0.9,5)Bmove(B,6.9,5)Bmove(C,3.9,5)
+move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 </sync-group>
 
 The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging.
@@ -198,26 +198,31 @@ Beyond solo patterns, Bruno's patterns can also be extended to passing patterns,
 
 **Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking juggler turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
 
-<todo-sync-group>
+<sync-group>
 A: 3pB3 3pC3 33   -> B
 B: 3pA3 33   3pC3 -> C
 C: 33   3pA3 3pB3 -> A
-positions: L(A,B,C)
-move: Bmove(B)Bfall(C),mirror
-</todo-sync-group>
+positions: Brunos(A,B,C)
+move: Bmove(B,1.9,2)Bmove(B,4.9,3)Bmove(C,2.9,1)
+</sync-group>
+
+
+
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
 
 **Bruno's one count.** A particularly challenging (and exhausting) variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
 
-<todo-sync-group>
+<sync-group>
 A: 3pB 3pC 3pB -> B
 B: 3pA 3   3pA -> C
 C: 3   3pA 3   -> A
-positions: L(A,B,C)
-move: Bmove(B)Bfall(C),mirror
-</todo-sync-group>
+positions: Brunos(A,B,C)
+move: Bmove(B,1.3,.6)Bmove(B,2.4,1.5)Bmove(C,1.4,1.5)
+</sync-group>
+
+
 
 This pattern is very difficult to learn from scratch. By far the best way to learn this pattern is with two passers who can run it. Here are a couple of hints: Juggle very lofty and slow; count out loud to synchronize. After the first pass of the feed, the walking passer should take a step forward to give the "falling" passer space, but should not yet move sideways. The second pass of the feed needs to be long to avoid collisions with the short pass after; for the passer walking through the pattern this is the first pass on the other side after turning (likely the most difficult pass of the pattern); collisions are most commonly caused by the walking passer's pass being too short here. The third pass of the feed needs to be lofty but very short; usually the feeder is leading the walking passer quite a bit; the outgoing and incoming passes usually cross, the walking passer should aim to the nose or even the wrong hand of the feeder. For the feeder, the second and third pass are usually roughly in the same direction, the third pass is just much shorter. The walking passer has a single self to turn all the way around; usually they already turn a lot after throwing their short pass *before* catching the incoming short pass, so that they need to turn much less under the self.
 

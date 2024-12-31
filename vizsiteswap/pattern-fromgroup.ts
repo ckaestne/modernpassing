@@ -152,7 +152,7 @@ export function parseLayout(input: string): TLayout {
     //split at commas and parentheses
     const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
 
-    if (['Circle', 'V', 'Box', 'Trapezoid','Brunos'].includes(parts[0])) {
+    if (['Circle', 'V', 'Box', 'Trapezoid', 'Brunos'].includes(parts[0])) {
         //standard layout
         const shape = parts[0] as TShape
         const roles = parts.slice(1)
@@ -348,7 +348,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
 
     const positions: PositionLayout[] = []
     if (layout.type === "standard") {
-        assert(['Circle', 'V', 'Box', 'Trapezoid','Brunos'].includes(layout.shape), "only circle supported")
+        assert(['Circle', 'V', 'Box', 'Trapezoid', 'Brunos'].includes(layout.shape), "only circle supported")
         assert(layout.shape !== 'V' || [3, 4].includes(layout.roles.length), "V shape requires 3 or 4 roles")
         assert(layout.shape !== 'Box' || layout.roles.length === 4, "Box shape requires 4 roles")
         assert(layout.shape !== 'Trapezoid' || layout.roles.length === 5, "Trapezoid shape requires 5 roles")
@@ -585,9 +585,8 @@ function animateMovement(movement: TMovement | undefined, layout: TLayout, patte
 
         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s=>
-        {s.path = s.path.slice(3); return s}
-        )
+        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => 
+            { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3), toX: s.toX, toY: s.toY } })
         const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
         const triggers: MovementTrigger[] = movement.map(m => ({
             onBeat: m.when,
@@ -602,6 +601,3 @@ function animateMovement(movement: TMovement | undefined, layout: TLayout, patte
     throw new Error("Function not implemented.");
 }
 
-
-const brunosPath = [
-]
