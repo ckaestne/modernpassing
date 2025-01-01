@@ -90,7 +90,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
 
     // returns a window with a document and an svg root node
-    const svg: Svg = createSVG(width, height);//.viewbox(0, 0, width, height)
+    const svg: Svg = createSVG(width, height).viewbox(0, 0, width, height)
     // svg.rect("100%", "100%").fill("white").stroke("black")
 
 
@@ -243,9 +243,10 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const height: number = Number(svg.height())
         const width: number = Number(svg.width())
         svg.width(width + height)
+        svg.viewbox(0, 0, width + height, height)
         const g = svg.group()
         if (gp.layout.background)
-            renderBackground(gp.layout.background, width, height, g, defaultRenderLayoutConfig)
+            renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
         if (gp.layout.animation) {
             const beatIndicator = svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
             const beatXOffsets:number[] = [...Array(gp.pattern.period+1).keys()].map((i) => getXOffset(renderConfig, i))

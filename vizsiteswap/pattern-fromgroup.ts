@@ -4,28 +4,9 @@ import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, 
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
 import { Relabel } from "./pattern-structure.ts";
 import { PatternPaths } from "./pattern-paths.ts";
+import { createShapeLayout, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
 
 
-
-type TLayout =
-    { type: "standard", shape: TShape, roles: Role[] } |
-    { type: "free", pos: [Role, number, number][] }
-export type TShape =
-    'Trapezoid' |
-    'V' |
-    'Circle' |
-    'Box' |
-    'Brunos'
-
-type TMovement = TMovementStep[]
-type TMovementStep = {
-    type: TMovementType,
-    role: Role,
-    when: number,
-    duration: number
-    extraParam?: number[]
-}
-type TMovementType = 'Vmove' | 'Bmove' | 'Cmove'
 
 type TGroupPattern = {
     roles: Role[],
@@ -72,52 +53,10 @@ export const tokenizer = buildLexer<Tok>([
 
 const PRole = rule<Tok, Role>();
 PRole.setPattern(apply(tok(MoreTokenKind.Role), v => v.text))
-// const PNumber = rule<Tok, number>();
-// PNumber.setPattern(apply(tok(MoreTokenKind.Number), v => Number(v.text)))
 export const PRow = rule<Tok, [Role, TSequence, Role?]>();
 PRow.setPattern(
     seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence, opt(kright(tok(TokenKind.Arrow), PRole))),
 )
-// export const PRows = rule<Tok, [Role, TSequence][]>();
-// PRows.setPattern(
-//     apply(seq(PRow, rep(kright(tok(MoreTokenKind.NL), PRow))),
-//         v => [v[0], ...v[1]])
-// )
-
-// const PLocation = rule<Tok, [Role, number, number]>();
-// PLocation.setPattern(
-//     apply(seq(PRole, tok(TokenKind.Comma), PNumber, tok(TokenKind.Comma), PNumber),
-//         v => [v[0], v[2], v[4]])
-// )
-// export const PShapes = rule<Tok, TLayout>();
-// PShapes.setPattern(
-//     //either standard pattern or Free pattern
-//     rep(
-//         alt(
-//             apply(
-//                 seq(tok(MoreTokenKind.Shape), tok(TokenKind.LParen), seq(PRole, rep(kright(tok(TokenKind.Comma), PRole))), tok(TokenKind.RParen)),
-//                 v => { return { type: 'standard', shape: (v[0].text === "Circle" ? TShape.Circle : v[0].text === "V" ? TShape.V : v[0].text === "Box" ? TShape.Box : TShape.Trapezoid), roles: [v[2][0], ...v[2][1]] } }
-//             ),
-//             apply(
-//                 seq(tok(MoreTokenKind.Free), tok(TokenKind.LParen), seq(PLocation, rep(kright(tok(TokenKind.Comma), PLocation))), tok(TokenKind.RParen)),
-//                 v => { return { type: 'free', pos: [v[2][0], ...v[2][1]] } })
-//         )
-//     )
-// )
-// export const PLayout = rule<Tok, TLayout>();
-// PLayout.setPattern(
-//     kright(seq(tok(MoreTokenKind.Positions), tok(MoreTokenKind.Colon)), PShapes)
-// )
-
-// const PGroupSyncPattern = rule<Tok, [[Role, TSequence][], TLayout]>();
-// PGroupSyncPattern.setPattern(
-//     ignoreNL(seq(kleft(PRows, tok(MoreTokenKind.NL)), PLayout))
-// )
-
-
-// function ignoreNL<TResult>(p: Parser<Tok, TResult>): Parser<Tok, TResult> {
-//     return kleft(kright(rep(tok(MoreTokenKind.NL)), p), rep(tok(MoreTokenKind.NL)))
-// }
 
 
 export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][], TLayout, TMovement?] {
@@ -143,75 +82,6 @@ export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][
     return [rows, layout, movement]
 }
 
-export function parseLayout(input: string): TLayout {
-    // simple parser
-    // assert single pair of parentheses
-    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), "expecting a single pair of parentheses")
-    //remove whitespace
-    input = input.replace(/\s/g, "")
-
-    //split at commas and parentheses
-    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
-
-    if (['Circle', 'V', 'Box', 'Trapezoid', 'Brunos'].includes(parts[0])) {
-        //standard layout
-        const shape = parts[0] as TShape
-        const roles = parts.slice(1)
-        roles.map(r => assert(/^[A-Z_]$/.test(r), "role names must be single uppercase letters"))
-        return { type: 'standard', shape, roles }
-    } else if (parts[0] === 'Free') {
-        //free layout
-        const pos = parts.slice(1)
-        assert(pos.length % 3 === 0, "free layout must have 3 entries per role (role, x, y)")
-        const r: [Role, number, number][] = []
-        for (let i = 0; i < pos.length; i += 3) {
-            const x = Number(pos[i + 1]);
-            const y = Number(pos[i + 2]);
-            const role = pos[i]
-            assert(!isNaN(x) && x >= 0 && x <= 1, "x coordinate must be a number between 0 and 1");
-            assert(!isNaN(y) && y >= 0 && y <= 1, "y coordinate must be a number between 0 and 1");
-            assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
-            r.push([role, x, y]);
-        }
-
-        return { type: 'free', pos: r }
-    }
-
-    throw new Error(`invalid layout ${input}`)
-}
-
-function parseMovements(input: string): TMovement {
-    //split after closing parenthesis
-    const parts = input.split(')').filter(p => p.length > 0).map(s => s + ')')
-    return parts.map(parseMovement)
-}
-
-function parseMovement(input: string): TMovementStep {
-    // simple parser
-    // assert single pair of parentheses
-    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), `expecting a single pair of parentheses in ${input}`)
-    //remove whitespace
-    input = input.replace(/\s/g, "")
-
-    //split at commas and parentheses
-    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
-
-    if (['Vmove', 'Bmove', 'Cmove'].includes(parts[0])) {
-        //standard layout
-        const type = parts[0] as TMovementType
-        const role = parts[1]
-        const when = Number(parts[2])
-        const duration = Number(parts[3])
-        assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
-        assert(!isNaN(when), "when must be a number")
-        assert(!isNaN(duration), "duration must be a number")
-        assert(parts.slice(4).every(p => !isNaN(Number(p))), "extra parameters must be numbers")
-
-        return { type, role, when, duration, extraParam: parts.slice(4).map(p => Number(p)) }
-    }
-    throw new Error(`invalid movement ${input}`)
-}
-
 
 function getCirclePosition(degree: number): [number, number] {
     const x = Math.cos(degree * Math.PI / 180) * 0.5 + 0.5
@@ -219,8 +89,6 @@ function getCirclePosition(degree: number): [number, number] {
     return [x, y]
 }
 
-const initialV3Positions = [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30]
-const initialV4Positions = [/*A*/ 270, /*B*/90 - 45, /*C*/90, /*D*/90 + 45]
 
 
 export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
@@ -349,71 +217,8 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
  */
 function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThrows: Throw[], adjustedThrowSequenceLength: number, patternRoles: Role[], endOfPatternRelabel: Relabel[], patternLength: number): GroupPatternLayout {
 
-    const positions: PositionLayout[] = []
-    if (layout.type === "standard") {
-        assert(['Circle', 'V', 'Box', 'Trapezoid', 'Brunos'].includes(layout.shape), "only circle supported")
-        assert(layout.shape !== 'V' || [3, 4].includes(layout.roles.length), "V shape requires 3 or 4 roles")
-        assert(layout.shape !== 'Box' || layout.roles.length === 4, "Box shape requires 4 roles")
-        assert(layout.shape !== 'Trapezoid' || layout.roles.length === 5, "Trapezoid shape requires 5 roles")
-        const roles = layout.roles
-        const background: BackgroundLayout[] = []
+    const [positions, movementSegments, movementSequences, background] = createShapeLayout(patternRoles, layout, movement)
 
-        // all x and y positions are relative between 0 and 1; that is on a circle with a radius of 0.5
-        if (layout.shape === 'Circle') {
-            let angle = -Math.PI / 2
-            for (let i = 0; i < roles.length; i++) {
-                if (roles[i] !== "_") {
-                    const x = Math.cos(angle) * 0.5 + 0.5
-                    const y = Math.sin(angle) * 0.5 + 0.5
-                    assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                    positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
-                }
-                angle += 2 * Math.PI / roles.length
-            }
-            background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
-        } else if (layout.shape === 'V') {
-            const angles = roles.length === 3 ? initialV3Positions : initialV4Positions
-            for (let i = 0; i < roles.length; i++) {
-                const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
-            }
-            background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
-        } else if (layout.shape === 'Box') {
-            const angles = [-30, 30, 150, 210].map(a => a - 90)
-            for (let i = 0; i < roles.length; i++) {
-                const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
-            }
-        } else if (layout.shape === 'Trapezoid') {
-            for (let i = 0; i < 5; i++)
-                assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-            positions.push({ passerIdx: patternRoles.indexOf(roles[0]), role: roles[0], x: 0.25, y: 0 })
-            positions.push({ passerIdx: patternRoles.indexOf(roles[1]), role: roles[1], x: 0.75, y: 0 })
-            positions.push({ passerIdx: patternRoles.indexOf(roles[2]), role: roles[2], x: 0.0, y: 1 })
-            positions.push({ passerIdx: patternRoles.indexOf(roles[3]), role: roles[3], x: 0.5, y: 1 })
-            positions.push({ passerIdx: patternRoles.indexOf(roles[4]), role: roles[4], x: 1, y: 1 })
-            background.push({ type: "path", segments: ['M', 0.25, 0, 'L', .75, 0, 'L', 1, 1, 'L', 0, 1, 'L', 0.25, 0], stroke: "lightgrey", strokeWidth: 1 })
-        } else if (layout.shape === 'Brunos' && roles.length === 3) {
-            for (let i = 0; i < roles.length; i++) {
-                const s = PatternPaths.brunos.movementSegments[PatternPaths.brunos.initialPositions[i]]
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
-            }
-        }
-    } else if (layout.type === "free") {
-        for (let i = 0; i < layout.pos.length; i += 1) {
-            const poss = layout.pos
-            const x = poss[i][1]
-            const y = poss[i][2]
-            assert(!isNaN(x) && x >= 0 && x <= 1, "Invalid x coordinate")
-            assert(!isNaN(y) && y >= 0 && y <= 1, "Invalid y coordinate")
-            assert(patternRoles.includes(poss[i][0]), `role ${poss[i][0]} not in pattern`)
-            positions.push({ passerIdx: patternRoles.indexOf(poss[i][0]), role: poss[i][0], x, y })
-        }
-    }
 
     function findPosition(passerIdx: number): PositionLayout {
         const p = positions.find(p => p.passerIdx === passerIdx)
@@ -466,7 +271,14 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
     }
 
 
-    const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
+    // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
+    const movementTriggers: MovementTrigger[] = movement? movement.map(m => ({
+        onBeat: m.when,
+        mod: patternLength,
+        role: m.role,
+        duration: m.duration
+    })):[]
+
 
     return {
         static: { positions: positions, passes: passesToRender.values().toArray() },
@@ -484,6 +296,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
             movementTriggers,
             relabeling: endOfPatternRelabel
         },
+        background
     }
 }
 
@@ -522,136 +335,4 @@ function parseThrow(t: string): [number, boolean, boolean, Role | null] {
     return [value, isPass, isCrossing, role]
 }
 
-// pattern roles is needed to have the right order to identify juggler index from role name
-function animateMovement(movement: TMovement | undefined, layout: TLayout, patternRoles: Role[], patternLength: number): [MovementSegment[], MovementSequence[], MovementTrigger[]] {
-    if (!movement || movement.length === 0) return [[], [], []]
-    function allMovement(type: TMovementType): boolean {
-        return movement?.every(m => m.type === type) || false
-    }
-    // supporting Vmove in V shape
-    if (layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement('Vmove')) {
-        assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
-        // get the movement path of each initial position, moving by 90 degree each
-        const initialAngles = layout.roles.length === 3 ? initialV3Positions : initialV4Positions
-
-        const segments: MovementSegment[] = []
-        let segmentIdx = 0
-        const sequences: MovementSequence[] = []
-        for (let passerIdx = 0; passerIdx < patternRoles.length; passerIdx++) {
-            const sequence: MovementSequence = []
-            const initialAngle = initialAngles[passerIdx]
-            for (let walkIdx = 0; walkIdx < 4; walkIdx++) {
-                const fromAngle = initialAngle - walkIdx * 90
-                const toAngle = initialAngle - (walkIdx + 1) * 90
-                const [fromX, fromY] = getCirclePosition(fromAngle)
-                const [toX, toY] = getCirclePosition(toAngle)
-                const path = ['A', 0.5, 0.5, 0, 0, 0]
-
-                segments.push({
-                    fromX,
-                    fromY,
-                    path,
-                    toX,
-                    toY
-                })
-                sequence.push(segmentIdx)
-
-                segmentIdx++
-            }
-            sequences.push(sequence)
-        }
-
-        const triggers: MovementTrigger[] = movement.map(m => ({
-            onBeat: m.when,
-            mod: patternLength,
-            role: m.role,
-            duration: m.duration
-        }))
-
-        return [segments, sequences, triggers]
-        // -- B0 A0 C0 B1 A1 C1 B2 A2 C2 B3 A3 C3
-        // 1-0 0-0 2-0 1-1 0-1 2-1 1-2 0-2 2-2 1-3 0-3 2-3
-        // V B90, shift 1
-        // 
-        // miniv
-        // B90 A90 shift 1
-
-
-        // Bruno l1 l0 m r1 r0 m
-        // init 0-r0 1-l0 2-l1
-        // 1-l0-m 2-l1-l0
-        // 1-m-r1
-        // 0-r1-m 1-r1-r0
-        // 1-m-l1
-        //TODO abstract computation for initial positions
-    }
-    if (layout.type === 'standard' && layout.shape === 'Brunos' && [3, 4].includes(layout.roles.length) && allMovement('Bmove')) {
-        assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
-
-        // get the movement path of each initial position, moving by 90 degree each
-
-        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3), toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
-        const triggers: MovementTrigger[] = movement.map(m => ({
-            onBeat: m.when,
-            mod: patternLength,
-            role: m.role,
-            duration: m.duration
-        }))
-
-        return [segments, sequences, triggers]
-    }
-    if (layout.type === 'standard' && layout.shape === 'Circle' && movement.length === 1 && allMovement('Cmove')) {
-        const namedRoles = layout.roles.filter(p => /^[A-Z]$/.test(p))
-        assert(patternRoles.length === namedRoles.length, "number of passer roles must match layout roles")
-
-        const angleIncrement = 360 / layout.roles.length
-        const initialAngles = layout.roles.map((_, i) => i * angleIncrement-90)
-        assert(movement[0].extraParam && movement[0].extraParam.length === 2, "expecting 2 extra parameters for Circle's movement: degree and whether it's a straight walk")
-        const movementAngle = movement[0].extraParam![0]
-        const isStraightWalk = movement[0].extraParam![1] === 1
-        const sequences: number[][] = []
-
-        const segments: [number, number][] = [] // fromAngle, toAngle
-        for (let roleIdx = 0; roleIdx < patternRoles.length; roleIdx++) {
-            const role = patternRoles[roleIdx]
-            const circleIdx = layout.roles.indexOf(role)
-            const startingAngle = initialAngles[circleIdx]
-
-            const idx = segments.push([startingAngle, (startingAngle + movementAngle) % 360]) - 1
-            const sequence = [idx]
-            let extraAngle = movementAngle
-            while (Math.round(extraAngle % 360) !== 0) {
-                const sidx = segments.push([(startingAngle + extraAngle) % 360, (startingAngle + extraAngle + movementAngle) % 360]) - 1
-                //todo: reuse existing segments
-                sequence.push(sidx)
-                extraAngle += movementAngle
-            }
-            sequences.push(sequence)
-        }
-
-
-        // get the movement path of each initial position, moving by 90 degree each
-
-        const a_segments: MovementSegment[] = segments.map(s => {
-            return {
-                fromX: getCirclePosition(s[0])[0],
-                fromY: getCirclePosition(s[0])[1],
-                toX: getCirclePosition(s[1])[0],
-                toY: getCirclePosition(s[1])[1],
-                path: isStraightWalk ? [] : ['A', 0.5, 0.5, 0, 0, 0]
-            }
-        })
-        const triggers: MovementTrigger[] = movement.map(m => ({
-            onBeat: m.when,
-            mod: patternLength,
-            role: m.role,
-            duration: m.duration
-        }))
-
-        return [a_segments, sequences, triggers]
-    }
-
-    throw new Error("Function not implemented.");
-}
 

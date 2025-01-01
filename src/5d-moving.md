@@ -13,13 +13,13 @@ With walking and takeout patterns, it is common to write down only one transitio
 
 For illustration, here is the full notation for the *rotating feed* in two-count vs four-count (described in more detail below). It is 18 beats long to get back to the start where passer A feeds (though the orientation in the room will have changed). However, the first six beats already describe all that is happening in the pattern. After those six beats, a different passer (who started as C before) will now feed; after another six beats the third passer will be the feeder.
 
-<todo-sync-group frames="1,3,5,7,9,11,13,15,17">
-A: 3pB3  3pC3  3pB3     3pA3  3  3  3pA3w     3w 3w 3pA3  3  3  -> A
-B: 3pA3  3  3  3pA3w    3w 3w 3pA3  3  3      3pB3  3pC3  3pB3  -> B
-C: 3w 3w 3pA3  3  3     3pB3  3pC3  3pB3      3pA3  3  3  3pA3w -> C
+<sync-group frames="1,3,5,7,9,11,13,15,17">
+A: 3pB3  3pC3  3pB3     3pC3  3  3  3pC3      3  3  3pB3  3  3  -> A
+B: 3pA3  3  3  3pA3     3  3  3pC3  3  3      3pC3  3pA3  3pC3  -> B
+C: 3  3  3pA3  3  3     3pA3  3pB3  3pA3      3pB3  3  3  3pB3 -> C
 positions: V(A,B,C)
-move: Vmove(B,3.9,3)Vmove(A,7.9,3)Vmove(C,11.9,3)
-</todo-sync-group>
+move: Vmove(B,4.9,3)Vmove(A,10.9,3)Vmove(C,16.9,3)
+</sync-group>
 
 
 **Relabeling.**
