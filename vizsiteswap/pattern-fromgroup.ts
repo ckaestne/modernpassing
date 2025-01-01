@@ -23,8 +23,9 @@ type TMovementStep = {
     role: Role,
     when: number,
     duration: number
+    extraParam?: number[]
 }
-type TMovementType = 'Vmove' | 'Bmove'
+type TMovementType = 'Vmove' | 'Bmove' | 'Cmove'
 
 type TGroupPattern = {
     roles: Role[],
@@ -156,7 +157,7 @@ export function parseLayout(input: string): TLayout {
         //standard layout
         const shape = parts[0] as TShape
         const roles = parts.slice(1)
-        roles.map(r => assert(/^[A-Z]$/.test(r), "role names must be single uppercase letters"))
+        roles.map(r => assert(/^[A-Z_]$/.test(r), "role names must be single uppercase letters"))
         return { type: 'standard', shape, roles }
     } else if (parts[0] === 'Free') {
         //free layout
@@ -195,7 +196,7 @@ function parseMovement(input: string): TMovementStep {
     //split at commas and parentheses
     const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
 
-    if (['Vmove', 'Bmove'].includes(parts[0])) {
+    if (['Vmove', 'Bmove', 'Cmove'].includes(parts[0])) {
         //standard layout
         const type = parts[0] as TMovementType
         const role = parts[1]
@@ -204,7 +205,9 @@ function parseMovement(input: string): TMovementStep {
         assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
         assert(!isNaN(when), "when must be a number")
         assert(!isNaN(duration), "duration must be a number")
-        return { type, role, when, duration }
+        assert(parts.slice(4).every(p => !isNaN(Number(p))), "extra parameters must be numbers")
+
+        return { type, role, when, duration, extraParam: parts.slice(4).map(p => Number(p)) }
     }
     throw new Error(`invalid movement ${input}`)
 }
@@ -359,10 +362,12 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
         if (layout.shape === 'Circle') {
             let angle = -Math.PI / 2
             for (let i = 0; i < roles.length; i++) {
-                const x = Math.cos(angle) * 0.5 + 0.5
-                const y = Math.sin(angle) * 0.5 + 0.5
-                assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+                if (roles[i] !== "_") {
+                    const x = Math.cos(angle) * 0.5 + 0.5
+                    const y = Math.sin(angle) * 0.5 + 0.5
+                    assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+                    positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+                }
                 angle += 2 * Math.PI / roles.length
             }
             background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
@@ -585,8 +590,7 @@ function animateMovement(movement: TMovement | undefined, layout: TLayout, patte
 
         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => 
-            { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3), toX: s.toX, toY: s.toY } })
+        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3), toX: s.toX, toY: s.toY } })
         const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
         const triggers: MovementTrigger[] = movement.map(m => ({
             onBeat: m.when,
@@ -596,6 +600,56 @@ function animateMovement(movement: TMovement | undefined, layout: TLayout, patte
         }))
 
         return [segments, sequences, triggers]
+    }
+    if (layout.type === 'standard' && layout.shape === 'Circle' && movement.length === 1 && allMovement('Cmove')) {
+        const namedRoles = layout.roles.filter(p => /^[A-Z]$/.test(p))
+        assert(patternRoles.length === namedRoles.length, "number of passer roles must match layout roles")
+
+        const angleIncrement = 360 / layout.roles.length
+        const initialAngles = layout.roles.map((_, i) => i * angleIncrement-90)
+        assert(movement[0].extraParam && movement[0].extraParam.length === 2, "expecting 2 extra parameters for Circle's movement: degree and whether it's a straight walk")
+        const movementAngle = movement[0].extraParam![0]
+        const isStraightWalk = movement[0].extraParam![1] === 1
+        const sequences: number[][] = []
+
+        const segments: [number, number][] = [] // fromAngle, toAngle
+        for (let roleIdx = 0; roleIdx < patternRoles.length; roleIdx++) {
+            const role = patternRoles[roleIdx]
+            const circleIdx = layout.roles.indexOf(role)
+            const startingAngle = initialAngles[circleIdx]
+
+            const idx = segments.push([startingAngle, (startingAngle + movementAngle) % 360]) - 1
+            const sequence = [idx]
+            let extraAngle = movementAngle
+            while (Math.round(extraAngle % 360) !== 0) {
+                const sidx = segments.push([(startingAngle + extraAngle) % 360, (startingAngle + extraAngle + movementAngle) % 360]) - 1
+                //todo: reuse existing segments
+                sequence.push(sidx)
+                extraAngle += movementAngle
+            }
+            sequences.push(sequence)
+        }
+
+
+        // get the movement path of each initial position, moving by 90 degree each
+
+        const a_segments: MovementSegment[] = segments.map(s => {
+            return {
+                fromX: getCirclePosition(s[0])[0],
+                fromY: getCirclePosition(s[0])[1],
+                toX: getCirclePosition(s[1])[0],
+                toY: getCirclePosition(s[1])[1],
+                path: isStraightWalk ? [] : ['A', 0.5, 0.5, 0, 0, 0]
+            }
+        })
+        const triggers: MovementTrigger[] = movement.map(m => ({
+            onBeat: m.when,
+            mod: patternLength,
+            role: m.role,
+            duration: m.duration
+        }))
+
+        return [a_segments, sequences, triggers]
     }
 
     throw new Error("Function not implemented.");

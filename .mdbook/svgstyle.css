@@ -21,6 +21,9 @@ video {
     display: none;
 }
 
+ 
+
+svg { max-width: 100%;}
 
 
 todo-sync-group {
