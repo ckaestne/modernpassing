@@ -1,0 +1,106 @@
+// deno-lint-ignore-file no-explicit-any
+import fs from "node:fs";
+import test from "node:test";
+import { AnimationLayout, Hand, MovementSegment, PassAnimation, PassLayout } from "./pattern-structure.ts";
+import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground } from "./renderer-svg.ts";
+
+test("render first animation (star with a hole)", async (t) => {
+
+
+    const p: [string, number, number][] = [
+        ["A", 0.5, 0],
+        ["B", 0.976, 0.345],
+        ["C", 0.794, 0.905],
+        ["D", 0.206, 0.905],
+        ["E", 0.024, 0.345],
+    ]
+
+    function rpass(fromRole: string, toRole: string): PassLayout {
+        return {
+            fromRole,
+            fromHand: Hand.Right,
+            toRole,
+            toHand: Hand.Left,
+            label: ""
+        }
+    }
+
+    function move(fromPosIdx: number, toPosIdx: number):MovementSegment {
+        return {
+            fromX: p[fromPosIdx][1],
+            fromY: p[fromPosIdx][2],
+            path: [], // path instructions using C or A for curves and arches in SVG path notation
+            toX: p[toPosIdx][1],
+            toY: p[toPosIdx][2],
+        }
+    }
+
+    const animation: AnimationLayout = {
+        initialPositions: p.slice(0, 4).map(([role, x, y], idx) => ({ passerIdx: idx, x, y, role })),        
+        passAnimations: [
+            {
+                pass: rpass("A", "D"),
+                onBeat: 0,
+                duration: 1,
+                mod: 4
+            },
+            {
+                pass: rpass("C", "A"),
+                onBeat: 0,
+                duration: 1,
+                mod: 4
+            },
+            {
+                pass: rpass("D", "B"),
+                onBeat: 0,
+                duration: 1,
+                mod: 4
+            },
+        ],
+        movementSegments: [move(2,4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],
+        movementTriggers: [
+            {
+                onBeat: 1,
+                mod: 4,
+                role: 'C',
+                duration: 2.9,
+            }
+        ],
+        movementSequences: [[0, 1, 2, 3, 4], [1, 2, 3, 4, 0], [2, 3, 4, 0, 1], [3, 4, 0, 1, 2], [4, 0, 1, 2, 3]],
+        relabeling: [
+            {
+                onBeat: 0,
+                mod: 4,
+                changes: [['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'A']],
+            },
+        ]
+    }
+
+
+
+
+    const patterns = [animation]
+
+    let content = "<!DOCTYPE html><html>" +
+    '  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>'+
+    '  <script src="../runtime/animations.js"></script>'
+
+    for (const p of patterns) {
+
+        const svg = createSVG(350, 350)
+        svg.id()
+        renderBackground([{ type: "circle", r:0.5, x: 0.5, y: 0.5, fill:'none',
+            stroke: 'lightgrey', strokeWidth: 1
+         }], 350,350, svg,defaultRenderLayoutConfig)
+        const js = renderAnimation(p, 350, 350, svg, defaultRenderLayoutConfig, 4)
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p>
+        <script>${js}</script>
+        <br/>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/animation.html", content);
+
+
+})
