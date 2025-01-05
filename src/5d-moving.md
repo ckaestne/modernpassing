@@ -55,14 +55,14 @@ A good beginner pattern with easy movement is the *Rotating Y*. The Y is a forma
 
 The rotating Y is commonly juggled in [four-count](2b-basic-sync.md) with movement after every other pass or after every pass. To learn the pattern, it is common to try every position without moving during the pattern, and move to the new positions between attempts when resetting. When moving during the pattern, only fairly little movement is needed, typically only a step or two without turning, making this a good beginner pattern.
 
-<todo-sync-group frames="1,5,9,13">
-A: 3pB333 3pB3w3w3w -> D
-B: 3pC333 3pC3w3w3w -> A
-C: 3pD333 3pD3w3w3w -> B
-D: 3pA333 3pA3w3w3w -> C
+<sync-group frames="1,5,9,13">
+A: 3pC333 3pC333 -> D
+B: 3pD333 3pD333 -> C
+C: 3pB333 3pB333 -> A
+D: 3pA333 3pA333 -> B
 positions: Y(A,B,C,D)
-move: circleCC(A,0.9,3)circleCC(B,0.9,3)circleCC(D,0.9,3)circleCC(D,0.9,3)
-</todo-sync-group>
+move: move(A,4.9,3)move(B,4.9,3)move(C,4.9,3)move(D,4.9,3)
+</sync-group>
 
 
 
@@ -305,14 +305,14 @@ The [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/
 **3-leaf clover.**
 In this pattern, all passers continuously walk in an out of the middle of the pattern, through three loops (see diagram below). Essentially, a feeder throws two-count to three feedees in six-count. The Madison book has many more variations, including ambidextrous ones.
 
-<todo-sync-group>
+<sync-group>
 A: 3pD3 3pB3  -> D
 B: 33   3pA3 -> C
 C: 33   33   -> A
 D: 3pA3 33   -> B
 positions: Clover(A,B,C,D)
-move: clover(A,B,C,D?)
-</todo-sync-group>
+move: move(D,.9,5)move(B,2.9,5)
+</sync-group>
 
 
 
@@ -320,13 +320,12 @@ move: clover(A,B,C,D?)
 **The weave.** 
 In the weave, three passers walk in a figure of 8 on six-count all while facing a feeder outside the pattern who feeds them in two-count. This pattern does not cycle through all positions, since the feeder stays fixed, but it is intuitive and easy to learn and there are many variations (including ambidextrous ones) in the Madison book.
 
-<todo-sync-group>
-TODO: fix
-<!-- A: 3pB3 3pC3 3pD3 3pB3 3pC3 3pD -> A
-B: 3pA3 33   33   3pA3 33   33  -> C
-C: 33   3pA3 33   33   3pA3 33  -> B
-D: 3p3  33   3pA3 33   33   3pA3 ->  -->
-positions: 8(B,C,D),V(A,B,C,D)
-move: 8(B,C,D)
-</todo-sync-group>
+<sync-group>
+A: 3pB3 3pC3 3pD3 -> A
+B: 3pA3 33   33    -> B
+C: 33   3pA3 33    -> C
+D: 33  33   3pA3  -> D
+positions: Weave(A,B,C,D)
+move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,2)  move(D,0,2)move(D,2,2)move(D,4.5,1.5)
+</sync-group>
 

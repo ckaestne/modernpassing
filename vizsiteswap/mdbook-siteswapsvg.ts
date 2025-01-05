@@ -67,7 +67,7 @@ for (const sec of book.sections) {
                         + '</div>'
                 }
             } catch (e) {
-                console.error(`Error rendering syncgroup ${p}: ${e}`)
+                console.error(`Error rendering syncgroup ${p}: ${e}\n${(e as Error).stack}`)
                 result = `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`
             }
             return result

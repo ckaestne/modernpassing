@@ -390,23 +390,18 @@ function genId(): string {
 export function renderBackground(layouts: BackgroundLayout[], width: number, height: number, canvas: Container, config: RenderLayoutConfig) {
     const w = width - config.positionCircle
     const h = height - config.positionCircle
-    let left = config.positionCircle / 2
-    let top = config.positionCircle / 2
+    const left = config.positionCircle / 2
+    const top = config.positionCircle / 2
     // console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
-    function scalex(x: number): number {
-        return Math.round(left + x * w)
-    }
-    function scaley(y: number): number {
-        return Math.round(top + y * h)
-    }
+    const scale = scaler(left, top, w)
 
     for (const layout of layouts) {
         if (layout.type === "circle") {
-            canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scalex(layout.x), scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scale.scalex(layout.x), scale.scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
         } else if (layout.type === "line") {
-            canvas.line(scalex(layout.x1), scaley(layout.y1), scalex(layout.x2), scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            canvas.line(scale.scalex(layout.x1), scale.scaley(layout.y1), scale.scalex(layout.x2), scale.scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
         } else if (layout.type === "path") {
-            canvas.path(layout.segments.join(" ")).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            canvas.path(scale.scalePath(layout.segments).join(" ")).fill('none').stroke({ color: layout.stroke, width: layout.strokeWidth })
         } else
             throw new Error(`unknown background layout type ${layout}`)
     }
@@ -429,6 +424,7 @@ export function renderAnimation(
     let left = config.positionCircle / 2
     let top = config.positionCircle / 2
     const strokeWidth = 3
+    const scale = scaler(left, top, s)
 
     // //shift the layout to the center
     // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
@@ -437,42 +433,13 @@ export function renderAnimation(
     // console.log(`rendering background ${width} ${height} ${s} ${left} ${top}`)
 
 
-    function scale(x: number, y: number): [number, number] {
-        return [Math.round(left + x * s), Math.round(top + y * s)]
-    }
-    function scalep(p: [number, number]): [number, number] {
-        return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
-    }
-    function scalex(x: number): number {
-        return Math.round(left + x * s)
-    }
-    function scaley(y: number): number {
-        return Math.round(top + y * s)
-    }
-    function scaleSegment(seg: MovementSegment): MovementSegment {
-        return {
-            fromX: scalex(seg.fromX),
-            fromY: scaley(seg.fromY),
-            path: scalePath(seg.path),
-            toX: scalex(seg.toX),
-            toY: scaley(seg.toY),
-        }
-    }
-    function scalePath(path: (number | string)[]): (number | string)[] {
-        if (path.length === 0) return []
-        if (path[0] == 'C' && path.length == 7)
-            return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number), scalex(path[5] as number), scaley(path[6] as number)]
-        if (path[0] == 'A' && path.length == 6)
-            return ['A', scalex(path[1] as number), scaley(path[2] as number), path[3], path[4], path[5]]
-        throw new Error(`invalid path ${path}`)
-    }
 
     // canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
     const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) { 
         const pos = layout.initialPositions[roleIdx]
-        const [x, y] = scale(pos.x, pos.y)
+        const [x, y] = scale.scale(pos.x, pos.y)
         // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })        
         // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
         const g = canvas.group()
@@ -496,7 +463,7 @@ export function renderAnimation(
         javascript += `data.positions.push(['${pos.role}', ${x}, ${y}, SVG('#${g.id()}'), SVG('#${l.id()}'), ${JSON.stringify(movementSequence)}])\n`
     }
 
-    javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scaleSegment))};\n`
+    javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))};\n`
 
     const timers: [number/*beat*/, number/*mod*/, string/*code*/][]=[]
     function addJs(when: number, mod: number, js: string) {
@@ -584,4 +551,46 @@ function getXOffset(cfg: RendererConfig, time: number): number {
         (cfg.showStartingHands ? cfg.startingHandsOffset : 0) + 
         (cfg.showPasserRoles ? cfg.passerRolesOffset : 0) +
         cfg.throwCircleSize / 2 + time * cfg.xDist;
+}
+
+
+function scaler(left: number, top: number, s: number) {
+    const o = {
+        
+     scale: function(x: number, y: number): [number, number] {
+        return [Math.round(left + x * s), Math.round(top + y * s)]
+    },
+     scalep(p: [number, number]): [number, number] {
+        return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
+    },
+     scalex(x: number): number {
+        return Math.round(left + x * s)
+    },
+     scaley(y: number): number {
+        return Math.round(top + y * s)
+    },
+     scaleSegment(seg: MovementSegment): MovementSegment {
+        const fromX= o.scalex(seg.fromX)
+        const fromY= o.scaley(seg.fromY)
+        const path= o.scalePath(seg.path)
+        const toX= o.scalex(seg.toX)
+        const toY= o.scaley(seg.toY)
+        return {
+            fromX,toX, path, fromY, toY
+        }
+    },
+     scalePath(path: (number | string)[]): (number | string)[] {
+        if (path.length === 0) return []
+        if ((path[0]==='M' || path[0]==='L') && path.length>=3)
+            return [path[0], o.scalex(path[1] as number), o.scaley(path[2] as number), ...o.scalePath(path.slice(3))]
+        if (path[0] == 'C' && path.length >= 5)
+            return ['C', o.scalex(path[1] as number), o.scaley(path[2] as number), o.scalex(path[3] as number), o.scaley(path[4] as number), ...o.scalePath(path.slice(5))]//, scalex(path[5] as number), scaley(path[6] as number)]
+        if (path[0] == 'A' && path.length >= 6)
+            return ['A', Math.round(s*(path[1] as number)), Math.round(s*(path[2] as number)), path[3], path[4], path[5], ...o.scalePath(path.slice(6))]
+        if (path.length===2 && !isNaN(Number(path[0])) && !isNaN(Number(path[0])))
+            return [o.scalex(path[0] as number), o.scaley(path[1] as number)]
+        throw new Error(`invalid path ${path}`)
+    }
+    }
+    return o
 }
