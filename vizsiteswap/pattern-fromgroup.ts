@@ -62,17 +62,18 @@ PRow.setPattern(
 export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][], TLayout, TMovement?] {
     const patternLines = input.split("\n")
     let positionsLine: string = ""
-    let movementLine: string | null = null
+    let movementLine: string[] = []
     const positionsLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("positions:"))
     if (positionsLineIdx !== -1) {
         positionsLine = patternLines[positionsLineIdx].split(":")[1]
         patternLines.splice(positionsLineIdx, 1);
     } else throw new Error("missing positions line")
 
-    const movementLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("move:"))
-    if (movementLineIdx !== -1) {
-        movementLine = patternLines[movementLineIdx].split(":")[1]
+    let movementLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("move:"))
+    while (movementLineIdx !== -1) {
+        movementLine.push(patternLines[movementLineIdx].split(":")[1])
         patternLines.splice(movementLineIdx, 1);
+        movementLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("move:"))
     }
 
     const rows = patternLines.filter(l => l.trim().length > 0).map(l => expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(l)))))

@@ -1,13 +1,15 @@
 import assert from "node:assert";
 import { BackgroundLayout, GroupPatternLayout, GroupPatternStaticLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "./pattern-structure.ts";
-import { PatternPaths } from "./pattern-paths.ts";
+import { PatternPath, PatternPaths } from "./pattern-paths.ts";
+import { loadPathsFromSvg } from "./pattern-paths-loader.ts";
 
 
 
 
 export type TLayout =
     { type: "standard", shape: TShape, roles: Role[] } |
-    { type: "free", pos: [Role, number, number][] }
+    { type: "free", pos: [Role, number, number][] } |
+    { type: "svg", segments: MovementSegment[], roles: [Role, number][] }
 export type TShape = string
 //     'Trapezoid' |
 //     'V' |
@@ -55,6 +57,26 @@ export function parseLayout(input: string): TLayout {
         }
 
         return { type: 'free', pos: r }
+    } else if (parts[0] === 'Svg') {
+        const svgFile = 'src/'+parts[1]
+        assert(svgFile.endsWith('.svg'), "svg file must end with .svg")
+        assert(Deno.statSync(svgFile).isFile, `svg file ${svgFile} not found in src/`)
+        assert((parts.length % 2 === 0) && (parts.length >= 4), "svg must have pairs of role name and path index for each role")
+
+        const segments = loadPathsFromSvg(svgFile)
+        const roles: [Role, number][] = []
+        for (let i = 2; i < parts.length; i += 2) {
+            const role = parts[i]
+            const idx = Number(parts[i + 1])
+            assert(!isNaN(idx) && idx >= 0 && idx < segments.length, `path index must be a number between 0 and number of path segments (${segments.length}), but found ${idx}`)
+            assert(/^[A-Z]$/.test(role), `role names must be single uppercase letters, but found ${role}`)
+            roles.push([role, idx])
+        }
+
+        return {
+            type: 'svg', segments, roles
+        }
+
     } else {
         //standard layout
         const shape = parts[0] as TShape
@@ -65,9 +87,11 @@ export function parseLayout(input: string): TLayout {
 
 }
 
-export function parseMovements(input: string): TMovement {
+export function parseMovements(input: string[]): TMovement {
+    if (input.length === 0) return []
+    const allInputs = input.join('')
     //split after closing parenthesis
-    const parts = input.split(')').filter(p => p.length > 0).map(s => s + ')')
+    const parts = allInputs.split(')').filter(p => p.length > 0).map(s => s + ')')
     return parts.map(parseMovement)
 }
 
@@ -336,12 +360,12 @@ factories.push({
         assert(layout.shape === 'Box')
         const roles = layout.roles
         const angles = [-30, 30, 150, 210].map(a => a - 90)
-                for (let i = 0; i < roles.length; i++) {
-                    const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                    const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-                    assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                    positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
-                }
+        for (let i = 0; i < roles.length; i++) {
+            const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
+            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+        }
         return [positions, [], [], background]
     }
 })
@@ -364,14 +388,14 @@ factories.push({
             const s = PatternPaths.brunos.movementSegments[PatternPaths.brunos.initialPositions[i]]
             positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
         }
- 
+
 
         for (const seg of PatternPaths.brunos.movementSegments) {
-            background.push( {
+            background.push({
                 type: "path",
                 segments: seg.path,
                 stroke: "lightgrey",
-                strokeWidth:    1
+                strokeWidth: 1
             })
         }
 
@@ -380,7 +404,7 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3,8), toX: s.toX, toY: s.toY } })
+        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 8), toX: s.toX, toY: s.toY } })
         const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
 
 
@@ -402,8 +426,8 @@ factories.push({
         const positions: PositionLayout[] = []
         const background: BackgroundLayout[] = []
 
-        background.push({type:'circle', x:0.2, y:0.5, r:0.2, fill:'none', stroke:'lightgrey', strokeWidth:1})
-        background.push({type:'circle', x:0.8, y:0.5, r:0.2, fill:'none', stroke:'lightgrey', strokeWidth:1})
+        background.push({ type: 'circle', x: 0.2, y: 0.5, r: 0.2, fill: 'none', stroke: 'lightgrey', strokeWidth: 1 })
+        background.push({ type: 'circle', x: 0.8, y: 0.5, r: 0.2, fill: 'none', stroke: 'lightgrey', strokeWidth: 1 })
 
         assert(layout.type === 'standard')
         const roles = layout.roles
@@ -419,7 +443,7 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.y.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3,9), toX: s.toX, toY: s.toY } })
+        const segments: MovementSegment[] = PatternPaths.y.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 9), toX: s.toX, toY: s.toY } })
         const sequences: MovementSequence[] = PatternPaths.y.movementSequences
 
 
@@ -446,23 +470,23 @@ factories.push({
         const roles = layout.roles
         for (let i = 0; i < 3; i++) {
             const s = PatternPaths.weave.movementSegments[PatternPaths.weave.initialPositions[i]]
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i+1]), role: roles[i+1], x: s.fromX, y: s.fromY })
+            positions.push({ passerIdx: patternRoles.indexOf(roles[i + 1]), role: roles[i + 1], x: s.fromX, y: s.fromY })
         }
         positions.push({
-          passerIdx: 0,
-          x: .5,
-          y: .05,
-          role: roles[0]
+            passerIdx: 0,
+            x: .5,
+            y: .05,
+            role: roles[0]
         })
 
-        
+
 
         for (const seg of PatternPaths.weave.movementSegments) {
-            background.push( {
+            background.push({
                 type: "path",
                 segments: ['M', seg.fromX, seg.fromY, ...seg.path, seg.toX, seg.toY],
                 stroke: "lightgrey",
-                strokeWidth:    1
+                strokeWidth: 1
             })
         }
 
@@ -484,52 +508,92 @@ factories.push({
 
 
 
-// -- clover layout and movement
+// -- weave layout and movement
 factories.push({
-    supportedShapes: ['Clover'],
+    supportedShapes: ['Svg'],
     supportedMovement: ['move'],
     matches: function (layout: TLayout, movement: TMovement): boolean {
-        return layout.type === 'standard' && layout.shape === 'Clover' && [4].includes(layout.roles.length) && allMovement(movement, 'move')
+        return layout.type === 'svg' && allMovement(movement, 'move')
     },
     createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
         const positions: PositionLayout[] = []
         const background: BackgroundLayout[] = []
 
 
-        assert(layout.type === 'standard')
-        const roles = layout.roles
-        for (let i = 0; i < 4; i++) {
-            const s = PatternPaths.clover.movementSegments[PatternPaths.clover.initialPositions[i]]
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+        assert(layout.type === 'svg')
+        for (let i = 0; i<layout.roles.length; i++) {
+            const initialSegmentIdx = layout.roles[i][1]
+            assert(initialSegmentIdx >= 0 && initialSegmentIdx < layout.segments.length, `initial segment index ${initialSegmentIdx} for role ${layout.roles[i][0]} out of bounds for ${layout.segments.length} segments`)
+            const s = layout.segments[initialSegmentIdx]
+            positions.push({ passerIdx: patternRoles.indexOf(layout.roles[i][0]), role: layout.roles[i][0], x: s.fromX, y: s.fromY })
         }
-       
 
-        
-
-        for (const seg of PatternPaths.clover.movementSegments) {
-            background.push( {
+        for (const seg of layout.segments) {
+            background.push({
                 type: "path",
                 segments: ['M', seg.fromX, seg.fromY, ...seg.path, seg.toX, seg.toY],
                 stroke: "lightgrey",
-                strokeWidth:    1
+                strokeWidth: 1
             })
         }
 
-
-
-
         assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
 
-        //         // get the movement path of each initial position, moving by 90 degree each
+        const segments: MovementSegment[] = layout.segments
 
-        const segments: MovementSegment[] = PatternPaths.clover.movementSegments//.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path, toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequence[] = PatternPaths.clover.movementSequences
-
-
-
+        const sequence = layout.segments.map((_, i) => i)
+        const sequences: MovementSequence[] = layout.roles.map((r) => sequence.slice(r[1]).concat(sequence.slice(0, r[1])))
+       
         return [positions, segments, sequences, background]
     }
 })
+
+
+
+factories.push(fromPath('Clover', PatternPaths.clover))
+factories.push(fromPath('Magermix', PatternPaths.magermix))
+
+// -- generic layout and movement ("move") on predefined paths in pattern-paths.ts
+function fromPath(name: string, path: PatternPath): PatternShapeFactory {
+    return {
+        supportedShapes: [name],
+        supportedMovement: ['move'],
+        matches: function (layout: TLayout, movement: TMovement): boolean {
+            return layout.type === 'standard' && layout.shape === name && layout.roles.length === path.initialPositions.length && allMovement(movement, 'move')
+        },
+        createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
+            const positions: PositionLayout[] = []
+            const background: BackgroundLayout[] = []
+
+
+            assert(layout.type === 'standard')
+            const roles = layout.roles
+            for (let i = 0; i < roles.length; i++) {
+                const s = path.movementSegments[path.initialPositions[i]]
+                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+            }
+
+
+
+
+            for (const seg of path.movementSegments) {
+                background.push({
+                    type: "path",
+                    segments: ['M', seg.fromX, seg.fromY, ...seg.path, seg.toX, seg.toY],
+                    stroke: "lightgrey",
+                    strokeWidth: 1
+                })
+            }
+
+
+
+
+            assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
+
+            return [positions, path.movementSegments, path.movementSequences, background]
+        }
+    }
+}
 
 
 
@@ -540,7 +604,7 @@ export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayo
     for (const f of factories)
         if (f.matches(parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : []))
             return f.createLayout(roles, parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : [])
-    throw new Error(`layout/movement combination not supported ${parsedLayoutInstructions.type} ${parsedMovementInstructions}`)
+    throw new Error(`layout/movement combination not supported ${parsedLayoutInstructions.type} ${JSON.stringify(parsedMovementInstructions)}`)
 }
 
 // function createLayout(p:PLayout)

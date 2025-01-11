@@ -1,9 +1,11 @@
+import { SVG } from "@svgdotjs/svg.js";
 import { MovementSegment, MovementSequence, PositionLayout } from "./pattern-structure.ts";
+import { loadPatternPathsFromSvg } from "./pattern-paths-loader.ts";
 
 
 
 
-type PatternPath = {
+export type PatternPath = {
     initialPositions: number[],//index of the segment where each juggler starts
     movementSegments: MovementSegment[],
     movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
@@ -567,10 +569,11 @@ const clover: PatternPath = {
   ]
 }
 
+
+
 export const PatternPaths = {
   weave,
   brunos,
   clover,
-    y,
-  
+  y,
 } 

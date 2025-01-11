@@ -174,26 +174,56 @@ positions: Brunos(A,B,C)
 move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 </sync-group>
 
-The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging.
+The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging. A much slower version has five instead of three passes before it repeats, where the walking juggler passes twice while walking through the middle of the pattern. Less conventional base patterns are pass-pass-self feeds, where both passes either go to the same juggler (feedees juggle pass-pass-self-self-self-self) or to different jugglers (feedees juggle three-count), or the much faster pass-pass-self-pass-self feed where the first and third pass go to the walking juggler (feedees juggle pass-self-self-pass-self-self-self-pass-self-self). See the [appendix](7-appendix-brunos.md) for illustrations of these.
 
-Other base patterns are possible, such as **[TODO]**.
+
+
+
+
+
+**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three jugglers, or 534 and 531 for four jugglers.
+There is no principled way to decide when to pass and to whom to pass (that I am aware off), so it is easy to create lots of different patters by first picking a pattern for the walking and then fitting passes in there.
+
+
+This is an easy pattern based on the five-ball cascade:
+
+<sync-group>
+A: 333   3pE33  -> B
+B: 3pE33 3pD33  -> C
+C: 3pD33 3  33  -> D
+D: 3pC33 3pB33  -> E
+E: 3pB33 3pA33  -> A
+positions: Svg(shapes/5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
+move: move(A,0.9,2)move(B,0.9,2)move(C,0.9,2)move(D,0.9,2)move(E,0.9,2)
+move: move(A,3.9,2)move(B,3.9,2)move(C,3.9,2)move(D,3.9,2)move(E,3.9,2)
+</sync-group>
 
 ![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
 
-**Beyond the cascade.** Bruno's patterns can easily be changed by changing the walking direction. For example, if the passers walk as if they were juggled in the siteswap 441 this could result in a pattern like this:
+Here is an example of a pattern with walking based conceptually on the solo pattern 441:
 
-*[TODO notation]*
-
-Similarly this can be extended to 4-ball and 5-ball patterns, resulting in patterns for 4 and 5 passers. Here is a version for 5 passers based on a 5-ball cascade:
-
-*[TODO notation]*
-
-There is no principled way to decide when to pass and to whom to pass (that I am aware off), so it is easy to create lots of different patters by first picking a pattern for the walking and then fitting passes in there.
+<sync-group>
+A: 3pB33 3pC33 3pB33 3pC33 333   3pC33 -> C
+B: 3pA33 333   3pA33 333   3pC33 333   -> A
+C: 333   3pA33 333   3pA33 3pB33 3pA33 -> B
+positions: Svg(shapes/bruno441.svg,A,8,B,1,C,4)
+move: move(B,0.9,5)move(C,3.9,5)move(A,9.9,5)move(C,12.9,2)move(B,12.9,5)
+</sync-group>
 
 
 Beyond solo patterns, Bruno's patterns can also be extended to passing patterns, when imagining two giants facing each other passing with each other. The most common of these (known as *Magermix* when juggled in one-count, see below) is is a six-person pattern where the passers move as if they were passed in two-count:
 
-*[TODO: notation]*
+<sync-group>
+A: 3pB33 3pC33 3pB33 3pC33 3  33 3pC33 -> C
+B: 3pA33 3  33 3pA33 3  33 3pF33 3  33 -> D
+C: 3  33 3pA33 3  33 3pA33 3pE33 3pA33 -> B
+D: 3pE33 3pF33 3pE33 3pF33 3  33 3pF33 -> F
+E: 3pD33 3  33 3pD33 3  33 3pC33 3  33 -> A
+F: 3  33 3pD33 3  33 3pD33 3pB33 3pD33 -> E
+positions: Svg(shapes/magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
+move: move(B,2.9,3)move(C,3.9,5) move(B,6.9,5) move(A,11.9,3) move(A,15.9,5)move(B,12.9,5)
+move: move(E,2.9,3)move(F,3.9,5) move(E,6.9,5) move(D,11.9,3) move(D,15.9,5)move(E,12.9,5)
+</sync-group>
 
 
 **Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking juggler turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
@@ -212,7 +242,7 @@ move: Bmove(B,1.9,2)Bmove(B,4.9,3)Bmove(C,2.9,1)
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
 
-**Bruno's one count.** A particularly challenging (and exhausting) variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
+**Bruno's one count.** A particularly challenging variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
 
 <sync-group>
 A: 3pB 3pC 3pB -> B
@@ -226,7 +256,20 @@ move: Bmove(B,1.3,.6)Bmove(B,2.4,1.5)Bmove(C,1.4,1.5)
 
 This pattern is very difficult to learn from scratch. By far the best way to learn this pattern is with two passers who can run it. Here are a couple of hints: Juggle very lofty and slow; count out loud to synchronize. After the first pass of the feed, the walking passer should take a step forward to give the "falling" passer space, but should not yet move sideways. The second pass of the feed needs to be long to avoid collisions with the short pass after; for the passer walking through the pattern this is the first pass on the other side after turning (likely the most difficult pass of the pattern); collisions are most commonly caused by the walking passer's pass being too short here. The third pass of the feed needs to be lofty but very short; usually the feeder is leading the walking passer quite a bit; the outgoing and incoming passes usually cross, the walking passer should aim to the nose or even the wrong hand of the feeder. For the feeder, the second and third pass are usually roughly in the same direction, the third pass is just much shorter. The walking passer has a single self to turn all the way around; usually they already turn a lot after throwing their short pass *before* catching the incoming short pass, so that they need to turn much less under the self.
 
-Bruno's one-count is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in two-count (see above) and various three-ball siteswaps (known as *Minimix*).
+Bruno's one-count is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in two-count (see above) and various three-ball siteswaps like 441 and 33441 (known as *Babymix*).
+
+
+<!-- sync-group>
+A: 3pB 3pC 3pB 3pC 3   3pC -> C
+B: 3pA 3   3pA 3   3pF 3   -> D
+C: 3   3pA 3   3pA 3pE 3pA -> B
+D: 3pE 3pF 3pE 3pF 3   3pF -> F
+E: 3pD 3   3pD 3   3pC 3   -> A
+F: 3   3pD 3   3pD 3pB 3pD -> E
+positions: Magermix(A,B,C,D,E,F)
+move: move(B,0.9,1)move(C,1.6,1.3) move(B,2.9,1)move(A,3.9,1)move(A,5.9,1)move(B,4.9,1)
+move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(E,4.9,1)
+</sync-group -->
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 

@@ -1,4 +1,4 @@
-import { Circle, Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
+import { Circle, Containable, Container, Element, G, Line, List, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
 import { AnimationLayout, BackgroundLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, Relabel, Role, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
@@ -84,7 +84,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     const width = xMargin * 2 + throwCircleSize / 2 +
         (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
         (p.prefixPeriod + p.period * iterations) * xDist +
-        (p.relabel && showPasserRoles? relabelWidth:0)
+        (p.relabel && showPasserRoles ? relabelWidth : 0)
     const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist * (p.passerNames.length - 1)
         + (separateleftRightRows ? yHandDist * 2 : 0)
 
@@ -189,10 +189,10 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
             if (p.relabel) {
                 const newLabel = p.relabel.find(([role, _]) => role === p.passerNames[passerIdx])
                 if (newLabel) {
-                    svg.text("").plain("→ "+newLabel[1]).
+                    svg.text("").plain("→ " + newLabel[1]).
                         addClass("passer-roles-relabel").
                         font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
-                        amove(0, yo(passerIdx, null)).cx(width - xMargin - relabelWidth / 2 - throwCircleSize/2)
+                        amove(0, yo(passerIdx, null)).cx(width - xMargin - relabelWidth / 2 - throwCircleSize / 2)
                 }
             }
         }
@@ -224,20 +224,21 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 }
 
 
-export function createSVG(width: number, height: number): Svg {
+export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow();
     const document = window.document;
     registerWindow(window, document);
 
     const svg: any = SVG(document.documentElement);
-    svg.size(width, height)
+    if (width && height)
+        svg.size(width, height)
     return svg;
 }
 
 export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
     let javascript = ""
-    const changedRenderDefaults :Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig : RendererConfig = { ...defaultRendererConfig, ...changedRenderDefaults, ...config }
+    const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
+    const renderConfig: RendererConfig = { ...defaultRendererConfig, ...changedRenderDefaults, ...config }
     const svg = renderPattern(gp.pattern, renderConfig)
     if (gp.layout) {
         const height: number = Number(svg.height())
@@ -249,14 +250,14 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
         if (gp.layout.animation) {
             const beatIndicator = svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
-            const beatXOffsets:number[] = [...Array(gp.pattern.period+1).keys()].map((i) => getXOffset(renderConfig, i))
+            const beatXOffsets: number[] = [...Array(gp.pattern.period + 1).keys()].map((i) => getXOffset(renderConfig, i))
             javascript += renderAnimation(gp.layout.animation!, width, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period, beatIndicator, beatXOffsets)
         } else
             renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })
         // g.move(width, 0)
     }
-    return [svg,javascript]
+    return [svg, javascript]
 }
 
 
@@ -393,7 +394,7 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
     const left = config.positionCircle / 2
     const top = config.positionCircle / 2
     // console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
-    const scale = scaler(left, top, w)
+    const scale = scaleup(left, top, w)
 
     for (const layout of layouts) {
         if (layout.type === "circle") {
@@ -409,9 +410,9 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
 
 
 export function renderAnimation(
-    layout: AnimationLayout, 
-    width: number, height: number, canvas: Container, 
-    config: RenderLayoutConfig, 
+    layout: AnimationLayout,
+    width: number, height: number, canvas: Container,
+    config: RenderLayoutConfig,
     patternLength: number,
     beatIndicator: Line | null = null, beatXOffsets: number[] | null = null): string {
     let javascript = `    const data = {
@@ -424,7 +425,7 @@ export function renderAnimation(
     let left = config.positionCircle / 2
     let top = config.positionCircle / 2
     const strokeWidth = 3
-    const scale = scaler(left, top, s)
+    const scale = scaleup(left, top, s)
 
     // //shift the layout to the center
     // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
@@ -437,7 +438,7 @@ export function renderAnimation(
     // canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
     const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
-    for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) { 
+    for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
         const pos = layout.initialPositions[roleIdx]
         const [x, y] = scale.scale(pos.x, pos.y)
         // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })        
@@ -447,7 +448,7 @@ export function renderAnimation(
         c.center(x, y)
         const l = canvas.text(pos.role).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "middle", 'font-weight': "bold" }).
-            center(x,y)
+            center(x, y)
         g.add(c).add(l)
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
         l.children()[0].attr({ x: null })
@@ -465,12 +466,12 @@ export function renderAnimation(
 
     javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))};\n`
 
-    const timers: [number/*beat*/, number/*mod*/, string/*code*/][]=[]
+    const timers: [number/*beat*/, number/*mod*/, string/*code*/][] = []
     function addJs(when: number, mod: number, js: string) {
         const beat = Math.floor(when % mod)
-        const delay = (when%mod) - beat
+        const delay = (when % mod) - beat
         const t = timers.findIndex(([b, m, _]) => b === beat && m === mod)
-        js = js.replace(/\$DELAY/g, Math.round(delay*1000).toString())
+        js = js.replace(/\$DELAY/g, Math.round(delay * 1000).toString())
         if (t >= 0) timers[t][2] += js
         else timers.push([beat, mod, js])
     }
@@ -507,7 +508,7 @@ export function renderAnimation(
             after(function(){updateLocation(${pos}, ${seg}.toX, ${seg}.toY);${path}.remove();});      `
         )
     }
-    if (beatIndicator && beatXOffsets && beatXOffsets.length == patternLength+1) {
+    if (beatIndicator && beatXOffsets && beatXOffsets.length == patternLength + 1) {
         beatIndicator.x(beatXOffsets[0])
         beatIndicator.show()
         javascript += `const beatoffsets = ${JSON.stringify(beatXOffsets)}; const beatIndicator = SVG('#${beatIndicator.id()}');`
@@ -515,6 +516,7 @@ export function renderAnimation(
 
     let relabelJs = ""
     for (const relabelTrigger of layout.relabeling) {
+        checkRelabel(relabelTrigger.changes)
         relabelJs += `if (time%${relabelTrigger.mod}==${relabelTrigger.onBeat}) 
                         relabel(data, ${JSON.stringify(relabelTrigger.changes)});        `
 
@@ -532,7 +534,7 @@ export function renderAnimation(
         const beatIdx = time%${patternLength};
         counter.text((beatIdx+1).toString());
         if (!first) { ${relabelJs} } else first=false;
-        ${        timers.map(([beat, mod, js]) => `if ((time%${mod})==${beat}) { ${js} }`).join("\n")        }
+        ${timers.map(([beat, mod, js]) => `if ((time%${mod})==${beat}) { ${js} }`).join("\n")}
         if (beatIndicator) {            
             beatIndicator.
                 animate({duration:1000,when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
@@ -548,49 +550,93 @@ export function renderAnimation(
 
 function getXOffset(cfg: RendererConfig, time: number): number {
     return cfg.xMargin +
-        (cfg.showStartingHands ? cfg.startingHandsOffset : 0) + 
+        (cfg.showStartingHands ? cfg.startingHandsOffset : 0) +
         (cfg.showPasserRoles ? cfg.passerRolesOffset : 0) +
         cfg.throwCircleSize / 2 + time * cfg.xDist;
 }
 
 
-function scaler(left: number, top: number, s: number) {
-    const o = {
-        
-     scale: function(x: number, y: number): [number, number] {
-        return [Math.round(left + x * s), Math.round(top + y * s)]
-    },
-     scalep(p: [number, number]): [number, number] {
-        return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
-    },
-     scalex(x: number): number {
+
+type Scaler = {
+    scale(x: number, y: number): [number, number],
+    scalep(p: [number, number]): [number, number],
+    scalex(x: number): number,
+    scaley(y: number): number,
+    scaleSegment(seg: MovementSegment): MovementSegment
+    scalePath(path: (number | string)[]): (number | string)[]
+}
+
+export function scaleup(left: number, top: number, s: number): Scaler {
+    function scalex(x: number): number {
         return Math.round(left + x * s)
-    },
-     scaley(y: number): number {
-        return Math.round(top + y * s)
-    },
-     scaleSegment(seg: MovementSegment): MovementSegment {
-        const fromX= o.scalex(seg.fromX)
-        const fromY= o.scaley(seg.fromY)
-        const path= o.scalePath(seg.path)
-        const toX= o.scalex(seg.toX)
-        const toY= o.scaley(seg.toY)
-        return {
-            fromX,toX, path, fromY, toY
-        }
-    },
-     scalePath(path: (number | string)[]): (number | string)[] {
-        if (path.length === 0) return []
-        if ((path[0]==='M' || path[0]==='L') && path.length>=3)
-            return [path[0], o.scalex(path[1] as number), o.scaley(path[2] as number), ...o.scalePath(path.slice(3))]
-        if (path[0] == 'C' && path.length >= 5)
-            return ['C', o.scalex(path[1] as number), o.scaley(path[2] as number), o.scalex(path[3] as number), o.scaley(path[4] as number), ...o.scalePath(path.slice(5))]//, scalex(path[5] as number), scaley(path[6] as number)]
-        if (path[0] == 'A' && path.length >= 6)
-            return ['A', Math.round(s*(path[1] as number)), Math.round(s*(path[2] as number)), path[3], path[4], path[5], ...o.scalePath(path.slice(6))]
-        if (path.length===2 && !isNaN(Number(path[0])) && !isNaN(Number(path[0])))
-            return [o.scalex(path[0] as number), o.scaley(path[1] as number)]
-        throw new Error(`invalid path ${path}`)
     }
+    function scaley(y: number): number {
+        return Math.round(top + y * s)
+    }
+    return scaler(scalex,scaley, (l)=>s*l)
+}
+
+export function scaledown(width: number, height: number): Scaler {
+    function scalex(x: number): number {
+        return Math.round(1000*x / width)/1000
+    }
+    function scaley(y: number): number {
+        return Math.round(1000*y / height)/1000
+    }
+    return scaler(scalex,scaley, scalex)
+}
+
+export function scaler(scalex: (x:number)=>number,scaley: (y:number)=>number, scaleLength: (l:number)=>number): Scaler {
+    const o = {
+
+        scale: function (x: number, y: number): [number, number] {
+            return [scalex(x), scaley(y)]
+        },
+        scalep(p: [number, number]): [number, number] {
+            return [scalex(p[0]), scaley(p[1])]
+        },
+        scalex,
+        scaley,
+        scaleSegment(seg: MovementSegment): MovementSegment {
+            const fromX = scalex(seg.fromX)
+            const fromY = scaley(seg.fromY)
+            const path = o.scalePath(seg.path)
+            const toX = scalex(seg.toX)
+            const toY = scaley(seg.toY)
+            return {
+                fromX, toX, path, fromY, toY
+            }
+        },
+        scalePath(path: (number | string)[]): (number | string)[] {
+            if (path.length === 0) return []
+            const lm:(number | string)[] = ['M','L']
+            const c:(number | string)[] = ['C']
+            const a:(number | string)[] = ['A']
+            if (path.length >= 5 && path[0] === 'M' && path[3]==='V')
+                return o.scalePath([...path.slice(0,3), 'L', path[1], path[4], ...path.slice(5)])
+            if (path.length >= 5 && path[0] === 'M' && path[3]==='H')
+                return o.scalePath([...path.slice(0,3), 'L', path[4], path[2], ...path.slice(5)])
+            if (path.length === 1 && path[0] === 'L') 
+                return path
+            if (lm.includes(path[0]) && path.length >= 3)
+                return [path[0], scalex(Number(path[1])), scaley(Number(path[2])), ...o.scalePath(path.slice(3))]
+            if (c.includes(path[0]) && path.length >= 5)
+                return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number), ...o.scalePath(path.slice(5))]//, scalex(path[5] as number), scaley(path[6] as number)]
+            if (a.includes(path[0]) && path.length >= 6)
+                return ['A', scaleLength(path[1] as number), scaleLength(path[2] as number), path[3], path[4], path[5], ...o.scalePath(path.slice(6))]
+            if (path.length === 2 && !isNaN(Number(path[0])) && !isNaN(Number(path[0])))
+                return [scalex(path[0] as number), scaley(path[1] as number)]
+            throw new Error(`invalid path ${path}`)
+        }
     }
     return o
+}
+
+function checkRelabel(changes: [string, string][]) {
+    const froms = changes.map(s=>s[0])
+    const tos = changes.map(s=>s[0])
+
+    for (const f of froms)
+        if (!tos.includes(f))
+          throw new Error(`Relabeling is inconsistent, loosing roles (${f} is relabeled, but nothing is relabeled to ${f}`);
 }

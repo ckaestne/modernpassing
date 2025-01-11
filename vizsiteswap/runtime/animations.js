@@ -14,6 +14,8 @@ function getSegment(data, idx) {
 
 function getLocationByRole(data, role) {
     const r = data.positions.find(([r]) => r === role)
+    if (!r)
+        console.error(`role ${role} not found in data.positions`)
     return [r[1], r[2]]
 }
 function getPositionByRole(data, role) {
