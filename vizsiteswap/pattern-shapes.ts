@@ -87,15 +87,15 @@ export function parseLayout(input: string): TLayout {
 
 }
 
-export function parseMovements(input: string[]): TMovement {
+export function parseMovements(input: string[], roles: Role[]): TMovement {
     if (input.length === 0) return []
     const allInputs = input.join('')
     //split after closing parenthesis
     const parts = allInputs.split(')').filter(p => p.length > 0).map(s => s + ')')
-    return parts.map(parseMovement)
+    return parts.map((p)=>parseMovement(p, roles)).flat()
 }
 
-function parseMovement(input: string): TMovementStep {
+function parseMovement(input: string, roles: Role[]): TMovementStep[] {
     // simple parser
     // assert single pair of parentheses
     assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), `expecting a single pair of parentheses in ${input}`)
@@ -112,12 +112,16 @@ function parseMovement(input: string): TMovementStep {
     const role = parts[1]
     const when = Number(parts[2])
     const duration = Number(parts[3])
-    assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
+    assert(/^[A-Z\*]$/.test(role), "role names must be single uppercase letters or the wildcard * for all roles")
     assert(!isNaN(when), "when must be a number")
     assert(!isNaN(duration), "duration must be a number")
     assert(parts.slice(4).every(p => !isNaN(Number(p))), "extra parameters must be numbers")
 
-    return { type, role, when, duration, extraParam: parts.slice(4).map(p => Number(p)) }
+    const extraParam = parts.slice(4).map(p => Number(p))
+    // * gets replaced by all roles
+    if (role === '*') 
+        return roles.map(r => ({ type, role: r, when, duration, extraParam })) 
+    return [{ type, role, when, duration, extraParam }]
 }
 
 
@@ -551,7 +555,6 @@ factories.push({
 
 
 factories.push(fromPath('Clover', PatternPaths.clover))
-factories.push(fromPath('Magermix', PatternPaths.magermix))
 
 // -- generic layout and movement ("move") on predefined paths in pattern-paths.ts
 function fromPath(name: string, path: PatternPath): PatternShapeFactory {

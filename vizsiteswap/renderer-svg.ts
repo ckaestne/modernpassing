@@ -239,7 +239,9 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     let javascript = ""
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
     const renderConfig: RendererConfig = { ...defaultRendererConfig, ...changedRenderDefaults, ...config }
-    const svg = renderPattern(gp.pattern, renderConfig)
+
+    const svg = !renderConfig.renderLayoutOnly ?
+        renderPattern(gp.pattern, renderConfig) : createSVG(1, renderConfig.renderLayoutOnly)
     if (gp.layout) {
         const height: number = Number(svg.height())
         const width: number = Number(svg.width())
@@ -249,9 +251,9 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (gp.layout.background)
             renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
         if (gp.layout.animation) {
-            const beatIndicator = svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+            const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
             const beatXOffsets: number[] = [...Array(gp.pattern.period + 1).keys()].map((i) => getXOffset(renderConfig, i))
-            javascript += renderAnimation(gp.layout.animation!, width, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period, beatIndicator, beatXOffsets)
+            javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period, beatIndicator, beatXOffsets)
         } else
             renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })
@@ -266,7 +268,7 @@ type RenderLayoutConfig = {
     roleLabelFontSize: number
     colors: string[]
 }
-export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "black", "black", "black", "black"] }
+export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black"] }
 
 
 function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -600,11 +602,9 @@ export function scaler(scalex: (x:number)=>number,scaley: (y:number)=>number, sc
         scaleSegment(seg: MovementSegment): MovementSegment {
             const fromX = scalex(seg.fromX)
             const fromY = scaley(seg.fromY)
-            const path = o.scalePath(seg.path)
-            const toX = scalex(seg.toX)
-            const toY = scaley(seg.toY)
+            const p = o.scalePath([...seg.path, seg.toX, seg.toY])
             return {
-                fromX, toX, path, fromY, toY
+                fromX, fromY, path: p.slice(0,-2), toX: p[p.length-2] as number, toY: p[p.length-1] as number
             }
         },
         scalePath(path: (number | string)[]): (number | string)[] {
@@ -620,10 +620,10 @@ export function scaler(scalex: (x:number)=>number,scaley: (y:number)=>number, sc
                 return path
             if (lm.includes(path[0]) && path.length >= 3)
                 return [path[0], scalex(Number(path[1])), scaley(Number(path[2])), ...o.scalePath(path.slice(3))]
-            if (c.includes(path[0]) && path.length >= 5)
-                return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number), ...o.scalePath(path.slice(5))]//, scalex(path[5] as number), scaley(path[6] as number)]
-            if (a.includes(path[0]) && path.length >= 6)
-                return ['A', scaleLength(path[1] as number), scaleLength(path[2] as number), path[3], path[4], path[5], ...o.scalePath(path.slice(6))]
+            if (c.includes(path[0]) && path.length >= 7)
+                return ['C', scalex(path[1] as number), scaley(path[2] as number), scalex(path[3] as number), scaley(path[4] as number), scalex(path[5] as number), scaley(path[6] as number), ...o.scalePath(path.slice(7))]//, scalex(path[5] as number), scaley(path[6] as number)]
+            if (a.includes(path[0]) && path.length >= 8)
+                return ['A', scaleLength(path[1] as number), scaleLength(path[2] as number), path[3], path[4], path[5], scalex(path[6] as number), scaley(path[7] as number), ...o.scalePath(path.slice(8))]
             if (path.length === 2 && !isNaN(Number(path[0])) && !isNaN(Number(path[0])))
                 return [scalex(path[0] as number), scaley(path[1] as number)]
             throw new Error(`invalid path ${path}`)

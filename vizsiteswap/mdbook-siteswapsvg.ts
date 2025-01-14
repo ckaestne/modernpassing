@@ -54,12 +54,11 @@ for (const sec of book.sections) {
             config.showStartingHands = false
 
             try {
-                if (!config.renderFramesOnly && !config.renderLayoutOnly) {
+                if (!config.renderFramesOnly) {
                     const pattern = createSyncGroupPattern(p, config)
                     const [svg, js] = renderGroupPattern(pattern, config);
                     result = svg.svg()+`\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
-                }
-                if (config.renderFramesOnly) {
+                } else {
                     const pattern = createSyncGroupPattern(p, config)
                     const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);
                     result = '<div class="group-pattern-frames">'

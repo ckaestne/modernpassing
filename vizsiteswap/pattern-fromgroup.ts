@@ -78,7 +78,7 @@ export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][
 
     const rows = patternLines.filter(l => l.trim().length > 0).map(l => expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(l)))))
     const layout: TLayout = parseLayout(positionsLine)
-    const movement = movementLine ? parseMovements(movementLine) : undefined
+    const movement = movementLine ? parseMovements(movementLine, rows.map((x)=>x[0])) : undefined
 
     return [rows, layout, movement]
 }

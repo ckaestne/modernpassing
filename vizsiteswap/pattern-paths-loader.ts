@@ -52,7 +52,6 @@ export function loadPathsFromSvg(filename: string): MovementSegment[] {
             toY: p[p.length - 1] as number,
         })
     })
-
     return result.reverse()
 
 }

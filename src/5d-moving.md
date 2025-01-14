@@ -14,9 +14,9 @@ With walking and takeout patterns, it is common to write down only one transitio
 For illustration, here is the full notation for the *rotating feed* in two-count vs four-count (described in more detail below). It is 18 beats long to get back to the start where passer A feeds (though the orientation in the room will have changed). However, the first six beats already describe all that is happening in the pattern. After those six beats, a different passer (who started as C before) will now feed; after another six beats the third passer will be the feeder.
 
 <sync-group frames="1,3,5,7,9,11,13,15,17">
-A: 3pB3  3pC3  3pB3     3pC3  3  3  3pC3      3  3  3pB3  3  3  -> A
-B: 3pA3  3  3  3pA3     3  3  3pC3  3  3      3pC3  3pA3  3pC3  -> B
-C: 3  3  3pA3  3  3     3pA3  3pB3  3pA3      3pB3  3  3  3pB3 -> C
+A: 3pB3  3pC3  3pB3     3pC3  3  3  3pC3      3  3  3pB3  3  3  
+B: 3pA3  3  3  3pA3     3  3  3pC3  3  3      3pC3  3pA3  3pC3  
+C: 3  3  3pA3  3  3     3pA3  3pB3  3pA3      3pB3  3  3  3pB3 
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)Vmove(A,10.9,3)Vmove(C,16.9,3)
 </sync-group>
@@ -38,8 +38,8 @@ move: Vmove(B,4.9,3)
 **Changing starts: Turning back.**
 While learning longer patterns, it is good idea to change the start when the first beats of the pattern work well, but the group rarely gets to later beats to practice them. The best way to change the start is to go *backward* in the pattern by one segment. This way, everybody can learn the new segment and then gets to a point that they already know (whereas turning forward, everybody gets to more unknown parts of the pattern and never practices previous parts again until getting around).
 
-When it is not obvious how to turn back, look at the role changes in the notation and track back. For example, the first row of the rotating feed pattern above indicates that the passer in role A will have role B next. Conversely that means that the passer in role B now will have role A when turning back. Thus to turn back, find your current role at the end of one line to find the corresponding *previous* role at the beginning of that line (in this case, whoever previously started with role A now starts with role C, who started with role B now starts with role A, and who started with role C now starts with role B). When everybody has identified their role, simply move to the corresponding starting positions. 
-
+For most walking patterns, it is obvious how to turn back. However, when not obvious, this step-by-step process always works:
+Look at role changes in the notation. Identify which role gets relabeled *to* your current role, that's the role in the previous start -- for example, in the rotating feed above, the passer with role A has role C in the previous start (because C turns into A). When everybody has identified their role, simply move to the starting positions for each role. 
 For teaching more complicated patterns, after turning back, the passer who previously held a role can typically explain well what to do to the new passer in that role.
 
 
@@ -119,9 +119,11 @@ move: Vmove(B,6.9,2)Vmove(A,16.9,2)
 </sync-group>
 
 
-**Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across. **[TODO: one more example]**
+**Four-handed siteswap feeds.** Rotating feeds on four-handed siteswaps are not common and usually very challenging since it requires changing between straight and crossing passes and account for the half-beat timing difference between the two sides. To make this work, the common trick is that the feeder throws straight single passes to feedee B (who will walk next) and crossing single passes to feedee C, and feedee B responds with crossing single passes and feedee C with straight single passes. When walking passer B throws an extra fast self (where there is technically only half a beat) and maintains the crossing passes with the previous feeder, but starts throwing straight passes to the other feedee. **[TODO: finalize and example]**
 
-It is also possible that multiple passers walk in one sequence (as already shown in the rotating pure pass-pass-self feed above). Here is another example of a very short pattern (the base pattern for [MiniEd]()), with a lot of walking on right-handed three-counts:
+
+**Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across.
+It is also possible that multiple passers walk before the pattern repeats (as ain the rotating pure pass-pass-self feed above). Here is an example of a very short pattern (the base pattern for [MiniEd]()), with a lot of walking on right-handed three-counts:
 
 
 <sync-group>
@@ -174,16 +176,15 @@ positions: Brunos(A,B,C)
 move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 </sync-group>
 
-The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise one of those turns is usually more challenging. A much slower version has five instead of three passes before it repeats, where the walking juggler passes twice while walking through the middle of the pattern. Less conventional base patterns are pass-pass-self feeds, where both passes either go to the same juggler (feedees juggle pass-pass-self-self-self-self) or to different jugglers (feedees juggle three-count), or the much faster pass-pass-self-pass-self feed where the first and third pass go to the walking juggler (feedees juggle pass-self-self-pass-self-self-self-pass-self-self). See the [appendix](7-appendix-brunos.md) for illustrations of these.
+The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise, one of those turns is usually more challenging. A much slower version has five instead of three passes before it repeats, where the walking juggler passes twice while walking through the middle of the pattern. Less conventional base patterns are pass-pass-self or pass-pass-self-pass-self feeds. See the [appendix](7-appendix-brunos.md) for illustrations of these.
 
 
 
 
 
 
-**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three jugglers, or 534 and 531 for four jugglers.
+**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three jugglers, or 534 and 531 for four jugglers (see the [appendix](7-appendix-brunos.md) for an example).
 There is no principled way to decide when to pass and to whom to pass (that I am aware off), so it is easy to create lots of different patters by first picking a pattern for the walking and then fitting passes in there.
-
 
 This is an easy pattern based on the five-ball cascade:
 
@@ -196,18 +197,6 @@ E: 3pB33 3pA33  -> A
 positions: Svg(shapes/5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
 move: move(A,0.9,2)move(B,0.9,2)move(C,0.9,2)move(D,0.9,2)move(E,0.9,2)
 move: move(A,3.9,2)move(B,3.9,2)move(C,3.9,2)move(D,3.9,2)move(E,3.9,2)
-</sync-group>
-
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
-
-Here is an example of a pattern with walking based conceptually on the solo pattern 441:
-
-<sync-group>
-A: 3pB33 3pC33 3pB33 3pC33 333   3pC33 -> C
-B: 3pA33 333   3pA33 333   3pC33 333   -> A
-C: 333   3pA33 333   3pA33 3pB33 3pA33 -> B
-positions: Svg(shapes/bruno441.svg,A,8,B,1,C,4)
-move: move(B,0.9,5)move(C,3.9,5)move(A,9.9,5)move(C,12.9,2)move(B,12.9,5)
 </sync-group>
 
 
@@ -256,24 +245,16 @@ move: Bmove(B,1.3,.6)Bmove(B,2.4,1.5)Bmove(C,1.4,1.5)
 
 This pattern is very difficult to learn from scratch. By far the best way to learn this pattern is with two passers who can run it. Here are a couple of hints: Juggle very lofty and slow; count out loud to synchronize. After the first pass of the feed, the walking passer should take a step forward to give the "falling" passer space, but should not yet move sideways. The second pass of the feed needs to be long to avoid collisions with the short pass after; for the passer walking through the pattern this is the first pass on the other side after turning (likely the most difficult pass of the pattern); collisions are most commonly caused by the walking passer's pass being too short here. The third pass of the feed needs to be lofty but very short; usually the feeder is leading the walking passer quite a bit; the outgoing and incoming passes usually cross, the walking passer should aim to the nose or even the wrong hand of the feeder. For the feeder, the second and third pass are usually roughly in the same direction, the third pass is just much shorter. The walking passer has a single self to turn all the way around; usually they already turn a lot after throwing their short pass *before* catching the incoming short pass, so that they need to turn much less under the self.
 
-Bruno's one-count is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in two-count (see above) and various three-ball siteswaps like 441 and 33441 (known as *Babymix*).
+Bruno's one-count is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in two-count (see above) and various three-ball siteswaps like 441 and 33441 (known as *Babymix*). See the [appendix](7-appendix-brunos.md) for illustrations of these.
 
 
-<!-- sync-group>
-A: 3pB 3pC 3pB 3pC 3   3pC -> C
-B: 3pA 3   3pA 3   3pF 3   -> D
-C: 3   3pA 3   3pA 3pE 3pA -> B
-D: 3pE 3pF 3pE 3pF 3   3pF -> F
-E: 3pD 3   3pD 3   3pC 3   -> A
-F: 3   3pD 3   3pD 3pB 3pD -> E
-positions: Magermix(A,B,C,D,E,F)
-move: move(B,0.9,1)move(C,1.6,1.3) move(B,2.9,1)move(A,3.9,1)move(A,5.9,1)move(B,4.9,1)
-move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(E,4.9,1)
-</sync-group -->
+
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
-**Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles. Again, the feedees start with the opposite hand than the feeder; the feeder has an extra pass at the end of their sequence; and there is an extra beat while walking (7-count instead of 6-count). To make the pattern work, the feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. In contrast to the rotating feed, with the mixed straight and crossing passes, the 7-count can be juggled as a normal 7-count, no need to kill a beat.
+**Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles.
+The feeder has an extra pass at the end of their sequence, and there is an extra beat while walking (7-count instead of 6-count). 
+Since this is technically a feed on a four-handed siteswap (966 feeding 966666), it requires changes to whether passes are straight or crossing: The feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. Technically the walk is 7.5 beats long, but the half beat is barely noticeable and it can be juggled as a normal seven-count.
 
 <todo-sync-group>
 **TODO is this 966 and walking on 6.5 count?**
@@ -284,7 +265,7 @@ positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
 </todo-sync-group>
 
-(Technically the approach also works for 10-club Bruno's one count by leaving out the extra selfs.)
+(Technically the approach also works for 10-club Bruno's one-count by leaving out the extra selfs.)
 
 
 ## El Niño (4 passers)

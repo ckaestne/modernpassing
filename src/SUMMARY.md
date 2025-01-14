@@ -43,7 +43,7 @@
  - [Feeds](./5b-feeds.md)
  - [Static patterns](./5c-static-groups.md)
  - [Moving patterns](./5d-moving.md)
-<!-- - [](./5e-large-patterns.md) --> -->
+ - [Large patterns](./5e-large-patterns.md) 
 
 # Manipulator Patterns
 
