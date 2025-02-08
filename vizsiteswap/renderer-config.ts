@@ -52,6 +52,10 @@ export interface RendererConfig {
     showPasserRoles: boolean
     passerRolesOffset: number;
     passerRolesTextSize: number,    
+
+    //layout and animation options
+    renderLayoutOnly?: number; // default undefined/0; any other number (width/height of the layout) surpresses output of the actual pattern
+
 }
 
 export const defaultRendererConfig: RendererConfig = {
@@ -89,5 +93,6 @@ export const defaultRendererConfig: RendererConfig = {
     separateleftRightRows: false,
     showPasserRoles: false,
     passerRolesOffset: 36,
-    passerRolesTextSize: 28
+    passerRolesTextSize: 28,
+    renderLayoutOnly: undefined
 };

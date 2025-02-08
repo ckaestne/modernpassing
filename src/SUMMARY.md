@@ -47,18 +47,17 @@
 
 # Manipulator Patterns
 
-- [TODO](./introduction.md)
-<!-- - [](./6a-intro.md)
-- [](./6b-notation.md)
-- [](./6c-roundabout.md)
-- [](./6d-roundabout-variations.md)
+- [Getting started](./6a-intro.md)
+- [Notation](./6b-notation.md)
+- [Roundabout](./6c-roundabout.md)
+- [Roundabout variations](./6d-roundabout-variations.md)
 - [](./6e-extra-club.md)
 - [](./6e-northwall.md)
 - [](./6f-aidan-patterns.md)
 - [](./6g-ambled-patterns.md)
 - [](./6h-zippy-etc.md)
 - [](./6i-beyond-basics.md)
-- [](./6j-siteswap-takeouts.md) -->
+- [](./6j-siteswap-takeouts.md) 
 
 # Appendix
 

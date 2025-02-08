@@ -17,7 +17,7 @@ crossreference {
     padding: 8px;
 }
 
-video {
+.video {
     display: none;
 }
 
@@ -27,6 +27,12 @@ svg { max-width: 100%;}
 
 
 todo-sync-group {
+    display: block;
+    white-space: pre;
+    background-color: red;
+}
+
+TODO-manipulator-sync {
     display: block;
     white-space: pre;
     background-color: red;
