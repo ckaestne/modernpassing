@@ -42,7 +42,7 @@ export enum MoreTokenKind {
 type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^([0-9a-z](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
-    [true, /^(S[A-Z](e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c)?|I[A-Z](e|l|v[oxb\[\]]|v|c)?|C[A-Z]f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],
     //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
     //     [true, /^Free/g, MoreTokenKind.Free],
