@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { alt, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "npm:typescript-parsec";
+import { alt, alt_sc, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "npm:typescript-parsec";
 import { Hand, Pattern, Throw } from "./pattern-structure.ts";
 
 
@@ -56,7 +56,7 @@ PThrow.setPattern(
     alt(
         apply(seq(tok(TokenKind.LParen), tok(TokenKind.Throw), tok(TokenKind.Comma), tok(TokenKind.Throw), tok(TokenKind.RParen)),
             v => [v[1].text, v[3].text]),
-        apply(alt(tok(TokenKind.Throw), tok(TokenKind.Empty)), v => v.text)
+        alt_sc(apply(tok(TokenKind.Throw), v => v.text), apply(tok(TokenKind.Empty), () => ".")),
     )
 )
 

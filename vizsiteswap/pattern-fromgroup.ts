@@ -1,10 +1,10 @@
 import assert from "node:assert";
-import { alt, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
-import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence } from "./pattern-fromsync.ts";
+import { alt, alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
+import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence, TThrow } from "./pattern-fromsync.ts";
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
 import { Relabel } from "./pattern-structure.ts";
 import { PatternPaths } from "./pattern-paths.ts";
-import { createShapeLayout, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
+import { createShapeLayout, defaultLayoutForTwo, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
 
 
 
@@ -13,6 +13,12 @@ type TGroupPattern = {
     throws: TSequence[],
     layout: TLayout,
     movement?: TMovement
+}
+export type TPatternRow = {
+    role: Role,
+    sequence: TSequence,
+    relabel?: Role,
+    isManipulator: boolean
 }
 
 
@@ -27,6 +33,7 @@ export enum MoreTokenKind {
     Colon,
     //     NL,
     Role,
+    ManipulatorAction,
     //     Positions,
     //     Shape,
     //     Free,
@@ -34,12 +41,13 @@ export enum MoreTokenKind {
 }
 type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
-    [true, /^(\d(p)?(x)?[A-Z]?)/g, TokenKind.Throw],
+    [true, /^([0-9a-z](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
+    [true, /^(S[A-Z](e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c)?|I[A-Z](e|l|v[oxb\[\]]|v|c)?|C[A-Z]f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],
     //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
     //     [true, /^Free/g, MoreTokenKind.Free],
     [true, /^[A-Z0_]/g, MoreTokenKind.Role],
-    [true, /^o/g, TokenKind.Empty],
+    [true, /^[o\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
     [true, /^:/g, MoreTokenKind.Colon],
     [true, /^\(/g, TokenKind.LParen],
@@ -53,13 +61,42 @@ export const tokenizer = buildLexer<Tok>([
 
 const PRole = rule<Tok, Role>();
 PRole.setPattern(apply(tok(MoreTokenKind.Role), v => v.text))
-export const PRow = rule<Tok, [Role, TSequence, Role?]>();
-PRow.setPattern(
-    seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence, opt(kright(tok(TokenKind.Arrow), PRole))),
+
+const PAtomicManipulatorAction = rule<Tok, string>();
+PAtomicManipulatorAction.setPattern(alt(
+    apply(tok<Tok>(MoreTokenKind.ManipulatorAction), t=>t.text), 
+    apply(tok<Tok>(TokenKind.Throw),t=>t.text)    
+))
+
+const PManipulatorAction = rule<Tok, TThrow>();
+PManipulatorAction.setPattern(
+    alt(
+        apply(seq(tok(TokenKind.LParen), PAtomicManipulatorAction, tok(TokenKind.Comma), PAtomicManipulatorAction, tok(TokenKind.RParen)),
+            v => [v[1], v[3]]),
+        PAtomicManipulatorAction
+    )
+)
+const PManipulatorSequence = rule<Tok, TThrow[]>();
+PManipulatorSequence.setPattern(
+    apply(seq(PManipulatorAction, rep(PManipulatorAction)),
+        v => [v[0], ...v[1]])
 )
 
+export const PRow = rule<Tok, TPatternRow>();
+PRow.setPattern(
+    alt_sc(
+        apply(seq(kleft(PRole, tok(MoreTokenKind.Colon)), PSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(false)),
+        apply(seq(kleft(PRole, tok(MoreTokenKind.Colon)), PManipulatorSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(true))
+    )
+)
 
-export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][], TLayout, TMovement?] {
+function createPatternRow(isManipulator: boolean) {
+    return function (v: [Role, TSequence, Role?]): TPatternRow {
+        return { role: v[0], sequence: v[1], relabel: v[2], isManipulator }
+    }
+}
+
+export function parseGroupSyncPattern(input: string): [TPatternRow[], TLayout, TMovement?] {
     const patternLines = input.split("\n")
     let positionsLine: string = ""
     let movementLine: string[] = []
@@ -67,7 +104,7 @@ export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][
     if (positionsLineIdx !== -1) {
         positionsLine = patternLines[positionsLineIdx].split(":")[1]
         patternLines.splice(positionsLineIdx, 1);
-    } else throw new Error("missing positions line")
+    }
 
     let movementLineIdx = patternLines.findIndex(l => l.trimStart().startsWith("move:"))
     while (movementLineIdx !== -1) {
@@ -77,8 +114,23 @@ export function parseGroupSyncPattern(input: string): [[Role, TSequence, Role?][
     }
 
     const rows = patternLines.filter(l => l.trim().length > 0).map(l => expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(l)))))
-    const layout: TLayout = parseLayout(positionsLine)
-    const movement = movementLine ? parseMovements(movementLine, rows.map((x)=>x[0])) : undefined
+
+    const baseRows = rows.filter(r => !r.isManipulator)
+    const manipulatorRows = rows.filter(r => r.isManipulator)
+    if (baseRows.length < 2) throw new Error("Need at least two non-manipulator roles in a pattern")
+    const sequenceLength = baseRows[0].sequence.length
+    if (baseRows.some(r => r.sequence.length !== sequenceLength)) throw new Error("patterns must have the same lengths for all passers")
+    if (manipulatorRows.some(r => r.sequence.length > sequenceLength)) throw new Error("manipulator sequence cannot be longer than pattern sequence")
+    for (const mrow of manipulatorRows) 
+        while (mrow.sequence.length<sequenceLength) 
+            mrow.sequence.push('.')
+
+    if (rows.filter(r => !r.isManipulator).length !== 2 && positionsLineIdx === -1)
+        throw new Error("patterns with more than two passers need a `positions:` line")
+    const layout: TLayout = (positionsLineIdx !== -1) ? parseLayout(positionsLine) : defaultLayoutForTwo(rows.filter(r => !r.isManipulator).map(r => r.role))
+
+    const movement = movementLine ? parseMovements(movementLine, rows.map((x) => x.role)) : undefined
+
 
     return [rows, layout, movement]
 }
@@ -113,10 +165,13 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
     const [rows, layout, movement] = parseGroupSyncPattern(sw)
 
     // if (rows.length < 3) throw new Error("Not enough rows for a group pattern")
-    const sequenceLength = rows[0][1].length
-    if (rows.some(([_, s]) => s.length !== sequenceLength)) throw new Error("patterns must have the same lengths for all passers")
-    if (rows.some(([_, s]) => s.length !== sequenceLength)) throw new Error("patterns must have the same lengths for all passers")
-    const roles = rows.map(([r, _]) => r)
+    const baseRows = rows.filter(r => !r.isManipulator)
+    const manipulatorRows = rows.filter(r => r.isManipulator)
+    if (baseRows.length < 2) throw new Error("Need at least two non-manipulator roles in a pattern")
+    const sequenceLength = baseRows[0].sequence.length
+    if (baseRows.some(r => r.sequence.length !== sequenceLength)) throw new Error("patterns must have the same lengths for all passers")
+    if (manipulatorRows.some(r => r.sequence.length > sequenceLength)) throw new Error("manipulator sequence cannot be longer than pattern sequence")
+    const roles = rows.map(r => r.role)
 
 
     const crossingPass = crossingPasses //flipStraightCrossing ? straightPasses : crossingPasses
@@ -167,7 +222,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
         for (let time = 0; time < iterations * sequenceLength; time++)
             for (let passerIdx = 0; passerIdx < roles.length; passerIdx++) {
                 const t =
-                    rows[passerIdx][1][time % sequenceLength];
+                    rows[passerIdx].sequence[time % sequenceLength];
 
                 assert(t && typeof t === "string" && t !== "o")
 
@@ -181,8 +236,8 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
 
     const relabelingAnimation: Relabel[] = []
     const relabel: [Role, Role][] = []
-    if (!rows.every(r => r[2] === undefined)) {
-        for (const [from, _, to] of rows) if (to) relabel.push([from, to])
+    if (!rows.every(r => r.relabel === undefined)) {
+        for (const row of rows) if (row.relabel) relabel.push([row.role, row.relabel])
         relabelingAnimation.push({ onBeat: 0, mod: sequenceLength, changes: relabel })
     }
 
@@ -273,12 +328,12 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThr
 
 
     // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
-    const movementTriggers: MovementTrigger[] = movement? movement.map(m => ({
+    const movementTriggers: MovementTrigger[] = movement ? movement.map(m => ({
         onBeat: m.when,
         mod: patternLength,
         role: m.role,
         duration: m.duration
-    })):[]
+    })) : []
 
 
     return {

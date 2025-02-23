@@ -27,7 +27,10 @@ export type TMovementStep = {
 }
 export type TMovementType = string; //'Vmove' | 'Bmove' | 'Cmove'
 
-
+export function defaultLayoutForTwo(roles: Role[]): TLayout {
+    assert(roles.length===2, "default layout for two only works for 2 roles")
+    return { type: 'standard', shape: 'Pair', roles }
+}
 
 export function parseLayout(input: string): TLayout {
     // simple parser
