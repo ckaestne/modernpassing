@@ -18,10 +18,10 @@ export type SyncPatternConfig = {
 
 
 export enum TokenKind {
-    Throw, Comma, Arrow, Empty, Hurry,
-    LParen,
-    RParen,
-    Space,
+    Throw=0, Comma=1, Arrow=2, Empty=3, Hurry=4,
+    LParen=5,
+    RParen=6,
+    Space=7,
 }
 export const tokenizer = buildLexer([
     [true, /^(\d(p)?(x)?)/g, TokenKind.Throw],

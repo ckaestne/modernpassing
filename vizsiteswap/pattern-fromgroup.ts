@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { alt, alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, tok } from "npm:typescript-parsec";
+import { alt, alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, str, tok } from "npm:typescript-parsec";
 import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence, TThrow } from "./pattern-fromsync.ts";
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
 import { Relabel } from "./pattern-structure.ts";
@@ -30,10 +30,10 @@ export type TPatternRow = {
 
 
 export enum MoreTokenKind {
-    Colon,
+    Colon=8,
     //     NL,
-    Role,
-    ManipulatorAction,
+    Role=9,
+    ManipulatorAction=10,
     //     Positions,
     //     Shape,
     //     Free,
@@ -42,11 +42,11 @@ export enum MoreTokenKind {
 type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^([0-9a-z](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
+    [true, /^[A-Z0_]/g, MoreTokenKind.Role],
     [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],
     //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
     //     [true, /^Free/g, MoreTokenKind.Free],
-    [true, /^[A-Z0_]/g, MoreTokenKind.Role],
     [true, /^[o\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
     [true, /^:/g, MoreTokenKind.Colon],
@@ -63,14 +63,15 @@ const PRole = rule<Tok, Role>();
 PRole.setPattern(apply(tok(MoreTokenKind.Role), v => v.text))
 
 const PAtomicManipulatorAction = rule<Tok, string>();
-PAtomicManipulatorAction.setPattern(alt(
+PAtomicManipulatorAction.setPattern(alt_sc(
     apply(tok<Tok>(MoreTokenKind.ManipulatorAction), t=>t.text), 
-    apply(tok<Tok>(TokenKind.Throw),t=>t.text)    
+    apply(tok<Tok>(TokenKind.Throw),t=>t.text),
+    apply(str("C"),t=>t.text)
 ))
 
 const PManipulatorAction = rule<Tok, TThrow>();
 PManipulatorAction.setPattern(
-    alt(
+    alt_sc(
         apply(seq(tok(TokenKind.LParen), PAtomicManipulatorAction, tok(TokenKind.Comma), PAtomicManipulatorAction, tok(TokenKind.RParen)),
             v => [v[1], v[3]]),
         PAtomicManipulatorAction
