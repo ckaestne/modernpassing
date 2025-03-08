@@ -43,11 +43,11 @@ type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^([0-9a-z](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, MoreTokenKind.Role],
-    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],
     //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
     //     [true, /^Free/g, MoreTokenKind.Free],
-    [true, /^[o\.-]/g, TokenKind.Empty],
+    [true, /^[\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
     [true, /^:/g, MoreTokenKind.Colon],
     [true, /^\(/g, TokenKind.LParen],
@@ -69,15 +69,15 @@ PAtomicManipulatorAction.setPattern(alt_sc(
     apply(str("C"),t=>t.text)
 ))
 
-const PManipulatorAction = rule<Tok, TThrow>();
+export const PManipulatorAction = rule<Tok, TThrow>();
 PManipulatorAction.setPattern(
     alt_sc(
-        apply(seq(tok(TokenKind.LParen), PAtomicManipulatorAction, tok(TokenKind.Comma), PAtomicManipulatorAction, tok(TokenKind.RParen)),
+        apply(seq(tok(TokenKind.LParen), PAtomicManipulatorAction, str(","), PAtomicManipulatorAction, tok(TokenKind.RParen)),
             v => [v[1], v[3]]),
         PAtomicManipulatorAction
     )
 )
-const PManipulatorSequence = rule<Tok, TThrow[]>();
+export const PManipulatorSequence = rule<Tok, TThrow[]>();
 PManipulatorSequence.setPattern(
     apply(seq(PManipulatorAction, rep(PManipulatorAction)),
         v => [v[0], ...v[1]])

@@ -31,7 +31,7 @@ The double passes, timing differences, and the extra beat create some challenges
 A: 4pB3  4pC3  4pB3  4pC -> B
 B: 34pA  3  3  34pA  3  -> C
 C: 33    3 4pA 3  3  3   -> A
-M: .CC   z SAl  (3IBl) . .     
+M: .CC   z SAl  (3,IBl) . .     
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </TODO-manipulator-sync>

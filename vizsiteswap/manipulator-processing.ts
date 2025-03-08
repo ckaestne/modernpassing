@@ -148,7 +148,7 @@ export class Pattern {
         return (t.throwTime + t.throwLength - this.nrHands)
     }
 
-    getThrowCauseTimeRaw_(throwTime : number, throwLength: number): number {
+    getThrowCauseTimeRaw_(throwTime: number, throwLength: number): number {
         return (throwTime + throwLength - this.nrHands)
     }
 
@@ -249,6 +249,7 @@ type InterceptAction = {
     toPasserRole: Role,
     manipulatorRole: Role,
     kind: 'I'
+    modifiers: string
 }
 type SubstitutionAction = {
     beat: number,
@@ -256,6 +257,7 @@ type SubstitutionAction = {
     toPasserRole: Role,
     manipulatorRole: Role,
     kind: 'S'
+    modifiers: string
 }
 type ThrowAction = {
     beat: number,
@@ -361,13 +363,16 @@ export function patternToThrows(rawPattern: TPatternRow[], nrHands: number): [Pa
         if (['I', 'S'].includes(throwStr[0])) {
             const firstRole: string | undefined = throwStr[1]
             assert(roles.includes(firstRole), `target role ${firstRole} in ${throwStr} not found in ${roles}`)
+            let modifiers = throwStr.slice(2)
             let secondRole: string | undefined = undefined
             if (throwStr[2] && throwStr[2].match(/[A-Z]/)) {
                 secondRole = throwStr[2]
+                modifiers = modifiers.slice(1)
                 assert(roles.includes(secondRole), `target role ${secondRole} in ${throwStr} not found in ${roles}`)
             }
             const fromPasserRole = secondRole ? firstRole : undefined // only defined when both are specified, otherwise single role is assumed to be the target
             const toPasserRole = secondRole ? secondRole : firstRole // 
+            checkModifiers(throwStr[0] as 'I' | 'S', modifiers)
             // const manipulatedThrow = pattern.findThrow(when, fromRoleIdx, toRoleIdx) // this is the throw that is manipulated
             // assert(manipulatedThrow, `no throw found from ${firstRole} to ${secondRole} for ${throwStr} at ${when}`)
 
@@ -377,6 +382,7 @@ export function patternToThrows(rawPattern: TPatternRow[], nrHands: number): [Pa
                 toPasserRole,
                 beat: when,
                 manipulatorRole: who,
+                modifiers
             }
         } else if (throwStr[0] === 'C') {
             const toPasserRole = throwStr[1] && throwStr[1].match(/[A-Z]/) ? throwStr[1] : undefined
@@ -465,7 +471,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     const fromPasserIdx = intercept.fromPasserRole ? pattern.getRowIdxByRole(intercept.beat, intercept.fromPasserRole) : undefined
     const interceptedThrow = pattern.findThrow(intercept.beat, fromPasserIdx, toPasserIdx)
     assert(interceptedThrow, `no throw found for ${intercept.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
- 
+
     const iBeatRaw = pattern.getThrowCauseTimeRaw(interceptedThrow)
     const iBeat = pattern.getThrowCauseTime(interceptedThrow)
     assert((carry === undefined) === (interceptedThrow.throwLength <= pattern.nrHands), `carry is required if and only if the intercepted throw is not a flip or zip`)
@@ -476,7 +482,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     const manipulatedPasserIdx = interceptedThrow.toPasserIdx
     const manipulatedPasserIdxOnCausal = pattern.getRowIdxByBeat(iBeatRaw, manipulatedPasserIdx)
 
-    const manipulatorRowIdxOrig = pattern.getRowIdxByRole(intercept.beat,intercept.manipulatorRole)
+    const manipulatorRowIdxOrig = pattern.getRowIdxByRole(intercept.beat, intercept.manipulatorRole)
     // swap labels on the iBeat and relabeling at the end of the pattern
     pattern = pattern.swapRoles(iBeat, pattern.getRole(iBeat, manipulatedPasserIdxOnCausal), intercept.manipulatorRole)
     // <--------------------------------
@@ -486,26 +492,40 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     // console.log({ iBeatRaw, manipulatorRowIdxOrig, manipulatorRowIdx, manipulatorRowIdxOnCausal })
 
     // replace old throw with new intercept throw
+    const isEarlyIntercept = intercept.modifiers.includes('e') || intercept.modifiers.includes('l')
     pattern = pattern.removeThrow(interceptedThrow)
-    pattern = pattern.addThrow({
-        ...interceptedThrow,
-        // toPasserRole: intercept.manipulatorRole,
-        toPasserIdx: manipulatorRowIdx,
-        note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
-    })
+    if (!isEarlyIntercept)
+        // default very late intercept arrives at the time of the original throw
+        pattern = pattern.addThrow({
+            ...interceptedThrow,
+            // toPasserRole: intercept.manipulatorRole,
+            toPasserIdx: manipulatorRowIdx,
+            note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
+        })
+    else
+        //early/late, but not very late intercept modeled as a 1p takeout
+        pattern = pattern.addThrow({
+            ...interceptedThrow,
+            // toPasserRole: intercept.manipulatorRole,
+            toPasserIdx: manipulatorRowIdx,
+            throwLength: pattern.nrHands/2,
+            note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
+        })
 
 
 
     // add a 0 if the manipulator does not already do anything on the iBeat
-    const manipulatorThrowOnIbeat = pattern.findThrow(iBeatRaw, manipulatorRowIdx)
+    const insert0Beat = isEarlyIntercept ? intercept.beat - pattern.nrHands/2 : iBeatRaw
+    const mRowAt0Beat = pattern.getRowIdxByBeat(insert0Beat, manipulatorRowIdx)
+    const manipulatorThrowOn0Beat = pattern.findThrow((insert0Beat+patternLength)%patternLength, mRowAt0Beat)
     // console.log(manipulatorThrowOnIbeat)
-    if (!manipulatorThrowOnIbeat)
+    if (!manipulatorThrowOn0Beat)
         pattern = pattern.addThrow({
-            fromPasserIdx: manipulatorRowIdxOnCausal, // note: the row of this caused throw may be different from the target row of the intercept if we cross the pattern boundary
+            fromPasserIdx: mRowAt0Beat, // note: the row of this caused throw may be different from the target row of the intercept if we cross the pattern boundary
             fromHand: interceptedThrow.toHand,
-            throwTime: iBeat,
+            throwTime: (insert0Beat+patternLength)%patternLength,
             throwLength: 0,
-            toPasserIdx: manipulatorRowIdxOnCausal,
+            toPasserIdx: mRowAt0Beat,
             toHand: interceptedThrow.toHand,
             note: '0'
         })
@@ -527,9 +547,9 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     }
 
     // redirect all throws that the intercepted passer still throws (until the ibeat, incl.) from manipulated to manipulator
-    for (let beat = interceptedThrow.throwTime+1; beat < iBeatRaw+1; beat++) {
+    for (let beat = interceptedThrow.throwTime + 1; beat < iBeatRaw + 1; beat++) {
         const t = pattern.findThrow(beat % patternLength, pattern.getRowIdxByBeat(beat, manipulatedPasserIdx))
-        
+
         if (t && t.toPasserIdx === t.fromPasserIdx && pattern.getThrowCauseTimeRaw_(beat, t.throwLength) >= iBeatRaw) {
             pattern = pattern.removeThrow(t)
             pattern = pattern.addThrow({
@@ -541,7 +561,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
 
     // redirect all throws landing after the iBeat from manipulated to manipulator
     for (const t of pattern.throws) {
-        if (pattern.getThrowCauseTimeRaw(t) > iBeatRaw && t.toPasserIdx === manipulatedPasserIdxOnCausal && t.throwLength!==0) {
+        if (pattern.getThrowCauseTimeRaw(t) > iBeatRaw && t.toPasserIdx === manipulatedPasserIdxOnCausal && t.throwLength !== 0) {
             pattern = pattern.removeThrow(t)
             pattern = pattern.addThrow({
                 ...t,
@@ -663,21 +683,44 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
     // replace old throw with new substitution throws
     pattern = pattern.removeThrow(substitutedThrow)
+
+    const isVeryLateSteal = substitution.modifiers.includes('v')
+    const isDeplayedPlacement = substitution.modifiers.includes('d')
+
     // adding the throw (pelf) to be stolen
-    pattern = pattern.addThrow({
-        ...substitutedThrow,
-        // toPasserRole: intercept.manipulatorRole,
-        fromPasserIdx: manipulatorRowIdx,
-        note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
-    })
+    if (!isVeryLateSteal)
+        pattern = pattern.addThrow({
+            ...substitutedThrow,
+            // toPasserRole: intercept.manipulatorRole,
+            toPasserIdx: manipulatorRowIdx,
+            throwLength: pattern.nrHands / 2,
+            note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
+        })
+    else
+        pattern = pattern.addThrow({
+            ...substitutedThrow,
+            // toPasserRole: intercept.manipulatorRole,
+            toPasserIdx: manipulatorRowIdx,
+            note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
+        })
+
+
     // putting in another club to replace the stolen one
-    pattern = pattern.addThrow({
-        ...substitutedThrow,
-        // toPasserRole: intercept.manipulatorRole,
-        toPasserIdx: manipulatorRowIdx,
-        throwLength: pattern.nrHands / 2,
-        note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
-    })
+    if (!isDeplayedPlacement)
+        pattern = pattern.addThrow({
+            ...substitutedThrow,
+            // toPasserRole: intercept.manipulatorRole,
+            fromPasserIdx: manipulatorRowIdx,
+            note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
+        })
+    else
+        pattern = pattern.addThrow({
+            ...substitutedThrow,
+            fromPasserIdx: manipulatorRowIdx,
+            throwLength: pattern.nrHands / 2,
+            throwTime: substitutedThrow.throwTime + substitutedThrow.throwLength - pattern.nrHands / 2,
+            note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
+        })
 
 
 
@@ -716,7 +759,7 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     if (existingManipulatorThrow && existingManipulatorThrow.throwLength === 0)
         pattern = pattern.removeThrow(existingManipulatorThrow)
     else
-    assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
+        assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
 
     pattern = pattern.addThrow({
         fromPasserIdx: manipulatorRowIdx,
@@ -742,23 +785,23 @@ export function applyManipulations(pattern: Pattern, manipulations: ManipulatorA
 
     const manipulatorRoles = Array.from(new Set(manipulations.map(m => m.manipulatorRole))).sort()
 
-    for (const mRole of manipulatorRoles) 
+    for (const mRole of manipulatorRoles)
         if (!pattern.hasRole(mRole))
             pattern = pattern.addRole(mRole)
         else throw new Error(`manipulator role ${mRole} already exists in pattern, cannot add it again`)
-    
-    
 
-    const interceptCarryPairs: [InterceptAction, CarryAction|undefined][] = []
+
+
+    const interceptCarryPairs: [InterceptAction, CarryAction | undefined][] = []
     // need to match intercepts and carries where there may be multiple pairs in a row and a row may start with a wraparound carry
     for (const manipulatorRole of manipulatorRoles) {
-        const actions = manipulations.filter(m => m.manipulatorRole === manipulatorRole && ['I','C'].includes(m.kind)).sort((a, b) => a.beat - b.beat)
+        const actions = manipulations.filter(m => m.manipulatorRole === manipulatorRole && ['I', 'C'].includes(m.kind)).sort((a, b) => a.beat - b.beat)
         if (actions.length === 0) continue
         if (actions[0].kind === 'C') actions.push(actions.shift()!)
         while (actions.length > 0) {
             const intercept = actions.shift()!
             assert(intercept.kind === 'I', `intercept expected, but found ${intercept.kind} for ${manipulatorRole} at ${intercept.beat}`)
-            if (actions.length>0 && actions[0].kind === 'C') 
+            if (actions.length > 0 && actions[0].kind === 'C')
                 interceptCarryPairs.push([intercept, actions.shift() as CarryAction])
             else
                 interceptCarryPairs.push([intercept, undefined])
@@ -780,7 +823,7 @@ export function applyManipulations(pattern: Pattern, manipulations: ManipulatorA
 
 
 
-  
+
     return pattern
 }
 
@@ -807,4 +850,31 @@ function assertUniqueSubstitutions(mActions: ManipulatorAction[]) {
             assert(!uniqueCheck.has(key))
             uniqueCheck.add(key);
         }
+}
+
+
+
+//     `e` -- substitute/intercept **e**arly
+// `l` -- substitute/intercept **l**ate (default for substitution)
+// `v` -- substitute/intercept **v**ery late (default for intercept)
+// `c` -- substitute/intercept as a **c**hop
+// `d` -- substitution with **d**elayed placement (like German turn; modeled as a 1p in local)
+
+// `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+// `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+// `b` -- intercept very late from **b**ehind the target's location
+
+// `f` -- zip with **f**lipping the club (`zf`) / flip only the active club on the carry (`CBf`), by default carry implies flipping both clubs
+
+
+function checkModifiers(actionKind: 'I' | 'S', modifiers: string) {
+    assert(actionKind !== 'I' || !modifiers.includes('d'), `cannot use 'd' modifier for ${actionKind} action`)
+    const mutuallyExclusive = ['e', 'l', 'v', 'c']
+    for (const a of mutuallyExclusive)
+        for (const b of mutuallyExclusive)
+            if (a !== b && modifiers.includes(a) && modifiers.includes(b))
+                throw new Error(`cannot use both ${a} and ${b} modifiers for ${actionKind} action`)
+
+
+
 }

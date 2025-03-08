@@ -1,7 +1,7 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
-import { createSyncGroupPattern, parseGroupSyncPattern, PRow, tokenizer } from "./pattern-fromgroup.ts";
+import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorAction, PRow, tokenizer } from "./pattern-fromgroup.ts";
 import { GroupPattern, Throw } from "./pattern-structure.ts";
 
 
@@ -80,14 +80,14 @@ C: 3 3 3pA3  3  3  -> A
 positions: V(A,B,C)
 move: Vmove(B,3.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(pattern, {})
-    console.log(gp.layout?.animation)
+    // console.log(gp.layout?.animation)
 })
 
 
 test('basic manipulator pattern parsing', async (t) => {
     const chopabout = `A: 3pB3 33   3pB3 33   3pB3 33 -> B
 B: 3pA3 33   3pA3 33   3pA3 33 -> A
-M: SBcz sAlz SAcz SAlz iAv]. CA`
+M: SBcz SAlz SAcz SAlz IAv]. CA`
     const p = parseGroupSyncPattern(chopabout)
 
     assert.deepStrictEqual(p[0][0].sequence, ['3pB', '3', '3', '3', '3pB', '3', '3', '3', '3pB', '3', '3', '3'])
@@ -98,7 +98,7 @@ M: SBcz sAlz SAcz SAlz iAv]. CA`
     assert.equal(p[0][1].role, 'B')
     assert.equal(p[0][1].isManipulator, false)
     assert.equal(p[0][1].relabel, "A")
-    assert.deepStrictEqual(p[0][2].sequence, ["sBc", "z", "sAl", "z", "sAc", "z", "sAl", "z", "iAv]", ".", "cA"])
+    assert.deepStrictEqual(p[0][2].sequence, ["SBc", "z", "SAl", "z", "SAc", "z", "SAl", "z", "IAv]", ".", "CA","."])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
     assert.equal(p[0][2].relabel, undefined)
@@ -108,9 +108,9 @@ M: SBcz sAlz SAcz SAlz iAv]. CA`
 test('manipulator pattern parsing of opernball', async (t) => {
     const opernball = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -> A
-M: SBloz   zf  SBloz   .   IBv^CA  . 
-N: SAloz   .   IAv^CB  .   SBloz   zf  
-O: IBv^CA  .   SAloz   zf  SAloz   .   `
+M: SBloz   zf  SBloz   .   IBvbCA  . 
+N: SAloz   .   IAvbCB  .   SBloz   zf  
+O: IBvbCA  .   SAloz   zf  SAloz   .   `
     const p = parseGroupSyncPattern(opernball)
     // console.log(p)
 
@@ -118,13 +118,27 @@ O: IBv^CA  .   SAloz   zf  SAloz   .   `
     assert.equal(p[0][0].role, 'A')
     assert.equal(p[0][0].isManipulator, false)
     assert.equal(p[0][0].relabel, "B")
-    assert.deepStrictEqual(p[0][2].sequence, ["sBlo", "z", "zf", "sBlo", "z", ".", "iBv^", "cA", "."])
+    assert.deepStrictEqual(p[0][2].sequence, ["SBlo", "z", "zf", "SBlo", "z", ".", "IBvb", "CA", "."])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
     assert.equal(p[0][2].relabel, undefined)
-    assert.deepStrictEqual(p[0][3].sequence, ["sAlo", "z", ".", "iAv^", "cB", ".", "sBlo", "z", "zf"])
+    assert.deepStrictEqual(p[0][3].sequence, ["SAlo", "z", ".", "IAvb", "CB", ".", "SBlo", "z", "zf"])
     assert.equal(p[0][3].role, 'N')
     assert.equal(p[0][3].isManipulator, true)
     assert.equal(p[0][3].relabel, undefined)
+
+})
+
+
+test('manipulator with multiple actions on the same beat', async (t) => {
+    const pp = `A: 3pB 3pB 3  -> B
+B: 3pA 3pA 3   -> A
+M: . (SB, 2) 
+`
+    const p = parseGroupSyncPattern(pp)
+
+    assert.deepStrictEqual(p[0][2].sequence, ['.', ['SB', '2'], '.'])
+    assert.equal(p[0][2].role, 'M')
+    assert.equal(p[0][2].isManipulator, true)
 
 })

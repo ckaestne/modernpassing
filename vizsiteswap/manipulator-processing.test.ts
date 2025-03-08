@@ -1117,6 +1117,103 @@ test('ambled 3 (with late intercept)', async () => {
 
 
 
+test('modifiers: delayed placement (for German turn)', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 3 3 3 3 3 -> B
+        B: 3 3 3 3 3 -> A
+        M: . SBd `
+    )[0], 2)
+    const A = 0, B = 1, M = 2
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 1, 1, B, M, 'steal')
+    assertThrow(rewritten, 3, 1, M, B, 'late placement')
+})
+
+test('modifiers: delayed placement with flips (for German turn)', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 3 3 3 3 3 -> B
+        B: 3 3 3 3 3 -> A
+        M: . (SBd,2) 2 `
+    )[0], 2)
+    const A = 0, B = 1, M = 2
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 1, 1, B, M, 'steal')
+    assertThrow(rewritten, 3, 1, M, B, 'late placement')
+    assertThrow(rewritten, 1, 2, M, M, 'flip')
+    assertThrow(rewritten, 2, 2, M, M, 'flip')
+})
+
+test.skip('roundabout with German turn', async () => {
+    //TODO the zip after the intercept is weird; it still belongs to the old manipulator to free the hand for the intercept
+    //(not sure how to handle this)
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB3 33   3pB3 33 -> B
+         B: 3pA3 33   3pA3 33  -> A
+         M: SB z (SBd,2) 2  IB . CB z `
+    )[0], 2)
+    assert.deepEqual(p.mapRows, [1, 0])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+    const A = 0, B = 1, M = 2
+    assertThrow(rewritten, 0, 1, A, M, 'sub pass -- steal')
+    assertThrow(rewritten, 0, 3, M, B, 'sub pass -- place')
+
+    assertThrow(rewritten, 2, 1, B, M, 'sub self -- steal')
+    assertThrow(rewritten,4, 1, M, B, 'sub self -- place delayed with 1p')
+    assertThrow(rewritten, 2, 2, M, M, 'flip')
+    assertThrow(rewritten, 3, 2, M, M, 'flip')
+
+    assertThrow(rewritten, 4, 3, A, M, 'intercept')
+    assertThrow(rewritten, 5, 2, B, B, 'hold before carry')
+    assertThrow(rewritten, 6, 2, M, M, 'hold due to carry')
+
+    assertThrow(rewritten, 6, 3, B, M, 'carry')
+
+    assertThrow(rewritten, 1, 1, M, M, 'zip 1')
+    assertThrow(rewritten, 5, 1, M, M, 'zip 2') // this one is problematic!
+    assertThrow(rewritten, 7, 1, B, B, 'zip 3')
+})
+
+
+test('modifiers: early intercept', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3 3pB 3 3 -> B
+        B: 3 3pA  3 3 -> A
+        M: . IBAe CA`
+    )[0], 2)
+
+    assert(manipulations && manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
+
+    const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
+    const A = 0, B = 1, M = 2
+
+    console.log(rewritten.prettyPrintThrows())
+
+    assertThrow(rewritten, 1, 1, B, M, 'new throw for intercept')
+    assertNoThrow(rewritten, 1, B, A, 'remove intercepted')
+    assertThrow(rewritten, 0, 0, M, M, 'catching intercept with an empty hand, really early')
+
+    // TODO: manipulator does nothing (flips) on beat 1 and 2
+
+    assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
+    assertNoThrow(rewritten, 3, A, A, 'moving original throws from A to M')
+
+    // 1 beat carry is easy, unchanged in this case except for redirecting it
+    assertThrow(rewritten, 2, 3, A, M, 'carry')
+
+})
+
+
+
+
 /**
  * throws are identified by passer index (i.e. stable, not affected by relabeling)
  */
