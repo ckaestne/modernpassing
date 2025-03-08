@@ -39,7 +39,6 @@ export class Pattern {
     }
 
 
-    private relabeler: Relabeler | undefined
     private length: number | undefined
 
 
@@ -444,9 +443,9 @@ export function prettyPrintManipulatorActions(pattern: Pattern, mactions: Manipu
 export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction, carry?: CarryAction): Pattern {
     assert(!carry || (intercept.manipulatorRole === carry?.manipulatorRole), `intercept and carry manipulator roles must be the same`)
 
-    // assume the pattern does not yet have the manipulator role's row -- add it
-    assert(pattern.roles.find(t => t[0] === 0)![1].indexOf(intercept.manipulatorRole) === -1, `intercept manipulator role ${intercept.manipulatorRole} already in pattern roles ${pattern.roles.find(t => t[0] === 0)}; apply intercepts before substitutions`)
-    pattern = pattern.addRole(intercept.manipulatorRole)
+    // if the pattern does not already have the manipulator role's row -- add it
+    if (!pattern.hasRole(intercept.manipulatorRole))
+        pattern = pattern.addRole(intercept.manipulatorRole)
 
     // console.log(pattern.prettyPrintThrows())
 
@@ -456,7 +455,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     const fromPasserIdx = intercept.fromPasserRole ? pattern.getRowIdxByRole(intercept.beat, intercept.fromPasserRole) : undefined
     const interceptedThrow = pattern.findThrow(intercept.beat, fromPasserIdx, toPasserIdx)
     assert(interceptedThrow, `no throw found for ${intercept.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
-
+ 
     const iBeatRaw = pattern.getThrowCauseTimeRaw(interceptedThrow)
     const iBeat = pattern.getThrowCauseTime(interceptedThrow)
     assert((carry === undefined) === (interceptedThrow.throwLength <= pattern.nrHands), `carry is required if and only if the intercepted throw is not a flip or zip`)
@@ -467,7 +466,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     const manipulatedPasserIdx = interceptedThrow.toPasserIdx
     const manipulatedPasserIdxOnCausal = pattern.getRowIdxByBeat(iBeatRaw, manipulatedPasserIdx)
 
-    const manipulatorRowIdxOrig = pattern.roles.find(t => t[0] === 0)![1].indexOf(intercept.manipulatorRole)
+    const manipulatorRowIdxOrig = pattern.getRowIdxByRole(intercept.beat,intercept.manipulatorRole)
     // swap labels on the iBeat and relabeling at the end of the pattern
     pattern = pattern.swapRoles(iBeat, pattern.getRole(iBeat, manipulatedPasserIdxOnCausal), intercept.manipulatorRole)
     // <--------------------------------
@@ -698,6 +697,19 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
 
 
 export function applyManipulations(pattern: Pattern, manipulations: ManipulatorAction[]): Pattern {
+    assertUniqueIntercepts(manipulations)
+    assertUniqueSubstitutions(manipulations)
+
+    // manipulator actions are applied in the following order:
+    // 1. intercepts + carry, one manipulator at a time, starting with the earliest intercept
+    // 2. substitutions (order should not matter)
+    // 3. throws (order should not matter)
+
+
+    const intercepts = manipulations.filter(m => m.kind === 'I').sort((a, b) => a.beat - b.beat)
+    for (const intercept of intercepts) {
+        const carry = manipulations.find(m => m.kind === 'C' && m.manipulatorRole === intercept.manipulatorRole)
+    }
 
 
 
@@ -713,7 +725,18 @@ function assertUniqueIntercepts(mActions: ManipulatorAction[]) {
     const uniqueCheck = new Set<string>();
     for (const m of mActions)
         if (m.kind === 'I') {
-            const key = `${m.beat}-${m.toPasserRole}`;
+            const key = `${m.beat}-${m.fromPasserRole}-${m.toPasserRole}`;
+            assert(!uniqueCheck.has(key))
+            uniqueCheck.add(key);
+        }
+}
+
+
+function assertUniqueSubstitutions(mActions: ManipulatorAction[]) {
+    const uniqueCheck = new Set<string>();
+    for (const m of mActions)
+        if (m.kind === 'S') {
+            const key = `${m.beat}-${m.fromPasserRole}-${m.toPasserRole}`;
             assert(!uniqueCheck.has(key))
             uniqueCheck.add(key);
         }

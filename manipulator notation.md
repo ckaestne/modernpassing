@@ -32,7 +32,7 @@ Modifiers for `S`, `I` and `C` relevant for movement and understanding the orien
 
 ## Assumptions and notes
 * If an intercept is noted only with the receiving role and there are multiple throws to that role on that beat, the highest throw is interpreted as the intercept. This mostly occurs if intercepting a carry, where the receiver has an empty hand (0) or zip on the same beat.
-
+* Not currently supporting any takeouts of 0s or zips
 
 
 Notes:

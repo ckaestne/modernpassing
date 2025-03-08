@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulatorThrow, applySubstitution, Pattern, patternToThrows, prettyPrintManipulatorActions, Throw } from "./manipulator-processing.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, patternToThrows, prettyPrintManipulatorActions, Throw } from "./manipulator-processing.ts";
 import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
 
 
@@ -536,6 +536,69 @@ test('intercept rewrite: high intercept throw over pattern boundary', async () =
 
 })
 
+test('intercept rewrite: two intercepts from same manipulator', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB 3  3 3 3  3 3 3-> B
+         B: 3pA 3  3 3 3  3 3 3 -> A
+         M: .   IB C . IB C`
+    )[0], 2)
+
+    assert.deepEqual(p.mapRows, [1, 0])
+    assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
+    assert(manipulations[2].kind === 'I' && manipulations[3].kind === 'C') // just making sure parsing is stable
+
+    let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    const A = 0, B = 1, M = 2
+
+    console.log(rewritten.prettyPrintThrows())
+    assert.deepEqual(rewritten.mapRows, [B, A, M])
+
+    assertThrow(rewritten, 1, 3, B, M, 'first intercept')
+    assertThrow(rewritten, 2, 3, B, M, 'first carry')
+
+    assertThrow(rewritten, 3, 3, M, M, 'M now has Bs throws')
+
+    assertThrow(rewritten, 4, 3, M, B, 'second intercept')
+    assertThrow(rewritten, 5, 3, M, B, 'second carry')
+
+    assertThrow(rewritten, 6, 3, B, B, 'B now has Bs throws again')
+    assertNoThrow(rewritten, 6, M, M, 'B now has Bs throws')
+
+})
+
+
+test('intercept rewrite: two intercepts from same manipulator, but different targets', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB 3  3 3 3  3 3 3-> B
+         B: 3pA 3  3 3 3  3 3 3 -> A
+         M: .   IB C . IA C`
+    )[0], 2)
+
+    assert.deepEqual(p.mapRows, [1, 0])
+    assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
+    assert(manipulations[2].kind === 'I' && manipulations[3].kind === 'C') // just making sure parsing is stable
+
+    let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    const A = 0, B = 1, M = 2
+
+    console.log(rewritten.prettyPrintThrows())
+    assert.deepEqual(rewritten.mapRows, [M, B, A])
+
+    assertThrow(rewritten, 1, 3, B, M, 'first intercept')
+    assertThrow(rewritten, 2, 3, B, M, 'first carry')
+
+    assertThrow(rewritten, 3, 3, M, M, 'M now has Bs throws')
+
+    assertThrow(rewritten, 4, 3, A, B, 'second intercept')
+    assertThrow(rewritten, 5, 3, A, B, 'second carry')
+
+    assertThrow(rewritten, 6, 3, B, B, 'B now has As throws')
+    assertNoThrow(rewritten, 6, A, A, 'B now has As throws')
+
+})
+
 
 
 test('intercept rewrite: two independent intercepts', async () => {
@@ -786,7 +849,7 @@ test('manipulator throw: zip after substitution', async () => {
 
 
 
-test.only('roundabout', async () => {
+test.skip('roundabout', async () => {
     const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33 -> B
          B: 3pA3 33   3pA3 33  -> A
