@@ -1062,7 +1062,7 @@ test('scrambled V', async () => {
     
 })
 
-test.skip('ambled V', async () => {
+test('ambled V', async () => {
     const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
        `A: 4B 3  4C 3  4B 3  4B -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1076,13 +1076,42 @@ test.skip('ambled V', async () => {
     console.log(rewritten.prettyPrintThrows())
 
 
-    assertThrow(rewritten, 0, 3, M, B, 'carry')
+    assertThrow(rewritten, 0, 4, M, B, 'carry')
     assertThrow(rewritten, 0, 2, A, A, 'flip due to carry')
-    assertSub(rewritten, 2, 3, B, M, B, 'sub self')
-    assertThrow(rewritten, 4, 3, C, M, 'intercept')
-    assertNoThrow(rewritten, 4, C, C, 'intercepted')
-    assertThrow(rewritten, 5, 0, M, M, 'catch intercept')
-    assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
+    assertSub(rewritten, 3, 3, B, M, B, 'sub self')
+    assertThrow(rewritten, 5, 3, C, M, 'intercept')
+    assertNoThrow(rewritten, 5, C, C, 'intercepted')
+    assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
+    assertThrow(rewritten, 6, 2, C, C, 'flip to prepare for carry')
+    
+})
+
+
+test('ambled 3 (with late intercept)', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 4B 3  4C 3  4B 3  4B -> B
+        B: 3  4A 3  3  3  4A 3  -> C
+        C: 3  3  3  4A 3  3  3  -> A
+        M: .  C  z  SCAIAB
+        positions: V(A,B,C)`
+    )[0], 2)
+    const A = 0, B = 1, C=2, M = 3
+    assert.deepEqual(p.mapRows, [B,C,A])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 1, 3, M, C, 'carry')
+    // 3 beat carry!
+    assertThrow(rewritten, 0, 2, M, M, 'flip due to carry')
+    assertThrow(rewritten, 0, 2, C, C, 'flip due to carry')
+    assertThrow(rewritten, 1, 2, C, C, 'flip due to carry')
+    assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
+
+    assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
+    assertThrow(rewritten, 4, 4, A, M, 'intercept')
+    assertNoThrow(rewritten, 4, A, B, 'intercepted')
+    assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
     
 })
 
