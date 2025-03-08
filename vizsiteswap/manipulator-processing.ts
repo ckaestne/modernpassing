@@ -550,84 +550,6 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
 
 
 
-export function applySubstitution(pattern: Pattern, substitution: SubstitutionAction): Pattern {
-    // if the pattern does not already have the manipulator role's row -- add it
-    if (!pattern.hasRole(substitution.manipulatorRole))
-        pattern = pattern.addRole(substitution.manipulatorRole)
-
-    // // find the substitued throw
-    const toPasserIdx = pattern.getRowIdxByRole(substitution.beat, substitution.toPasserRole)
-    const fromPasserIdx = substitution.fromPasserRole ? pattern.getRowIdxByRole(substitution.beat, substitution.fromPasserRole) : undefined
-    const manipulatorRowIdx = pattern.getRowIdxByRole(substitution.beat, substitution.manipulatorRole)
-    const substitutedThrow = pattern.findThrow(substitution.beat, fromPasserIdx, toPasserIdx)
-    assert(substitutedThrow, `no throw found for ${substitution.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
-
-    // replace old throw with new substitution throws
-    pattern = pattern.removeThrow(substitutedThrow)
-    // adding the throw (pelf) to be stolen
-    pattern = pattern.addThrow({
-        ...substitutedThrow,
-        // toPasserRole: intercept.manipulatorRole,
-        fromPasserIdx: manipulatorRowIdx,
-        note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
-    })
-    // putting in another club to replace the stolen one
-    pattern = pattern.addThrow({
-        ...substitutedThrow,
-        // toPasserRole: intercept.manipulatorRole,
-        toPasserIdx: manipulatorRowIdx,
-        throwLength: pattern.nrHands / 2,
-        note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
-    })
-
-
-
-    // add a 0 if the manipulator does not already do anything on the receiving beat
-    // need to figure out the row, because this could be wrapping around the end of the pattern
-    const receivingBeat = substitutedThrow.throwTime - pattern.nrHands / 2
-    const receivingManipulatorRowIdx = pattern.getRowIdxByRole(receivingBeat, substitution.manipulatorRole)
-    const receivingBeatIdx = (receivingBeat + pattern.getLength()) % pattern.getLength()
-
-    const manipulatorThrowOnReceivingBeat = pattern.findThrow(receivingBeatIdx, manipulatorRowIdx)
-    // console.log(manipulatorThrowOnIbeat)
-    if (!manipulatorThrowOnReceivingBeat)
-        pattern = pattern.addThrow({
-            fromPasserIdx: receivingManipulatorRowIdx,
-            fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
-            throwTime: receivingBeatIdx,
-            throwLength: 0,
-            toPasserIdx: receivingManipulatorRowIdx,
-            toHand: 1 - substitutedThrow.fromHand,
-            note: '0'
-        })
-    return pattern
-}
-
-export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern {
-    // if the pattern does not already have the manipulator role's row -- add it
-    if (!pattern.hasRole(t.manipulatorRole))
-        pattern = pattern.addRole(t.manipulatorRole)
-
-    // // find the substitued throw
-    const toPasserIdx = pattern.getRowIdxByRole(t.beat, t.toPasserRole)
-    const manipulatorRowIdx = pattern.getRowIdxByRole(t.beat, t.manipulatorRole)
-
-    const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
-    assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${existingManipulatorThrow}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
-
-    pattern = pattern.addThrow({
-        fromPasserIdx: manipulatorRowIdx,
-        toPasserIdx,
-        fromHand: 0, // TODO: hand unclear!
-        toHand: 0, // TODO: hand unclear!
-        throwTime: t.beat,
-        throwLength: t.throwLength,
-        note: ''
-    })
-    return pattern
-}
-
-
 
 /**
  * checks whether the current throw is on the carry beat.
@@ -696,83 +618,94 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
 }
 
 
-// /**
-//  * takes a pattern with manipulators and turns it into a pattern without manipulator 
-//  * actions, were all throws are base throws and takeouts are 2p or 1p throws
-//  * 
-//  * analyzes the flipping of clubs too; ignores movement for now
-//  */
-// export function convertManipulatorPatternToLocal(pattern: TPatternRow[]) {
+export function applySubstitution(pattern: Pattern, substitution: SubstitutionAction): Pattern {
+    // if the pattern does not already have the manipulator role's row -- add it
+    if (!pattern.hasRole(substitution.manipulatorRole))
+        pattern = pattern.addRole(substitution.manipulatorRole)
 
-//     const manipulatorRowIdxs = []
-//     const baseRowIdxs = []
-//     for (let i = 0; i < pattern.length; i++) {
-//         if (pattern[i].isManipulator) {
-//             manipulatorRowIdxs.push(i)
-//         } else {
-//             baseRowIdxs.push(i)
-//         }
-//     }
-//     const patternLength = pattern[baseRowIdxs[0]].sequence.length
+    // // find the substitued throw
+    const toPasserIdx = pattern.getRowIdxByRole(substitution.beat, substitution.toPasserRole)
+    const fromPasserIdx = substitution.fromPasserRole ? pattern.getRowIdxByRole(substitution.beat, substitution.fromPasserRole) : undefined
+    const manipulatorRowIdx = pattern.getRowIdxByRole(substitution.beat, substitution.manipulatorRole)
+    const substitutedThrow = pattern.findThrow(substitution.beat, fromPasserIdx, toPasserIdx)
+    assert(substitutedThrow, `no throw found for ${substitution.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
 
-//     const result: TPatternRow[] = pattern.map(row => ({
-//         ...row,
-//         sequence: [...row.sequence]
-//     }))
-//     //fill in missing relabeling; they simply stay the same in the original notation
-//     for (const row of result)
-//         if (!row.relabel) row.relabel = row.role
-
-
-//     for (let beat = 0; beat < patternLength; beat++) {
-//         for (let currentRowIdx = 0; currentRowIdx < pattern.length; currentRowIdx++) {
-//             const currentRow = result[currentRowIdx]
-//             const currentAction = currentRow.sequence[beat] as string ?? '.'
-//             const currentRole = currentRow.role
-
-//             //we only care about manipulator actions (this may not be in the original manipulator role after shifting on intercepts)
-//             if (currentAction === '.') result[currentRowIdx].sequence[beat] = '0/2'
-//             if (currentAction.startsWith('z')) {
-//                 result[currentRowIdx].sequence[beat] = '1'
-//             }
-//             if (currentAction.startsWith('s')) {
-//                 const targetRole = currentAction[1]
-//                 const originRowIdx = getOriginRow(pattern, beat, targetRole)
-//                 const throwLength = pattern[originRowIdx].sequence[beat][0]
-
-//                 result[currentRowIdx].sequence[beat] = throwLength + 'p' + targetRole
-//                 result[originRowIdx].sequence[beat] = '1p' + currentRole
-//             }
-//             if (currentAction.startsWith('c')) {
-//                 const targetRole = currentAction[1]
-//                 const originRowIdx = getOriginRow(pattern, beat, targetRole)
-//                 const throwLength = pattern[originRowIdx].sequence[beat][0]
-
-//                 result[currentRowIdx].sequence[beat] = throwLength + 'p' + targetRole
-//                 result[originRowIdx].sequence[beat] = '0'
-//             }
-//             if (currentAction.startsWith('i')) {
-//                 const targetRole = currentAction[1]
-//                 const originRowIdx = getOriginRow(pattern, beat, targetRole)
-//                 const throwLength = pattern[originRowIdx].sequence[beat][0]
-
-//                 result[currentRowIdx].sequence[beat] = '0'
-//                 result[originRowIdx].sequence[beat] = throwLength + 'p' + currentRole
-//                 swapRolesAfterIntercept(result, beat + Number.parseInt(throwLength) - 2, patternLength, originRowIdx, currentRowIdx)
-//             }
-//         }
-
-//     }
+    // replace old throw with new substitution throws
+    pattern = pattern.removeThrow(substitutedThrow)
+    // adding the throw (pelf) to be stolen
+    pattern = pattern.addThrow({
+        ...substitutedThrow,
+        // toPasserRole: intercept.manipulatorRole,
+        fromPasserIdx: manipulatorRowIdx,
+        note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
+    })
+    // putting in another club to replace the stolen one
+    pattern = pattern.addThrow({
+        ...substitutedThrow,
+        // toPasserRole: intercept.manipulatorRole,
+        toPasserIdx: manipulatorRowIdx,
+        throwLength: pattern.nrHands / 2,
+        note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
+    })
 
 
-//     for (const row of result) {
-//         console.log(row.role + ":", row.sequence.join("\t"), "\t->", row.relabel)
-//     }
-//     for (const manipulatorRowIdx of manipulatorRowIdxs) {
-//         console.log("__", pattern[manipulatorRowIdx].sequence.join("\t"))
-//     }
 
-// }
+    // add a 0 if the manipulator does not already do anything on the receiving beat
+    // need to figure out the row, because this could be wrapping around the end of the pattern
+    const receivingBeat = substitutedThrow.throwTime - pattern.nrHands / 2
+    const receivingManipulatorRowIdx = pattern.getRowIdxByRole(receivingBeat, substitution.manipulatorRole)
+    const receivingBeatIdx = (receivingBeat + pattern.getLength()) % pattern.getLength()
+
+    const manipulatorThrowOnReceivingBeat = pattern.findThrow(receivingBeatIdx, manipulatorRowIdx)
+    // console.log(manipulatorThrowOnIbeat)
+    if (!manipulatorThrowOnReceivingBeat)
+        pattern = pattern.addThrow({
+            fromPasserIdx: receivingManipulatorRowIdx,
+            fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
+            throwTime: receivingBeatIdx,
+            throwLength: 0,
+            toPasserIdx: receivingManipulatorRowIdx,
+            toHand: 1 - substitutedThrow.fromHand,
+            note: '0'
+        })
+    return pattern
+}
+
+
+export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern {
+    // if the pattern does not already have the manipulator role's row -- add it
+    if (!pattern.hasRole(t.manipulatorRole))
+        pattern = pattern.addRole(t.manipulatorRole)
+
+    // // find the substitued throw
+    const toPasserIdx = pattern.getRowIdxByRole(t.beat, t.toPasserRole)
+    const manipulatorRowIdx = pattern.getRowIdxByRole(t.beat, t.manipulatorRole)
+
+    const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
+    assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${existingManipulatorThrow}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
+
+    pattern = pattern.addThrow({
+        fromPasserIdx: manipulatorRowIdx,
+        toPasserIdx,
+        fromHand: 0, // TODO: hand unclear!
+        toHand: 0, // TODO: hand unclear!
+        throwTime: t.beat,
+        throwLength: t.throwLength,
+        note: ''
+    })
+    return pattern
+}
+
+
+export function applyManipulations(pattern: Pattern, manipulations: ManipulatorAction[]): Pattern {
+
+
+
+  
+    return pattern
+}
+
+
 
 type Relabeler = (beat: number) => ((role: string) => string)
 
@@ -785,181 +718,3 @@ function assertUniqueIntercepts(mActions: ManipulatorAction[]) {
             uniqueCheck.add(key);
         }
 }
-
-// /**
-//  * usually not used, just shortcut for testing
-//  */
-// export function relabelRaw(pattern: TPatternRow[], nrHands: number): Relabeler {
-//     const mainRelabel: [string, string][] = pattern.map(r => [r.role, r.relabel ?? r.role])
-
-//     const [, p, manipulatorActions] = patternToThrows(pattern, nrHands)
-//     const patternLength = getPatternLength(p)
-
-//     return relabel(mainRelabel, patternLength, manipulatorActions)
-// }
-
-// /**
-//  * computes for every beat of the pattern who is who now
-//  * 
-//  * it returns a function from role to role, where the input is a juggler's role at the beginning of the pattern (beat=0)
-//  * and the output is that juggler's role at the given beat
-//  * 
-//  * 
-//  * for a pattern with `n` beats, the relabel at beat `n` is the typical end of pattern relabel ("turntable")
-//  * 
-//  * this function supports the relabeling at 
-//  * 
-//  * 
-//  * @param mainRelabel the relabels indicated in the original pattern notation (`->B` at the end)
-//  * @param manipulatorActions the manipulator actions that are applied to the pattern, if any
-//  * @returns 
-//  */
-// function relabel(mainRelabel: [string, string][], patternLength: number, manipulatorActions: ManipulatorAction[]): Relabeler {
-//     assertUniqueIntercepts(manipulatorActions)
-
-//     const intercepts = manipulatorActions.filter(m => m.kind === 'I').sort((a, b) => a.throw.throwTime - b.throw.throwTime)
-
-//     const manipulatorRelabels: [number, string, string][] = intercepts.flatMap(getManipulatorRelabel).sort((a, b) => a[0] - b[0])
-//     function getManipulatorRelabel(intercept: InterceptAction): [number, string, string][] {
-
-//         let currentRole = intercept.manipulatorRole
-//         let targetRole = intercept.throw.toPasserRole
-//         let iBeat = intercept.throw.causeTime
-
-//         // if we cross the pattern boundary, we need to relabel once more, but backward!
-//         if (iBeat >= patternLength) {
-//             iBeat -= patternLength
-//             // currentRole = mainRelabel.find(r => r[1] === currentRole)![0]
-//             targetRole = mainRelabel.find(r => r[1] === targetRole)![0]
-//         }
-//         assert(iBeat < patternLength * 2, `intercept throw is longer than the pattern and lands after the pattern wraps twice; not currently supported`)
-//         return [[iBeat, currentRole, targetRole], [iBeat, targetRole, currentRole]]
-
-//     }
-
-//     return (beat: number) => {
-
-//         return (role: string) => {
-//             let b = beat
-//             let result = role
-//             while (b >= 0) {
-//                 //mid-pattern relabel from intercepts
-//                 const relabels = manipulatorRelabels.filter(r => r[0] <= b)
-//                 const r = relabels.find(r => r[1] === result)
-//                 if (r) result = r[2]
-
-//                 //end-pattern relabel
-//                 if (b >= patternLength) {
-//                     result = mainRelabel.find(r => r[0] === result)![1]
-//                 }
-//                 b -= patternLength
-//             }
-//             return result
-//         }
-//     }
-// }
-
-/**
- * get the length of the pattern from the raw notation
- * 
- * needs adjustments for 4hsw
- * 
- * @param pattern 
- * @returns 
- */
-function getRawPatternLength(pattern: TPatternRow[], nrHands: number): number {
-    const l = pattern.filter(r => !r.isManipulator)[0].sequence.length
-    if (nrHands === 4) return l * 2 - 1
-    if (nrHands === 2) return l
-    throw new Error("pattern length not implemented for " + nrHands + " hands")
-}
-
-
-
-
-
-// /** 
-//  * if anybody passed to the targetRole at the given beat, return the row of that passer
-//  * otherwise the passer in that role threw a self on that beat, so return their row
-// */
-// function getOriginRow(pattern: TPatternRow[], beat: number, targetRole: Role): number {
-//     for (let rowIdx = 0; rowIdx < pattern.length; rowIdx++)
-//         if (!pattern[rowIdx].isManipulator) {
-//             const row = pattern[rowIdx]
-//             const t = row.sequence[beat]
-//             //pass to targetRole?
-//             if (t.includes('p' + targetRole)) return rowIdx
-//             //non-pass from targetRole?
-//             if (!t.includes('p') && row.role === targetRole) return rowIdx
-//         }
-//     throw new Error('no origin row found for targetRole ' + targetRole + ' at beat ' + beat)
-// }
-
-// /** 
-//  * in-place role swapping in the pattern
-//  * 
-//  * everything that arrives on or after the intercept beat (fromBeat) is redirected to the new role
-//  * the old role stops all actions that are not triggered by incoming throws (they all turn into holds)
-// */
-// function swapRolesAfterIntercept(pattern: TPatternRow[], fromBeat: number, patternLength: number, fromRowIdx: number, toRowIdx: number) {
-//     const rl = relabel(pattern)
-//     const x = pattern[fromRowIdx].relabel
-//     pattern[fromRowIdx].relabel = pattern[toRowIdx].relabel
-//     pattern[toRowIdx].relabel = x
-
-//     for (let beat = fromBeat; beat < patternLength; beat++) {
-//         const x = pattern[fromRowIdx].sequence[beat]
-//         pattern[fromRowIdx].sequence[beat] = pattern[toRowIdx].sequence[beat]
-//         pattern[toRowIdx].sequence[beat] = x
-//     }
-
-// }
-
-
-// /**
-//  * shifting works for patterns with and without manipulators, but shouldn't be applied
-//  * to patterns where manipulators are partially localized
-//  */
-// export function shiftPattern(pattern: TPatternRow[], shift: number, patternLength: number): TPatternRow[] {
-//     if (shift > patternLength)
-//         return shiftPattern(shiftPattern(pattern, patternLength, patternLength), shift - patternLength, patternLength)
-//     if (shift === 0) return pattern
-//     if (shift < 0) throw new Error("negative shift not implemented; shift x time forward instead")
-
-//     //assert: 0 < shift <= patternLength
-
-
-//     const result = pattern.map(row => ({
-//         ...row,
-//         sequence: [...row.sequence]
-//     }))
-//     const relabels: [string, string][] = pattern.map(row => [row.role, row.relabel ?? row.role])
-//     for (let currentRowIdx = 0; currentRowIdx < pattern.length; currentRowIdx++) {
-//         const currentRow = pattern[currentRowIdx]
-//         const currentRole = currentRow.role
-//         const nextRole = currentRow.relabel ?? currentRole
-//         const nextRow = pattern.find(r => r.role === nextRole)!
-
-//         result[currentRowIdx].sequence = currentRow.sequence.slice(shift).concat(relabelTargets(nextRow.sequence.slice(0, shift) as string[], relabels))
-//     }
-
-//     return result
-// }
-
-// function relabelTargets(seq: string[], relabels: [string, string][]): string[] {
-//     function relabel(oldTarget: string): string {
-//         const relabelRow = relabels.find(r => r[0] === oldTarget)
-//         if (!relabelRow) throw new Error(`target role ${oldTarget} not found in relabels ${JSON.stringify(relabels)}`)
-//         return relabelRow[1]
-//     }
-//     // console.log(JSON.stringify(relabels), seq)
-//     const result = seq.map(t => {
-//         assert(typeof t === 'string')
-//         if (t.startsWith('i') || t.startsWith('c') || t.startsWith('s'))
-//             return t[0] + relabel(t[1]) + t.slice(2)
-//         if (t.match(/^[0-9]p[A-Z]/))
-//             return t.slice(0, 2) + relabel(t[2]) + t.slice(3)
-//         return t
-//     })
-//     return result
-// }

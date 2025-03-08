@@ -786,17 +786,17 @@ test('manipulator throw: zip after substitution', async () => {
 
 
 
-// test.only('roundabout', async () => {
-//     const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
-//         `A: 3pB3 33   3pB3 33 -> B
-//          B: 3pA3 33   3pA3 33  -> A
-//          M: iA . cA z sB z sB`
-//     )[0], 2)
-//     assert.deepEqual(p.mapRows, [1, 0])
-//     let rewritten = applyManipulations(p, manipulations)
+test.only('roundabout', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB3 33   3pB3 33 -> B
+         B: 3pA3 33   3pA3 33  -> A
+         M: iA . cA z sB z sB`
+    )[0], 2)
+    assert.deepEqual(p.mapRows, [1, 0])
+    let rewritten = applyManipulations(p, manipulations)
 
 
-// })
+})
 
 
 
