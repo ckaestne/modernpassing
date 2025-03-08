@@ -191,6 +191,7 @@ test('intercept rewrite: basic', async () => {
     assert(manipulations && manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -221,6 +222,7 @@ test('intercept rewrite: 456about should be easy', async () => {
     assert(manipulations[0].kind === 'I' && manipulations.length === 1) // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -255,6 +257,7 @@ test('intercept rewrite: manege', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -289,6 +292,7 @@ test('intercept rewrite: basic two beat carry', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -317,6 +321,7 @@ test('intercept rewrite: basic three beat carry', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -345,6 +350,7 @@ test('intercept rewrite: two carry on a pass', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -375,6 +381,7 @@ test('intercept rewrite: three-beat carry over a pass', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -409,6 +416,7 @@ test('intercept rewrite: intercept over pattern boundary', async () => {
     assert(manipulations[0].kind === 'C' && manipulations[1].kind === 'I') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[1], manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 2, B = 1, M = 0
 
     console.log(rewritten.prettyPrintThrows())
@@ -446,6 +454,7 @@ test('intercept rewrite: intercept over pattern boundary with three passers', as
     assert(manipulations[0].kind === 'C' && manipulations[1].kind === 'I') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[1], manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     assert.deepEqual(rewritten.mapRows, [1, 2, 3, 0])
     const A = 0, B = 1, M = 2, C = 3
 
@@ -479,6 +488,7 @@ test('intercept rewrite: two-beat intercept/carry over pattern boundary', async 
     assert(manipulations[0].kind === 'C' && manipulations[1].kind === 'I') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[1], manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 2, B = 1, M = 0
 
     console.log(rewritten.prettyPrintThrows())
@@ -516,6 +526,7 @@ test('intercept rewrite: high intercept throw over pattern boundary', async () =
     assert(manipulations[0].kind === 'C' && manipulations[1].kind === 'I') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[1], manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -536,6 +547,45 @@ test('intercept rewrite: high intercept throw over pattern boundary', async () =
 
 })
 
+
+
+test('intercept rewrite: two-beat intercept/carry over pattern boundary like scrambled v', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB 3 3 3 -> B
+        B: 3pA 3 3 3 -> A
+        M: C.IB`
+    )[0], 2)
+
+    assert.deepEqual(p.mapRows, [1, 0])
+    assert(manipulations[0].kind === 'C' && manipulations[1].kind === 'I') // just making sure parsing is stable
+
+    const rewritten = applyInterceptCarry(p, manipulations[1], manipulations[0])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
+    const A = 0, B = 1, M = 2
+
+    console.log(rewritten.prettyPrintThrows())
+    assert.deepEqual(rewritten.mapRows, [1, 2, 0])
+
+    // this is stupid to track and unintutive; due to intercept landing on beat 0, the first row corresponds to M, the second to B, and the last to A
+    // but this should be the right pattern
+    assertNoThrow(rewritten, 2, B, B, 'remove intercepted')
+    assertThrow(rewritten, 2, 3, B, M, 'new throw for intercept')
+    assertThrow(rewritten, 3, 0, M, M, 'catching intercept with an empty hand')
+
+    // assertThrow(rewritten, 2, 3, A, A, 'moving original throws from A to M')
+    // assertNoThrow(rewritten, 2, M, M, 'moving original throws from A to M')
+    // assertThrow(rewritten, 3, 3, A, A, 'moving original throws from A to M')
+    // assertNoThrow(rewritten, 3, M, M, 'moving original throws from A to M')
+
+
+    // now also B has a flip, because a pass to them does not happen
+    assertThrow(rewritten, 3, 2, B, B, 'carry-induced flip before carry')
+    assertThrow(rewritten, 0, 3, M, B, 'carry')
+    assertThrow(rewritten, 0, 2, A, A, 'carry-induced flip at receiver of pass after intercept')
+
+})
+
+
 test('intercept rewrite: two intercepts from same manipulator', async () => {
     const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 3-> B
@@ -549,6 +599,7 @@ test('intercept rewrite: two intercepts from same manipulator', async () => {
 
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -581,6 +632,7 @@ test('intercept rewrite: two intercepts from same manipulator, but different tar
 
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -615,6 +667,7 @@ test('intercept rewrite: two independent intercepts', async () => {
 
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2, N = 3
 
     console.log(rewritten.prettyPrintThrows())
@@ -656,6 +709,7 @@ test('intercept rewrite: intercepting a carry', async () => {
 
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applyInterceptCarry(rewritten, manipulations[2], manipulations[3])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2, N = 3
 
     console.log(rewritten.prettyPrintThrows())
@@ -787,6 +841,7 @@ test('apply substitution: substituting right person after relabel', async () => 
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applySubstitution(rewritten, manipulations[2])
     rewritten = applyManipulatorThrow(rewritten, manipulations[3])
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -801,6 +856,26 @@ test('apply substitution: substituting right person after relabel', async () => 
     assertThrow(rewritten, 3, 0, B, B, 'catching pelf with an empty hand')
 })
 
+
+test('apply substitution: intercept a substitution', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB 3  3 3 3 3 -> B
+         B: 3pA 3  3 3 3 3 -> A
+         M: SB
+         N: IB C`
+    )[0], 2)
+
+    assert.deepEqual(p.mapRows, [1, 0])
+    const rewritten = applyManipulations(p, manipulations)
+    const A = 0, B = 1, M = 2, N =3
+
+    console.log(rewritten.prettyPrintThrows())
+
+    assertThrow(rewritten, 0, 1, A, M, 'substitution -- steal')
+    assertThrow(rewritten, 0, 3, M, N, 'intercept of the placement part of the substitution')
+    assertThrow(rewritten, 1, 3, B, N, 'carry')
+    assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
+})
 
 
 test('manipulator throw: basics', async () => {
@@ -834,6 +909,9 @@ test('manipulator throw: zip after substitution', async () => {
 
     let rewritten = applySubstitution(p, manipulations[0])
     rewritten= applyManipulatorThrow(rewritten, manipulations[1])
+
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
+
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -849,16 +927,163 @@ test('manipulator throw: zip after substitution', async () => {
 
 
 
-test.skip('roundabout', async () => {
+test('roundabout', async () => {
     const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33 -> B
          B: 3pA3 33   3pA3 33  -> A
-         M: iA . cA z sB z sB`
+         M: SB z SB z  IB . CB z `
     )[0], 2)
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+    const A = 0, B = 1, M = 2
+    assertThrow(rewritten, 0, 1, A, M, 'sub pass -- steal')
+    assertThrow(rewritten, 0, 3, M, B, 'sub pass -- place')
+
+    assertThrow(rewritten, 2, 1, B, M, 'sub self -- steal')
+    assertThrow(rewritten, 2, 3, M, B, 'sub self -- place')
+
+    assertThrow(rewritten, 4, 3, A, M, 'intercept')
+    assertThrow(rewritten, 5, 0, M, M, 'empty hand to catch intercept')
+    assertThrow(rewritten, 5, 2, B, B, 'hold before carry')
+    assertThrow(rewritten, 6, 2, M, M, 'hold due to carry')
+
+    assertThrow(rewritten, 6, 3, B, M, 'carry')
+
+    assertThrow(rewritten, 1, 1, M, M, 'zip 1')
+    assertThrow(rewritten, 3, 1, M, M, 'zip 2')
+    assertThrow(rewritten, 7, 1, B, B, 'zip 3')
+})
 
 
+test('chopabout', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB3 33   3pB3 33   3pB3 33 -> B
+         B: 3pA3 33   3pA3 33   3pA3 33 -> A
+         M: SBcz SAlz SAcz SAlz IAv]. CA`
+    )[0], 2)
+    assert.deepEqual(p.mapRows, [1, 0])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+    const A = 0, B = 1, M = 2
+    assertSub(rewritten, 0, 3, A, M, B, 'sub first chop')
+    assertSub(rewritten, 2, 3, A, M, A, 'sub self')
+    assertSub(rewritten, 4, 3, B, M, A, 'sub second chop')
+    assertSub(rewritten, 6, 3, A, M, A, 'sub another self')
+
+    assertThrow(rewritten, 8, 3, B, M, 'intercept')
+    assertNoThrow(rewritten, 8, B, A, 'remove intercepted')
+    assertThrow(rewritten, 9, 0, M, M, 'empty hand to catch intercept')
+    assertThrow(rewritten, 9, 2, A, A, 'hold before carry')
+    assertThrow(rewritten, 10, 2, M, M, 'hold due to carry')
+
+    assertThrow(rewritten, 10, 3, A, M, 'carry')
+
+    assertThrow(rewritten, 1, 1, M, M, 'zip 1')
+    assertThrow(rewritten, 3, 1, M, M, 'zip 2')
+    assertThrow(rewritten, 5, 1, M, M, 'zip 3')
+    assertThrow(rewritten, 7, 1, M, M, 'zip 4')
+})
+
+
+
+test('phonecian walz', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B
+        B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -> A
+        M: SBloz   zf  SBloz   .   IBvb CA  . `
+    )[0], 2)
+    assert.deepEqual(p.mapRows, [1, 0])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+    const A = 0, B = 1, M = 2
+    assertSub(rewritten, 0, 3, A, M, B, 'sub first')
+    assertSub(rewritten, 3, 3, A, M, B, 'sub self')
+    assertThrow(rewritten, 6, 3, A, M, 'intercept')
+    assertNoThrow(rewritten, 6, A, B, 'remove intercepted')
+    assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept')
+    assertThrow(rewritten, 7, 3, B, A, 'carry')
+})
+
+
+test('opernball', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+        `A: 3pB  3pB 3   3pB  3pB 3   3pB  3pB 3 -> B
+         B: 3pA  3pA 3   3pA  3pA 3   3pA  3pA 3 -> A
+         M: SBlo z   zf  SBlo z   .   IBvb CA  . 
+         N: SAlo z   .   IAvb CB  .   SBlo z   zf  
+         O: IBvb CA  .   SAlo z   zf  SAlo z   .   `
+     )[0], 2)
+      assert.deepEqual(p.mapRows, [1, 0])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+    const A = 0, B = 1, M = 2, N = 3, O = 4
+    assertSub(rewritten, 0, 3, A, M, O, 'sub north to intercept')
+    assertThrow(rewritten, 1, 0, O, O, 'empty hand to catch intercept')
+    assertSub(rewritten, 0, 3,B, N, A, 'sub south')
+    
+    assertSub(rewritten, 3, 3, O, B, N, 'sub north to intercept 2')
+    assertThrow(rewritten, 4, 0, N, N, 'empty hand to catch intercept 2')
+    assertSub(rewritten, 3, 3,A, M, O, 'sub south 2')
+
+    assertSub(rewritten, 6, 3, N, A, M, 'sub north to intercept 3')
+    assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')
+    assertSub(rewritten, 6, 3,O, B, N, 'sub south 3')
+
+})
+
+
+
+test('scrambled V', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 3B 3 3C 3 3B 3 -> B
+        B: 3A 3 3  3 3A 3 -> C
+        C: 3  3 3A 3 3  3 -> A
+        M: C  z SB z IC 
+        positions: V(A,B,C)`
+    )[0], 2)
+    const A = 0, B = 1, C=2, M = 3
+    assert.deepEqual(p.mapRows, [B,C,A])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 0, 3, M, B, 'carry')
+    assertThrow(rewritten, 0, 2, A, A, 'flip due to carry')
+    assertSub(rewritten, 2, 3, B, M, B, 'sub self')
+    assertThrow(rewritten, 4, 3, C, M, 'intercept')
+    assertNoThrow(rewritten, 4, C, C, 'intercepted')
+    assertThrow(rewritten, 5, 0, M, M, 'catch intercept')
+    assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
+    
+})
+
+test.skip('ambled V', async () => {
+    const [p, manipulations] = patternToThrows(parseGroupSyncPattern(
+       `A: 4B 3  4C 3  4B 3  4B -> B
+        B: 3  4A 3  3  3  4A 3  -> C
+        C: 3  3  3  4A 3  3  3  -> A
+        M: C  z  .  SB z  IC 
+        positions: V(A,B,C)`
+    )[0], 2)
+    const A = 0, B = 1, C=2, M = 3
+    assert.deepEqual(p.mapRows, [B,C,A])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 0, 3, M, B, 'carry')
+    assertThrow(rewritten, 0, 2, A, A, 'flip due to carry')
+    assertSub(rewritten, 2, 3, B, M, B, 'sub self')
+    assertThrow(rewritten, 4, 3, C, M, 'intercept')
+    assertNoThrow(rewritten, 4, C, C, 'intercepted')
+    assertThrow(rewritten, 5, 0, M, M, 'catch intercept')
+    assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
+    
 })
 
 
@@ -877,100 +1102,12 @@ function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, to
 
     assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdx}, expected none [${msg}]`)
 }
+function assertSub(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, manipulatorIdx: number, toPasserIdx: number, msg?: string) {
+    assertThrow(pattern, beat, pattern.nrHands/2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
+    assertThrow(pattern, beat, length, manipulatorIdx, toPasserIdx, msg + " -- place")
+    assertNoThrow(pattern, beat, fromPasserIdx, toPasserIdx, msg + " -- replaced")
+}
 
-
-
-// test('shifting chopabout', async (t) => {
-//     const chopabout = `A: 3pB3 33   3pB3 33   3pB3 33 -> B
-// B: 3pA3 33   3pA3 33   3pA3 33 -> A
-// M: SBcz sAlz SAcz SAlz iAv]. CA`
-//     const p = parseGroupSyncPattern(chopabout)
-
-//     //shifting all the way around yields the same pattern
-// assert.deepStrictEqual(p[0], shiftPattern(p[0], 24, 12))
-
-//     //shifting once by the length yields the same passing sequence but the opposite takeout sequence
-//     assert.deepStrictEqual(p[0][0], shiftPattern(p[0], 12, 12)[0])
-//     assert.deepStrictEqual(p[0][1], shiftPattern(p[0], 12, 12)[1])
-//     assert.notDeepStrictEqual(p[0][2], shiftPattern(p[0], 12, 12)[2])
-
-//     // printPattern(p[0])
-//     // printPattern(shiftPattern(p[0], 2, 12))
-//     // printPattern(shiftPattern(p[0], 12, 12))
-//     // printPattern(shiftPattern(p[0], 24, 12))
-
-// })
-
-// test('shifting manege', async (t) => {
-// //786786786
-// //I  C
-
-//     const manege = `A: 7pB 0 6 0   8 0 7pB 0 6-> B
-//                     B: 0   8 0 7pA 0 6 0   8 0-> A
-//                     M: IB  . . cAf `
-//     const p = parseGroupSyncPattern(manege)
-
-//     assert.deepStrictEqual(p[0], shiftPattern(p[0], 18, 9))
-
-
-//     // printPattern(p[0])
-//     // printPattern(shiftPattern(p[0], 3, 9))
-//     // printPattern(shiftPattern(p[0], 9, 9))
-//     // printPattern(shiftPattern(p[0], 18, 9))
-
-// })
-
-// function printPattern(p: TPatternRow[]) {
-//     for (const row of p) {
-//         console.log(row.role+":", row.sequence.join("\t"), "\t->", row.relabel)
-//     }
-// }
-
-// // test('convert chopabout as basic manipulator', async (t) => {
-// //     const chopabout = `A: 3pB3 33   3pB3 33   3pB3 33 -> B
-// // B: 3pA3 33   3pA3 33   3pA3 33 -> A
-// // M: SBcz sAlz SAcz SAlz iAv]. CA`
-// //     const p = parseGroupSyncPattern(chopabout)
-
-// //     convertManipulatorPatternToLocal(p[0])
-// // })
-// test('convert roundabout as basic manipulator', async (t) => {
-//     const roundabout = `A: 3pB3 33   3pB3 33 -> B
-// B: 3pA3 33   3pA3 33  -> A
-// M: iA . cA z sB z sB`
-//     const p = parseGroupSyncPattern(roundabout)
-
-//     convertManipulatorPatternToLocal(p[0])
-// })
-
-// test('convert fast-carry roundabout as basic manipulator', async (t) => {
-//     const roundabout = `A: 3pB3 33   3pB3 33 -> B
-// B: 3pA3 33   3pA3 33  -> A
-// M: iA cA z z sB z sB`
-//     const p = parseGroupSyncPattern(roundabout)
-
-//     convertManipulatorPatternToLocal(p[0])
-// })
-
-// test('convert 456-about as basic manipulator', async (t) => {
-//     const chopabout = `A: 5pB040605pB04 -> B
-//                        B: 0605pA04060 -> A
-//                        M: ..iA`
-//     const p = parseGroupSyncPattern(chopabout)
-
-//     convertManipulatorPatternToLocal(p[0])
-
-// })
-
-// test('convert manege as basic manipulator', async (t) => {
-//     const manege = `A: 7pB 0 6 0   8 0 7pB 0 6-> B
-//     B: 0   8 0 7pA 0 6 0   8 0-> A
-//     M: IB  . . cAf `
-//     const p = parseGroupSyncPattern(manege)
-
-//     convertManipulatorPatternToLocal(p[0])
-
-// })
 
 // test('manipulator pattern parsing of opernball', async (t) => {
 //     const opernball = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B

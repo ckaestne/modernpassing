@@ -4,6 +4,7 @@ import { TThrow } from "./pattern-fromsync.ts";
 import { Hand } from "./pattern-structure.ts";
 import assert from "node:assert";
 import { throws } from "node:assert";
+import { find } from "@svgdotjs/svg.js";
 
 
 
@@ -43,9 +44,7 @@ export class Pattern {
 
 
     findThrow(throwTime: number, fromPasserIdx?: number, toPasserIdx?: number): Throw | undefined {
-        let ts = this.throws.filter(t => t.throwTime === throwTime)
-        if (fromPasserIdx !== undefined) ts = ts.filter(t => t.fromPasserIdx === fromPasserIdx)
-        if (toPasserIdx !== undefined) ts = ts.filter(t => t.toPasserIdx === toPasserIdx)
+        let ts = this.findThrows(throwTime, fromPasserIdx, toPasserIdx)
         if (ts.length === 0) return undefined
 
         if (ts.length > 1) {
@@ -54,6 +53,13 @@ export class Pattern {
                 console.warn(`found multiple throws for time ${throwTime} from ${fromPasserIdx} to ${toPasserIdx}, returning the one with the highest throw\n${JSON.stringify(ts)}`)
         }
         return ts[0]
+    }
+
+    findThrows(throwTime: number, fromPasserIdx?: number, toPasserIdx?: number): Throw[] {
+        let ts = this.throws.filter(t => t.throwTime === throwTime)
+        if (fromPasserIdx !== undefined) ts = ts.filter(t => t.fromPasserIdx === fromPasserIdx)
+        if (toPasserIdx !== undefined) ts = ts.filter(t => t.toPasserIdx === toPasserIdx)
+        return ts
     }
 
     getRole(beat: number, rowIdx: number): string {
@@ -140,6 +146,10 @@ export class Pattern {
 
     getThrowCauseTimeRaw(t: Throw): number {
         return (t.throwTime + t.throwLength - this.nrHands)
+    }
+
+    getThrowCauseTimeRaw_(throwTime : number, throwLength: number): number {
+        return (throwTime + throwLength - this.nrHands)
     }
 
     getThrowCauseTime(t: Throw): number {
@@ -516,10 +526,22 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
         }
     }
 
+    // redirect all throws that the intercepted passer still throws (until the ibeat, incl.) from manipulated to manipulator
+    for (let beat = interceptedThrow.throwTime+1; beat < iBeatRaw+1; beat++) {
+        const t = pattern.findThrow(beat % patternLength, pattern.getRowIdxByBeat(beat, manipulatedPasserIdx))
+        
+        if (t && t.toPasserIdx === t.fromPasserIdx && pattern.getThrowCauseTimeRaw_(beat, t.throwLength) >= iBeatRaw) {
+            pattern = pattern.removeThrow(t)
+            pattern = pattern.addThrow({
+                ...t,
+                toPasserIdx: pattern.getRowIdxByBeat(beat, manipulatorRowIdx),
+            })
+        }
+    }
 
     // redirect all throws landing after the iBeat from manipulated to manipulator
     for (const t of pattern.throws) {
-        if (pattern.getThrowCauseTime(t) > iBeat && t.toPasserIdx === manipulatedPasserIdxOnCausal) {
+        if (pattern.getThrowCauseTimeRaw(t) > iBeatRaw && t.toPasserIdx === manipulatedPasserIdxOnCausal && t.throwLength!==0) {
             pattern = pattern.removeThrow(t)
             pattern = pattern.addThrow({
                 ...t,
@@ -542,7 +564,7 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
 
 
 
-
+    // console.log(pattern.prettyPrintThrows())
 
     return pattern
 }
@@ -579,11 +601,12 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
         })
     } else {
         const nextBeat = pattern.getThrowCauseTime(firstCarryableThrow)
-        const nextCarryableThrow = pattern.findThrow(nextBeat, firstCarryableThrow.toPasserIdx)
+        const nextBeatRaw = pattern.getThrowCauseTimeRaw(firstCarryableThrow)
+        const nextCarryableThrow = pattern.findThrow(nextBeat, pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx))
 
         // replace the skipped throw with a hold at the source and target
         pattern = pattern.removeThrow(firstCarryableThrow)
-        pattern = applyCarry(pattern, carryBeat, iBeat, patternLength, nextBeat, nextCarryableThrow!, carryPasserIdxOnCausal)
+        pattern = applyCarry(pattern, carryBeat, iBeat, patternLength, nextBeat, nextCarryableThrow!, pattern.getRowIdxByBeat(nextBeatRaw, carryPasserIdxOnCausal))
         pattern = pattern.addThrow({
             fromPasserIdx: carryPasserIdxOnCausal,
             // fromPasserRole: carryPasserRole,
@@ -597,9 +620,9 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
             note: 'hold'
         })
         pattern = pattern.addThrow({
-            fromPasserIdx: firstCarryableThrow.toPasserIdx,
+            fromPasserIdx: pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx),
             // fromPasserRole: firstCarryableThrow.toPasserRole,
-            toPasserIdx: firstCarryableThrow.toPasserIdx,
+            toPasserIdx: pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx),
             // toPasserRole: firstCarryableThrow.toPasserRole,
             throwTime: nextBeat,
             // causeTime: firstCarryableThrow.causeTime,
@@ -622,12 +645,21 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     if (!pattern.hasRole(substitution.manipulatorRole))
         pattern = pattern.addRole(substitution.manipulatorRole)
 
-    // // find the substitued throw
-    const toPasserIdx = pattern.getRowIdxByRole(substitution.beat, substitution.toPasserRole)
-    const fromPasserIdx = substitution.fromPasserRole ? pattern.getRowIdxByRole(substitution.beat, substitution.fromPasserRole) : undefined
+    // console.log(pattern.prettyPrintThrows())
+
+    // find the substituted throw
+    // due to limits of the notation, this is not straightforward -- we are looking for a throw thrown on $beat of unknown length that arrives at $toPasserRole which may be relabeled by then
     const manipulatorRowIdx = pattern.getRowIdxByRole(substitution.beat, substitution.manipulatorRole)
-    const substitutedThrow = pattern.findThrow(substitution.beat, fromPasserIdx, toPasserIdx)
-    assert(substitutedThrow, `no throw found for ${substitution.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
+    const fromPasserIdx = substitution.fromPasserRole ? pattern.getRowIdxByRole(substitution.beat, substitution.fromPasserRole) : undefined
+    const ts = pattern.findThrows(substitution.beat, fromPasserIdx, undefined) // cannot identify target due to possible relabeling
+    let substitutedThrow: Throw | undefined = undefined
+    for (const t of ts) {
+        if (t.toPasserIdx === pattern.getRowIdxByRole(pattern.getThrowCauseTimeRaw(t), substitution.toPasserRole)) {
+            substitutedThrow = t
+            break
+        }
+    }
+    assert(substitutedThrow, `no throw found for ${substitution.beat} from ${fromPasserIdx} to ${substitution.fromPasserRole}`)
 
     // replace old throw with new substitution throws
     pattern = pattern.removeThrow(substitutedThrow)
@@ -681,7 +713,10 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     const manipulatorRowIdx = pattern.getRowIdxByRole(t.beat, t.manipulatorRole)
 
     const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
-    assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${existingManipulatorThrow}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
+    if (existingManipulatorThrow && existingManipulatorThrow.throwLength === 0)
+        pattern = pattern.removeThrow(existingManipulatorThrow)
+    else
+    assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
 
     pattern = pattern.addThrow({
         fromPasserIdx: manipulatorRowIdx,
@@ -705,11 +740,43 @@ export function applyManipulations(pattern: Pattern, manipulations: ManipulatorA
     // 2. substitutions (order should not matter)
     // 3. throws (order should not matter)
 
+    const manipulatorRoles = Array.from(new Set(manipulations.map(m => m.manipulatorRole))).sort()
 
-    const intercepts = manipulations.filter(m => m.kind === 'I').sort((a, b) => a.beat - b.beat)
-    for (const intercept of intercepts) {
-        const carry = manipulations.find(m => m.kind === 'C' && m.manipulatorRole === intercept.manipulatorRole)
+    for (const mRole of manipulatorRoles) 
+        if (!pattern.hasRole(mRole))
+            pattern = pattern.addRole(mRole)
+        else throw new Error(`manipulator role ${mRole} already exists in pattern, cannot add it again`)
+    
+    
+
+    const interceptCarryPairs: [InterceptAction, CarryAction|undefined][] = []
+    // need to match intercepts and carries where there may be multiple pairs in a row and a row may start with a wraparound carry
+    for (const manipulatorRole of manipulatorRoles) {
+        const actions = manipulations.filter(m => m.manipulatorRole === manipulatorRole && ['I','C'].includes(m.kind)).sort((a, b) => a.beat - b.beat)
+        if (actions.length === 0) continue
+        if (actions[0].kind === 'C') actions.push(actions.shift()!)
+        while (actions.length > 0) {
+            const intercept = actions.shift()!
+            assert(intercept.kind === 'I', `intercept expected, but found ${intercept.kind} for ${manipulatorRole} at ${intercept.beat}`)
+            if (actions.length>0 && actions[0].kind === 'C') 
+                interceptCarryPairs.push([intercept, actions.shift() as CarryAction])
+            else
+                interceptCarryPairs.push([intercept, undefined])
+        }
     }
+
+    interceptCarryPairs.sort((a, b) => a[0].beat - b[0].beat)
+    for (const [intercept, carry] of interceptCarryPairs) {
+        pattern = applyInterceptCarry(pattern, intercept, carry)
+    }
+
+    for (const m of manipulations) {
+        if (m.kind === 'S') pattern = applySubstitution(pattern, m)
+    }
+    for (const m of manipulations) {
+        if (m.kind === 'T') pattern = applyManipulatorThrow(pattern, m)
+    }
+
 
 
 
