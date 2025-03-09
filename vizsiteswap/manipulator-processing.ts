@@ -23,7 +23,7 @@ export class Pattern {
     readonly throws: Throw[]
     readonly nrHands: number
     readonly mapRows: number[] // identify the new rowId for each row at the end of the pattern (i.e. classic relabeling)
-    readonly roles: [number, Role[]][] // role label for each row after a given beat -- labels are purely decorative; multiple labels can be provided for different beats to highlight the effect of midpattern-relabeling after intercepts
+    readonly roles: [number, Role[]][] // role label for each row after a given beat -- labels are purely decorative; multiple labels can be provided for different beats to highlight the effect of midpattern-relabeling after intercepts; always has at least one entry for beat 0 which is always first in the array
     readonly nrRows: number
 
     constructor(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [number, Role[]][]) {
@@ -62,6 +62,13 @@ export class Pattern {
         return ts
     }
 
+    /**
+     * gets the role of a row on a given beat
+     * 
+     * if the beat is < 0 or > pattern length, it 
+     * wraps around the pattern, considering the rearrangement of
+     * rows
+     */
     getRole(beat: number, rowIdx: number): string {
         while (beat >= this.getLength()) {
             rowIdx = this.mapRows[rowIdx]
@@ -76,8 +83,11 @@ export class Pattern {
         return ls[1][rowIdx]
     }
 
+
     /**
      * adjusts a row index for a beat when it wraps around the pattern
+     * 
+     * (i.e., relabeling at end of pattern, not due to intercept swaps)
      */
     getRowIdxByBeat(beat: number, rowIdx: number): number {
         while (beat >= this.getLength()) {
@@ -90,6 +100,8 @@ export class Pattern {
         }
         return rowIdx
     }
+
+
 
     prettyPrintThrows(): string {
 
@@ -182,7 +194,9 @@ export class Pattern {
 
 
     /**
-     * identify which row has a given role on a given beat
+     * identify which row has a given role on a given beat,
+     * 
+     * considers rearranging rows at the end of the pattern
      */
     getRowIdxByRole(beat: number, role: string): number {
         for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++)
@@ -190,6 +204,24 @@ export class Pattern {
 
         throw new Error(`no row found for role ${role} at beat ${beat}`)
     }
+
+
+    /**
+     * identify which row has a given role on a given beat
+     * 
+     * if that beat wraps around the pattern backward or forward,
+     * this one does not rearrange the rows but considers the
+     * rowIdx relative to the current arrangement of rows
+     * 
+     * that is, it returns the row as used in toPasserIdx of
+     * a throw that is always relative to the current row arrangement
+     */
+    getRowIdxByRoleRelative(beat: number, role: string): number {
+        return this.getRowIdxByRole(Math.min(beat, this.getLength()-1), role)
+        // const rowIdxWithRelabeling = this.getRowIdxByRole(beat, role)
+        // return this.getRowIdxByBeat(this.getLength()-1-beat, rowIdxWithRelabeling)
+    }
+
 
 
     /**
@@ -508,22 +540,22 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
             ...interceptedThrow,
             // toPasserRole: intercept.manipulatorRole,
             toPasserIdx: manipulatorRowIdx,
-            throwLength: pattern.nrHands/2,
+            throwLength: pattern.nrHands / 2,
             note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
         })
 
 
 
     // add a 0 if the manipulator does not already do anything on the iBeat
-    const insert0Beat = isEarlyIntercept ? intercept.beat - pattern.nrHands/2 : iBeatRaw
+    const insert0Beat = isEarlyIntercept ? intercept.beat - pattern.nrHands / 2 : iBeatRaw
     const mRowAt0Beat = pattern.getRowIdxByBeat(insert0Beat, manipulatorRowIdx)
-    const manipulatorThrowOn0Beat = pattern.findThrow((insert0Beat+patternLength)%patternLength, mRowAt0Beat)
+    const manipulatorThrowOn0Beat = pattern.findThrow((insert0Beat + patternLength) % patternLength, mRowAt0Beat)
     // console.log(manipulatorThrowOnIbeat)
     if (!manipulatorThrowOn0Beat)
         pattern = pattern.addThrow({
             fromPasserIdx: mRowAt0Beat, // note: the row of this caused throw may be different from the target row of the intercept if we cross the pattern boundary
             fromHand: interceptedThrow.toHand,
-            throwTime: (insert0Beat+patternLength)%patternLength,
+            throwTime: (insert0Beat + patternLength) % patternLength,
             throwLength: 0,
             toPasserIdx: mRowAt0Beat,
             toHand: interceptedThrow.toHand,

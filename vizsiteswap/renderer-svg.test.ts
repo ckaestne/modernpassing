@@ -10,7 +10,7 @@ import { checkValidPattern } from "./pattern-structure.ts";
 import { renderGroupPattern, renderLayoutFrames, renderPattern } from "./renderer-svg.ts";
 import { FourHandedSiteswap } from './siteswap.ts';
 
-Deno.test("simple siteswap", async (t) => {
+test("simple siteswap", async (t) => {
     const p = createSiteswapPattern(new FourHandedSiteswap("972"), {})
     assert.deepStrictEqual(checkValidPattern(p), []);
 })

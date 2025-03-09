@@ -43,7 +43,7 @@ type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
     [true, /^([0-9a-z](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, MoreTokenKind.Role],
-    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],
     //     [true, /^(Circle|V|Trapezoid|Box)/g, MoreTokenKind.Shape],
     //     [true, /^Free/g, MoreTokenKind.Free],

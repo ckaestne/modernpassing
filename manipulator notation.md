@@ -25,7 +25,7 @@ Modifiers for `S`, `I` and `C` relevant for movement and understanding the orien
 `l` -- substitute/intercept **l**ate (default for substitution)
 `v` -- substitute/intercept **v**ery late (default for intercept)
 `c` -- substitute/intercept as a **c**hop
-`d` -- substitution with **d**elayed placement (like German turn; modeled as a 1p in local)
+`dN` -- substitution with **d**elayed placement; placement is delayed by N beats (default N=1) and consequently reduced in height (the German turn could be modeled as d2 with a delayed 1p placement, ambled 3 is d1 with a delayed 3p placement)
 
 `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
 `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.

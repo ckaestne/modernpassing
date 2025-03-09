@@ -130,14 +130,14 @@ O: IBvbCA  .   SAloz   zf  SAloz   .   `
 })
 
 
-test('manipulator with multiple actions on the same beat', async (t) => {
+test('manipulator with multiple actions on the same beat and delayed placement', async (t) => {
     const pp = `A: 3pB 3pB 3  -> B
 B: 3pA 3pA 3   -> A
-M: . (SB, 2) 
+M: . (SBd2, 2) 
 `
     const p = parseGroupSyncPattern(pp)
 
-    assert.deepStrictEqual(p[0][2].sequence, ['.', ['SB', '2'], '.'])
+    assert.deepStrictEqual(p[0][2].sequence, ['.', ['SBd2', '2'], '.'])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
 
