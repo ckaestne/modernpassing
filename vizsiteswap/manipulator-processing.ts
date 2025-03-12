@@ -1,10 +1,7 @@
 import { TPatternRow } from "./pattern-fromgroup.ts";
-import { GroupPattern, Role } from "./pattern-structure.ts";
+import {  Role } from "./pattern-structure.ts";
 import { TThrow } from "./pattern-fromsync.ts";
-import { Hand } from "./pattern-structure.ts";
 import assert from "node:assert";
-import { throws } from "node:assert";
-import { find } from "@svgdotjs/svg.js";
 
 
 // beat is always 0 ... pattern length
@@ -69,6 +66,19 @@ export class Pattern {
         return ts
     }
 
+    findThrowsByRole(beat: Beat, fromRole?: Role, toRole?: Role): Throw[] {
+        // due to limits of the notation, this is not straightforward --
+        // we are looking for a throw thrown on $beat of unknown length that arrives at $toPasserRole which may be relabeled by then
+
+        const fromPasserIdx = fromRole ? this.getRowIdxByRole(beat, fromRole) : undefined
+        const ts = this.findThrows(beat, fromPasserIdx, undefined) // cannot identify target due to possible relabeling
+        if (toRole)
+            return ts.filter(t =>
+                t.toPasserIdx === this.getRowIdxByRole(this.getThrowCauseTime(t), toRole))
+        else return ts
+    }
+
+
     /**
      * gets the role of a row on a given beat
      * 
@@ -96,7 +106,7 @@ export class Pattern {
      * 
      * (i.e., relabeling at end of pattern, not due to intercept swaps)
      */
-    getRowIdxByBeat(time: Time, rowIdx: number): number {
+    adjustRowIdxByTime(time: Time, rowIdx: number): number {
         while (time >= this.getLength()) {
             rowIdx = this.mapRows[rowIdx]
             time -= this.getLength()
@@ -118,10 +128,10 @@ export class Pattern {
         const printThrow = (t: Throw): string => {
             // if (['S', 'C', 'I', 'P'].includes(t.note[0])) return `${t.throwLength}${this.getRole(t.throwBeat, t.toPasserIdx)}|${t.note}`
             const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
-            const toRole = this.getRole(this.getThrowCauseTime(t), t.toPasserIdx)
-            const printRole = fromRole !== toRole ? toRole : ""
+            const toRole = this.getRole(this.getThrowCauseBeat(t), t.toPasserIdx)
+            // const printRole = fromRole !== toRole ? toRole : ""
             const printType = t.type === ThrowType.Base ? "" : "|" + t.type
-            return `${t.throwLength}${toRole}${printType}`
+            return `${t.throwLength}${toRole}_${t.toPasserIdx}${printType}`
         }
 
         const showHeader = true
@@ -251,13 +261,16 @@ export class Pattern {
         return new Pattern(this.throws, this.nrHands, mapRows, roles)
     }
 
+
+
+
 }
 
 
 export type Throw = {
     fromPasserIdx: number // this is the row corresponding to the first iteration of the pattern; it does not care about relabeling from intercepts, labels can be derived from this
     // fromPasserRole = pattern.getRole(this.throwBeat, this.fromPasserIdx)
-    fromHand: Hand // hand in the first iteration, will be mirrored 2 (sync) or 4 (4hsw) times on odd patterns
+    // fromHand: Hand // hand in the first iteration, will be mirrored 2 (sync) or 4 (4hsw) times on odd patterns
 
     throwBeat: Beat // 0 to pattern length
     // causeTime: number // does wrap around, i.e. always in 0 to pattern length
@@ -265,7 +278,7 @@ export type Throw = {
 
     toPasserIdx: number // this is the row of the receiving passer on the causal beat (which may involve relabeling at the end of the row, so a self might go to a different row)
     // toPasserRole = pattern.getRole(pattern.getCausalTime(this), this.toPasserIdx)
-    toHand: Hand // receiving hand, relative to the throw time (relabeling may cause it to point to the wrong hand if showing only one iteration for odd period patterns/4hsw)
+    // toHand: Hand // receiving hand, relative to the throw time (relabeling may cause it to point to the wrong hand if showing only one iteration for odd period patterns/4hsw)
 
     type: ThrowType,
     note: string
@@ -281,8 +294,8 @@ enum ThrowType {
 }
 
 
-type ManipulatorAction = InterceptAction | CarryAction | SubstitutionAction | ThrowAction
-type InterceptAction = {
+export type ManipulatorAction = InterceptAction | CarryAction | SubstitutionAction | ThrowAction
+export type InterceptAction = {
     beat: Beat,
     fromPasserRole?: Role,
     toPasserRole: Role,
@@ -290,7 +303,7 @@ type InterceptAction = {
     kind: 'I'
     modifiers: string
 }
-type SubstitutionAction = {
+export type SubstitutionAction = {
     beat: Beat,
     fromPasserRole?: Role,
     toPasserRole: Role,
@@ -298,14 +311,14 @@ type SubstitutionAction = {
     kind: 'S'
     modifiers: string
 }
-type ThrowAction = {
+export type ThrowAction = {
     beat: Beat,
     throwLength: number,
     toPasserRole: Role,
     manipulatorRole: Role,
     kind: 'T'
 }
-type CarryAction = {
+export type CarryAction = {
     beat: Beat,
     toPasserRole?: Role,
     manipulatorRole: Role,
@@ -386,13 +399,13 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
         return {
             fromPasserIdx: who,
-            fromHand: when % nrHands < nrHands / 2 ? Hand.Right : Hand.Left,//assuming hand order rA, rB, rC... lA, lB, lC...
+            // fromHand: when % nrHands < nrHands / 2 ? Hand.Right : Hand.Left,//assuming hand order rA, rB, rC... lA, lB, lC...
 
             throwBeat: when,
             throwLength,
 
             toPasserIdx: relabel(causeTime, to),
-            toHand: (when + throwLength) % nrHands < nrHands / 2 ? Hand.Right : Hand.Left,
+            // toHand: (when + throwLength) % nrHands < nrHands / 2 ? Hand.Right : Hand.Left,
 
             type: ThrowType.Base,
             note: throwStr
@@ -515,6 +528,8 @@ export function prettyPrintManipulatorActions(pattern: Pattern, mactions: Manipu
         const myThrows = mactions.filter(t => t.manipulatorRole === role).sort((a, b) => a.beat - b.beat)
         result = result + role + ":\t"
         for (let beat = 0; beat < patternLength; beat++) {
+            const newRoles = pattern.roles.find(r => r[0] === beat)
+            if (beat !== 0 && newRoles) result += '\t'
             const ts = myThrows.filter(t => t.beat === beat)
             result += ts.map(printMAction).join(",")
             result += "\t"
@@ -532,128 +547,207 @@ export function applyInterceptCarry(pattern: Pattern, intercept: InterceptAction
     // if the pattern does not already have the manipulator role's row -- add it
     if (!pattern.hasRole(intercept.manipulatorRole))
         pattern = pattern.addRole(intercept.manipulatorRole)
+    const patternLength = pattern.getLength()
 
     // console.log(pattern.prettyPrintThrows())
 
 
     // find the intercepted throw
-    const toPasserIdx = pattern.getRowIdxByRole(intercept.beat, intercept.toPasserRole)
-    const fromPasserIdx = intercept.fromPasserRole ? pattern.getRowIdxByRole(intercept.beat, intercept.fromPasserRole) : undefined
-    const interceptedThrow = pattern.findThrow(intercept.beat, fromPasserIdx, toPasserIdx)
-    assert(interceptedThrow, `no throw found for ${intercept.beat} from ${fromPasserIdx} to ${toPasserIdx}`)
+    // find the substituted throw
+    const interceptedThrowCandidates = pattern.findThrowsByRole(intercept.beat, intercept.fromPasserRole, intercept.toPasserRole)
+    assert(interceptedThrowCandidates.length >= 0, `no throw found to intercept on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
+    assert(interceptedThrowCandidates.length < 2, `intercept throw ambiguous, found multiple on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
+    let interceptedThrow = interceptedThrowCandidates[0]
 
-    const iBeatRaw = pattern.getThrowCauseTime(interceptedThrow)
+
+    const iTime = pattern.getThrowCauseTime(interceptedThrow)
     const iBeat = pattern.getThrowCauseBeat(interceptedThrow)
     assert((carry === undefined) === (interceptedThrow.throwLength <= pattern.nrHands), `carry is required if and only if the intercepted throw is not a flip or zip`)
 
+    // note, we are using manipulator and manipulated roles before the rows switch, that is manipulatorRowIdxAfterIBeat is the row of the manipulator before switching, where the manipulated will be after switching)
+    const manipulatedRole = intercept.toPasserRole
 
-    const patternLength = pattern.getLength()
-    // the row at throwing time and at landing time may not be the same
-    const manipulatedPasserIdx = interceptedThrow.toPasserIdx
-    const manipulatedPasserIdxOnCausal = pattern.getRowIdxByBeat(iBeatRaw, manipulatedPasserIdx)
+    const manipulatorRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, intercept.manipulatorRole)
+    const manipulatedRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, manipulatedRole)
 
-    const manipulatorRowIdxOrig = pattern.getRowIdxByRole(intercept.beat, intercept.manipulatorRole)
-    // swap labels on the iBeat and relabeling at the end of the pattern
-    pattern = pattern.swapRoles(iBeat, pattern.getRole(iBeat, manipulatedPasserIdxOnCausal), intercept.manipulatorRole)
-    // <--------------------------------
-    // this is more complicated -- wraparound relabels from a prior round must be considerd for the rowIdx, but relabels from this round's intercept must not (only differs for intercepting flips and zips)
-    const manipulatorRowIdx = iBeatRaw >= patternLength ? pattern.getRowIdxByBeat(-1, manipulatorRowIdxOrig) : manipulatorRowIdxOrig
-    const manipulatorRowIdxOnCausal = pattern.getRowIdxByBeat(iBeatRaw, manipulatorRowIdx)
-    // console.log({ iBeatRaw, manipulatorRowIdxOrig, manipulatorRowIdx, manipulatorRowIdxOnCausal })
+    let firstCarryableThrow = pattern.findThrow(iBeat, pattern.adjustRowIdxByTime(iTime, manipulatedRowIdxAfterIBeat))
 
-    // replace old throw with new intercept throw
+    for (const t of pattern.throws) {
+
+        // get all passes that arrive to the manipulated passer on or after iTime
+        const needRedirectTarget = t.toPasserIdx === manipulatedRowIdxAfterIBeat && pattern.getThrowCauseTime(t) >= iTime && pattern.getThrowCauseTime(t) < patternLength
+        // get all passes thrown by the manipulated passer on or after iTime (TODO: iBeat?)
+        let needRedirectSource = t.fromPasserIdx === manipulatedRowIdxAfterIBeat && t.throwBeat >= iBeat
+        const isFirstCarryableThrow = t === firstCarryableThrow
+        const isInterceptThrow = t === interceptedThrow
+        if (isFirstCarryableThrow) needRedirectSource = false // this is the throw that is not yet forced, so it will be the first carryable throw
+
+        let newThrow = t
+        if (needRedirectSource || needRedirectTarget) {
+            pattern = pattern.removeThrow(t)
+            newThrow = {
+                ...t,
+                fromPasserIdx: needRedirectSource ? manipulatorRowIdxAfterIBeat : t.fromPasserIdx,
+                toPasserIdx: needRedirectTarget ? manipulatorRowIdxAfterIBeat : t.toPasserIdx,
+                type: isInterceptThrow ? ThrowType.Intercept : isFirstCarryableThrow ? ThrowType.Carry : t.type,
+                // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
+            }
+            pattern = pattern.addThrow(newThrow)
+        }
+        if (isFirstCarryableThrow) firstCarryableThrow = newThrow
+        if (isInterceptThrow) interceptedThrow = newThrow
+    }
+
     const isEarlyIntercept = intercept.modifiers.includes('e') || intercept.modifiers.includes('l')
-    pattern = pattern.removeThrow(interceptedThrow)
-    if (!isEarlyIntercept)
-        // default very late intercept arrives at the time of the original throw
-        pattern = pattern.addThrow({
-            ...interceptedThrow,
-            // toPasserRole: intercept.manipulatorRole,
-            toPasserIdx: manipulatorRowIdx,
-            type: ThrowType.Intercept,
-            note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
-        })
-    else
-        //early/late, but not very late intercept modeled as a 1p takeout
-        pattern = pattern.addThrow({
-            ...interceptedThrow,
-            // toPasserRole: intercept.manipulatorRole,
-            toPasserIdx: manipulatorRowIdx,
-            throwLength: pattern.nrHands / 2,
-            type: ThrowType.Intercept,
-            note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdx,
-        })
+    assert(!isEarlyIntercept, "not yet supported")
 
+    // swap labels on the iBeat and relabeling at the end of the pattern
+    pattern = pattern.swapRoles(iBeat, manipulatedRole, intercept.manipulatorRole)
 
 
     // add a 0 if the manipulator does not already do anything on the iBeat
-    const insert0Beat = isEarlyIntercept ? intercept.beat - pattern.nrHands / 2 : iBeatRaw
-    const mRowAt0Beat = pattern.getRowIdxByBeat(insert0Beat, manipulatorRowIdx)
+    const insert0Beat = isEarlyIntercept ? intercept.beat - pattern.nrHands / 2 : iTime
+    const mRowAt0Beat = pattern.adjustRowIdxByTime(insert0Beat, manipulatorRowIdxAfterIBeat)
     const manipulatorThrowOn0Beat = pattern.findThrow((insert0Beat + patternLength) % patternLength, mRowAt0Beat)
     // console.log(manipulatorThrowOnIbeat)
-    if (!manipulatorThrowOn0Beat)
+    if (!manipulatorThrowOn0Beat) {
+        const throwBeat = (insert0Beat + patternLength) % patternLength
+        const arrivalTime = pattern.getThrowCauseTime_(throwBeat, 0)
         pattern = pattern.addThrow({
             fromPasserIdx: mRowAt0Beat, // note: the row of this caused throw may be different from the target row of the intercept if we cross the pattern boundary
-            fromHand: interceptedThrow.toHand,
-            throwBeat: (insert0Beat + patternLength) % patternLength,
+            // fromHand: interceptedThrow.toHand,
+            throwBeat,
             throwLength: 0,
-            toPasserIdx: mRowAt0Beat,
-            toHand: interceptedThrow.toHand,
+            toPasserIdx: pattern.adjustRowIdxByTime(arrivalTime, mRowAt0Beat),
+            // toHand: interceptedThrow.toHand,
             type: ThrowType.Filled,
             note: '0'
         })
-
-
-
-
-    // moving all throws of the manipulated passer to the manipulator after the iBeat
-    for (let beat = iBeat + 1; beat < patternLength; beat++) {
-        const t = pattern.findThrow(beat, manipulatedPasserIdxOnCausal)
-        if (t) {
-            pattern = pattern.removeThrow(t)
-            pattern = pattern.addThrow({
-                ...t,
-                fromPasserIdx: manipulatorRowIdxOnCausal,
-                toPasserIdx: t.toPasserIdx === manipulatedPasserIdxOnCausal ? manipulatorRowIdxOnCausal : t.toPasserIdx,
-            })
-        }
     }
 
-    // redirect all throws that the intercepted passer still throws (until the ibeat, incl.) from manipulated to manipulator
-    for (let beat = interceptedThrow.throwBeat + 1; beat < iBeatRaw + 1; beat++) {
-        const t = pattern.findThrow(beat % patternLength, pattern.getRowIdxByBeat(beat, manipulatedPasserIdx))
 
-        if (t && t.toPasserIdx === t.fromPasserIdx && pattern.getThrowCauseTime_(beat, t.throwLength) >= iBeatRaw) {
-            pattern = pattern.removeThrow(t)
-            pattern = pattern.addThrow({
-                ...t,
-                toPasserIdx: pattern.getRowIdxByBeat(beat, manipulatorRowIdx),
-            })
-        }
-    }
 
-    // redirect all throws landing after the iBeat from manipulated to manipulator
-    for (const t of pattern.throws) {
-        if (pattern.getThrowCauseTime(t) > iBeatRaw && t.toPasserIdx === manipulatedPasserIdxOnCausal && t.throwLength !== 0) {
-            pattern = pattern.removeThrow(t)
-            pattern = pattern.addThrow({
-                ...t,
-                toPasserIdx: manipulatorRowIdxOnCausal,
-            })
-        }
-    }
+
+
+    // // redirect all passes originally to the manipulated passer to the prior manipulator who now has that role
+    // for (const t of passesToManipulated) {
+    //     pattern = pattern.removeThrow(t)
+    //     pattern = pattern.addThrow({
+    //         ...t,
+    //         toPasserIdx: pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), manipulatedRole),
+    //     })
+    // }
+    // // redirect all passes originally from the manipulated passer to the prior manipulator who now has that role
+    // for (const t of passesFromManipulated) {
+    //     pattern = pattern.removeThrow(t)
+    //     pattern = pattern.addThrow({
+    //         ...t,
+    //         fromPasserIdx: pattern.getRowIdxByRole(t.throwBeat, manipulatedRole),
+    //     })
+    // }
+
+
+
+    // 
+    // // the row at throwing time and at landing time may not be the same
+    // const manipulatedPasserRole = intercept.toPasserRole
+
+
+    // // const manipulatorRowIdxOrig = pattern.getRowIdxByRole(intercept.beat, intercept.manipulatorRole)
+    // // // <--------------------------------
+    // // // this is more complicated -- wraparound relabels from a prior round must be considerd for the rowIdx, but relabels from this round's intercept must not (only differs for intercepting flips and zips)
+    // // const manipulatorRowIdx = iTime >= patternLength ? pattern.adjustRowIdxByTime(-1, manipulatorRowIdxOrig) : manipulatorRowIdxOrig
+    // // const manipulatorRowIdxOnCausal = pattern.adjustRowIdxByTime(iTime, manipulatorRowIdx)
+    // // // console.log({ iBeatRaw, manipulatorRowIdxOrig, manipulatorRowIdx, manipulatorRowIdxOnCausal })
+
+    // // replace old throw with new intercept throw
+    // pattern = pattern.removeThrow(interceptedThrow)
+    // const manipulatorRowIdxAtITime = pattern.getRowIdxByRole(iTime, manipulatedPasserRole)
+    // if (!isEarlyIntercept)
+    //     // default very late intercept arrives at the time of the original throw
+    //     pattern = pattern.addThrow({
+    //         ...interceptedThrow,
+    //         // toPasserRole: intercept.manipulatorRole,
+    //         toPasserIdx: manipulatorRowIdxAtITime,
+    //         type: ThrowType.Intercept,
+    //         note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdxAtITime,
+    //     })
+    // else
+    //     //early/late, but not very late intercept modeled as a 1p takeout
+    //     pattern = pattern.addThrow({
+    //         ...interceptedThrow,
+    //         // toPasserRole: intercept.manipulatorRole,
+    //         toPasserIdx: manipulatorRowIdxAtITime,
+    //         throwLength: pattern.nrHands / 2,
+    //         type: ThrowType.Intercept,
+    //         note: 'I' + intercept.toPasserRole + ">" + manipulatorRowIdxAtITime,
+    //     })
+
+
+
+
+
+
+
+    // // moving all throws of the manipulated passer between the swap and the end of the pattern to the manipulator 
+    // // (after the end of the pattern, the relabeling takes care of this swap)
+    // for (let beat = iBeat + 1; beat < patternLength; beat++) {
+    //     const ts = pattern.findThrowsByRole(beat, intercept.manipulatorRole)
+    //     for (const t of ts) {
+    //         pattern = pattern.removeThrow(t)
+    //         const newManipulatorRowIdxAtCausal = pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), intercept.manipulatorRole)
+    //         const priorManipulatorRowIdxAtThrow = pattern.getRowIdxByRole(t.throwBeat, manipulatedPasserRole)
+    //         const priorManipulatorRowIdxOnCausal  = pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), manipulatedPasserRole)
+    //         pattern = pattern.addThrow({
+    //             ...t,
+    //             fromPasserIdx: priorManipulatorRowIdxAtThrow,
+    //             toPasserIdx: t.toPasserIdx === newManipulatorRowIdxAtCausal ? priorManipulatorRowIdxOnCausal : t.toPasserIdx,
+    //         })
+    //     }
+    // }
+
+    // console.log(pattern.prettyPrintThrows())
+
+    // // redirect all throws that the intercepted passer still throws before the iTime from manipulated to manipulator (which may wrap around!)
+    // for (let time = interceptedThrow.throwBeat + 1; time < iTime; time++) {
+    //     const t = pattern.findThrow(time % patternLength, pattern.getRowIdxByRole(time, manipulatedPasserRole))
+
+    //     if (t && t.toPasserIdx === t.fromPasserIdx && pattern.getThrowCauseTime_(time, t.throwLength) >= iTime) {
+    //         pattern = pattern.removeThrow(t)
+    //         pattern = pattern.addThrow({
+    //             ...t,
+    //             toPasserIdx: pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), intercept.manipulatorRole),
+    //         })
+    //     }
+    // }
+    // // the throw at the manipulated passer at iTime is the one that is not forced yet and that will be the first carryable throw
+    // // this one gets redirected from manipulated to manipulator
+    // const firstCarryableThrow = pattern.findThrow(iBeat, manipulatedRowIdxAtITime)
 
 
     // console.log(pattern.prettyPrintThrows())
 
+    // // redirect all throws landing after the iBeat from manipulated to manipulator
+    // for (const t of pattern.throws) {
+    //     if (pattern.getThrowCauseTime(t) > iTime && pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), manipulatedPasserRole) && t.throwLength !== 0) {
+    //         pattern = pattern.removeThrow(t)
+    //         pattern = pattern.addThrow({
+    //             ...t,
+    //             toPasserIdx: pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), intercept.manipulatorRole),
+    //         })
+    //     }
+    // }
 
-    // check and label the carry (do this before redirecting any throws)
-    if (carry) {
-        // first throw that can be carried is the one from the manipulated passer on the iBeat
-        const firstCarryableThrow = pattern.findThrow(iBeat, manipulatedPasserIdxOnCausal)
-        assert(firstCarryableThrow, `no throw found for ${iBeat} from ${manipulatedPasserIdxOnCausal} (originally ${manipulatedPasserIdx}), needed for carry computation`)
-        pattern = applyCarry(pattern, carry.beat, iBeat, patternLength, iBeat, firstCarryableThrow!, manipulatedPasserIdxOnCausal)
-    }
+
+    // // console.log(pattern.prettyPrintThrows())
+
+
+    // // check and label the carry (do this before redirecting any throws)
+    // if (carry) {
+    //     // first throw that can be carried is the one from the manipulated passer on the iBeat (that would have been caused by the now-intercepted throw)
+    //     assert(firstCarryableThrow, `no throw found for ${iBeat} from ${manipulatedRowIdxAtITime}, needed for carry computation`)
+    //     pattern = applyCarry(pattern, carry.beat, iBeat, patternLength, iBeat, firstCarryableThrow!, manipulatedRowIdxAtITime)
+    // }
 
 
 
@@ -696,11 +790,11 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
     } else {
         const nextBeat = pattern.getThrowCauseBeat(firstCarryableThrow)
         const nextBeatRaw = pattern.getThrowCauseTime(firstCarryableThrow)
-        const nextCarryableThrow = pattern.findThrow(nextBeat, pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx))
+        const nextCarryableThrow = pattern.findThrow(nextBeat, pattern.adjustRowIdxByTime(nextBeatRaw, firstCarryableThrow.toPasserIdx))
 
         // replace the skipped throw with a hold at the source and target
         pattern = pattern.removeThrow(firstCarryableThrow)
-        pattern = applyCarry(pattern, carryBeat, iBeat, patternLength, nextBeat, nextCarryableThrow!, pattern.getRowIdxByBeat(nextBeatRaw, carryPasserIdxOnCausal))
+        pattern = applyCarry(pattern, carryBeat, iBeat, patternLength, nextBeat, nextCarryableThrow!, pattern.adjustRowIdxByTime(nextBeatRaw, carryPasserIdxOnCausal))
         pattern = pattern.addThrow({
             fromPasserIdx: carryPasserIdxOnCausal,
             // fromPasserRole: carryPasserRole,
@@ -709,21 +803,21 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
             throwBeat: firstCarryableThrow.throwBeat,
             // causeTime: firstCarryableThrow.throwTime,
             throwLength: pattern.nrHands,
-            fromHand: firstCarryableThrow.fromHand,
-            toHand: firstCarryableThrow.fromHand,
+            // fromHand: firstCarryableThrow.fromHand,
+            // toHand: firstCarryableThrow.fromHand,
             type: ThrowType.Filled,
             note: 'hold'
         })
         pattern = pattern.addThrow({
-            fromPasserIdx: pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx),
+            fromPasserIdx: pattern.adjustRowIdxByTime(nextBeatRaw, firstCarryableThrow.toPasserIdx),
             // fromPasserRole: firstCarryableThrow.toPasserRole,
-            toPasserIdx: pattern.getRowIdxByBeat(nextBeatRaw, firstCarryableThrow.toPasserIdx),
+            toPasserIdx: pattern.adjustRowIdxByTime(nextBeatRaw, firstCarryableThrow.toPasserIdx),
             // toPasserRole: firstCarryableThrow.toPasserRole,
             throwBeat: nextBeat,
             // causeTime: firstCarryableThrow.causeTime,
             throwLength: pattern.nrHands,
-            fromHand: firstCarryableThrow.toHand,
-            toHand: firstCarryableThrow.toHand,
+            // fromHand: firstCarryableThrow.toHand,
+            // toHand: firstCarryableThrow.toHand,
             type: ThrowType.Filled,
             note: 'hold'
         })
@@ -736,6 +830,8 @@ function applyCarry(pattern: Pattern, carryBeat: number, iBeat: number, patternL
 }
 
 
+
+
 export function applySubstitution(pattern: Pattern, substitution: SubstitutionAction): Pattern {
     // if the pattern does not already have the manipulator role's row -- add it
     if (!pattern.hasRole(substitution.manipulatorRole))
@@ -743,19 +839,14 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
     // console.log(pattern.prettyPrintThrows())
 
-    // find the substituted throw
-    // due to limits of the notation, this is not straightforward -- we are looking for a throw thrown on $beat of unknown length that arrives at $toPasserRole which may be relabeled by then
+
     const manipulatorRowIdx = pattern.getRowIdxByRole(substitution.beat, substitution.manipulatorRole)
-    const fromPasserIdx = substitution.fromPasserRole ? pattern.getRowIdxByRole(substitution.beat, substitution.fromPasserRole) : undefined
-    const ts = pattern.findThrows(substitution.beat, fromPasserIdx, undefined) // cannot identify target due to possible relabeling
-    let substitutedThrow: Throw | undefined = undefined
-    for (const t of ts) {
-        if (t.toPasserIdx === pattern.getRowIdxByRole(pattern.getThrowCauseTime(t), substitution.toPasserRole)) {
-            substitutedThrow = t
-            break
-        }
-    }
-    assert(substitutedThrow, `no throw found for ${substitution.beat} from ${fromPasserIdx} to ${substitution.fromPasserRole}`)
+
+    // find the substituted throw
+    const substitutedThrowCandidates = pattern.findThrowsByRole(substitution.beat, substitution.fromPasserRole, substitution.toPasserRole)
+    assert(substitutedThrowCandidates.length >= 0, `no throw found for ${substitution.beat} from ${substitution.fromPasserRole} to ${substitution.toPasserRole}`)
+    assert(substitutedThrowCandidates.length < 2, `substitution throw ambiguous, found multiple for ${substitution.beat} from ${substitution.fromPasserRole} to ${substitution.toPasserRole}`)
+    const substitutedThrow = substitutedThrowCandidates[0]
 
     // replace old throw with new substitution throws
     pattern = pattern.removeThrow(substitutedThrow)
@@ -815,11 +906,11 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     if (!manipulatorThrowOnReceivingBeat)
         pattern = pattern.addThrow({
             fromPasserIdx: receivingManipulatorRowIdx,
-            fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
+            // fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
             throwBeat: receivingBeatIdx,
             throwLength: 0,
             toPasserIdx: receivingManipulatorRowIdx,
-            toHand: 1 - substitutedThrow.fromHand,
+            // toHand: 1 - substitutedThrow.fromHand,
             type: ThrowType.Filled,
             note: '0'
         })
@@ -845,8 +936,8 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     pattern = pattern.addThrow({
         fromPasserIdx: manipulatorRowIdx,
         toPasserIdx,
-        fromHand: 0, // TODO: hand unclear!
-        toHand: 0, // TODO: hand unclear!
+        // fromHand: 0, // TODO: hand unclear!
+        // toHand: 0, // TODO: hand unclear!
         throwBeat: t.beat,
         throwLength: t.throwLength,
         type: ThrowType.BaseManipulator,
@@ -956,7 +1047,7 @@ function checkModifiers(actionKind: 'I' | 'S', modifiers: string) {
         for (const b of mutuallyExclusive)
             if (a !== b && modifiers.includes(a) && modifiers.includes(b))
                 throw new Error(`cannot use both ${a} and ${b} modifiers for ${actionKind} action`)
-
-
-
 }
+
+
+
