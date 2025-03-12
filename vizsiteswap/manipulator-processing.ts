@@ -247,15 +247,20 @@ export class Pattern {
                 ...this.roles.slice(index + 1)
             ];
         }
+
+        //relevant rows before swapping
+        const rowIdxA = lastRoles[1].indexOf(roleA)
+        const rowIdxB = lastRoles[1].indexOf(roleB)
+
         // relabel by swapping the roles on each instruction on and after the beat
         roles = roles.map(r => {
             if (r[0] < beat) return r
-            return [r[0], r[1].map(role => role === roleA ? roleB : role === roleB ? roleA : role)]
+            const newR = r[1].slice()
+            newR[rowIdxA] = r[1][rowIdxB]
+            newR[rowIdxB] = r[1][rowIdxA]
+            return [r[0], newR]
         })
 
-        //rows at the beginning of the pattern
-        const rowIdxA = lastRoles[1].indexOf(roleA)
-        const rowIdxB = lastRoles[1].indexOf(roleB)
         const mapRows = this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
         return new Pattern(this.throws, this.nrHands, mapRows, roles)
