@@ -152,7 +152,7 @@ Deno.test('shift: nonsymetric', async () => {
 })
 
 
-function assertEqualThrows(pattern1:Pattern, pattern2: Pattern) {
+function assertEqualThrows(pattern1: Pattern, pattern2: Pattern) {
     function s(a: Throw, b: Throw): number {
         const x = a.throwBeat - b.throwBeat
         if (x !== 0) return x
@@ -224,20 +224,33 @@ const hard1beatInterceptOf4 =
     `A: 2 3 3 3 -> B
          B: 3 3 3 4 -> A
          M: .C . IA `
-const threeBeatCarry = 
-         `A: 3 3 3pB 3 -> B
+const threeBeatCarry =
+    `A: 3 3 3pB 3 -> B
          B: 3 3 3pA 3 -> A
          M: IA . . C`
 const twoIndependentManipulators =
-        `A: 3pB 3  3 3 3  3 3 -> B
+    `A: 3pB 3  3 3 3  3 3 -> B
         B: 3pA 3  3 3 3  3 3 -> A
         M: .   IB C
         N: .   .  . . IB C`
 const interceptingACarry =
-`A: 3pB 3  3 3 3  3 3 -> B
-B: 3pA 3  3 3 3  3 3 -> A
-M: .   IB C
-N: .   .  IB C`
+    `A: 3pB 3  3 3 3  3 3 -> B
+    B: 3pA 3  3 3 3  3 3 -> A
+    M: .   IB C
+    N: .   .  IB C`
+const delayedHandin1 =
+    `A: 3333 -> B
+         B: 3333  -> A
+         M: . SBd `
+const delayedHandin2 =
+    `A: 3333 -> B
+         B: 3333  -> A
+         M: . SBd2 `
+const earlyIntercept =
+    `A: 3 3pB 3 3 -> B
+    B: 3 3pA  3 3 -> A
+    M: . IBAe CA`
+
 
 
 const patterns: { [key: string]: string } = {
@@ -249,7 +262,10 @@ const patterns: { [key: string]: string } = {
     hard1beatInterceptOf4,
     threeBeatCarry,
     twoIndependentManipulators,
-    interceptingACarry
+    interceptingACarry,
+    delayedHandin1,
+    delayedHandin2,
+    earlyIntercept
 }
 
 test('invariant: pass labels remain stable over shifts', async () => {
@@ -355,8 +371,8 @@ function assertEqualPattern(p1: Pattern, p2: Pattern) {
 
     // rows may not be in the same order, so let's compare transformations in role changes
     assert.deepEqual(
-        p1.mapRows.map((r,i)=>p1.getRole(0,i)+"->"+p1.getRole(0,r)).sort(),
-        p2.mapRows.map((r,i)=>p2.getRole(0,i)+"->"+p2.getRole(0,r)).sort()
+        p1.mapRows.map((r, i) => p1.getRole(0, i) + "->" + p1.getRole(0, r)).sort(),
+        p2.mapRows.map((r, i) => p2.getRole(0, i) + "->" + p2.getRole(0, r)).sort()
     )
     assert.deepEqual(normalizeRoles(p1), normalizeRoles(p2))
 
@@ -367,8 +383,8 @@ function normalizeRoles(pattern: Pattern): string[] {
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
         const fromRole = pattern.getRole(0, rowIdx)
         for (let beat = 0; beat < pattern.getLength(); beat++) {
-            roles.push(`${fromRole}${beat}${pattern.getRole(beat, rowIdx)}`)        
-            
+            roles.push(`${fromRole}${beat}${pattern.getRole(beat, rowIdx)}`)
+
         }
     }
     return roles.sort()

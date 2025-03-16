@@ -815,7 +815,16 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     pattern = pattern.removeThrow(substitutedThrow)
 
     const isVeryLateSteal = substitution.modifiers.includes('v')
-    const isDeplayedPlacement = substitution.modifiers.includes('d')
+    let placementDelay = 0
+    if (substitution.modifiers.includes('d')) {
+        placementDelay = 1
+        const placementDelayModifierIndex = substitution.modifiers.indexOf('d');
+        if (placementDelayModifierIndex >= 0 && placementDelayModifierIndex < substitution.modifiers.length - 1) {
+            const delayChar = substitution.modifiers[placementDelayModifierIndex + 1];
+            if (delayChar >= '0' && delayChar <= '9') 
+                placementDelay = parseInt(delayChar);
+        } 
+    }
 
     // adding the throw (pelf) to be stolen
     if (!isVeryLateSteal)
@@ -838,20 +847,11 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
 
     // putting in another club to replace the stolen one
-    if (!isDeplayedPlacement)
-        pattern = pattern.addThrow({
-            ...substitutedThrow,
-            // toPasserRole: intercept.manipulatorRole,
-            fromPasserIdx: manipulatorRowIdx,
-            markers: [ThrowType.SubstitutionPlacement],
-            note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
-        })
-    else
         pattern = pattern.addThrow({
             ...substitutedThrow,
             fromPasserIdx: manipulatorRowIdx,
-            throwLength: pattern.nrHands / 2,
-            throwBeat: substitutedThrow.throwBeat + substitutedThrow.throwLength - pattern.nrHands / 2,
+            throwLength: substitutedThrow.throwLength - placementDelay,
+            throwBeat: substitutedThrow.throwBeat + placementDelay,
             markers: [ThrowType.SubstitutionPlacement],
             note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
         })
@@ -893,8 +893,9 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
     if (existingManipulatorThrow && existingManipulatorThrow.throwLength === 0)
         pattern = pattern.removeThrow(existingManipulatorThrow)
-    else
+    else{
         assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
+    }
 
     pattern = pattern.addThrow({
         fromPasserIdx: manipulatorRowIdx,
