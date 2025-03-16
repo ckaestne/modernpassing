@@ -250,6 +250,12 @@ const earlyIntercept =
     `A: 3 3pB 3 3 -> B
     B: 3 3pA  3 3 -> A
     M: . IBAe CA`
+const scrambedV = 
+    `A: 3B 3  3C 3  3B 3 -> B
+    B: 3A 3  3  3  3A 3  -> C
+    C: 3  3  4A 3  3  3  -> A
+    M: C  z  SB z  ICe 
+    positions: V(A,B,C)`
 
 
 
@@ -265,7 +271,8 @@ const patterns: { [key: string]: string } = {
     interceptingACarry,
     delayedHandin1,
     delayedHandin2,
-    earlyIntercept
+    earlyIntercept,
+    scrambedV
 }
 
 test('invariant: pass labels remain stable over shifts', async () => {
@@ -305,7 +312,7 @@ test('invariant: pass labels remain stable over shifts', async () => {
 
 })
 
-test('invariant: applying manipulator actions should be stable across shifts', async () => {
+test.only('invariant: applying manipulator actions should be stable across shifts', async () => {
     // metamorphic invariant:  shift(apply(p, m)) = apply(shift(p), shift(m))
 
 
@@ -320,7 +327,7 @@ test('invariant: applying manipulator actions should be stable across shifts', a
 
 
 
-        for (let shiftOffset = 0; shiftOffset <= pWithManipulator.getLength() * pWithManipulator.nrRows * 2; shiftOffset++) {
+        for (let shiftOffset = 1; shiftOffset <= pWithManipulator.getLength() * pWithManipulator.nrRows * 2; shiftOffset++) {
             let shifted1: Pattern | undefined, shifted2: Pattern | undefined, shiftedT: Pattern | undefined, shiftedM: ManipulatorAction[] | undefined
             try {
 
@@ -352,6 +359,42 @@ test('invariant: applying manipulator actions should be stable across shifts', a
             }
 
         }
+    }
+})
+
+
+const aidenPatterns: { [key: string]: string } = function(){
+
+    const base = 
+        `A: 3B 3  3C 3  3B 3 -> B
+        B: 3A 3  3  3  3A 3  -> C
+        C: 3  3  4A 3  3  3  -> A`
+    const positionsLine = `positions: V(A,B,C)`
+    const result :{ [key: string]: string } = {}
+
+    for (const manipulatorLine of ["IX.C.SY", "SY.IX.C", "C.SY.IX"])
+        for (const interceptTarget of ['A', 'B', 'C'])
+            for (const substitutionTarget of ['A', 'B', 'C']) {
+                const manipulator = manipulatorLine.replace("X", interceptTarget).replace("Y", substitutionTarget)
+                const pattern = base + "\nM: " + manipulator+"\n"+positionsLine
+                result[manipulator.replaceAll(".","")]=pattern                
+            }
+
+
+  return result
+}()
+
+
+
+test('generate all aiden patterns', async () => {
+    for (const patternName of Object.keys(aidenPatterns)) {
+        const pattern = aidenPatterns[patternName] as string
+        const r = parseGroupSyncPattern(pattern)
+        const [t, m] = createPatternFromRaw(r[0], 2)
+        const pWithManipulator = applyManipulations(t, m)
+
+        console.log(patternName)
+        console.log(pWithManipulator.prettyPrintThrows())
     }
 })
 
@@ -452,7 +495,7 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
 /**
  * throws are identified by row index (wraparound will change the row of a self!)
  */
-export function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
+function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
     const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)

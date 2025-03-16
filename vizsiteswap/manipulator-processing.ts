@@ -126,6 +126,14 @@ export class Pattern {
         return rowIdx
     }
 
+ /** 
+  * hopefully clearer version of adjustRowIdxByTime:
+  * what row is a specific juggler n beats before the current beat
+  */
+    samePasserNBeatsLater(rowIdx: number, currentTime: Time, timeDelta: number): number {
+        return this.adjustRowIdxByTime(currentTime + timeDelta, rowIdx)
+    }
+
 
 
     prettyPrintThrows(): string {
@@ -737,7 +745,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             const fromPasserIdx = isCarry ? manipulatedRowIdxAtCarry :
                 needRedirectSource ? manipulatorRowIdxAfterIBeat :
                 needRedirectSourceWrap ? manipulatedRowIdxAfterWrap : t.fromPasserIdx
-            const toPasserIdx = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
+            let toPasserIdx = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdx
             let markers = t.markers
             if (isInterceptThrow) {
@@ -747,11 +755,16 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             } else if (isSkippedCarry) {
                 markers = [...markers, ThrowType.Filled]
             }
+            let throwLength = isSkippedCarry ? pattern.nrHands : t.throwLength
+            if (isInterceptThrow && isEarlyIntercept) {
+                throwLength = pattern.nrHands/2
+                toPasserIdx = pattern.samePasserNBeatsLater(toPasserIdx, pattern.getThrowCauseBeat(t), throwLength-t.throwLength)
+            }
             newThrow = {
                 ...t,
                 fromPasserIdx,
                 toPasserIdx: isSkippedCarry ? fromPasserIdx : toPasserIdx,
-                throwLength: isSkippedCarry ? pattern.nrHands : (isInterceptThrow && isEarlyIntercept) ? pattern.nrHands/2 : t.throwLength,
+                throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
             }
@@ -770,11 +783,11 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                     })
             // intercept: add 0 at target if there is no throw there yet
             if (isInterceptThrow) {
-                const manipulatorThrowOn0Beat = pattern.findThrow(iBeat, newThrow.toPasserIdx)
+                const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
                 if (!manipulatorThrowOn0Beat)
                     pattern = pattern.addThrow({
                         fromPasserIdx: newThrow.toPasserIdx,
-                        toPasserIdx: pattern.adjustRowIdxByTime(iBeat - pattern.nrHands, newThrow.toPasserIdx),
+                        toPasserIdx: pattern.samePasserNBeatsLater(newThrow.toPasserIdx, pattern.getThrowCauseBeat(newThrow), -pattern.nrHands ),
                         throwBeat: pattern.getThrowCauseBeat(newThrow),
                         throwLength: 0,
                         markers: [ThrowType.Filled],
@@ -851,7 +864,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
             ...substitutedThrow,
             fromPasserIdx: manipulatorRowIdx,
             throwLength: substitutedThrow.throwLength - placementDelay,
-            throwBeat: substitutedThrow.throwBeat + placementDelay,
+            throwBeat: (substitutedThrow.throwBeat + placementDelay)%pattern.getLength(),
             markers: [ThrowType.SubstitutionPlacement],
             note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
         })

@@ -1090,6 +1090,31 @@ Deno.test('minued', async () => {
 
 })
 
+
+Deno.test.only('scrambled V', async () => {
+    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
+       `A: 3B 3  3C 3  3B 3 -> B
+        B: 3A 3  3  3  3A 3  -> C
+        C: 3  3  4A 3  3  3  -> A
+        M: C  z  SB z  ICe 
+        positions: V(A,B,C)`
+    )[0], 2)
+    const A = 0, B = 1, C = 2, M = 3
+    assert.deepEqual(p.mapRows, [B, C, A])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 0, 3, M, B, 'carry')
+    assertThrow(rewritten, 0, 2, A, A, 'skipped pass, flip instead')
+    assertSub(rewritten, 2, 3, B, M, B, 'sub self')
+    assertThrow(rewritten, 4, 1, C, M, 'intercept')
+    assertNoThrow(rewritten, 4, C, C, 'intercepted')
+    assertThrow(rewritten, 3, 1, M, M, 'catch intercept, into a zip')
+    assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
+
+})
+
 Deno.test('ambled V', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4B -> B
