@@ -224,6 +224,16 @@ const hard1beatInterceptOf4 =
     `A: 2 3 3 3 -> B
          B: 3 3 3 4 -> A
          M: .C . IB `
+const threeBeatCarry = 
+         `A: 3 3 3pB 3 -> B
+         B: 3 3 3pA 3 -> A
+         M: IA . . C`
+const twoIndependentManipulators =
+        `A: 3pB 3  3 3 3  3 3 -> B
+        B: 3pA 3  3 3 3  3 3 -> A
+        M: .   IB C
+        N: .   .  . . IB C`
+
 
 const patterns: { [key: string]: string } = {
     basicFourCountWithoutManipulator,
@@ -231,7 +241,9 @@ const patterns: { [key: string]: string } = {
     basic1BeatIntercept,
     basic2BeatIntercept,
     basicLate1BeatIntercept,
-    hard1beatInterceptOf4
+    hard1beatInterceptOf4,
+    threeBeatCarry,
+    twoIndependentManipulators
 }
 
 test('invariant: pass labels remain stable over shifts', async () => {

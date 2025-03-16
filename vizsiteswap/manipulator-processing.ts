@@ -578,7 +578,7 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
         return actions.find(a => a.kind === 'C' && a.beat === beat) as CarryAction | undefined
     }
     function findCarryDelay(searchDistance: number, delay: number, candidateCarry: Throw | undefined, intercept: InterceptAction): [number | undefined, CarryAction | undefined] {
-        if (!candidateCarry) return [undefined, undefined]
+        if (!candidateCarry || delay>pattern.getLength()) return [undefined, undefined]
         if (searchDistance > pattern.getLength()) throw new Error(`no matching carry found for intercept ${intercept}`)
         const carryAction = getCarryOnBeat(candidateCarry.throwBeat)
         if (carryAction) return [delay, carryAction]
@@ -595,18 +595,27 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
 
 
             // find the intercepted throw
-            const interceptedThrowCandidates = pattern.findThrowsByRole(intercept.beat, intercept.fromPasserRole, intercept.toPasserRole)
-            assert(interceptedThrowCandidates.length >= 0, `no throw found to intercept on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
-            assert(interceptedThrowCandidates.length < 2, `intercept throw ambiguous, found multiple on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
-            let interceptedThrow = interceptedThrowCandidates[0]
+            const interceptedThrow = getInterceptedThrow(pattern, intercept)
 
-            let nextCarryableThrow: Throw | undefined = pattern.findThrow(pattern.getThrowCauseBeat(interceptedThrow), interceptedThrow.toPasserIdx)
+            const nextCarryableThrow: Throw | undefined = pattern.findThrow(pattern.getThrowCauseBeat(interceptedThrow), interceptedThrow.toPasserIdx)
             const [carryDelay, carryAction] = findCarryDelay(0, 0, nextCarryableThrow, intercept)
 
             pattern = applyInterceptCarryByDelay(pattern, intercept, carryDelay, carryAction?.toPasserRole)
         }
     }
     return pattern
+}
+
+function getInterceptedThrow(pattern: Pattern, intercept: InterceptAction): Throw {
+    let interceptedThrowCandidates = pattern.findThrowsByRole(intercept.beat, intercept.fromPasserRole, intercept.toPasserRole)
+    assert(interceptedThrowCandidates.length >= 0, `no throw found to intercept on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
+    if (interceptedThrowCandidates.length> 1) {
+        console.warn(`intercept throw ambiguous, found multiple on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}; picking the pass with the highest throw`)
+        const highestThrowLength = Math.max(...interceptedThrowCandidates.map(t => t.throwLength))
+        interceptedThrowCandidates = interceptedThrowCandidates.filter(t => t.throwLength === highestThrowLength)
+    }
+    assert(interceptedThrowCandidates.length < 2, `intercept throw ambiguous, found multiple on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
+    return interceptedThrowCandidates[0]
 }
 
 /**
@@ -635,10 +644,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
 
 
     // find the intercepted throw
-    const interceptedThrowCandidates = pattern.findThrowsByRole(intercept.beat, intercept.fromPasserRole, intercept.toPasserRole)
-    assert(interceptedThrowCandidates.length >= 0, `no throw found to intercept on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
-    assert(interceptedThrowCandidates.length < 2, `intercept throw ambiguous, found multiple on ${intercept.beat} from ${intercept.fromPasserRole} to ${intercept.toPasserRole}`)
-    const interceptedThrow = interceptedThrowCandidates[0]
+    const interceptedThrow = getInterceptedThrow(pattern, intercept)
     const iBeat = pattern.getThrowCauseBeat(interceptedThrow)
 
     assert((carryDelay === undefined) === (interceptedThrow.throwLength <= pattern.nrHands), `carryDelay is required if and only if the intercepted throw is not a flip or zip`)
@@ -675,6 +681,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
         carryDelay--
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
+    const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
 
     // the earliest carry can start on the iBeat; the latest must arrive on iBeat + patternLength
 
@@ -701,7 +708,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
 
         // note: cannot redirect any throws before the iBeat (which could be on beat 0, with it thrown on time -1 or before), but also do not need to
         // get all passes thrown by the manipulated passer on or after iBeat
-        let needRedirectSource = t.fromPasserIdx === manipulatedRowIdxAfterIBeat && t.throwBeat >= iBeat
+        let needRedirectSource = t.fromPasserIdx === manipulatedRowIdxAfterIBeat && t.throwBeat > iBeat
         // when we need to wrap around for the carry, also swap all passes thrown before the carry throw beat
         const needRedirectSourceWrap = carriedThrow !== undefined && carryThrowTime >= patternLength && t.fromPasserIdx === manipulatorRowIdxAfterWrap && t.throwBeat <= carriedThrow.throwBeat
 
@@ -719,7 +726,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
         let newThrow = t
         if (needRedirectSource || needRedirectTarget || isInterceptThrow || isCarry || isSkippedCarry) {
             pattern = pattern.removeThrow(t)
-            const fromPasserIdx = needRedirectSource ? manipulatorRowIdxAfterIBeat :
+            const fromPasserIdx = isCarry ? manipulatedRowIdxAtCarry :
+                needRedirectSource ? manipulatorRowIdxAfterIBeat :
                 needRedirectSourceWrap ? manipulatedRowIdxAfterWrap : t.fromPasserIdx
             const toPasserIdx = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdx
@@ -735,7 +743,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             // skipped carry: we already introduced a 2 at the unchanged source (the new manipulator), now we also introduce
             // a 2 at the target of that skipped throw
             if (isSkippedCarry)
-                if (fromPasserIdx !== toPasserIdx)
+                // if (fromPasserIdx !== toPasserIdx)
                     pattern = pattern.addThrow({
                         fromPasserIdx: toPasserIdx,
                         toPasserIdx,

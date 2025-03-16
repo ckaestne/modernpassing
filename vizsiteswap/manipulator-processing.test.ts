@@ -394,12 +394,12 @@ Deno.test('intercept rewrite: three-beat carry over a pass', async () => {
     assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
-    assertNoThrow(rewritten, 3, A, A, 'moving original throws from A to M')
+    assertNoThrow(rewritten, 3, A, B, 'moving original throws from A to M')
 
     // now also B has a flip, because a pass to them does not happen
     assertThrow(rewritten, 1, 2, A, A, 'carry-induced flip before carry')
     assertThrow(rewritten, 2, 2, A, A, 'carry-induced flip before carry')
-    assertThrow(rewritten, 3, 3, A, B, 'carry')
+    assertThrowRaw(rewritten, 3, 3, A, A, 'carry')
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
     assertThrow(rewritten, 3, 2, B, B, 'carry-induced flip at old manipulator')
 
@@ -698,7 +698,7 @@ Deno.test('intercept rewrite: two independent intercepts', async () => {
 })
 
 
-Deno.test('intercept rewrite: intercepting a carry', async () => {
+Deno.test.only('intercept rewrite: intercepting a carry', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 -> B
          B: 3pA 3  3 3 3  3 3 -> A
@@ -1516,7 +1516,7 @@ Deno.test('Pattern.findThrowsByRole with relabel', async () => {
 
 
 
-Deno.test.only('intercept: at end of pattern again after prior relabeling', async () => {
+Deno.test('intercept: at end of pattern again after prior relabeling', async () => {
     // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point
 
 
