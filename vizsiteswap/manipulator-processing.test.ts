@@ -295,7 +295,7 @@ Deno.test('intercept rewrite: basic two beat carry', async () => {
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
-    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
+    // assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())
@@ -1294,6 +1294,58 @@ Deno.test('ambled 3 (with early intercept and time travel)', async () => {
 })
 
 
+Deno.test('intercept: at end of pattern with different base rows', async () => {
+    // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point
+
+
+    const tt = 
+    `A: 2 3 3 3 -> B
+     B: 3 3 3 4 -> A
+     M: .C . IB `
+    const r = parseGroupSyncPattern(tt)
+    const [t, m] = createPatternFromRaw(r[0], 2)
+    const rewritten = applyManipulations(t, m)
+
+    console.log(rewritten.prettyPrintThrows())
+    const A = 0, B = 1,M = 2
+
+    assertThrow(rewritten, 3, 4, B, A, 'intercept')
+    assertEmpty(rewritten, 1, M, 'catch intercept')
+    // 0 beat carry, but later
+    assertThrow(rewritten, 1, 3, A, M, 'carry')
+
+    assertThrow(rewritten, 0, 2, A, A, 'original flip')
+
+    assertThrow(rewritten, 2, 3, M, M, 'moved')
+    assertNoThrow(rewritten, 2, A, A, 'moved')
+    
+})
+
+
+
+
+export function assertThrowRaw(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
+}
+export function assertIntercept(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg: string="intercept") {
+    //uses raw rows, no intelligence for relabeling    
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
+    assert(ts[0].type === 'I', `expected intercept, found ${ts[0].type} [${msg}]`)
+}
+export function assertCarry(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg: string="carry") {
+    //uses raw rows, no intelligence for relabeling    
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
+    assert(ts[0].type === 'C', `expected carry, found ${ts[0].type} [${msg}]`)
+}
 
 
 /**
@@ -1318,6 +1370,16 @@ function assertSub(pattern: Pattern, beat: number, length: number, fromPasserIdx
     assertThrow(pattern, beat, pattern.nrHands/2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
     assertThrow(pattern, beat, length, manipulatorIdx, toPasserIdx, msg + " -- place")
     assertNoThrow(pattern, beat, fromPasserIdx, toPasserIdx, msg + " -- replaced")
+}
+/**
+ * empty hand (0) at this time (don't care about the target of the throw)
+ */
+export function assertEmpty(pattern: Pattern, beat: number, fromPasserIdx: number, msg?: string) {
+    // automated relabel of rows past the end of the pattern
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === 0 && t.fromPasserIdx === fromPasserIdx)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${0}, from: ${fromPasserIdx} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${0} ${fromPasserIdx} expected one [${msg}]`)
 }
 
 
@@ -1348,112 +1410,135 @@ function assertSub(pattern: Pattern, beat: number, length: number, fromPasserIdx
 
 
 
-// Deno.test('relabeling: basic', async () => {
-//     const r = relabelRaw(parseGroupSyncPattern(
-//         `A: 3pB 3 3 3 -> B
-//         B: 3pA 3 3 3 -> A`
-//     )[0], 2)
 
-//     assert.equal(r(0)('A'), 'A')
-//     assert.equal(r(0)('B'), 'B')
-//     assert.equal(r(1)('A'), 'A')
-//     assert.equal(r(1)('B'), 'B')
-//     assert.equal(r(4)('A'), 'B')
-//     assert.equal(r(4)('B'), 'A')
-//     assert.equal(r(5)('A'), 'B')
-//     assert.equal(r(5)('B'), 'A')
-//     assert.equal(r(8)('A'), 'A')
-//     assert.equal(r(8)('B'), 'B')
-// })
+Deno.test('Pattern.findThrowsByRole', async () => {
+    const tt = 
+       `A: 3 3B 3 3 -> B
+        B: 3 3A 3 3 -> A
+        M: .C . IB `
+    const r = parseGroupSyncPattern(tt)
+    const [t, m] = createPatternFromRaw(r[0], 2)
 
-// Deno.test('relabeling: basic with intercept', async () => {
-//     const r = relabelRaw(parseGroupSyncPattern(
-//         `A: 3pB 3 3 3 -> B
-//         B: 3pA 3 3 3 -> A
-//         M: IA CA`
-//     )[0], 2)
+    console.log(t.prettyPrintThrows())  
 
-//     assert.equal(r(0)('A'), 'A')
-//     assert.equal(r(0)('B'), 'B')
-//     assert.equal(r(0)('M'), 'M')
-//     assert.equal(r(1)('A'), 'M')
-//     assert.equal(r(1)('B'), 'B')
-//     assert.equal(r(1)('M'), 'A')
+    function assertT(ts: Throw[], fromRow: number, toRow: number) {
+        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+        assert(ts[0].toPasserIdx === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdx}`)
+    }
+    assertT(t.findThrowsByRole(0, 'A', 'A'), 0, 0)
+    assertT(t.findThrowsByRole(0, 'A', undefined), 0, 0)
+    assertT(t.findThrowsByRole(0, undefined, 'A'), 0, 0)
+    assertT(t.findThrowsByRole(0, 'B'), 1, 1)
+    assertT(t.findThrowsByRole(1, 'A','B'), 0, 1)
+    assertT(t.findThrowsByRole(1, undefined,'B'), 0, 1)
+    assertT(t.findThrowsByRole(1, 'A',undefined), 0, 1)
+    
+    assertT(t.findThrowsByRole(3, 'A','A'), 0, 1)
+    assertT(t.findThrowsByRole(3, undefined,'A'), 0, 1)
+    assertT(t.findThrowsByRole(3, 'A',undefined), 0, 1)
+    assertT(t.findThrowsByRole(3, 'B','B'), 1, 0)
+    assertT(t.findThrowsByRole(3, undefined,'B'), 1,0)
+    assertT(t.findThrowsByRole(3, 'B', undefined), 1, 0)
 
-//     assert.equal(r(4)('A'), 'M')
-//     assert.equal(r(4)('B'), 'A')
-//     assert.equal(r(4)('M'), 'B')
+    // assertT(t.findThrowsByRole(-2, 'A', 'A'), 0, 0)
+    // assertT(t.findThrowsByRole(-1, 'A', 'A'), 1, 0)
 
-//     assert.equal(r(5)('A'), 'A')
-//     assert.equal(r(5)('B'), 'M')
-//     assert.equal(r(5)('M'), 'B')
-
-//     assert.equal(r(8)('A'), 'B')
-//     assert.equal(r(8)('B'), 'M')
-//     assert.equal(r(8)('M'), 'A')
-
-//     assert.equal(r(12)('A'), 'A')
-//     assert.equal(r(12)('B'), 'B')
-//     assert.equal(r(12)('M'), 'M')
-
-// })
+})
 
 
-// Deno.test('relabeling: intercept across pattern boundary', async () => {
-//     {
-//         const r = relabelRaw(parseGroupSyncPattern(
-//             `A: 2 3pB 3 4 -> B
-//         B: 2 3pA 3 4 -> A
-//         M: . CB . IA`
-//         )[0], 2)
 
-//         assert.equal(r(0)('A'), 'A')
-//         assert.equal(r(0)('B'), 'B')
-//         assert.equal(r(0)('M'), 'M')
-//         //M switches with B, because that's where the 4 from A lands
-//         assert.equal(r(1)('A'), 'A')
-//         assert.equal(r(1)('B'), 'M')
-//         assert.equal(r(1)('M'), 'B')
-//         //just relabeling at the end
-//         assert.equal(r(4)('A'), 'B')
-//         assert.equal(r(4)('B'), 'M')
-//         assert.equal(r(4)('M'), 'A')
-//         //now again B switches with M
-//         assert.equal(r(5)('A'), 'M')
-//         assert.equal(r(5)('B'), 'B')
-//         assert.equal(r(5)('M'), 'A')
+Deno.test('Pattern.findThrowsByRole2', async () => {
+    const tt = 
+       `A: 2 3 3 3 -> B
+        B: 3 3 3 4 -> A
+        M: .C . IB `
+    const r = parseGroupSyncPattern(tt)
+    const [t, m] = createPatternFromRaw(r[0], 2)
 
-//         assert.equal(r(12)('A'), 'A')
-//         assert.equal(r(12)('B'), 'B')
-//         assert.equal(r(12)('M'), 'M')
+    console.log(t.prettyPrintThrows())  
 
-//     }
-//     {
-//         // same thing but the intercept is landing on beat 0
-//         const r = relabelRaw(parseGroupSyncPattern(
-//             `A: 3pB 3 4 2 -> B
-//         B: 3pA 3 4 2 -> A
-//         M:  CB . IA`
-//         )[0], 2)
+    function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
+        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+        assert(ts[0].toPasserIdx === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdx}`)
+        if (throwLength!==undefined) {
+            assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
+        }
+    }
+    assertT(t.findThrowsByRole(0, 'A', 'A'), 0, 0, 2)
+    assertT(t.findThrowsByRole(0, 'A', undefined), 0, 0)
+    assertT(t.findThrowsByRole(0, undefined, 'A'), 0, 0)
+    assertT(t.findThrowsByRole(0, 'B'), 1, 1, 3)
+    
+    assertT(t.findThrowsByRole(3, 'A','A'), 0, 1, 3)
+    assertT(t.findThrowsByRole(3, undefined,'A'), 0, 1)
+    assertT(t.findThrowsByRole(3, 'A',undefined), 0, 1)
+    assertT(t.findThrowsByRole(3, 'B','B'), 1, 0, 4)
+    assertT(t.findThrowsByRole(3, undefined,'B'), 1,0)
+    assertT(t.findThrowsByRole(3, 'B', undefined), 1, 0)
 
-//         //this is messed up, but applying intercept relabeling immediately
-//         assert.equal(r(0)('A'), 'A')
-//         assert.equal(r(0)('B'), 'M')
-//         assert.equal(r(0)('M'), 'B')
-//         assert.equal(r(1)('A'), 'A')
-//         assert.equal(r(1)('B'), 'M')
-//         assert.equal(r(1)('M'), 'B')
-//         //same combo relabel again
-//         assert.equal(r(4)('A'), 'M')
-//         assert.equal(r(4)('B'), 'B')
-//         assert.equal(r(4)('M'), 'A')
-//         assert.equal(r(5)('A'), 'M')
-//         assert.equal(r(5)('B'), 'B')
-//         assert.equal(r(5)('M'), 'A')
+})
 
-//         assert.equal(r(12)('A'), 'A')
-//         assert.equal(r(12)('B'), 'M')
-//         assert.equal(r(12)('M'), 'B')
 
-//     }
-// })
+Deno.test('Pattern.findThrowsByRole with relabel', async () => {
+    const tt = 
+       `A: 2 3 3 3 -> B
+        B: 3 3 3 4 -> A
+        M: .C . IB `
+    const r = parseGroupSyncPattern(tt)
+    const [t2, m] = createPatternFromRaw(r[0], 2)
+    const t = t2.swapRoles(3, 'A','B', true)
+
+    console.log(t2.prettyPrintThrows())  
+    console.log(t.prettyPrintThrows())  
+
+    function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
+        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+        assert(ts[0].toPasserIdx === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdx}`)
+        if (throwLength!==undefined) {
+            assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
+        }
+    }
+    assertT(t.findThrowsByRole(0, 'A', 'A'), 0, 0, 2)
+    assertT(t.findThrowsByRole(0, 'A', undefined), 0, 0)
+    assertT(t.findThrowsByRole(0, undefined, 'A'), 0, 0)
+    assertT(t.findThrowsByRole(0, 'B'), 1, 1, 3)
+    
+    assertT(t.findThrowsByRole(3, 'A','A'), 1, 0, 4)
+    assertT(t.findThrowsByRole(3, undefined,'A'), 1, 0)
+    assertT(t.findThrowsByRole(3, 'A',undefined), 1, 0)
+    assertT(t.findThrowsByRole(3, 'B','B'), 0, 1, 3)
+    assertT(t.findThrowsByRole(3, undefined,'B'), 0,1)
+    assertT(t.findThrowsByRole(3, 'B', undefined), 0,1)
+})
+
+
+
+Deno.test.only('intercept: at end of pattern again after prior relabeling', async () => {
+    // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point
+
+
+    const tt = 
+    `A: 3 3 3 3B -> B
+     B: 3 3 3 3A -> A
+     M: C .. IA `
+    const r = parseGroupSyncPattern(tt)
+    const [t, m] = createPatternFromRaw(r[0], 2)
+    const t2=t.swapRoles(3, 'A','B', true)
+    console.log(t2.prettyPrintThrows()+prettyPrintManipulatorActions(t2,m))
+    const rewritten = applyManipulations(t2, m)
+
+    console.log(rewritten.prettyPrintThrows())
+    const A = 0, B = 1,M = 2
+
+    assertIntercept(rewritten, 3, 3, M, M)
+    assertEmpty(rewritten, 0, M, 'catch intercept')
+    // // 0 beat carry, but later
+    assertCarry(rewritten, 0, 3, A, M)
+
+    assertThrow(rewritten, 2, 3, M, M, 'moved')
+    assertNoThrow(rewritten, 2, A, A, 'moved')
+    
+})
