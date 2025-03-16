@@ -8,14 +8,14 @@
 ../src/2c-jims.md:<sync  style='{"emphasizeThrows": [2,7,10,15]}'>3p3 3p3,3px3 3px3</sync>
 ../src/2c-jims.md:<sync  style='{"emphasizeThrows": [2,7,10,15]}'>3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3</sync>
 ../src/2d-advanced.md:<sync>3p3 -> 33p3, 4p23</sync>
-../src/2d-advanced.md:<sync style='{"flipStraightCrossing": true}'>4p,o -> 34p,4p3</sync>
+../src/2d-advanced.md:<sync style='{"flipStraightCrossing": true}'>4p,- -> 34p,4p3</sync>
 ../src/2d-advanced.md:<sync style='{"flipStraightCrossing": false}'>4p3,34p</sync>
 ../src/2d-advanced.md:<sync style='{"flipStraightCrossing": true}'>4p3,34p</sync>
 ../src/2d-advanced.md:<sync>5p333,335p3</sync>
 ../src/2d-advanced.md:<sync style='{"flipStraightCrossing": true}'>4p33353,3534p33</sync>
 ../src/2d-advanced.md:<sync>3p4p3,4p34p</sync>
 ../src/2d-advanced.md:<sync>4p33p,3p4p4</sync>
-../src/2e-beyond.md:<sync style='{"gallop": true}'>4p,o -> 34p,4p3</sync>
+../src/2e-beyond.md:<sync style='{"gallop": true}'>4p,- -> 34p,4p3</sync>
 ../src/2e-beyond.md:<sync style='{"gallop": true}'>5p3</sync>
 ../src/2e-beyond.md:<sync style='{"gallop": true}'>6p3534p3,534p36p3</sync>
 ../src/2e-beyond.md:<sync>(3px,3)(3,0),(3,0)(3,3p)</sync>

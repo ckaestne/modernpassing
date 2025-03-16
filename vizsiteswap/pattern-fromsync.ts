@@ -24,8 +24,8 @@ export enum TokenKind {
     Space=7,
 }
 export const tokenizer = buildLexer([
-    [true, /^(\d(p)?(x)?)/g, TokenKind.Throw],
-    [true, /^o/g, TokenKind.Empty],
+    [true, /^([0-9a-z](p)?(x)?)/g, TokenKind.Throw],
+    [true, /^[\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.Comma],
     [true, /^\(/g, TokenKind.LParen],
     [true, /^\)/g, TokenKind.RParen],
@@ -202,7 +202,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
             for (const passerIdx of [0, 1]) {
                 const t = time < prefixLength ? prefix[passerIdx][time] :
                     pattern[passerIdx][(time - prefixLength) % sequenceLength];
-                if (typeof t === "string" && t !== "o") {
+                if (typeof t === "string" && t !== ".") {
                     //single throw and we keep track of which hand it comes from
                     assert(allSync === undefined || allSync === false, "found single throw after sync throws")
                     allSync = false
@@ -216,7 +216,7 @@ export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>
                     throws.push(genThrow(tRight, time, passerIdx, Hand.Right,0.5))
                     throws.push(genThrow(tLeft, time, passerIdx, Hand.Left,0.5))
                 } else {
-                    if (t !== "o")
+                    if (t !== ".")
                         throw Error("unexpected throw " + t)
                 }
             }

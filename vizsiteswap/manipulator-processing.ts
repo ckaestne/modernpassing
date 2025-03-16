@@ -706,7 +706,6 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
 
 
     const isEarlyIntercept = intercept.modifiers.includes('e') || intercept.modifiers.includes('l')
-    assert(!isEarlyIntercept, "not yet supported")
 
     for (const t of pattern.throws) {
 
@@ -752,7 +751,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 ...t,
                 fromPasserIdx,
                 toPasserIdx: isSkippedCarry ? fromPasserIdx : toPasserIdx,
-                throwLength: isSkippedCarry ? pattern.nrHands : t.throwLength,
+                throwLength: isSkippedCarry ? pattern.nrHands : (isInterceptThrow && isEarlyIntercept) ? pattern.nrHands/2 : t.throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
             }

@@ -1070,7 +1070,7 @@ Deno.test('minued', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
        `A: 3B 3B 3 3B 3B 3 3B 3B 3 -> B
         B: 3A 3A 3 3A 3A 3 3A 3A 3 -> A
-        M: .  SB IB C z  z SB .  SB `
+        M: .  SB IB C z  z SB .  SA `
     )[0], 2)
     const A = 0, B = 1, M = 2
     assert.deepEqual(p.mapRows, [B,A])
@@ -1227,7 +1227,7 @@ Deno.test('modifiers: early intercept', async () => {
 
     assertThrow(rewritten, 1, 1, B, M, 'new throw for intercept')
     assertNoThrow(rewritten, 1, B, A, 'remove intercepted')
-    assertThrow(rewritten, 0, 0, M, M, 'catching intercept with an empty hand, really early')
+    assertEmpty(rewritten, 0, M, 'catching intercept with an empty hand, really early')
 
     // TODO: manipulator does nothing (flips) on beat 1 and 2
 
@@ -1262,9 +1262,9 @@ Deno.test('ambled 3 (with early intercept and time travel)', async () => {
     assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
 
     assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
-    assertThrow(rewritten, 4, 4, A, M, 'intercept')
+    assertThrow(rewritten, 4, 1, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
-    assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
+    assertEmpty(rewritten, 3, M, 'catch intercept')
     
 })
 

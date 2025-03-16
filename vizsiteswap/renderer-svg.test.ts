@@ -82,7 +82,7 @@ test("highlight in sync patterns", async (t) => {
 test("advanced sync patterns", async (t) => {
     const patterns: [any, string][] = [
         [{}, '3p3 -> 33p3, 4p23'],
-        [{ "flipStraightCrossing": true, "iterations": 3 }, '4p,o -> 34p,4p3'],
+        [{ "flipStraightCrossing": true, "iterations": 3 }, '4p,- -> 34p,4p3'],
         [{ "flipStraightCrossing": false, "iterations": 4 }, '4p3,34p'],
         [{ "flipStraightCrossing": true, "iterations": 4 }, '4p3,34p'],
         [{ "flipStraightCrossing": true }, '4p33353,3534p33'],
@@ -113,7 +113,7 @@ test("jims and galloped sync patterns", async (t) => {
         [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21], xDist: 80, yDist: 80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],
         [{ showLines: true, lineKind: "ladder", xDist: 80, yDist: 80, "emphasizeThrows": [2, 5, 8, 13, 14, 19, 22, 25, 28, 33, 34, 39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
-        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,o -> 34p,4p3'],
+        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,- -> 34p,4p3'],
         [{ "gallop": true, iterations: 4 }, '5p3'],
         [{ "gallop": true, flipStraightCrossing: true, showLines: true, xDist: 80, yDist: 80, lineKind: "ladder" }, '6p3534p3,34p36p35'],
     ]
