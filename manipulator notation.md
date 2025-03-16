@@ -35,6 +35,7 @@ Modifiers for `S`, `I` and `C` relevant for movement and understanding the orien
 
 ## Assumptions and notes
 * If an intercept is noted only with the receiving role and there are multiple throws to that role on that beat, the highest throw is interpreted as the intercept. This mostly occurs if intercepting a carry, where the receiver has an empty hand (0) or zip on the same beat.
+* The target of an intercept/carry/substitution is the passer who has the indicated role on the beat that the manipulated pass arrives (causal). This might be a different role than that person has by the time it is thrown. This is the usual interpretation, but means that an intercept/substitution on the very last beat of the pattern may have an unintutive role due to end-of-pattern relabeling (e.g., a self from A might go to B).
 * Not currently supporting any takeouts of 0s or zips
 * For translation to local: Substitutions and intercepts caught early and late are translated to the same 1p in the local notation; very late actions are caught on the original landing time in the local notation (with a 1p hand-in for a substitution).
 

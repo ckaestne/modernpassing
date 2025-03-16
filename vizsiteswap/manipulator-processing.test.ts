@@ -412,7 +412,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
-        M: C..IB`
+        M: C..IA`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -449,7 +449,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary with three passers
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> C
         C: 3333 -> A
-        M: C..IB
+        M: C..IC
         positions: V(A,B,C)`
     )[0], 2)
 
@@ -484,7 +484,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', a
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
-        M: .C.IB`
+        M: .C.IA`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -522,7 +522,7 @@ Deno.test('intercept rewrite: high intercept throw over pattern boundary', async
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 2 3pB 3 4 -> B
         B: 2 3pA 3 4 -> A
-        M: .C.IB`
+        M: .C.IA`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -831,7 +831,7 @@ Deno.test('apply substitution: substituting the last beat', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
-         M: . . . SB`
+         M: . . . SA`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -1276,7 +1276,7 @@ Deno.test('intercept: at end of pattern with different base rows', async () => {
     const tt = 
     `A: 2 3 3 3 -> B
      B: 3 3 3 4 -> A
-     M: .C . IB `
+     M: .C . IA `
     const r = parseGroupSyncPattern(tt)
     const [t, m] = createPatternFromRaw(r[0], 2)
     const rewritten = applyManipulations(t, m)
@@ -1409,11 +1409,11 @@ Deno.test('Pattern.findThrowsByRole', async () => {
     assertT(t.findThrowsByRole(1, undefined,'B'), 0, 1)
     assertT(t.findThrowsByRole(1, 'A',undefined), 0, 1)
     
-    assertT(t.findThrowsByRole(3, 'A','A'), 0, 1)
-    assertT(t.findThrowsByRole(3, undefined,'A'), 0, 1)
+    assertT(t.findThrowsByRole(3, 'A','B'), 0, 1)
+    assertT(t.findThrowsByRole(3, undefined,'B'), 0, 1)
     assertT(t.findThrowsByRole(3, 'A',undefined), 0, 1)
-    assertT(t.findThrowsByRole(3, 'B','B'), 1, 0)
-    assertT(t.findThrowsByRole(3, undefined,'B'), 1,0)
+    assertT(t.findThrowsByRole(3, 'B','A'), 1, 0)
+    assertT(t.findThrowsByRole(3, undefined,'A'), 1,0)
     assertT(t.findThrowsByRole(3, 'B', undefined), 1, 0)
 
     // assertT(t.findThrowsByRole(-2, 'A', 'A'), 0, 0)
@@ -1446,11 +1446,11 @@ Deno.test('Pattern.findThrowsByRole2', async () => {
     assertT(t.findThrowsByRole(0, undefined, 'A'), 0, 0)
     assertT(t.findThrowsByRole(0, 'B'), 1, 1, 3)
     
-    assertT(t.findThrowsByRole(3, 'A','A'), 0, 1, 3)
-    assertT(t.findThrowsByRole(3, undefined,'A'), 0, 1)
+    assertT(t.findThrowsByRole(3, 'A','B'), 0, 1, 3)
+    assertT(t.findThrowsByRole(3, undefined,'B'), 0, 1)
     assertT(t.findThrowsByRole(3, 'A',undefined), 0, 1)
-    assertT(t.findThrowsByRole(3, 'B','B'), 1, 0, 4)
-    assertT(t.findThrowsByRole(3, undefined,'B'), 1,0)
+    assertT(t.findThrowsByRole(3, 'B','A'), 1, 0, 4)
+    assertT(t.findThrowsByRole(3, undefined,'A'), 1,0)
     assertT(t.findThrowsByRole(3, 'B', undefined), 1, 0)
 
 })
