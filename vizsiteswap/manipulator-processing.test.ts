@@ -1291,7 +1291,7 @@ Deno.test('modifiers: early intercept', async () => {
 })
 
 
-Deno.test('ambled 3 (with early intercept and time travel)', async () => {
+Deno.test('ambled 3 (with early intercept)', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4B -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1313,6 +1313,35 @@ Deno.test('ambled 3 (with early intercept and time travel)', async () => {
     assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
 
     assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
+    assertThrow(rewritten, 4, 1, A, M, 'intercept')
+    assertNoThrow(rewritten, 4, A, B, 'intercepted')
+    assertEmpty(rewritten, 3, M, 'catch intercept')
+
+})
+
+Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-travel)', async () => {
+    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
+        `A: 4B 3  4C 3  4B 3  4B -> B
+        B: 3  4A 3  3  3  4A 3  -> C
+        C: 3  3  3  4A 3  3  3  -> A
+        M: .  C  z  SCAd3 IABe 3
+        positions: V(A,B,C)`
+    )[0], 2)
+    const A = 0, B = 1, C = 2, M = 3
+    assert.deepEqual(p.mapRows, [B, C, A])
+    let rewritten = applyManipulations(p, manipulations)
+    console.log(rewritten.prettyPrintThrows())
+
+
+    assertThrow(rewritten, 1, 3, M, C, 'carry')
+    // 3 beat carry!
+    assertThrow(rewritten, 0, 2, M, M, 'flip due to carry')
+    assertThrow(rewritten, 0, 2, C, C, 'flip due to carry')
+    assertThrow(rewritten, 1, 2, C, C, 'flip due to carry')
+    assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
+
+    assertThrow(rewritten, 3, 1, C, M, 'sub pass catch')
+    assertThrow(rewritten, 6, 1, M, A, 'sub pass very late hand in')
     assertThrow(rewritten, 4, 1, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
     assertEmpty(rewritten, 3, M, 'catch intercept')
