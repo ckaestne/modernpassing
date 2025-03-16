@@ -13,7 +13,7 @@ We already introduced *early doubles* as a crossing double pass in [basic 6-club
 
 The conventional setup is the following: Both passers, throw straight double passes with every right hand; passer A starts with four clubs and a double pass as the first throw; passer B starts with three clubs and a double pass on the *second* beat. That is, passer B throws a right-hand pass when passer A throws a left-handed self and vice versa.
 
-<sync style='{"flipStraightCrossing": true, "iterations":3}'>4p,o -> 34p,4p3</sync>
+<sync style='{"flipStraightCrossing": true, "iterations":3}'>4p,- -> 34p,4p3</sync>
 
 
 When learning *7-club two-count* aim for consistent passes. Since both passers cannot see their passes land, provide feedback on placement and spin. A good strategy is to remember the spot on the ceiling where the first club peaks, to then try throwing all following passes such that they peak in the same place – consistency is usually more important than the exact placement. 

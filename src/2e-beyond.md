@@ -20,7 +20,7 @@ For a number of one-sided patters it is common to juggle them lower than standar
 
 **7-club two-count on singles and 8-club two-count on doubles.** The most common galloped patterns are to throw 7-club two-count with lofty singles instead of doubles, followed quickly by a fast self from the left hand, and to throw 8-club two-count on doubles (instead of the triple needed for a non-galloped pattern). 
 
-<sync style='{"gallop": true, "iterations":4,"flipStraightCrossing":true}'>4p,o -> 34p,4p3</sync>
+<sync style='{"gallop": true, "iterations":4,"flipStraightCrossing":true}'>4p,- -> 34p,4p3</sync>
 
 (Technically, we fudge the timing and throw lofty singles instead of doubles. By default, we would expect crossing passes, but just as in [7-club two-count on doubles](2d-advanced.md) it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands.)
 
@@ -39,7 +39,7 @@ tstststs -->
 
 **Long beach popcorn.** This 8-club pattern has the right-hand sequence lofty-triple pass (instead of a quad), double-self (instead of a trelf), lofty single pass (instead of a double), while all left-hand actions are quick, galloped selfs.
 
-<sync style='{"gallop": true,"flipStraightCrossing":true}'>6p,o -> 3534p36p,4p36p353</sync>
+<sync style='{"gallop": true,"flipStraightCrossing":true}'>6p,- -> 3534p36p,4p36p353</sync>
 
 <!-- qstsdsqstsdsqstsds // render gallop
 tsdsqstsdsqstsdsqs -->

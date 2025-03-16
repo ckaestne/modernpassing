@@ -29,6 +29,7 @@ const [_, book] = JSON.parse(file);
 const startTime = Date.now();
 const nrPatterns = [0, 0, 0]
 for (const sec of book.sections) {
+    try {
     if (sec.Chapter && sec.Chapter.content) {
         sec.Chapter.content = replaceElement("siteswap", sec.Chapter.content, (match, inner, config) => {
             nrPatterns[0]++
@@ -78,6 +79,11 @@ for (const sec of book.sections) {
             return svg.svg();
         });
     }
+} catch (e) {
+    console.error(`Error processing section ${sec.Chapter?.source_path}`)
+    throw e
+}
+
 }
 
 const endTime = Date.now();
