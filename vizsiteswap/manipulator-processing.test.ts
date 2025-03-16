@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw } from "./manipulator-processing.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ThrowType } from "./manipulator-processing.ts";
 import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
 
 
@@ -698,7 +698,7 @@ Deno.test('intercept rewrite: two independent intercepts', async () => {
 })
 
 
-Deno.test.only('intercept rewrite: intercepting a carry', async () => {
+Deno.test('intercept rewrite: intercepting a carry', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 -> B
          B: 3pA 3  3 3 3  3 3 -> A
@@ -964,7 +964,7 @@ Deno.test('roundabout', async () => {
     console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
-    assertThrow(rewritten, 0, 1, A, M, 'sub pass -- steal')
+    assertThrowRaw(rewritten, 0, 1, A, M, 'sub pass -- steal')
     assertThrow(rewritten, 0, 3, M, B, 'sub pass -- place')
 
     assertThrow(rewritten, 2, 1, B, M, 'sub self -- steal')
@@ -1039,9 +1039,10 @@ Deno.test('opernball', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB  3pB 3   3pB  3pB 3   3pB  3pB 3 -> B
          B: 3pA  3pA 3   3pA  3pA 3   3pA  3pA 3 -> A
-         M: SBlo z   zf  SBlo z   .   IBvb CA  . 
+         O: IBvb CA  .   SAlo z   zf  SAlo z   .   
          N: SAlo z   .   IAvb CB  .   SBlo z   zf  
-         O: IBvb CA  .   SAlo z   zf  SAlo z   .   `
+         M: SBlo z   zf  SBlo z   .   IBvb CA  . 
+         `
      )[0], 2)
       assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
@@ -1063,32 +1064,6 @@ Deno.test('opernball', async () => {
 })
 
 
-Deno.test('opernball', async () => {
-    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 3pB  3pB 3   3pB  3pB 3   3pB  3pB 3 -> B
-         B: 3pA  3pA 3   3pA  3pA 3   3pA  3pA 3 -> A
-         M: SBlo z   zf  SBlo z   .   IBvb CA  . 
-         N: SAlo z   .   IAvb CB  .   SBlo z   zf  
-         O: IBvb CA  .   SAlo z   zf  SAlo z   .   `
-     )[0], 2)
-      assert.deepEqual(p.mapRows, [1, 0])
-    let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
-
-    const A = 0, B = 1, M = 2, N = 3, O = 4
-    assertSub(rewritten, 0, 3, A, M, O, 'sub north to intercept')
-    assertThrow(rewritten, 1, 0, O, O, 'empty hand to catch intercept')
-    assertSub(rewritten, 0, 3,B, N, A, 'sub south')
-    
-    assertSub(rewritten, 3, 3, O, B, N, 'sub north to intercept 2')
-    assertThrow(rewritten, 4, 0, N, N, 'empty hand to catch intercept 2')
-    assertSub(rewritten, 3, 3,A, M, O, 'sub south 2')
-
-    assertSub(rewritten, 6, 3, N, A, M, 'sub north to intercept 3')
-    assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')
-    assertSub(rewritten, 6, 3,O, B, N, 'sub south 3')
-
-})
 
 
 Deno.test('minued', async () => {
@@ -1336,7 +1311,7 @@ export function assertIntercept(pattern: Pattern, beat: number, length: number, 
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
-    assert(ts[0].type === 'I', `expected intercept, found ${ts[0].type} [${msg}]`)
+    assert(ts[0].markers.includes(ThrowType.Intercept), `expected intercept, found ${ts[0].markers} [${msg}]`)
 }
 export function assertCarry(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg: string="carry") {
     //uses raw rows, no intelligence for relabeling    
@@ -1344,7 +1319,7 @@ export function assertCarry(pattern: Pattern, beat: number, length: number, from
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
-    assert(ts[0].type === 'C', `expected carry, found ${ts[0].type} [${msg}]`)
+    assert(ts[0].markers.includes(ThrowType.Carry), `expected carry, found ${ts[0].markers} [${msg}]`)
 }
 
 
@@ -1367,7 +1342,7 @@ function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, to
     assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdx}, expected none [${msg}]`)
 }
 function assertSub(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, manipulatorIdx: number, toPasserIdx: number, msg?: string) {
-    assertThrow(pattern, beat, pattern.nrHands/2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
+    assertThrowRaw(pattern, beat, pattern.nrHands/2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
     assertThrow(pattern, beat, length, manipulatorIdx, toPasserIdx, msg + " -- place")
     assertNoThrow(pattern, beat, fromPasserIdx, toPasserIdx, msg + " -- replaced")
 }
