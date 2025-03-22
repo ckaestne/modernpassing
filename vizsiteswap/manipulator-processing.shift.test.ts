@@ -250,12 +250,32 @@ const earlyIntercept =
     `A: 3 3pB 3 3 -> B
     B: 3 3pA  3 3 -> A
     M: . IBAe CA`
-const scrambedV = 
+const scrambedV =
     `A: 3B 3  3C 3  3B 3 -> B
     B: 3A 3  3  3  3A 3  -> C
-    C: 3  3  4A 3  3  3  -> A
+    C: 3  3  3A 3  3  3  -> A
     M: C  z  SB z  ICe 
     positions: V(A,B,C)`
+
+const ambled3_a =
+    `A: 4B 3  4C 3  4B 3  4B -> B
+    B: 3  4A 3  3  3  4A 3  -> C
+    C: 3  3  3  4A 3  3  3  -> A
+    M: C  z  .  SB z  IC 
+    positions: V(A,B,C)`
+const ambled3_b =
+    `A: 4B 3  4C 3  4B 3  4B -> B
+    B: 3  4A 3  3  3  4A 3  -> C
+    C: 3  3  3  4A 3  3  3  -> A
+    M: .  C  z  SCAIAB
+    positions: V(A,B,C)`
+const ambled3_c =
+    `A: 4B 3  4C 3  4B 3  4B -> B
+    B: 3  4A 3  3  3  4A 3  -> C
+    C: 3  3  3  4A 3  3  3  -> A
+    M: .  C  z  SCAd3 IABe 3
+    positions: V(A,B,C)`
+
 
 
 
@@ -272,7 +292,10 @@ const patterns: { [key: string]: string } = {
     delayedHandin1,
     delayedHandin2,
     earlyIntercept,
-    scrambedV
+    scrambedV,
+    ambled3_a,
+    ambled3_b,
+    ambled3_c
 }
 
 test('invariant: pass labels remain stable over shifts', async () => {
@@ -312,7 +335,7 @@ test('invariant: pass labels remain stable over shifts', async () => {
 
 })
 
-test.only('invariant: applying manipulator actions should be stable across shifts', async () => {
+test('invariant: applying manipulator actions should be stable across shifts', async () => {
     // metamorphic invariant:  shift(apply(p, m)) = apply(shift(p), shift(m))
 
 
@@ -363,25 +386,25 @@ test.only('invariant: applying manipulator actions should be stable across shift
 })
 
 
-const aidenPatterns: { [key: string]: string } = function(){
+const aidenPatterns: { [key: string]: string } = function () {
 
-    const base = 
+    const base =
         `A: 3B 3  3C 3  3B 3 -> B
         B: 3A 3  3  3  3A 3  -> C
         C: 3  3  4A 3  3  3  -> A`
     const positionsLine = `positions: V(A,B,C)`
-    const result :{ [key: string]: string } = {}
+    const result: { [key: string]: string } = {}
 
-    for (const manipulatorLine of ["IX.C.SY", "SY.IX.C", "C.SY.IX"])
+    for (const manipulatorLine of ["IX.CzSYz", "SYzIX.Cz", "CzSYzIX"])
         for (const interceptTarget of ['A', 'B', 'C'])
             for (const substitutionTarget of ['A', 'B', 'C']) {
                 const manipulator = manipulatorLine.replace("X", interceptTarget).replace("Y", substitutionTarget)
-                const pattern = base + "\nM: " + manipulator+"\n"+positionsLine
-                result[manipulator.replaceAll(".","")]=pattern                
+                const pattern = base + "\nM: " + manipulator + "\n" + positionsLine
+                result[manipulator.replaceAll(".", "")] = pattern
             }
 
 
-  return result
+    return result
 }()
 
 
@@ -389,12 +412,18 @@ const aidenPatterns: { [key: string]: string } = function(){
 test('generate all aiden patterns', async () => {
     for (const patternName of Object.keys(aidenPatterns)) {
         const pattern = aidenPatterns[patternName] as string
-        const r = parseGroupSyncPattern(pattern)
-        const [t, m] = createPatternFromRaw(r[0], 2)
-        const pWithManipulator = applyManipulations(t, m)
+        try {
+            const r = parseGroupSyncPattern(pattern)
+            const [t, m] = createPatternFromRaw(r[0], 2)
+            const pWithManipulator = applyManipulations(t, m)
 
-        console.log(patternName)
-        console.log(pWithManipulator.prettyPrintThrows())
+            console.log(patternName)
+            console.log(pWithManipulator.prettyPrintThrows())
+        } catch (e) {
+            console.error(`## Pattern: ${patternName}`)
+            console.error(pattern)
+            throw e
+        }
     }
 })
 

@@ -1,7 +1,7 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
-import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorAction, PRow, tokenizer } from "./pattern-fromgroup.ts";
+import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorAction, PManipulatorSequence, PRow, tokenizer } from "./pattern-fromgroup.ts";
 import { GroupPattern, Throw } from "./pattern-structure.ts";
 
 
@@ -141,4 +141,12 @@ M: . (SBd2, 2)
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
 
+})
+
+test('parse manipulator row', () => {
+    const t = `M: IA.CzSAz`
+    
+    const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    console.log(a,b)
 })

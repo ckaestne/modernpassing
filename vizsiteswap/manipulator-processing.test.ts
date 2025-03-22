@@ -964,7 +964,7 @@ Deno.test('roundabout', async () => {
     console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
-    assertThrowRaw(rewritten, 0, 1, A, M, 'sub pass -- steal')
+    assertThrowRaw(rewritten, 0, 1, A, B, 'sub pass -- steal')
     assertThrow(rewritten, 0, 3, M, B, 'sub pass -- place')
 
     assertThrow(rewritten, 2, 1, B, M, 'sub self -- steal')
@@ -1091,11 +1091,11 @@ Deno.test('minued', async () => {
 })
 
 
-Deno.test.only('scrambled V', async () => {
+Deno.test('scrambled V', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
        `A: 3B 3  3C 3  3B 3 -> B
         B: 3A 3  3  3  3A 3  -> C
-        C: 3  3  4A 3  3  3  -> A
+        C: 3  3  3A 3  3  3  -> A
         M: C  z  SB z  ICe 
         positions: V(A,B,C)`
     )[0], 2)
@@ -1446,10 +1446,15 @@ function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, to
 
     assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdx}, expected none [${msg}]`)
 }
+function assertNoThrowL(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx && t.throwLength === length)
+
+    assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdx}, expected none [${msg}]`)
+}
 function assertSub(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, manipulatorIdx: number, toPasserIdx: number, msg?: string) {
-    assertThrowRaw(pattern, beat, pattern.nrHands / 2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
+    assertThrow(pattern, beat, pattern.nrHands / 2, fromPasserIdx, manipulatorIdx, msg + " -- steal")
     assertThrow(pattern, beat, length, manipulatorIdx, toPasserIdx, msg + " -- place")
-    assertNoThrow(pattern, beat, fromPasserIdx, toPasserIdx, msg + " -- replaced")
+    assertNoThrowL(pattern, beat, length, fromPasserIdx, toPasserIdx, msg + " -- replaced")
 }
 /**
  * empty hand (0) at this time (don't care about the target of the throw)

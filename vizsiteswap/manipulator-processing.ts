@@ -71,18 +71,18 @@ export class Pattern {
         // we are looking for a throw thrown on $time of unknown length that arrives 
         // to a passer who at the time of arrival of the throw has the role $toRole
         // (this may not be the role the passer has at time $time)
-        
+
         // this is particularly unintutive for an intercept that wraps around and lands 
         // on a beat earlier than thrown, because of the role switching at the end of the 
         // pattern. A self from B might well be thrown to A then.
         // Fortunately we don't put the intercept on the very last beat in practice
 
         const fromPasserIdx = fromRole ? this.getRowIdxByRole(time, fromRole) : undefined
-        const ts = this.findThrows((time + this.getLength())%this.getLength(), fromPasserIdx, undefined) // cannot identify target due to possible relabeling
+        const ts = this.findThrows((time + this.getLength()) % this.getLength(), fromPasserIdx, undefined) // cannot identify target due to possible relabeling
         if (toRoleAtCausal)
             return ts.filter(t =>
                 t.toPasserIdx === this.getRowIdxByRole(this.getThrowCauseBeat(t), toRoleAtCausal))
-                // t.toPasserIdx === this.adjustRowIdxByTime(this.getThrowCauseTime_(time, t.throwLength), this.getRowIdxByRole(time, toRoleAtCausal)))
+        // t.toPasserIdx === this.adjustRowIdxByTime(this.getThrowCauseTime_(time, t.throwLength), this.getRowIdxByRole(time, toRoleAtCausal)))
         else return ts
     }
 
@@ -126,11 +126,13 @@ export class Pattern {
         return rowIdx
     }
 
- /** 
-  * hopefully clearer version of adjustRowIdxByTime:
-  * what row is a specific juggler n beats before the current beat
-  */
+    /** 
+     * hopefully clearer version of adjustRowIdxByTime:
+     * what row is a specific juggler n beats before/after the current beat
+     */
     samePasserNBeatsLater(rowIdx: number, currentTime: Time, timeDelta: number): number {
+        while (currentTime < 0) currentTime += this.getLength()
+        while (currentTime >= this.getLength()) currentTime -= this.getLength()
         return this.adjustRowIdxByTime(currentTime + timeDelta, rowIdx)
     }
 
@@ -146,8 +148,8 @@ export class Pattern {
             const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
             const toRole = this.getRole(this.getThrowCauseBeat(t), t.toPasserIdx)
             // const printRole = fromRole !== toRole ? toRole : ""
-            const markers = t.markers.filter(m => m !== ThrowType.Base && m!==ThrowType.BaseManipulator)
-            const printType = markers.length===0 ? "" : "|" + markers.join("")
+            const markers = t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator)
+            const printType = markers.length === 0 ? "" : "|" + markers.join("")
             return `${t.throwLength}${toRole}_${t.toPasserIdx}${printType}`
         }
 
@@ -195,7 +197,7 @@ export class Pattern {
     }
 
     getThrowCauseTime(t: Throw): number {
-        return t.throwBeat + t.throwLength - this.nrHands
+        return this.getThrowCauseTime_(t.throwBeat, t.throwLength)
     }
 
     getThrowCauseTime_(throwTime: number, throwLength: number): number {
@@ -203,7 +205,10 @@ export class Pattern {
     }
 
     getThrowCauseBeat(t: Throw): number {
-        return (t.throwBeat + t.throwLength - this.nrHands + this.getLength()) % this.getLength()
+        return this.getThrowCauseBeat_(t.throwBeat, t.throwLength)
+    }
+    getThrowCauseBeat_(throwTime: number, throwLength: number): number {
+        return (throwTime + throwLength - this.nrHands + this.getLength()) % this.getLength()
     }
 
 
@@ -252,7 +257,7 @@ export class Pattern {
      * @param labelsOnly if true, this does not change the relabeling at the end
      *   should probably be used only for debugging/testing
      */
-    swapRoles(beat: Beat, roleA: string, roleB: string, labelsOnly: boolean=false): Pattern {
+    swapRoles(beat: Beat, roleA: string, roleB: string, labelsOnly: boolean = false): Pattern {
         assert(beat >= 0 && beat < this.getLength())
         let roles = this.roles.slice()
         let lastRoles = roles.findLast(r => r[0] <= beat)!
@@ -280,7 +285,7 @@ export class Pattern {
             return [r[0], newR]
         })
 
-        const mapRows = labelsOnly ? this.mapRows: this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
+        const mapRows = labelsOnly ? this.mapRows : this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
         return new Pattern(this.throws, this.nrHands, mapRows, roles)
     }
@@ -593,7 +598,7 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
         return actions.find(a => a.kind === 'C' && a.beat === beat) as CarryAction | undefined
     }
     function findCarryDelay(searchDistance: number, delay: number, candidateCarry: Throw | undefined, intercept: InterceptAction): [number | undefined, CarryAction | undefined] {
-        if (!candidateCarry || delay>pattern.getLength()) return [undefined, undefined]
+        if (!candidateCarry || delay > pattern.getLength()) return [undefined, undefined]
         if (searchDistance > pattern.getLength()) throw new Error(`no matching carry found for intercept ${intercept}`)
         const carryAction = getCarryOnBeat(candidateCarry.throwBeat)
         if (carryAction) return [delay, carryAction]
@@ -624,7 +629,7 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
 function findManipulatedThrow(pattern: Pattern, action: InterceptAction | SubstitutionAction): Throw {
     let interceptedThrowCandidates = pattern.findThrowsByRole(action.beat, action.fromPasserRole, action.toPasserRole)
     assert(interceptedThrowCandidates.length > 0, `no throw found to intercept on ${action.beat} from ${action.fromPasserRole} to ${action.toPasserRole}`)
-    if (interceptedThrowCandidates.length> 1) {
+    if (interceptedThrowCandidates.length > 1) {
         //ignoring warnings when ambiguous only with flips and zips
         if (interceptedThrowCandidates.filter(t => t.throwLength > pattern.nrHands).length > 1)
             console.warn(`intercept throw ambiguous, found multiple on ${action.beat} from ${action.fromPasserRole} to ${action.toPasserRole}; picking the pass with the highest throw`)
@@ -744,7 +749,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             pattern = pattern.removeThrow(t)
             const fromPasserIdx = isCarry ? manipulatedRowIdxAtCarry :
                 needRedirectSource ? manipulatorRowIdxAfterIBeat :
-                needRedirectSourceWrap ? manipulatedRowIdxAfterWrap : t.fromPasserIdx
+                    needRedirectSourceWrap ? manipulatedRowIdxAfterWrap : t.fromPasserIdx
             let toPasserIdx = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdx
             let markers = t.markers
@@ -757,8 +762,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             }
             let throwLength = isSkippedCarry ? pattern.nrHands : t.throwLength
             if (isInterceptThrow && isEarlyIntercept) {
-                throwLength = pattern.nrHands/2
-                toPasserIdx = pattern.samePasserNBeatsLater(toPasserIdx, pattern.getThrowCauseBeat(t), throwLength-t.throwLength)
+                throwLength = pattern.nrHands / 2
+                toPasserIdx = pattern.samePasserNBeatsLater(toPasserIdx, pattern.getThrowCauseBeat(t), throwLength - t.throwLength)
             }
             newThrow = {
                 ...t,
@@ -773,21 +778,21 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             // a 2 at the target of that skipped throw
             if (isSkippedCarry)
                 // if (fromPasserIdx !== toPasserIdx)
-                    pattern = pattern.addThrow({
-                        fromPasserIdx: toPasserIdx,
-                        toPasserIdx,
-                        throwLength: pattern.nrHands,
-                        throwBeat: pattern.getThrowCauseBeat(t),
-                        markers: [ThrowType.Filled],
-                        note: '2'
-                    })
+                pattern = pattern.addThrow({
+                    fromPasserIdx: toPasserIdx,
+                    toPasserIdx,
+                    throwLength: pattern.nrHands,
+                    throwBeat: pattern.getThrowCauseBeat(t),
+                    markers: [ThrowType.Filled],
+                    note: '2'
+                })
             // intercept: add 0 at target if there is no throw there yet
             if (isInterceptThrow) {
-                const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
-                if (!manipulatorThrowOn0Beat)
+                // const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
+                // if (!manipulatorThrowOn0Beat)
                     pattern = pattern.addThrow({
                         fromPasserIdx: newThrow.toPasserIdx,
-                        toPasserIdx: pattern.samePasserNBeatsLater(newThrow.toPasserIdx, pattern.getThrowCauseBeat(newThrow), -pattern.nrHands ),
+                        toPasserIdx: pattern.samePasserNBeatsLater(newThrow.toPasserIdx, pattern.getThrowCauseBeat(newThrow), -pattern.nrHands),
                         throwBeat: pattern.getThrowCauseBeat(newThrow),
                         throwLength: 0,
                         markers: [ThrowType.Filled],
@@ -818,78 +823,75 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     // console.log(pattern.prettyPrintThrows())
 
 
-    const manipulatorRowIdx = pattern.getRowIdxByRole(substitution.beat, substitution.manipulatorRole)
 
     // find the substituted throw
     const substitutedThrow = findManipulatedThrow(pattern, substitution)
     assert(substitutedThrow)
 
+    const isVeryLateSteal = substitution.modifiers.includes('v')
+
+    const pelfLength = isVeryLateSteal ? substitutedThrow.throwLength : pattern.nrHands / 2
+    const pelfArrivalBeat = pattern.getThrowCauseBeat_(substitution.beat, pelfLength)
+    const manipulatorRowIdxOnPelfArrival = pattern.getRowIdxByRole(pelfArrivalBeat, substitution.manipulatorRole)
+
+
     // replace old throw with new substitution throws
     pattern = pattern.removeThrow(substitutedThrow)
 
-    const isVeryLateSteal = substitution.modifiers.includes('v')
     let placementDelay = 0
     if (substitution.modifiers.includes('d')) {
         placementDelay = 1
         const placementDelayModifierIndex = substitution.modifiers.indexOf('d');
         if (placementDelayModifierIndex >= 0 && placementDelayModifierIndex < substitution.modifiers.length - 1) {
             const delayChar = substitution.modifiers[placementDelayModifierIndex + 1];
-            if (delayChar >= '0' && delayChar <= '9') 
+            if (delayChar >= '0' && delayChar <= '9')
                 placementDelay = parseInt(delayChar);
-        } 
+        }
     }
 
     // adding the throw (pelf) to be stolen
-    if (!isVeryLateSteal)
-        pattern = pattern.addThrow({
-            ...substitutedThrow,
-            // toPasserRole: intercept.manipulatorRole,
-            toPasserIdx: manipulatorRowIdx,
-            throwLength: pattern.nrHands / 2,
-            markers: [ThrowType.SubstitutionPelf],
-            note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
-        })
-    else
-        pattern = pattern.addThrow({
-            ...substitutedThrow,
-            // toPasserRole: intercept.manipulatorRole,
-            toPasserIdx: manipulatorRowIdx,
-            markers: [ThrowType.SubstitutionPelf],
-            note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdx,
-        })
+    pattern = pattern.addThrow({
+        ...substitutedThrow,
+        // toPasserRole: intercept.manipulatorRole,
+        toPasserIdx: manipulatorRowIdxOnPelfArrival,
+        throwLength: pelfLength,
+        markers: [ThrowType.SubstitutionPelf],
+        note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
+    })
 
+
+    const handinThrowBeat = (substitutedThrow.throwBeat + placementDelay) % pattern.getLength()
+    // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
+    // however, the row may have changed if the pattern wraps around
+    const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
 
     // putting in another club to replace the stolen one
-        pattern = pattern.addThrow({
-            ...substitutedThrow,
-            fromPasserIdx: manipulatorRowIdx,
-            throwLength: substitutedThrow.throwLength - placementDelay,
-            throwBeat: (substitutedThrow.throwBeat + placementDelay)%pattern.getLength(),
-            markers: [ThrowType.SubstitutionPlacement],
-            note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
-        })
+    pattern = pattern.addThrow({
+        ...substitutedThrow,
+        fromPasserIdx: manipulatorRowIdxOnHandinThrow,
+        throwLength: substitutedThrow.throwLength - placementDelay,
+        throwBeat: handinThrowBeat,
+        markers: [ThrowType.SubstitutionPlacement],
+        note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdx,
+    })
 
 
 
     // add a 0 if the manipulator does not already do anything on the receiving beat
-    // need to figure out the row, because this could be wrapping around the end of the pattern
-    const receivingBeat = substitutedThrow.throwBeat - pattern.nrHands / 2
-    const receivingManipulatorRowIdx = pattern.getRowIdxByRole(receivingBeat, substitution.manipulatorRole)
-    const receivingBeatIdx = (receivingBeat + pattern.getLength()) % pattern.getLength()
-
-    const manipulatorThrowOnReceivingBeat = pattern.findThrow(receivingBeatIdx, manipulatorRowIdx)
+    const manipulatorThrowOnReceivingBeat = pattern.findThrow(pelfArrivalBeat, manipulatorRowIdxOnPelfArrival)
     // console.log(manipulatorThrowOnIbeat)
     if (!manipulatorThrowOnReceivingBeat)
         pattern = pattern.addThrow({
-            fromPasserIdx: receivingManipulatorRowIdx,
+            fromPasserIdx: manipulatorRowIdxOnPelfArrival,
             // fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
-            throwBeat: receivingBeatIdx,
+            throwBeat: pelfArrivalBeat,
             throwLength: 0,
-            toPasserIdx: receivingManipulatorRowIdx,
+            toPasserIdx: pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, -pattern.nrHands),
             // toHand: 1 - substitutedThrow.fromHand,
             markers: [ThrowType.Filled],
             note: '0'
         })
+
     return pattern
 }
 
@@ -900,13 +902,13 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
         pattern = pattern.addRole(t.manipulatorRole)
 
     // // find the substitued throw
-    const toPasserIdx = pattern.getRowIdxByRole(t.beat, t.toPasserRole)
+    const toPasserIdx = pattern.getRowIdxByRole(pattern.getThrowCauseBeat_(t.beat, t.throwLength), t.toPasserRole)
     const manipulatorRowIdx = pattern.getRowIdxByRole(t.beat, t.manipulatorRole)
 
     const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
     if (existingManipulatorThrow && existingManipulatorThrow.throwLength === 0)
         pattern = pattern.removeThrow(existingManipulatorThrow)
-    else{
+    else {
         assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
     }
 
