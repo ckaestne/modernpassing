@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ManipulatorAction } from "./manipulator-processing.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ManipulatorAction, fillPatternGaps } from "./manipulator-processing.ts";
 import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
 
 
@@ -258,22 +258,22 @@ const scrambedV =
     positions: V(A,B,C)`
 
 const ambled3_a =
-    `A: 4B 3  4C 3  4B 3  4B -> B
+   `A: 4B 3  4C 3  4B 3  4C -> B
     B: 3  4A 3  3  3  4A 3  -> C
     C: 3  3  3  4A 3  3  3  -> A
     M: C  z  .  SB z  IC 
     positions: V(A,B,C)`
 const ambled3_b =
-    `A: 4B 3  4C 3  4B 3  4B -> B
+    `A: 4B 3  4C 3  4B 3  4C -> B
     B: 3  4A 3  3  3  4A 3  -> C
     C: 3  3  3  4A 3  3  3  -> A
     M: .  C  z  SCAIAB
     positions: V(A,B,C)`
 const ambled3_c =
-    `A: 4B 3  4C 3  4B 3  4B -> B
+   `A: 4B 3  4C 3  4B 3  4C -> B
     B: 3  4A 3  3  3  4A 3  -> C
     C: 3  3  3  4A 3  3  3  -> A
-    M: .  C  z  SCAd3 IABe 3
+    M: .  C  z  (SCAd,3) IABe 
     positions: V(A,B,C)`
 
 
@@ -390,8 +390,8 @@ const aidenPatterns: { [key: string]: string } = function () {
 
     const base =
         `A: 3B 3  3C 3  3B 3 -> B
-        B: 3A 3  3  3  3A 3  -> C
-        C: 3  3  4A 3  3  3  -> A`
+B: 3A 3  3  3  3A 3  -> C
+C: 3  3  3A 3  3  3  -> A`
     const positionsLine = `positions: V(A,B,C)`
     const result: { [key: string]: string } = {}
 
@@ -412,16 +412,19 @@ const aidenPatterns: { [key: string]: string } = function () {
 test('generate all aiden patterns', async () => {
     for (const patternName of Object.keys(aidenPatterns)) {
         const pattern = aidenPatterns[patternName] as string
+        let pWithManipulator
         try {
             const r = parseGroupSyncPattern(pattern)
             const [t, m] = createPatternFromRaw(r[0], 2)
-            const pWithManipulator = applyManipulations(t, m)
+            pWithManipulator= fillPatternGaps(applyManipulations(t, m))
 
             console.log(patternName)
+            assert.ok(pWithManipulator.isValid(), 'pattern is invalid after filling manipulator actions: '+pWithManipulator.getValidationError())
             console.log(pWithManipulator.prettyPrintThrows())
         } catch (e) {
             console.error(`## Pattern: ${patternName}`)
             console.error(pattern)
+            if (pWithManipulator) console.error(pWithManipulator.prettyPrintThrows())
             throw e
         }
     }
@@ -538,5 +541,92 @@ function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, to
 
 
 
+Deno.test('invariant: all patterns are valid after filling gaps', async () => {
 
+
+    for (const patternName of Object.keys(patterns)) {
+        const pattern = patterns[patternName] as string
+        const r = parseGroupSyncPattern(pattern)
+        const [t, m] = createPatternFromRaw(r[0], 2)
+        // ignore patterns without manipulators
+        if (m.length === 0) continue
+        const pWithManipulator = applyManipulations(t, m)
+        const pWithManipulatorFilled = fillPatternGaps(pWithManipulator)
+
+
+
+            try {
+
+                assert.ok(pWithManipulatorFilled.isValid(), 'pattern is invalid after filling manipulator actions: '+pWithManipulatorFilled.getValidationError())
+            
+            } catch (e) {
+                console.error(`## Pattern: ${patternName}`)
+                console.log(pWithManipulator.prettyPrintThrows())
+                console.log(pWithManipulatorFilled.prettyPrintThrows())
+
+                throw e
+            }
+
+        }
+
+
+
+})
+
+
+
+Deno.test('invariant: all patterns are valid after filling gaps, also after all shifts', async () => {
+
+
+
+    for (const patternName of Object.keys(patterns)) {
+        const pattern = patterns[patternName] as string
+        const r = parseGroupSyncPattern(pattern)
+        const [t, m] = createPatternFromRaw(r[0], 2)
+        // ignore patterns without manipulators
+        if (m.length === 0) continue
+        const pWithManipulator = fillPatternGaps(applyManipulations(t, m))
+
+
+
+        for (let shiftOffset = 1; shiftOffset <= pWithManipulator.getLength() * pWithManipulator.nrRows * 2; shiftOffset++) {
+            let shifted1: Pattern | undefined, shifted2: Pattern | undefined, shiftedT: Pattern | undefined, shiftedM: ManipulatorAction[] | undefined
+            try {
+
+                shifted1 = shiftPattern(pWithManipulator, m, shiftOffset)[0]
+
+                const x = shiftPattern(t, m, shiftOffset)
+                shiftedT = x[0]; shiftedM = x[1]
+                shifted2 = fillPatternGaps(applyManipulations(shiftedT, shiftedM))
+
+                assert.ok(shifted1.isValid(), 'pattern is invalid after filling manipulator actions: '+shifted1.getValidationError())
+                assert.ok(shifted2.isValid(), 'pattern is invalid after filling manipulator actions: '+shifted2.getValidationError())
+
+
+                assertEqualPattern(shifted1, shifted2)
+            } catch (e) {
+                console.error(`## Pattern: ${patternName}`)
+                console.error(t.prettyPrintThrows() + prettyPrintManipulatorActions(t, m))
+                console.error("Local (without shifting):")
+                console.error(pWithManipulator.prettyPrintThrows())
+
+
+                console.error("## Shifted")
+                console.error(`shiftOffset: ${shiftOffset}`)
+                console.error("\nShifted manipulator pattern:")
+                if (shifted1) console.error(shifted1.prettyPrintThrows())
+                console.error("\nShifted input patterns:")
+                if (shiftedT && shiftedM) console.error(shiftedT.prettyPrintThrows() + prettyPrintManipulatorActions(shiftedT, shiftedM))
+                console.error("\nManipulator applied on shifted input patterns:")
+                if (shifted2) console.error(shifted2.prettyPrintThrows())
+
+                throw e
+            }
+
+        }
+    }
+
+
+
+})
 

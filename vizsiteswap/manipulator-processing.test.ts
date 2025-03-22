@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ThrowType } from "./manipulator-processing.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ThrowType, fillPatternGaps } from "./manipulator-processing.ts";
 import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
 
 
@@ -197,7 +197,7 @@ Deno.test('intercept rewrite: basic', async () => {
 
     assertThrow(rewritten, 0, 3, B, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, B, A, 'remove intercepted')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 2, 3, M, M, 'moving original throws from A to M')
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
@@ -233,7 +233,7 @@ Deno.test('intercept rewrite: 456about should be easy', async () => {
     assertThrow(rewritten, 0, 5, A, B, 'unmodified')
     assertThrow(rewritten, 2, 4, A, M, 'new throw for intercept')
     assertNoThrow(rewritten, 2, A, A, 'remove intercepted')
-    assertThrow(rewritten, 2, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 2, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 4, 6, M, M, 'moving original throws from A to M')
     assertThrow(rewritten, 6, 5, M, B, 'moving original throws from A to M')
@@ -267,7 +267,7 @@ Deno.test('intercept rewrite: manege', async () => {
 
     assertThrow(rewritten, 0, 7, A, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, A, B, 'remove intercepted')
-    assertThrow(rewritten, 3, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 3, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 5, 6, M, M, 'moving original throws from B to M')
     assertThrow(rewritten, 7, 8, M, M, 'moving original throws from B to M')
@@ -302,7 +302,7 @@ Deno.test('intercept rewrite: basic two beat carry', async () => {
 
     assertThrow(rewritten, 0, 3, B, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, B, A, 'remove intercepted')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
     assertNoThrow(rewritten, 3, A, A, 'moving original throws from A to M')
@@ -331,7 +331,7 @@ Deno.test('intercept rewrite: basic three beat carry', async () => {
 
     assertThrow(rewritten, 0, 3, B, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, B, A, 'remove intercepted')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     // carry is delayed to beat 2, flip on beat 1 and flip for M on beat 2
     assertThrow(rewritten, 1, 2, A, A, 'carry-induced flip before carry')
@@ -360,7 +360,7 @@ Deno.test('intercept rewrite: two carry on a pass', async () => {
 
     assertThrow(rewritten, 0, 3, A, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, A, A, 'remove intercepted')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
     assertNoThrow(rewritten, 3, A, A, 'moving original throws from A to M')
@@ -391,7 +391,7 @@ Deno.test('intercept rewrite: three-beat carry over a pass', async () => {
 
     assertThrow(rewritten, 0, 3, A, M, 'new throw for intercept')
     assertNoThrow(rewritten, 0, A, A, 'remove intercepted')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from A to M')
     assertNoThrow(rewritten, 3, A, B, 'moving original throws from A to M')
@@ -429,7 +429,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary', async () => {
     // but this should be the right pattern
     assertNoThrow(rewritten, 3, B, B, 'remove intercepted')
     assertThrow(rewritten, 3, 3, B, M, 'new throw for intercept')
-    assertThrow(rewritten, 0, 0, A, A, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 0, 0, A, A, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 1, 3, A, A, 'moving original throws from A to M')
     assertNoThrow(rewritten, 1, M, M, 'moving original throws from A to M')
@@ -465,7 +465,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary with three passers
 
     assertNoThrow(rewritten, 3, B, B, 'remove intercepted')
     assertThrow(rewritten, 3, 3, B, M, 'new throw for intercept')
-    assertThrow(rewritten, 0, 0, C, C, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 0, 0, C, C, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 1, 3, C, C, 'moving original throws from A to M')
     assertNoThrow(rewritten, 1, M, M, 'moving original throws from A to M')
@@ -501,7 +501,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', a
     // but this should be the right pattern
     assertNoThrow(rewritten, 3, B, B, 'remove intercepted')
     assertThrow(rewritten, 3, 3, B, M, 'new throw for intercept')
-    assertThrow(rewritten, 0, 0, A, A, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 0, 0, A, A, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 2, 3, A, A, 'moving original throws from A to M')
     assertNoThrow(rewritten, 2, M, M, 'moving original throws from A to M')
@@ -539,7 +539,7 @@ Deno.test('intercept rewrite: high intercept throw over pattern boundary', async
     // but this should be the right pattern
     assertNoThrow(rewritten, 3, B, B, 'remove intercepted')
     assertThrow(rewritten, 3, 4, B, A, 'new throw for intercept')
-    assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, M, M, 'catching intercept with an empty hand')
 
     assertThrow(rewritten, 2, 3, M, M, 'moving original throws from A to M')
     assertNoThrow(rewritten, 2, A, A, 'moving original throws from A to M')
@@ -573,7 +573,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary lik
     // but this should be the right pattern
     assertNoThrow(rewritten, 2, B, B, 'remove intercepted')
     assertThrow(rewritten, 2, 3, B, M, 'new throw for intercept')
-    assertThrow(rewritten, 3, 0, M, M, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 3, 0, M, M, 'catching intercept with an empty hand')
 
     // assertThrow(rewritten, 2, 3, A, A, 'moving original throws from A to M')
     // assertNoThrow(rewritten, 2, M, M, 'moving original throws from A to M')
@@ -678,12 +678,12 @@ Deno.test('intercept rewrite: two independent intercepts', async () => {
 
     assertNoThrow(rewritten, 1, B, B, 'remove first intercepted')
     assertThrow(rewritten, 1, 3, B, M, 'new throw for first intercept')
-    assertThrow(rewritten, 2, 0, M, M, 'catching first intercept with an empty hand')
+    // assertThrow(rewritten, 2, 0, M, M, 'catching first intercept with an empty hand')
 
     assertNoThrow(rewritten, 4, B, B, 'remove second intercepted')
     assertNoThrow(rewritten, 4, M, M, 'remove second intercepted')
     assertThrow(rewritten, 4, 3, M, N, 'new throw for second intercept')
-    assertThrow(rewritten, 5, 0, N, N, 'catching second intercept with an empty hand')
+    // assertThrow(rewritten, 5, 0, N, N, 'catching second intercept with an empty hand')
 
     assertThrow(rewritten, 3, 3, M, M, 'moving original throws from B to M')
     assertNoThrow(rewritten, 3, B, B, 'moving original throws from B to M')
@@ -720,12 +720,12 @@ Deno.test('intercept rewrite: intercepting a carry', async () => {
 
     assertNoThrow(rewritten, 1, B, B, 'remove first intercepted')
     assertThrow(rewritten, 1, 3, B, M, 'new throw for first intercept')
-    assertThrow(rewritten, 2, 0, M, M, 'catching first intercept with an empty hand')
+    // assertThrow(rewritten, 2, 0, M, M, 'catching first intercept with an empty hand')
 
     assertNoThrow(rewritten, 3, B, B, 'remove second intercepted')
     assertNoThrow(rewritten, 3, M, M, 'remove second intercepted')
     assertThrow(rewritten, 2, 3, B, N, 'new throw for second intercept (the previous carry)')
-    assertThrow(rewritten, 3, 0, N, N, 'catching second intercept with an empty hand')
+    // assertThrow(rewritten, 3, 0, N, N, 'catching second intercept with an empty hand')
 
     assertThrow(rewritten, 4, 3, N, N, 'moving original throws from B to N after second relabel')
     assertNoThrow(rewritten, 4, B, B, 'moving original throws from B to N after second relabel')
@@ -800,7 +800,7 @@ Deno.test('apply substitution: basics', async () => {
     assertNoThrow(rewritten, 1, B, B, 'remove substituted throw')
     assertThrow(rewritten, 1, 1, B, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 1, 3, M, B, 'putting in the replacement for the substituted throw')
-    assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
+    // assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
 })
 
 
@@ -823,7 +823,7 @@ Deno.test('apply substitution: substituting the first beat requires reverse wrap
     assertNoThrow(rewritten, 0, A, B, 'remove substituted throw')
     assertThrow(rewritten, 0, 1, A, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 0, 3, M, B, 'putting in the replacement for the substituted throw')
-    assertThrow(rewritten, 3, 0, M, M, 'catching pelf with an empty hand')
+    // assertThrow(rewritten, 3, 0, M, M, 'catching pelf with an empty hand')
 })
 
 
@@ -846,7 +846,7 @@ Deno.test('apply substitution: substituting the last beat', async () => {
     assertNoThrow(rewritten, 3, B, B, 'remove substituted throw')
     assertThrow(rewritten, 3, 1, B, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 3, 3, M, B, 'putting in the replacement for the substituted throw')
-    assertThrow(rewritten, 2, 0, M, M, 'catching pelf with an empty hand')
+    // assertThrow(rewritten, 2, 0, M, M, 'catching pelf with an empty hand')
 })
 
 
@@ -879,7 +879,7 @@ Deno.test('apply substitution: substituting right person after relabel', async (
     assertNoThrow(rewritten, 4, M, M, 'remove substituted throw')
     assertThrow(rewritten, 4, 1, M, B, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 4, 3, B, M, 'putting in the replacement for the substituted throw')
-    assertThrow(rewritten, 3, 0, B, B, 'catching pelf with an empty hand')
+    // assertThrow(rewritten, 3, 0, B, B, 'catching pelf with an empty hand')
 })
 
 
@@ -900,7 +900,7 @@ Deno.test('apply substitution: intercept a substitution', async () => {
     assertThrow(rewritten, 0, 1, A, M, 'substitution -- steal')
     assertThrow(rewritten, 0, 3, M, N, 'intercept of the placement part of the substitution')
     assertThrow(rewritten, 1, 3, B, N, 'carry')
-    assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
+    // assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
 })
 
 
@@ -946,7 +946,7 @@ Deno.test('manipulator throw: zip after substitution', async () => {
     assertNoThrow(rewritten, 1, B, B, 'remove substituted throw')
     assertThrow(rewritten, 1, 1, B, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 1, 3, M, B, 'putting in the replacement for the substituted throw')
-    assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
+    // assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
 
     assertThrow(rewritten, 2, 1, M, M, 'new manipulator throw')
 })
@@ -971,7 +971,7 @@ Deno.test('roundabout', async () => {
     assertThrow(rewritten, 2, 3, M, B, 'sub self -- place')
 
     assertThrow(rewritten, 4, 3, A, M, 'intercept')
-    assertThrow(rewritten, 5, 0, M, M, 'empty hand to catch intercept')
+    // assertThrow(rewritten, 5, 0, M, M, 'empty hand to catch intercept')
     assertThrow(rewritten, 5, 2, B, B, 'hold before carry')
     assertThrow(rewritten, 6, 2, M, M, 'hold due to carry')
 
@@ -1001,7 +1001,7 @@ Deno.test('chopabout', async () => {
 
     assertThrow(rewritten, 8, 3, B, M, 'intercept')
     assertNoThrow(rewritten, 8, B, A, 'remove intercepted')
-    assertThrow(rewritten, 9, 0, M, M, 'empty hand to catch intercept')
+    // assertThrow(rewritten, 9, 0, M, M, 'empty hand to catch intercept')
     assertThrow(rewritten, 9, 2, A, A, 'hold before carry')
     assertThrow(rewritten, 10, 2, M, M, 'hold due to carry')
 
@@ -1030,7 +1030,7 @@ Deno.test('phonecian walz', async () => {
     assertSub(rewritten, 3, 3, A, M, B, 'sub self')
     assertThrow(rewritten, 6, 3, A, M, 'intercept')
     assertNoThrow(rewritten, 6, A, B, 'remove intercepted')
-    assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept')
+    // assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept')
     assertThrow(rewritten, 7, 3, B, A, 'carry')
 })
 
@@ -1050,15 +1050,15 @@ Deno.test('opernball', async () => {
 
     const A = 0, B = 1, M = 2, N = 3, O = 4
     assertSub(rewritten, 0, 3, A, M, O, 'sub north to intercept')
-    assertThrow(rewritten, 1, 0, O, O, 'empty hand to catch intercept')
+    // assertThrow(rewritten, 1, 0, O, O, 'empty hand to catch intercept')
     assertSub(rewritten, 0, 3, B, N, A, 'sub south')
 
     assertSub(rewritten, 3, 3, O, B, N, 'sub north to intercept 2')
-    assertThrow(rewritten, 4, 0, N, N, 'empty hand to catch intercept 2')
+    // assertThrow(rewritten, 4, 0, N, N, 'empty hand to catch intercept 2')
     assertSub(rewritten, 3, 3, A, M, O, 'sub south 2')
 
     assertSub(rewritten, 6, 3, N, A, M, 'sub north to intercept 3')
-    assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')
+    // assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')
     assertSub(rewritten, 6, 3, O, B, N, 'sub south 3')
 
 })
@@ -1117,7 +1117,7 @@ Deno.test('scrambled V', async () => {
 
 Deno.test('ambled V', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 4B 3  4C 3  4B 3  4B -> B
+        `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
         C: 3  3  3  4A 3  3  3  -> A
         M: C  z  .  SB z  IC 
@@ -1134,7 +1134,7 @@ Deno.test('ambled V', async () => {
     assertSub(rewritten, 3, 3, B, M, B, 'sub self')
     assertThrow(rewritten, 5, 3, C, M, 'intercept')
     assertNoThrow(rewritten, 5, C, C, 'intercepted')
-    assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
+    // assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
     assertThrow(rewritten, 6, 2, C, C, 'flip to prepare for carry')
 
 })
@@ -1142,7 +1142,7 @@ Deno.test('ambled V', async () => {
 
 Deno.test('ambled 3 (with late intercept)', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 4B 3  4C 3  4B 3  4B -> B
+        `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
         C: 3  3  3  4A 3  3  3  -> A
         M: .  C  z  SCAIAB
@@ -1164,7 +1164,7 @@ Deno.test('ambled 3 (with late intercept)', async () => {
     assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
     assertThrow(rewritten, 4, 4, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
-    assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
+    // assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
 
 })
 
@@ -1217,7 +1217,7 @@ Deno.test('delayed substitute placement: basics', async () => {
 
     console.log(basic.prettyPrintThrows())
 
-    assertEmpty(basic, 0, M, 'empty hand to catch pelf')
+    // assertEmpty(basic, 0, M, 'empty hand to catch pelf')
     assertThrow(basic, 1, 3, M, B, 'normal handin')
 
 
@@ -1228,7 +1228,7 @@ Deno.test('delayed substitute placement: basics', async () => {
          M: . SBd2 `)
     console.log(d2.prettyPrintThrows())
 
-    assertEmpty(d2, 0, M, 'empty hand to catch pelf')
+    // assertEmpty(d2, 0, M, 'empty hand to catch pelf')
     assertThrow(d2, 3, 1, M, B, 'very late handin')
 
 
@@ -1245,7 +1245,7 @@ Deno.test('delayed substitute placement: basics', async () => {
     console.log(d1.prettyPrintThrows())
 
 
-    assertEmpty(d1, 0, M, 'empty hand to catch pelf')
+    // assertEmpty(d1, 0, M, 'empty hand to catch pelf')
     assertThrow(d1, 2, 2, M, B, 'later handin')
 
 
@@ -1303,7 +1303,7 @@ Deno.test('modifiers: early intercept', async () => {
 
     assertThrow(rewritten, 1, 1, B, M, 'new throw for intercept')
     assertNoThrow(rewritten, 1, B, A, 'remove intercepted')
-    assertEmpty(rewritten, 0, M, 'catching intercept with an empty hand, really early')
+    // assertEmpty(rewritten, 0, M, 'catching intercept with an empty hand, really early')
 
     // TODO: manipulator does nothing (flips) on beat 1 and 2
 
@@ -1318,7 +1318,7 @@ Deno.test('modifiers: early intercept', async () => {
 
 Deno.test('ambled 3 (with early intercept)', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 4B 3  4C 3  4B 3  4B -> B
+        `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
         C: 3  3  3  4A 3  3  3  -> A
         M: .  C  z  SCAIABe
@@ -1340,16 +1340,16 @@ Deno.test('ambled 3 (with early intercept)', async () => {
     assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
     assertThrow(rewritten, 4, 1, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
-    assertEmpty(rewritten, 3, M, 'catch intercept')
+    // assertEmpty(rewritten, 3, M, 'catch intercept')
 
 })
 
 Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-travel)', async () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 4B 3  4C 3  4B 3  4B -> B
+        `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
         C: 3  3  3  4A 3  3  3  -> A
-        M: .  C  z  SCAd3 IABe 3
+        M: .  C  z  (SCAd,3) IABe 
         positions: V(A,B,C)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
@@ -1366,10 +1366,10 @@ Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-trav
     assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
 
     assertThrow(rewritten, 3, 1, C, M, 'sub pass catch')
-    assertThrow(rewritten, 6, 1, M, A, 'sub pass very late hand in')
+    assertThrow(rewritten, 4, 3, M, A, 'sub pass late hand in')
     assertThrow(rewritten, 4, 1, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
-    assertEmpty(rewritten, 3, M, 'catch intercept')
+    // assertEmpty(rewritten, 3, M, 'catch intercept')
 
 })
 
@@ -1390,7 +1390,7 @@ Deno.test('intercept: at end of pattern with different base rows', async () => {
     const A = 0, B = 1, M = 2
 
     assertThrow(rewritten, 3, 4, B, A, 'intercept')
-    assertEmpty(rewritten, 1, M, 'catch intercept')
+    // assertEmpty(rewritten, 1, M, 'catch intercept')
     // 0 beat carry, but later
     assertThrow(rewritten, 1, 3, A, M, 'carry')
 
@@ -1619,7 +1619,7 @@ Deno.test('intercept: at end of pattern again after prior relabeling', async () 
     const A = 0, B = 1, M = 2
 
     assertIntercept(rewritten, 3, 3, M, M)
-    assertEmpty(rewritten, 0, M, 'catch intercept')
+    // assertEmpty(rewritten, 0, M, 'catch intercept')
     // // 0 beat carry, but later
     assertCarry(rewritten, 0, 3, A, M)
 
@@ -1627,3 +1627,61 @@ Deno.test('intercept: at end of pattern again after prior relabeling', async () 
     assertNoThrow(rewritten, 2, A, A, 'moved')
 
 })
+
+
+function loadPattern(s: string): Pattern {
+    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(s)[0], 2)
+    return applyManipulations(p, manipulations)
+}
+
+
+Deno.test('fill and validate: basics', async () => {
+    const p = loadPattern(
+        `A: 3pB 3 3 3 -> B
+        B: 3pA 3 3 3 -> A
+        M: IBA CA`
+    )
+
+    console.log(p.prettyPrintThrows())
+
+    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
+    const filled = fillPatternGaps(p)
+    console.log(filled.prettyPrintThrows())
+    assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
+
+})
+
+Deno.test('fill and validate: basics 2 beat intercept', async () => {
+    const p = loadPattern(
+        `A: 3pB 3 3 3 -> B
+        B: 3pA 3 3 3 -> A
+        M: IB . C`
+    )
+
+    console.log(p.prettyPrintThrows())
+
+    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
+    const filled = fillPatternGaps(p)
+    console.log(filled.prettyPrintThrows())
+    assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
+
+})
+Deno.test('fill and validate: ambled 3 with time travel', async () => {
+    const p = loadPattern(
+        `A: 4B 3  4C 3  4B 3  4C -> B
+        B: 3  4A 3  3  3  4A 3  -> C
+        C: 3  3  3  4A 3  3  3  -> A
+        M: .  C  z  (SCAd,3) IABe 
+        positions: V(A,B,C)`
+        )
+
+    console.log(p.prettyPrintThrows())
+
+    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
+    const filled = fillPatternGaps(p)
+    console.log(filled.prettyPrintThrows())
+    assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
+
+})
+
+

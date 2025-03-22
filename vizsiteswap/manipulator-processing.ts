@@ -290,7 +290,52 @@ export class Pattern {
         return new Pattern(this.throws, this.nrHands, mapRows, roles)
     }
 
+    private validationError: string | undefined = undefined
 
+    /**
+     * checks whether the pattern is valid in that there is a single throw thrown and landing on every beat per juggler
+     * 
+     * call getValidationError() to get the error message if this returns false
+     */
+    isValid(): boolean {
+        if (this.validationError) return false
+
+        const foundThrown: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
+        const foundCaught: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
+
+        for (const t of this.throws) {
+            if (foundThrown[t.fromPasserIdx][t.throwBeat]) {
+                this.validationError = `more than one throw on beat ${t.throwBeat} from ${t.fromPasserIdx}`
+                return false
+            } else
+                foundThrown[t.fromPasserIdx][t.throwBeat] = true
+
+            const causeBeat = this.getThrowCauseBeat(t)
+            if (foundCaught[t.toPasserIdx][causeBeat]) {
+                this.validationError = `more than one catch on beat ${causeBeat} by ${t.toPasserIdx}`
+                return false
+            } else
+                foundCaught[t.toPasserIdx][causeBeat] = true
+        }
+        for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++) {
+            for (let beat = 0; beat < this.getLength(); beat++) {
+                if (!foundThrown[rowIdx][beat]) {
+                    this.validationError = `no throw found on beat ${beat} from ${rowIdx}`
+                    return false
+                }
+                if (!foundCaught[rowIdx][beat]) {
+                    this.validationError = `no catch found on beat ${beat} by ${rowIdx}`
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    getValidationError(): string {
+        this.isValid()
+        return this.validationError ?? "valid"
+    }
 
 
 }
@@ -786,20 +831,20 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                     markers: [ThrowType.Filled],
                     note: '2'
                 })
-            // intercept: add 0 at target if there is no throw there yet
-            if (isInterceptThrow) {
-                // const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
-                // if (!manipulatorThrowOn0Beat)
-                    pattern = pattern.addThrow({
-                        fromPasserIdx: newThrow.toPasserIdx,
-                        toPasserIdx: pattern.samePasserNBeatsLater(newThrow.toPasserIdx, pattern.getThrowCauseBeat(newThrow), -pattern.nrHands),
-                        throwBeat: pattern.getThrowCauseBeat(newThrow),
-                        throwLength: 0,
-                        markers: [ThrowType.Filled],
-                        note: '0'
-                    })
+            // // intercept: add 0 at target if there is no throw there yet
+            // if (isInterceptThrow) {
+            //     // const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
+            //     // if (!manipulatorThrowOn0Beat)
+            //     pattern = pattern.addThrow({
+            //         fromPasserIdx: newThrow.toPasserIdx,
+            //         toPasserIdx: pattern.samePasserNBeatsLater(newThrow.toPasserIdx, pattern.getThrowCauseBeat(newThrow), -pattern.nrHands),
+            //         throwBeat: pattern.getThrowCauseBeat(newThrow),
+            //         throwLength: 0,
+            //         markers: [ThrowType.Filled],
+            //         note: '0'
+            //     })
 
-            }
+            // }
         }
     }
 
@@ -877,20 +922,20 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
 
 
-    // add a 0 if the manipulator does not already do anything on the receiving beat
-    const manipulatorThrowOnReceivingBeat = pattern.findThrow(pelfArrivalBeat, manipulatorRowIdxOnPelfArrival)
-    // console.log(manipulatorThrowOnIbeat)
-    if (!manipulatorThrowOnReceivingBeat)
-        pattern = pattern.addThrow({
-            fromPasserIdx: manipulatorRowIdxOnPelfArrival,
-            // fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
-            throwBeat: pelfArrivalBeat,
-            throwLength: 0,
-            toPasserIdx: pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, -pattern.nrHands),
-            // toHand: 1 - substitutedThrow.fromHand,
-            markers: [ThrowType.Filled],
-            note: '0'
-        })
+    // // add a 0 if the manipulator does not already do anything on the receiving beat
+    // const manipulatorThrowOnReceivingBeat = pattern.findThrow(pelfArrivalBeat, manipulatorRowIdxOnPelfArrival)
+    // // console.log(manipulatorThrowOnIbeat)
+    // if (!manipulatorThrowOnReceivingBeat)
+    //     pattern = pattern.addThrow({
+    //         fromPasserIdx: manipulatorRowIdxOnPelfArrival,
+    //         // fromHand: 1 - substitutedThrow.fromHand, // opposite hand of the substituted throw?
+    //         throwBeat: pelfArrivalBeat,
+    //         throwLength: 0,
+    //         toPasserIdx: pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, -pattern.nrHands),
+    //         // toHand: 1 - substitutedThrow.fromHand,
+    //         markers: [ThrowType.Filled],
+    //         note: '0'
+    //     })
 
     return pattern
 }
@@ -1043,4 +1088,130 @@ function checkModifiers(actionKind: 'I' | 'S', modifiers: string) {
 }
 
 
+export function fillPatternGaps(pattern: Pattern): Pattern {
+
+    const foundThrown: boolean[/*row*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array(pattern.getLength()).fill(false))
+    const foundCaught: boolean[/*row*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array(pattern.getLength()).fill(false))
+
+    for (const t of pattern.throws) {
+        foundThrown[t.fromPasserIdx][t.throwBeat] = true
+
+        const causeBeat = pattern.getThrowCauseBeat(t)
+        foundCaught[t.toPasserIdx][causeBeat] = true
+    }
+
+    function onMissingCatch(fn: (rowIdx: number, beat: number) => void, repeat: boolean = false) {
+        for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
+            for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
+                for (let beat = 0; beat < pattern.getLength(); beat++)
+                    if (!foundCaught[rowIdx][beat])
+                        fn(rowIdx, beat)
+    }
+    function onMissingThrow(fn: (rowIdx: number, beat: number) => void, repeat: boolean = false) {
+        for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
+            for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
+                for (let beat = 0; beat < pattern.getLength(); beat++)
+                    if (!foundThrown[rowIdx][beat])
+                        fn(rowIdx, beat)
+    }
+    function insertZipToPriorThrow(rowIdx: number, beat: number) {
+        const beat1BeatEarlier = (beat - pattern.nrHands/2 + pattern.getLength()) % pattern.getLength()
+        const rowIdx1BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands/2)
+
+        if (foundCaught[rowIdx][beat] &&!foundThrown[rowIdx][beat] && !foundCaught[rowIdx1BeatsEarlier][beat1BeatEarlier] && foundThrown[rowIdx1BeatsEarlier][beat1BeatEarlier]) {
+            pattern = pattern.addThrow({
+                fromPasserIdx: rowIdx,
+                toPasserIdx: rowIdx1BeatsEarlier,
+                throwLength: pattern.nrHands / 2,
+                throwBeat: beat,
+                markers: [ThrowType.Filled],
+                note: '0'
+            })
+            foundCaught[rowIdx1BeatsEarlier][beat1BeatEarlier] = true
+            foundThrown[rowIdx][beat] = true
+        }
+    }
+    function insertCatchWithEmptyHand(rowIdx: number, beat: number) {
+        const beat2BeatEarlier = (beat - pattern.nrHands + pattern.getLength()) % pattern.getLength()
+        const rowIdx2BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands)
+
+        if (foundCaught[rowIdx][beat] &&!foundThrown[rowIdx][beat] && !foundCaught[rowIdx2BeatsEarlier][beat2BeatEarlier]) {
+            pattern = pattern.addThrow({
+                fromPasserIdx: rowIdx,
+                toPasserIdx: rowIdx2BeatsEarlier,
+                throwLength: 0,
+                throwBeat: beat,
+                markers: [ThrowType.Filled],
+                note: '0'
+            })
+            foundCaught[rowIdx2BeatsEarlier][beat2BeatEarlier] = true
+            foundThrown[rowIdx][beat] = true
+        }
+    }
+    function insertHoldOnThrowButNoCatch(requireCatch: boolean): (rowIdx: number, beat: number) => void {
+        return (rowIdx: number, beat: number) => {
+            const beat2BeatLater = (beat + pattern.nrHands) % pattern.getLength()
+            const rowIdx2BeatsLater = pattern.samePasserNBeatsLater(rowIdx, beat, pattern.nrHands)
+
+            if (foundThrown[rowIdx][beat] && !foundThrown[rowIdx2BeatsLater][beat2BeatLater] && (!requireCatch || foundCaught[rowIdx2BeatsLater][beat2BeatLater])) {
+                pattern = pattern.addThrow({
+                    fromPasserIdx: rowIdx2BeatsLater,
+                    toPasserIdx: rowIdx,
+                    throwLength: 0,
+                    throwBeat: beat2BeatLater,
+                    markers: [ThrowType.Filled],
+                    note: '0'
+                })
+                foundThrown[rowIdx2BeatsLater][beat2BeatLater] = true
+                foundCaught[rowIdx][beat] = true
+            }
+        }
+    }
+    function insertZipOnThrowButNoCatch(requireCatch: boolean): (rowIdx: number, beat: number) => void {
+        return (rowIdx: number, beat: number) => {
+        const beat1BeatLater = (beat + pattern.nrHands / 2) % pattern.getLength()
+        const rowIdx1BeatsLater = pattern.samePasserNBeatsLater(rowIdx, beat, pattern.nrHands / 2)
+
+        if (foundThrown[rowIdx][beat] && !foundThrown[rowIdx1BeatsLater][beat1BeatLater] && (!requireCatch || foundCaught[rowIdx1BeatsLater][beat1BeatLater])) {
+            pattern = pattern.addThrow({
+                fromPasserIdx: rowIdx1BeatsLater,
+                toPasserIdx: rowIdx,
+                throwLength: pattern.nrHands / 2,
+                throwBeat: beat1BeatLater,
+                markers: [ThrowType.Filled],
+                note: 'z'
+            })
+            foundThrown[rowIdx1BeatsLater][beat1BeatLater] = true
+            foundCaught[rowIdx][beat] = true
+        }
+    }
+    }
+    function insertFlipWherePossible(rowIdx: number, beat: number) {
+        if (!foundThrown[rowIdx][beat]&&!foundCaught[rowIdx][beat]) {
+            pattern = pattern.addThrow({
+                fromPasserIdx: rowIdx,
+                toPasserIdx: rowIdx,
+                throwLength: pattern.nrHands,
+                throwBeat: beat,
+                markers: [ThrowType.Filled],
+                note: 'f'
+            })
+            foundCaught[rowIdx][beat] = true
+            foundThrown[rowIdx][beat] = true
+        }
+    }
+
+    onMissingThrow(insertZipToPriorThrow, true)
+    onMissingThrow(insertCatchWithEmptyHand, true)
+    onMissingCatch(insertHoldOnThrowButNoCatch(true), true)
+    onMissingCatch(insertZipOnThrowButNoCatch(true), true)
+    onMissingCatch(insertFlipWherePossible)
+    onMissingCatch(insertHoldOnThrowButNoCatch(false), true)
+    onMissingCatch(insertZipOnThrowButNoCatch(false), true)
+
+    // console.log("catches", foundCaught)
+    // console.log("throws", foundThrown)
+
+    return pattern
+}
 
