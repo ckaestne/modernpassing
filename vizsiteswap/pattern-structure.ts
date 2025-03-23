@@ -8,41 +8,205 @@ export enum Hand {
 }
 
 
-export type Throw = {
-    // time starts at 0 and usually increments by 1 for sync and 0.5 for async patterns; 
-    // it then repeats after the length of the pattern
-    // prefix throws are in negative time
-    throwTime: number;
-    causeTime: number;
-    rethrowTime: number; // assuming that cause and rethrow happen to the same passer with the same hand
+// beat is always 0 ... pattern length
+export type Beat = number
+// time can exceed the boundaries of a pattern in both directions
+export type Time = number
 
-    // the index of the passer throwing and receiving in passerNames
-    fromPasserIdx: number;
-    toPasserIdx: number;
 
-    // the index of the hand throwing and receiving
-    fromHand: Hand;
-    toHand: Hand;
+/**
+ * a representation of a pattern (similar to JIF) with various functions for making changes
+ * and computes properties of the pattern or its throws
+ * 
+ * can represent both sync and siteswap patterns (nrHands = 2 or 4)
+ * 
+ * each row corresponds to a physical passer, not to a role. Roles are just names assigned
+ * to passers at specific points in the pattern.
+ * 
+ * mapRows can identify how physical passers repeat the pattern with another row
+ * (in an odd-period 4-handed siteswap written just once, each passer alternates rows,
+ * but by writing the pattern twice, each passer keeps a stable row)
+ * 
+ * (this representation does not know about manipulators; labels are tracked as decoration)
+ * 
+ * immutable
+ */
+export interface Pattern {
+    readonly throws: Throw[]
+    readonly nrHands: number
+    readonly mapRows: number[] // identify the new rowId for each row at the end of the pattern (i.e. classic relabeling)
+    readonly roles: [Beat, Role[]][] // role label for each row after a given beat -- labels are purely decorative; multiple labels can be provided for different beats to highlight the effect of midpattern-relabeling after intercepts; always has at least one entry for beat 0 which is always first in the array
+    readonly nrRows: number
 
-    // the label for the throw (e.g "3p" or "a") and a possible annotation (e.g., "X", "||")
-    label: string;
-    annotation: string
+
+
+    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw | undefined
+
+    findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw[]
+
+    /**
+     * Due to limits of the notation, this is not straightforward --
+     * we are looking for a throw thrown on $time of unknown length that arrives 
+     * to a passer who at the time of arrival of the throw has the role $toRole
+     * (this may not be the role the passer has at time $time)
+     *
+     * This is particularly unintuitive for an intercept that wraps around and lands 
+     * on a beat earlier than thrown, because of the role switching at the end of the 
+     * pattern. A self from B might well be thrown to A then.
+     * Fortunately we don't put the intercept on the very last beat in practice.
+     */
+    findThrowsByRole(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[]
+
+
+    /**
+     * gets the role of a row on a given beat
+     * 
+     * if the beat is < 0 or > pattern length, it 
+     * wraps around the pattern, considering the rearrangement of
+     * rows
+     */
+    getRole(time: Time, rowIdx: number): string 
+
+    /**
+     * adjusts a row index for a time when it wraps around the pattern
+     * 
+     * (i.e., relabeling at end of pattern, not due to intercept swaps)
+     * 
+     * note: samePasserNBeatsLater is usually more intuitive to use
+     */
+    adjustRowIdxByTime(time: Time, rowIdx: number): number
+
+    /** 
+     * what row is a specific juggler n beats before/after the current beat
+     * 
+     * (hopefully clearer version of adjustRowIdxByTime)
+     */
+    samePasserNBeatsLater(rowIdx: number, currentTime: Time, timeDelta: number): number
+
+
+
+    prettyPrintThrows(): string 
+
+    /**
+     * assumes that the pattern ends one beat after the last throw
+     * @returns 
+     */
+    getLength(): number
+
+    getThrowCauseTime(t: Throw): number 
+
+    getThrowCauseTime_(throwTime: number, throwLength: number): number
+
+    getThrowCauseBeat(t: Throw): number 
+    getThrowCauseBeat_(throwTime: number, throwLength: number): number 
+
+
+    addThrow(newThrow: Throw): Pattern 
+    removeThrow(thatThrow: Throw): Pattern
+
+    /** 
+     * adds a row for a new passer with the provided role
+     * 
+     * returns the new pattern with the new row at the end
+     */
+    addRole(newRole: string): Pattern 
+
+    /**
+     * checks whether this patter has a row with a given role name
+     */
+    hasRole(role: string): boolean 
+
+
+    /**
+     * identify which row has a given role on a given beat,
+     * 
+     * considers rearranging rows at the end of the pattern
+     */
+    getRowIdxByRole(time: Time, role: string): number 
+
+
+
+    /**
+     * swap row reindexing at the end of the pattern too
+     * and adjusts labeling earlier: at and after a given beat by swapping two roles 
+     * 
+     * @param labelsOnly if true, this does not change the relabeling at the end
+     *   should probably be used only for debugging/testing
+     */
+    swapRoles(beat: Beat, roleA: string, roleB: string, labelsOnly: boolean): Pattern
+
+    /**
+     * checks whether the pattern is valid in that there is a single throw thrown and landing on every beat per juggler
+     * 
+     * call getValidationError() to get the error message if this returns false
+     */
+    isValid(): boolean 
+
+    getValidationError(): string 
+
+    /**
+     * returns the starting objects in each hand for each row, as pair of [right, left] numbers
+     */
+    getStartingHands(): [number,number][]
 }
 
-export type Pattern = {
 
-    // the number of and roles (A, B, ...) representing the passers
-    passerNames: Role[];
-    relabel?: [Role, Role][] // optional relabeling of roles
+export type Throw = {
+    fromPasserIdx: number // this is the row corresponding to the first iteration of the pattern; it does not care about relabeling from intercepts, labels can be derived from this
+    // fromPasserRole = pattern.getRole(this.throwBeat, this.fromPasserIdx)
+    // fromHand: Hand // hand in the first iteration, will be mirrored 2 (sync) or 4 (4hsw) times on odd patterns
 
-    // [right, left] clubs at the start for each passer
-    startingHands: [number, number][];
+    throwBeat: Beat // 0 to pattern length
+    // causeTime: number // does wrap around, i.e. always in 0 to pattern length
+    throwLength: number
 
-    // the throws in the pattern
-    prefixPeriod: number // time length of the prefix
-    period: number // time until it repeats
-    getThrows(iteration: number): Throw[] // throw sequence, including prefix throws, for both passers, for n iterations
+    toPasserIdx: number // this is the row of the receiving passer on the causal beat (which may involve relabeling at the end of the row, so a self might go to a different row)
+    // toPasserRole = pattern.getRole(pattern.getCausalTime(this), this.toPasserIdx)
+    // toHand: Hand // receiving hand, relative to the throw time (relabeling may cause it to point to the wrong hand if showing only one iteration for odd period patterns/4hsw)
 
+    markers?: ThrowType[],
+    note?: string
+}
+export enum ThrowType {
+    Base = 'B',
+    BaseManipulator = 'M', // normal throw from the manipulator (not a substitution or intercept or carry)
+    SubstitutionPelf = 'P',
+    SubstitutionPlacement = 'S',
+    Intercept = 'I',
+    Carry = 'C',
+    Filled = 'F', // automatically filled non-actions or automated actions (hold or empty hand or zip)
+}
+
+
+export type ManipulatorAction = InterceptAction | CarryAction | SubstitutionAction | ThrowAction
+export type InterceptAction = {
+    beat: Beat,
+    fromPasserRole?: Role,
+    toPasserRole: Role,
+    manipulatorRole: Role,
+    kind: 'I'
+    modifiers: string
+}
+export type SubstitutionAction = {
+    beat: Beat,
+    fromPasserRole?: Role,
+    toPasserRole: Role,
+    manipulatorRole: Role,
+    kind: 'S'
+    modifiers: string
+}
+export type ThrowAction = {
+    beat: Beat,
+    throwLength: number,
+    toPasserRole: Role,
+    manipulatorRole: Role,
+    kind: 'T'
+}
+export type CarryAction = {
+    beat: Beat,
+    toPasserRole?: Role,
+    manipulatorRole: Role,
+    kind: 'C' // carry
 }
 
 
@@ -130,7 +294,7 @@ export type AnimationLayout = {
     movementSegments: MovementSegment[],
     movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
     movementTriggers: MovementTrigger[],
-    relabeling: Relabel[]
+    relabeling: RelabelAnimation[]
 }
 
 /**
@@ -189,41 +353,9 @@ export type MovementTrigger = {
     role: Role,
     duration: number,
 }
-export type Relabel = {
+export type RelabelAnimation = {
     onBeat: number,
     mod: number,
     changes: [Role, Role][] // oldRole, newRole
 }
 
-
-/**
- * checks a pattern, returns a list of problems, if any
- * @param p pattern
- * @returns list of problems, empty list if none
- */
-export function checkValidPattern(p: Pattern): string[] {
-    const r: string[] = []
-    if (p.getThrows(1).length === 0) r.push(`pattern has no throws`)
-    p.getThrows(3).map((t) => r.push(...checkValidThrow(t, p)))
-    for (const t of p.getThrows(1)) {
-        if (t.throwTime < -.5) r.push(`throw ${JSON.stringify(t)} thrown before 0`)
-        if (t.throwTime >= p.prefixPeriod + p.period) r.push(`throw ${JSON.stringify(t)} after end of period`)
-    }
-
-    return r
-}
-
-function checkValidThrow(t: Throw, _p: Pattern): string[] {
-    const r = []
-    if (t.causeTime > t.rethrowTime) r.push(`throw ${JSON.stringify(t)} rethrown before cause`)
-    return r
-}
-
-export function repeatThrows(p: Pattern, nrIterations: number): Throw[] {
-    if (nrIterations < 1) throw Error("invalid number of iterations")
-    const throws: Throw[] = [];
-    for (let i = 0; i < nrIterations; i++) {
-        throws.push(...p.getThrows(i + 1));
-    }
-    return throws;
-}

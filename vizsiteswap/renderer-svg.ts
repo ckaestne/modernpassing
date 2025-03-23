@@ -1,6 +1,6 @@
 import { Circle, Containable, Container, Element, G, Line, List, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { AnimationLayout, BackgroundLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, Relabel, Role, Throw } from './pattern-structure.ts';
+import { AnimationLayout, BackgroundLayout, checkValidPattern, FrameLayout, GroupPattern, GroupPatternLayout, GroupPatternStaticLayout, Hand, MovementSegment, PassLayout, Pattern, RelabelAnimation, Role, Throw } from './pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 import { Tspan } from "@svgdotjs/svg.js";
 

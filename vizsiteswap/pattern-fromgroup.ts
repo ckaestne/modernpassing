@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { alt, alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, str, tok } from "npm:typescript-parsec";
 import { altHands, convertToLabel, crossingPasses, parseSyncPattern, PSequence, straightSelfs, SyncPatternConfig, TokenKind, TSequence, TThrow } from "./pattern-fromsync.ts";
 import { BackgroundLayout, GroupPattern, GroupPatternLayout, Hand, MovementSegment, MovementSequence, MovementTrigger, PassAnimation, PassLayout, PositionLayout, Role, Throw } from "./pattern-structure.ts";
-import { Relabel } from "./pattern-structure.ts";
+import { RelabelAnimation } from "./pattern-structure.ts";
 import { PatternPaths } from "./pattern-paths.ts";
 import { createShapeLayout, defaultLayoutForTwo, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
 
@@ -235,7 +235,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
     }
 
 
-    const relabelingAnimation: Relabel[] = []
+    const relabelingAnimation: RelabelAnimation[] = []
     const relabel: [Role, Role][] = []
     if (!rows.every(r => r.relabel === undefined)) {
         for (const row of rows) if (row.relabel) relabel.push([row.role, row.relabel])
@@ -272,7 +272,7 @@ export function createSyncGroupPattern(sw: string, config: Partial<SyncPatternCo
  * @param patternLength 
  * @returns 
  */
-function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThrows: Throw[], adjustedThrowSequenceLength: number, patternRoles: Role[], endOfPatternRelabel: Relabel[], patternLength: number): GroupPatternLayout {
+function genLayout(layout: TLayout, movement: TMovement | undefined, adjustedThrows: Throw[], adjustedThrowSequenceLength: number, patternRoles: Role[], endOfPatternRelabel: RelabelAnimation[], patternLength: number): GroupPatternLayout {
 
     const [positions, movementSegments, movementSequences, background] = createShapeLayout(patternRoles, layout, movement)
 

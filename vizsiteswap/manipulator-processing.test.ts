@@ -1,15 +1,16 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ThrowType, fillPatternGaps } from "./manipulator-processing.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, createPatternFromRaw, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
 import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
+import { Pattern, Throw, ThrowType } from "./pattern-structure.ts";
 
 
-Deno.test('test parsing four-count', async () => {
+Deno.test('test parsing four-count', () => {
     const r = parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A`
     )
-    const [t, m] = createPatternFromRaw(r[0], 2)
+    const [t, _m] = createPatternFromRaw(r[0], 2)
 
     console.log(t.prettyPrintThrows())
     const A = 0, B = 1
@@ -24,7 +25,7 @@ Deno.test('test parsing four-count', async () => {
     assertThrow(t, 3, 3, B, B)
 })
 
-Deno.test('test parsing four-count in different notations', async () => {
+Deno.test('test parsing four-count in different notations', () => {
     // with p and target
     const [t1,] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
@@ -59,7 +60,7 @@ Deno.test('test parsing four-count in different notations', async () => {
 })
 
 
-Deno.test('test parsing 867', async () => {
+Deno.test('test parsing 867', () => {
     const p = parseGroupSyncPattern(
         `A:  7 6 8 7 6 -> B
          B: , 8 7 6 8 -> A`
@@ -82,7 +83,7 @@ Deno.test('test parsing 867', async () => {
     assertThrow(t, 8, 6, A, A)
 
 })
-Deno.test('test parsing 867 notation variations', async () => {
+Deno.test('test parsing 867 notation variations', () => {
     // default notation without annotations
     const [t1,] = createPatternFromRaw(parseGroupSyncPattern(
         `A:  7 6 8 7 6 -> B
@@ -121,7 +122,7 @@ Deno.test('test parsing 867 notation variations', async () => {
 
 })
 
-Deno.test('test parsing chopabout', async () => {
+Deno.test('test parsing chopabout', () => {
     const p = parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -> B
          B: 3pA3 33   3pA3 33   3pA3 33 -> A
@@ -150,7 +151,7 @@ Deno.test('test parsing chopabout', async () => {
 })
 
 
-Deno.test('test parsing manege', async () => {
+Deno.test('test parsing manege', () => {
     const p = parseGroupSyncPattern(
         `A: 7pB   6    8  7pB  6-> B
          B: ,   8   7pA  6    8 -> A
@@ -180,7 +181,7 @@ Deno.test('test parsing manege', async () => {
 })
 
 
-Deno.test('intercept rewrite: basic', async () => {
+Deno.test('intercept rewrite: basic', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -223,7 +224,7 @@ Deno.test('intercept rewrite: basic', async () => {
 
 
 
-Deno.test('intercept rewrite: 456about should be easy', async () => {
+Deno.test('intercept rewrite: 456about should be easy', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 5 4 6 5 4 -> B
          B: ,6 5 4 6 -> A
@@ -258,7 +259,7 @@ Deno.test('intercept rewrite: 456about should be easy', async () => {
 
 
 
-Deno.test('intercept rewrite: manege', async () => {
+Deno.test('intercept rewrite: manege', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 7 6 8 7 6 -> B
          B: ,8 7 6 8 -> A
@@ -293,7 +294,7 @@ Deno.test('intercept rewrite: manege', async () => {
 
 
 
-Deno.test('intercept rewrite: basic two beat carry', async () => {
+Deno.test('intercept rewrite: basic two beat carry', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -322,7 +323,7 @@ Deno.test('intercept rewrite: basic two beat carry', async () => {
 
 })
 
-Deno.test('intercept rewrite: basic three beat carry', async () => {
+Deno.test('intercept rewrite: basic three beat carry', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -351,7 +352,7 @@ Deno.test('intercept rewrite: basic three beat carry', async () => {
 })
 
 
-Deno.test('intercept rewrite: two carry on a pass', async () => {
+Deno.test('intercept rewrite: two carry on a pass', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3pB 3 -> B
          B: 3 3 3pA 3 -> A
@@ -381,7 +382,7 @@ Deno.test('intercept rewrite: two carry on a pass', async () => {
 })
 
 
-Deno.test('intercept rewrite: three-beat carry over a pass', async () => {
+Deno.test('intercept rewrite: three-beat carry over a pass', () => {
     //this creates counterintuitive behavior where both M and B have a flip because they are missing a pass that gets carried later
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3pB 3 -> B
@@ -416,7 +417,7 @@ Deno.test('intercept rewrite: three-beat carry over a pass', async () => {
 
 
 
-Deno.test('intercept rewrite: intercept over pattern boundary', async () => {
+Deno.test('intercept rewrite: intercept over pattern boundary', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -459,7 +460,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary', async () => {
 
 
 
-Deno.test('intercept rewrite: intercept over pattern boundary with three passers', async () => {
+Deno.test('intercept rewrite: intercept over pattern boundary with three passers', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> C
@@ -495,7 +496,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary with three passers
 
 
 
-Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', async () => {
+Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -533,7 +534,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', a
 
 
 
-Deno.test('intercept rewrite: high intercept throw over pattern boundary', async () => {
+Deno.test('intercept rewrite: high intercept throw over pattern boundary', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 2 3pB 3 4 -> B
         B: 2 3pA 3 4 -> A
@@ -567,7 +568,7 @@ Deno.test('intercept rewrite: high intercept throw over pattern boundary', async
 
 
 
-Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary like scrambled v', async () => {
+Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary like scrambled v', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -604,7 +605,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary lik
 })
 
 
-Deno.test('intercept rewrite: two intercepts from same manipulator', async () => {
+Deno.test('intercept rewrite: two intercepts from same manipulator', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 3-> B
          B: 3pA 3  3 3 3  3 3 3 -> A
@@ -637,7 +638,7 @@ Deno.test('intercept rewrite: two intercepts from same manipulator', async () =>
 })
 
 
-Deno.test('intercept rewrite: two intercepts from same manipulator, but different targets', async () => {
+Deno.test('intercept rewrite: two intercepts from same manipulator, but different targets', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 3-> B
          B: 3pA 3  3 3 3  3 3 3 -> A
@@ -671,7 +672,7 @@ Deno.test('intercept rewrite: two intercepts from same manipulator, but differen
 
 
 
-Deno.test('intercept rewrite: two independent intercepts', async () => {
+Deno.test('intercept rewrite: two independent intercepts', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 -> B
          B: 3pA 3  3 3 3  3 3 -> A
@@ -713,7 +714,7 @@ Deno.test('intercept rewrite: two independent intercepts', async () => {
 })
 
 
-Deno.test('intercept rewrite: intercepting a carry', async () => {
+Deno.test('intercept rewrite: intercepting a carry', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3  3 3 -> B
          B: 3pA 3  3 3 3  3 3 -> A
@@ -751,7 +752,7 @@ Deno.test('intercept rewrite: intercepting a carry', async () => {
 })
 
 
-test.skip('intercept rewrite: two interleaved intercepts', async () => {
+test.skip('intercept rewrite: two interleaved intercepts', () => {
     // this is not currently supported, because N would intercept a 0 or 1 from M
     // when we support intercepting 0/1s this should probably work
 
@@ -796,7 +797,7 @@ test.skip('intercept rewrite: two interleaved intercepts', async () => {
 
 
 
-Deno.test('apply substitution: basics', async () => {
+Deno.test('apply substitution: basics', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
@@ -819,7 +820,7 @@ Deno.test('apply substitution: basics', async () => {
 })
 
 
-Deno.test('apply substitution: substituting the first beat requires reverse wraparound', async () => {
+Deno.test('apply substitution: substituting the first beat requires reverse wraparound', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
@@ -842,7 +843,7 @@ Deno.test('apply substitution: substituting the first beat requires reverse wrap
 })
 
 
-Deno.test('apply substitution: substituting the last beat', async () => {
+Deno.test('apply substitution: substituting the last beat', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
@@ -866,7 +867,7 @@ Deno.test('apply substitution: substituting the last beat', async () => {
 
 
 
-Deno.test('apply substitution: substituting right person after relabel', async () => {
+Deno.test('apply substitution: substituting right person after relabel', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3 3 -> B
          B: 3pA 3  3 3 3 3 -> A
@@ -898,7 +899,7 @@ Deno.test('apply substitution: substituting right person after relabel', async (
 })
 
 
-Deno.test('apply substitution: intercept a substitution', async () => {
+Deno.test('apply substitution: intercept a substitution', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 3 3 -> B
          B: 3pA 3  3 3 3 3 -> A
@@ -919,7 +920,7 @@ Deno.test('apply substitution: intercept a substitution', async () => {
 })
 
 
-Deno.test('manipulator throw: basics', async () => {
+Deno.test('manipulator throw: basics', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
@@ -937,7 +938,7 @@ Deno.test('manipulator throw: basics', async () => {
 })
 
 
-Deno.test('manipulator throw: zip after substitution', async () => {
+Deno.test('manipulator throw: zip after substitution', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3  3 3 -> B
          B: 3pA 3  3 3 -> A
@@ -968,7 +969,7 @@ Deno.test('manipulator throw: zip after substitution', async () => {
 
 
 
-Deno.test('roundabout', async () => {
+Deno.test('roundabout', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33 -> B
          B: 3pA3 33   3pA3 33  -> A
@@ -998,7 +999,7 @@ Deno.test('roundabout', async () => {
 })
 
 
-Deno.test('chopabout', async () => {
+Deno.test('chopabout', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -> B
          B: 3pA3 33   3pA3 33   3pA3 33 -> A
@@ -1030,7 +1031,7 @@ Deno.test('chopabout', async () => {
 
 
 
-Deno.test('phonecian walz', async () => {
+Deno.test('phonecian walz', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B
         B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -> A
@@ -1050,7 +1051,7 @@ Deno.test('phonecian walz', async () => {
 })
 
 
-Deno.test('opernball', async () => {
+Deno.test('opernball', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB  3pB 3   3pB  3pB 3   3pB  3pB 3 -> B
          B: 3pA  3pA 3   3pA  3pA 3   3pA  3pA 3 -> A
@@ -1081,7 +1082,7 @@ Deno.test('opernball', async () => {
 
 
 
-Deno.test('minued', async () => {
+Deno.test('minued', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3B 3B 3 3B 3B 3 3B 3B 3 -> B
         B: 3A 3A 3 3A 3A 3 3A 3A 3 -> A
@@ -1106,7 +1107,7 @@ Deno.test('minued', async () => {
 })
 
 
-Deno.test('scrambled V', async () => {
+Deno.test('scrambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
        `A: 3B 3  3C 3  3B 3 -> B
         B: 3A 3  3  3  3A 3  -> C
@@ -1140,7 +1141,7 @@ Deno.test('scrambled V', async () => {
 
 })
 
-Deno.test('ambled V', async () => {
+Deno.test('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1173,7 +1174,7 @@ Deno.test('ambled V', async () => {
 })
 
 
-Deno.test('ambled 3 (with late intercept)', async () => {
+Deno.test('ambled 3 (with late intercept)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1203,7 +1204,7 @@ Deno.test('ambled 3 (with late intercept)', async () => {
 
 
 
-Deno.test('modifiers: delayed placement (for German turn)', async () => {
+Deno.test('modifiers: delayed placement (for German turn)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3 3 3 -> B
         B: 3 3 3 3 3 -> A
@@ -1218,7 +1219,7 @@ Deno.test('modifiers: delayed placement (for German turn)', async () => {
     assertThrow(rewritten, 3, 1, M, B, 'late placement')
 })
 
-Deno.test('modifiers: delayed placement with flips (for German turn)', async () => {
+Deno.test('modifiers: delayed placement with flips (for German turn)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3 3 3 -> B
         B: 3 3 3 3 3 -> A
@@ -1240,7 +1241,7 @@ function createPattern(s: string): Pattern {
     return applyManipulations(p, manipulations)
 }
 
-Deno.test('delayed substitute placement: basics', async () => {
+Deno.test('delayed substitute placement: basics', () => {
     const basic = createPattern(
         `A: 3333 -> B
          B: 3333  -> A
@@ -1285,7 +1286,7 @@ Deno.test('delayed substitute placement: basics', async () => {
 })
 
 
-test.skip('delayed substitute placement: roundabout with German turn', async () => {
+test.skip('delayed substitute placement: roundabout with German turn', () => {
     //TODO the zip after the intercept is weird; it still belongs to the old manipulator to free the hand for the intercept
     // we could fill it automatically, but it might be nice to have it explicitly in the notation?
     //(not sure how to handle this)
@@ -1319,7 +1320,7 @@ test.skip('delayed substitute placement: roundabout with German turn', async () 
 })
 
 
-Deno.test('modifiers: early intercept', async () => {
+Deno.test('modifiers: early intercept', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3pB 3 3 -> B
         B: 3 3pA  3 3 -> A
@@ -1349,7 +1350,7 @@ Deno.test('modifiers: early intercept', async () => {
 })
 
 
-Deno.test('ambled 3 (with early intercept)', async () => {
+Deno.test('ambled 3 (with early intercept)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1377,7 +1378,7 @@ Deno.test('ambled 3 (with early intercept)', async () => {
 
 })
 
-Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-travel)', async () => {
+Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-travel)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C
@@ -1407,7 +1408,7 @@ Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-trav
 })
 
 
-Deno.test('intercept: at end of pattern with different base rows', async () => {
+Deno.test('intercept: at end of pattern with different base rows', () => {
     // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point
 
 
@@ -1449,7 +1450,7 @@ export function assertIntercept(pattern: Pattern, beat: number, length: number, 
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
-    assert(ts[0].markers.includes(ThrowType.Intercept), `expected intercept, found ${ts[0].markers} [${msg}]`)
+    assert(ts[0].markers!.includes(ThrowType.Intercept), `expected intercept, found ${ts[0].markers} [${msg}]`)
 }
 export function assertCarry(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg: string = "carry") {
     //uses raw rows, no intelligence for relabeling    
@@ -1457,7 +1458,7 @@ export function assertCarry(pattern: Pattern, beat: number, length: number, from
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
-    assert(ts[0].markers.includes(ThrowType.Carry), `expected carry, found ${ts[0].markers} [${msg}]`)
+    assert(ts[0].markers!.includes(ThrowType.Carry), `expected carry, found ${ts[0].markers} [${msg}]`)
 }
 
 
@@ -1529,7 +1530,7 @@ export function assertEmpty(pattern: Pattern, beat: number, fromPasserIdx: numbe
 
 
 
-Deno.test('Pattern.findThrowsByRole', async () => {
+Deno.test('Pattern.findThrowsByRole', () => {
     const tt =
         `A: 3 3B 3 3 -> B
         B: 3 3A 3 3 -> A
@@ -1566,7 +1567,7 @@ Deno.test('Pattern.findThrowsByRole', async () => {
 
 
 
-Deno.test('Pattern.findThrowsByRole2', async () => {
+Deno.test('Pattern.findThrowsByRole2', () => {
     const tt =
         `A: 2 3 3 3 -> B
         B: 3 3 3 4 -> A
@@ -1599,7 +1600,7 @@ Deno.test('Pattern.findThrowsByRole2', async () => {
 })
 
 
-Deno.test('Pattern.findThrowsByRole with relabel', async () => {
+Deno.test('Pattern.findThrowsByRole with relabel', () => {
     const tt =
         `A: 2 3 3 3 -> B
         B: 3 3 3 4 -> A
@@ -1634,7 +1635,7 @@ Deno.test('Pattern.findThrowsByRole with relabel', async () => {
 
 
 
-Deno.test('intercept: at end of pattern again after prior relabeling', async () => {
+Deno.test('intercept: at end of pattern again after prior relabeling', () => {
     // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point
 
 
@@ -1668,7 +1669,7 @@ function loadPattern(s: string): Pattern {
 }
 
 
-Deno.test('fill and validate: basics', async () => {
+Deno.test('fill and validate: basics', () => {
     const p = loadPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -1684,7 +1685,7 @@ Deno.test('fill and validate: basics', async () => {
 
 })
 
-Deno.test('fill and validate: basics 2 beat intercept', async () => {
+Deno.test('fill and validate: basics 2 beat intercept', () => {
     const p = loadPattern(
         `A: 3pB 3 3 3 -> B
         B: 3pA 3 3 3 -> A
@@ -1699,7 +1700,7 @@ Deno.test('fill and validate: basics 2 beat intercept', async () => {
     assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
 
 })
-Deno.test('fill and validate: ambled 3 with time travel', async () => {
+Deno.test('fill and validate: ambled 3 with time travel', () => {
     const p = loadPattern(
         `A: 4B 3  4C 3  4B 3  4C -> B
         B: 3  4A 3  3  3  4A 3  -> C

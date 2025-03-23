@@ -72,6 +72,30 @@ for (const sec of book.sections) {
             }
             return result
         });
+        //sync-group
+        sec.Chapter.content = replaceElement("manipulator", sec.Chapter.content, (match, p, config) => {
+            nrPatterns[2]++
+            let result = ""
+            config.showStartingHands = false
+
+            try {
+                if (!config.renderFramesOnly) {
+                    const pattern = createSyncGroupPattern(p, config)
+                    const [svg, js] = renderGroupPattern(pattern, config);
+                    result = svg.svg()+`\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
+                } else {
+                    const pattern = createSyncGroupPattern(p, config)
+                    const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);
+                    result = '<div class="group-pattern-frames">'
+                        + frames.map((f) => f.svg()).join("\n")
+                        + '</div>'
+                }
+            } catch (e) {
+                console.error(`Error rendering syncgroup ${p}: ${e}\n${(e as Error).stack}`)
+                result = `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`
+            }
+            return result
+        });
         sec.Chapter.content = replaceElement("positions", sec.Chapter.content, (match, p, config) => {
             nrPatterns[1]++
             const layout = createLayout(p)
