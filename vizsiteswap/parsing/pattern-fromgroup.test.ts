@@ -1,8 +1,8 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
-import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorAction, PManipulatorSequence, PRow, tokenizer } from "./pattern-fromgroup.ts";
-import { GroupPattern, Throw } from "./pattern-structure.ts";
+import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorSequence, PRow, tokenizer } from "./pattern-fromgroup.ts";
+import { GroupPattern, Throw } from "@modernpassing/pattern";
 
 
 test("parse simple group pattern", async (t) => {
@@ -40,13 +40,13 @@ test("test pattern creation", async (t) => {
     const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)", {})
     const p = gp.pattern
     const roles = ['A', 'B', 'C']
-    assert.deepStrictEqual(p.passerNames, roles)
-    assert.equal(p.period, 6)
-    assert.equal(p.prefixPeriod, 0)
-    const throws = p.getThrows(1)
-    function assertContainsThrow(throws: Throw[], fromRole: string, throwLength: number, toRole: string, atTime: number) {
-        const t = throws.find(t => t.fromPasserIdx === roles.indexOf(fromRole) && (t.rethrowTime - t.throwTime) === throwLength && t.toPasserIdx === roles.indexOf(toRole) && t.throwTime === atTime)
-        if (!t) fail(`throw ${fromRole} ${throwLength} -> ${toRole} at ${atTime} not found`)
+    assert.deepStrictEqual(p.getInitialRoles(), roles)
+    assert.equal(p.getLength(), 6)
+    // assert.equal(p.prefixPeriod, 0)
+    const throws = p.throws
+    function assertContainsThrow(throws: Throw[], fromRole: string, throwLength: number, toRole: string, beat: number) {
+        const t = throws.find(t => t.fromPasserIdx === roles.indexOf(fromRole) && t.throwLength === throwLength && t.toPasserIdx === roles.indexOf(toRole) && t.throwBeat === beat)
+        if (!t) fail(`throw ${fromRole} ${throwLength} -> ${toRole} at ${beat} not found`)
     }
 
     assertContainsThrow(throws, 'A', 3, 'B', 0)

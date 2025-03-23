@@ -1,6 +1,4 @@
-import { SVG } from "@svgdotjs/svg.js";
-import { MovementSegment, MovementSequence, PositionLayout } from "./pattern-structure.ts";
-import { loadPatternPathsFromSvg } from "./pattern-paths-loader.ts";
+import { MovementSegment, MovementSequence } from "@modernpassing/pattern";
 
 
 

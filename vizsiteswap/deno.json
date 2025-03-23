@@ -1,3 +1,4 @@
 {
+    "workspace": ["./pattern", "./parsing", "./rendering"],
     "nodeModulesDir": "none"
 }

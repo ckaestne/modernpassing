@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import test from "node:test";
-import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
-import { checkValidPattern } from "./pattern-structure.ts";
-import { renderPattern } from "./renderer-tikz.ts";
-import { FourHandedSiteswap } from './siteswap.ts';
+import { createSiteswapPattern } from "../rendering-tikz/pattern-fromsiteswap.ts";
+import { checkValidPattern } from "../rendering-tikz/pattern-structure.ts";
+import { renderPattern } from "../rendering-tikz./rendering-svg/renderer-tikz.ts";
+import { FourHandedSiteswap } from '../rendering-tikz/siteswap.ts';
 
 
 

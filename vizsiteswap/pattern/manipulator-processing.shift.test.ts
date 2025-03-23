@@ -1,7 +1,8 @@
+import { createPatternFromRaw, parseGroupSyncPattern } from "@modernpassing/parsing";
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, Pattern, createPatternFromRaw, prettyPrintManipulatorActions, Throw, ManipulatorAction, fillPatternGaps } from "./manipulator-processing.ts";
-import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
+import { applyManipulations, fillPatternGaps, prettyPrintManipulatorActions } from "./manipulator-processing.ts";
+import { createPattern, ManipulatorAction, Pattern, Throw } from "./pattern-structure.ts";
 
 
 const basicFourCountWithoutManipulator =
@@ -519,7 +520,7 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         lastRoles = r[1]
     }
 
-    return [new Pattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles), newManipulations]
+    return [createPattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles), newManipulations]
 }
 
 

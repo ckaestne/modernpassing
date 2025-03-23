@@ -1,3 +1,6 @@
+import { applyManipulations, fillPatternGaps } from "./manipulator-processing.ts";
+import { PatternImpl } from "./pattern-impl.ts";
+
 /**
  * abstraction of a visualization that represents a pattern
  * and the throws in it, but not logic for creating it or the
@@ -27,6 +30,13 @@ export type Time = number
  * (in an odd-period 4-handed siteswap written just once, each passer alternates rows,
  * but by writing the pattern twice, each passer keeps a stable row)
  * 
+ * the pattern is fundamentally circular and will always repeat over the period end 
+ * (with row mapping if needed). to get the start, we simply ignore the incoming passes
+ * from the previous period. as a special feature there are prefix throws that
+ * are only thrown before the first iteration of the pattern, but then never again
+ * Prefix throws are thrown on times -1, -2 etc. They are ignored for all computations
+ * except validity checking, starting hands, and rendering
+ * 
  * (this representation does not know about manipulators; labels are tracked as decoration)
  * 
  * immutable
@@ -38,7 +48,10 @@ export interface Pattern {
     readonly roles: [Beat, Role[]][] // role label for each row after a given beat -- labels are purely decorative; multiple labels can be provided for different beats to highlight the effect of midpattern-relabeling after intercepts; always has at least one entry for beat 0 which is always first in the array
     readonly nrRows: number
 
-
+    /**
+     * return the role labels on the first beat of the pattern
+     */
+    getInitialRoles(): string[];
 
     findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw | undefined
 
@@ -217,6 +230,7 @@ export type CarryAction = {
 
 export type GroupPattern = {
     pattern: Pattern,
+    aidenNotation?: [Pattern, ManipulatorAction[]]
     layout?: GroupPatternLayout
 }
 export type GroupPatternLayout = {
@@ -359,3 +373,9 @@ export type RelabelAnimation = {
     changes: [Role, Role][] // oldRole, newRole
 }
 
+export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][]): Pattern {
+    return new PatternImpl(throws, nrHands, mapRows, roles)
+}
+
+
+export {applyManipulations, fillPatternGaps}

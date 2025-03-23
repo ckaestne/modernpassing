@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, createPatternFromRaw, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { parseGroupSyncPattern } from "./pattern-fromgroup.ts";
+import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
 import { Pattern, Throw, ThrowType } from "./pattern-structure.ts";
+import { parseGroupSyncPattern, createPatternFromRaw } from "@modernpassing/parsing"
 
 
 Deno.test('test parsing four-count', () => {

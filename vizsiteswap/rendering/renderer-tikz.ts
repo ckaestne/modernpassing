@@ -1,4 +1,4 @@
-import { checkValidPattern, Pattern, Throw } from './pattern-structure.ts';
+import { checkValidPattern, Pattern, Throw } from '../pattern-structure.ts';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
