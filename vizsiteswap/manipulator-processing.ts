@@ -337,6 +337,36 @@ export class Pattern {
         return this.validationError ?? "valid"
     }
 
+    /**
+     * returns the starting objects in each hand for each row, as pair of [right, left] numbers
+     */
+    getStartingHands(): [number,number][] {
+        assert(this.isValid())
+        const foundCaught: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
+
+        for (const t of this.throws) {
+            const rethrowTime = t.throwBeat+t.throwLength
+            const causeBeat = this.getThrowCauseBeat(t)
+            if (rethrowTime<this.getLength()) 
+                    foundCaught[this.samePasserNBeatsLater(t.toPasserIdx,causeBeat, this.nrHands)][rethrowTime] = true
+        }
+        // console.log(foundCaught)
+        const result: [number,number][] = []
+        for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++) {
+            let right = 0
+            let left = 0
+            for (let beat = 0; beat < this.getLength(); beat++) {
+                if (!foundCaught[rowIdx][beat]) {
+                    if (beat % 2 === 0) right++
+                    else left++
+                }
+            }
+            result.push([right, left])
+        }
+        return result
+
+    }
+
 
 }
 

@@ -211,6 +211,14 @@ Deno.test('intercept rewrite: basic', async () => {
     assertThrow(rewritten, 2, 3, B, B, 'unmodified self 2')
     assertThrow(rewritten, 3, 3, B, B, 'unmodified self 3')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid)
+    const hands = full.getStartingHands()
+    console.log(full.prettyPrintThrows())
+    assert.deepEqual(hands[A], [2, 1])
+    assert.deepEqual(hands[B], [2, 1])
+    assert.deepEqual(hands[M], [1, 0])
+
 })
 
 
@@ -440,6 +448,13 @@ Deno.test('intercept rewrite: intercept over pattern boundary', async () => {
 
     assertThrow(rewritten, 0, 3, M, B, 'carry')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid)
+    const hands = full.getStartingHands()
+    console.log(full.prettyPrintThrows())
+    assert.deepEqual(hands[A], [1, 1])
+    assert.deepEqual(hands[B], [2, 1])
+    assert.deepEqual(hands[M], [1, 1])
 })
 
 
@@ -1113,6 +1128,16 @@ Deno.test('scrambled V', async () => {
     assertThrow(rewritten, 3, 1, M, M, 'catch intercept, into a zip')
     assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
 
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid)
+    const hands = full.getStartingHands()
+    console.log(full.prettyPrintThrows())
+    assert.deepEqual(hands[A], [1, 1])
+    assert.deepEqual(hands[B], [2, 1])
+    assert.deepEqual(hands[C], [2, 1])
+    assert.deepEqual(hands[M], [1, 1])
+
 })
 
 Deno.test('ambled V', async () => {
@@ -1137,6 +1162,14 @@ Deno.test('ambled V', async () => {
     // assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
     assertThrow(rewritten, 6, 2, C, C, 'flip to prepare for carry')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid)
+    const hands = full.getStartingHands()
+    console.log(full.prettyPrintThrows())
+    assert.deepEqual(hands[A], [1, 2])
+    assert.deepEqual(hands[B], [2, 1])
+    assert.deepEqual(hands[C], [2, 1])
+    assert.deepEqual(hands[M], [1, 1])
 })
 
 
