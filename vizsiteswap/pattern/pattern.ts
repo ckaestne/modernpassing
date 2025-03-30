@@ -92,7 +92,7 @@ export type Time = number
  * - Walking patterns like Ambled V where hand order switches mid pattern are modeled like Jim's patterns
  * For many of these the difficulty is in parsing the right behavior from a notation, not in modeling this
  * 
- * (this representation does not know about manipulators; roles are tracked as decoration)
+ * (this representation does not know about manipulators, positions, or movement; roles are tracked as decoration)
  * 
  * immutable
  */
@@ -124,7 +124,7 @@ export interface Pattern {
      * pattern. A self from B might well be thrown to A then.
      * Fortunately we don't put the intercept on the very last beat in practice.
      */
-    findThrowsByRole(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[]
+    findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[]
 
 
     /**
@@ -264,20 +264,48 @@ export interface Pattern {
 
 
 export type Throw = {
-    throwBeat: Beat // 0 to pattern length
+    /**
+     * the beat of the pattern on which this throw is thrown
+     * 
+     * beat, not time; whole number, 0 <= beat < pattern length
+     */
+    throwBeat: Beat 
 
-    fromPasserIdx: number // this is the row corresponding to the first iteration of the pattern; it does not care about relabeling from intercepts, labels can be derived from this
-    // fromPasserRole = pattern.getRole(this.throwBeat, this.fromPasserIdx)
-    fromHand: Hand // hand in the first iteration
-    isCrossing: boolean // whether the throw is crossing (with regards to hands)
+    /**
+     * this is the row corresponding to the first iteration of the pattern; 
+     * it does not care about relabeling from intercepts, labels can be derived from this
+     */
+    fromPasserIdx: number 
 
+    /**
+     * hand from which this throw is thrown in the first iteration
+     */
+    fromHand: Hand 
+
+    /**
+     * whether the throw is crossing (with regards to hands)
+     * (note that traditional straight passes are crossing from a right to a left hand)
+     */
+    isCrossing: boolean
+
+    /**
+     * the height of the throw in siteswap terminology (3 or 6 is a self depending on whether we use 2 or 4 handed siteswaps as the timing)
+     */
     throwLength: number
 
-    toPasserIdx: number // this is the row of the receiving passer on the causal beat (which may involve relabeling at the end of the row, so a self might go to a different row)
-    // toPasserRole = pattern.getRole(pattern.getCausalTime(this), this.toPasserIdx)
-    // toHand: Hand // receiving hand, relative to the throw time (relabeling may cause it to point to the wrong hand if showing only one iteration for odd period patterns/4hsw)
+    /**
+     * this is the row of the receiving passer on the throw beat (it may land in a different row if we need to remap at the end of the sequence)
+     */
+    toPasserIdxAtThrow: number 
 
+    /**
+     * optional markers to indicate what kind of throw this is; multiple markers possible
+     */
     markers?: ThrowType[],
+
+    /**
+     * optional free text note for this throw, mostly for debugging
+     */
     note?: string
 }
 export enum ThrowType {

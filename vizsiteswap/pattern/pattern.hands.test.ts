@@ -7,14 +7,14 @@ import { PatternImpl } from "./pattern-impl.ts";
 
 Deno.test("hands, four count", () => {
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 3, toPasserIdx: 1 }
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 3, toPasserIdxAtThrow: 1 }
     ], 2, [0, 1], ['A', 'B'], [[false], [false]])
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
@@ -57,12 +57,12 @@ Deno.test("hands, four count", () => {
 
 Deno.test("hands, three count", () => {
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 2, throwLength: 3, toPasserIdxAtThrow: 1 },
     ], 2, [0, 1], ['A', 'B'], [[true], [true]])
 
 
@@ -127,9 +127,9 @@ Deno.test("hands, three count", () => {
 
 Deno.test("hands, 756", () => {
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 5, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 5, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdxAtThrow: 0 },
     ], 4, [1, 0], ['A', 'B'], [[false], [true]], [[true], [true]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
@@ -197,12 +197,12 @@ Deno.test("hands, 756", () => {
 Deno.test("hands, 756756", () => {
     // different modeling with even length sideswap: rows do not change, hands flip here (since period mod 4 !=0)
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdx: 1 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 5, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: false, throwBeat: 3, throwLength: 7, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 4, throwLength: 5, toPasserIdx: 1 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 5, throwLength: 6, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 5, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: false, throwBeat: 3, throwLength: 7, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 4, throwLength: 5, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 5, throwLength: 6, toPasserIdxAtThrow: 1 },
     ], 4, [0, 1], ['A', 'B'], [[true], [true]], [[false], [false]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
@@ -316,10 +316,10 @@ Deno.test("hands, 7-club two-count straight", () => {
     // modeling flipped passes and B starting left-handed; doing period two to avoid switching rows
     // nothing special needed for hands
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdx: 1 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 4, toPasserIdx: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 3, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 3, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 4, toPasserIdxAtThrow: 0 },
     ], 2, [0, 1], ['A', 'B']) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
@@ -345,11 +345,11 @@ Deno.test("hands, 8-club two-count", () => {
     // modeling flipped passes and B starting left-handed; doing period two to avoid switching rows
     // nothing special needed for hands
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdx: 1 },
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 1, throwLength: 2, toPasserIdx: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdxAtThrow: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 0, throwLength: 4, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 1, throwLength: 2, toPasserIdxAtThrow: 0 },
     ], 2, [0, 1], ['A', 'B']) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
@@ -363,9 +363,9 @@ Deno.test("hands, 8-club two-count", () => {
 Deno.test("hands, 720", () => {
     // checking that 2 and 0 work
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdx: 0 },
-        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 2, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: false, throwBeat: 2, throwLength: 0, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 2, toPasserIdxAtThrow: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: false, throwBeat: 2, throwLength: 0, toPasserIdxAtThrow: 0 },
     ], 4, [1, 0], ['A', 'B'], [[false], [true]], [[true], [true]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
@@ -422,10 +422,10 @@ function sw(p: number[]): Pattern {
         return l % 4 === 2
     }
 
-    const d = createPattern([{fromPasserIdx:0,toPasserIdx:0,fromHand:0,isCrossing:false,throwLength:2,throwBeat:p.length-1}], 4, [1, 0], ['A', 'B'], [[false], [true]], [[true], [true]]) as PatternImpl
+    const d = createPattern([{fromPasserIdx:0,toPasserIdxAtThrow:0,fromHand:0,isCrossing:false,throwLength:2,throwBeat:p.length-1}], 4, [1, 0], ['A', 'B'], [[false], [true]], [[true], [true]]) as PatternImpl
     for (let i = 0; i < p.length; i++) {
         const targetPasserNow = (i + p[i]) % 2
-        ts.push({ fromPasserIdx: i % 2, fromHand: i % 4 < 2 ? Hand.Right : Hand.Left, isCrossing: isCrossing(p[i], i % 2 === 0), throwBeat: i, throwLength: p[i], toPasserIdx: d.samePasserNBeatsLater(targetPasserNow, i, p[i] - 4) })
+        ts.push({ fromPasserIdx: i % 2, fromHand: i % 4 < 2 ? Hand.Right : Hand.Left, isCrossing: isCrossing(p[i], i % 2 === 0), throwBeat: i, throwLength: p[i], toPasserIdxAtThrow: targetPasserNow })
     }
 
     // swap the hands of the side with the odd number of throws
@@ -461,43 +461,43 @@ Deno.test("starting hands, various siteswaps", () => {
 
 Deno.test("hands, 10 club brunos", () => {
     function self(from: number, when: number, swapHands: boolean=false): Throw {
-        return { fromPasserIdx: from, fromHand: (when%4<2) !==swapHands? Hand.Right:Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdx: from }
+        return { fromPasserIdx: from, fromHand: (when%4<2) !==swapHands? Hand.Right:Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtThrow: from }
     }
     // this requires the weird transition between siteswap sides (with a 7 as a high self) and the unusual handling of straight/crossing passes
     const pattern = createPattern([
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 0, throwLength: 9, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 0, throwLength: 9, toPasserIdxAtThrow: 1 },
         self(0, 2),
         self(0, 4),
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 6, throwLength: 9, toPasserIdx: 2 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 6, throwLength: 9, toPasserIdxAtThrow: 2 },
         self(0, 8),
         self(0, 10),
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 12, throwLength: 9, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 12, throwLength: 9, toPasserIdxAtThrow: 1 },
         self(0, 14),
         self(0, 16),
-        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 18, throwLength: 9, toPasserIdx: 0 },
-        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 20, throwLength: 6, toPasserIdx: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 18, throwLength: 9, toPasserIdxAtThrow: 2 },
+        self(0, 20),
 
         self(1, 1),
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 9, toPasserIdx: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 9, toPasserIdxAtThrow: 0 },
         self(1, 5),
         self(1, 7),
         self(1, 9),
         self(1, 11),
         self(1, 13),
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 15, throwLength: 9, toPasserIdx: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 15, throwLength: 9, toPasserIdxAtThrow: 0 },
         self(1, 17),
-        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 19, throwLength: 7, toPasserIdx: 2 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 19, throwLength: 7, toPasserIdxAtThrow: 1 },
 
         self(2, 1, true),
         self(2, 3, true),
         self(2, 5, true),
         self(2, 7, true),
-        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: false, throwBeat: 9, throwLength: 9, toPasserIdx: 0 },
+        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: false, throwBeat: 9, throwLength: 9, toPasserIdxAtThrow: 0 },
         self(2, 11, true),
         self(2, 13, true),
         self(2, 15, true),
         self(2, 17, true),
-        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 19, throwLength: 6, toPasserIdx: 0 },
+        self(2, 19, true),
     ], 4, [1, 2, 0], ['A', 'B','C'], [[true], [true],[true]], [[false], [false],[false]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
