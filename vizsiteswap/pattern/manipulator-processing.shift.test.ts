@@ -2,7 +2,7 @@ import { createPatternFromRaw, parseGroupSyncPattern } from "@modernpassing/pars
 import assert from "node:assert";
 import test from "node:test";
 import { applyManipulations, fillPatternGaps, prettyPrintManipulatorActions } from "./manipulator-processing.ts";
-import { createPattern, ManipulatorAction, Pattern, Throw } from "./pattern-structure.ts";
+import { createPattern, ManipulatorAction, Pattern, Throw } from "./pattern.ts";
 
 
 const basicFourCountWithoutManipulator =

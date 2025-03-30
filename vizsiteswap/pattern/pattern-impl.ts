@@ -1,5 +1,6 @@
 import assert from "node:assert";
-import { Pattern, Throw , Beat, Role, Time, ThrowType} from "./pattern-structure.ts";
+import { Pattern, Throw, Beat, Role, Time, ThrowType, Hand } from "./pattern.ts";
+import {green,bold,gray,red,blue,dim} from "https://deno.land/std@0.123.0/fmt/colors.ts"
 
 
 
@@ -10,11 +11,17 @@ export class PatternImpl implements Pattern {
 
     readonly throws: Throw[]
     readonly nrHands: number
+
     readonly mapRows: number[] // identify the new rowId for each row at the end of the pattern (i.e. classic relabeling)
     readonly roles: [Beat, Role[]][] // role label for each row after a given beat -- labels are purely decorative; multiple labels can be provided for different beats to highlight the effect of midpattern-relabeling after intercepts; always has at least one entry for beat 0 which is always first in the array
     readonly nrRows: number
 
-    constructor(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][]) {
+    // hands
+    readonly mapHands: boolean[][]
+    readonly mapCrossing: boolean[][]
+    readonly initialHands: Hand[]
+
+    constructor(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], initialHands?: Hand[]) {
         this.throws = throws
         this.nrHands = nrHands
         this.mapRows = mapRows
@@ -25,6 +32,9 @@ export class PatternImpl implements Pattern {
         }
         //shortcut
         this.nrRows = mapRows.length
+        this.mapHands = mapHands ?? Array(mapRows.length).fill([false])
+        this.mapCrossing = mapCrossing ?? Array(mapRows.length).fill([false])
+        this.initialHands = initialHands ?? Array(mapRows.length).fill(Hand.Right)
     }
 
 
@@ -131,12 +141,15 @@ export class PatternImpl implements Pattern {
 
         const printThrow = (t: Throw): string => {
             // if (['S', 'C', 'I', 'P'].includes(t.note[0])) return `${t.throwLength}${this.getRole(t.throwBeat, t.toPasserIdx)}|${t.note}`
-            const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
+            // const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
             const toRole = this.getRole(this.getThrowCauseBeat(t), t.toPasserIdx)
             // const printRole = fromRole !== toRole ? toRole : ""
-            const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator):[]
-            const printType = markers.length === 0 ? "" : "|" + markers.join("")
-            return `${t.throwLength}${toRole}_${t.toPasserIdx}${printType}`
+            const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
+            const printType = markers.length === 0 ? "" : "/" + markers.join("")
+            const hand = this.getThrowHand(t, 0)
+            const isCrossing = this.isSelfThrow(t) ? "" : this.isCrossingPass(t, 0) ? "|" : "X"
+            const str = `${t.throwLength}${toRole}${gray(""+t.toPasserIdx)}${printType}`+bold(isCrossing)
+            return hand === Hand.Left ? green(str)  : blue(str)
         }
 
         const showHeader = true
@@ -194,17 +207,19 @@ export class PatternImpl implements Pattern {
         return this.getThrowCauseBeat_(t.throwBeat, t.throwLength)
     }
     getThrowCauseBeat_(throwTime: number, throwLength: number): number {
-        return (throwTime + throwLength - this.nrHands + this.getLength()) % this.getLength()
+        let beat = (throwTime + throwLength - this.nrHands) % this.getLength()
+        while (beat < 0) beat += this.getLength()
+        return beat
     }
 
 
     addThrow(newThrow: Throw): Pattern {
         const newThrows = [...this.throws, newThrow]
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.initialHands)
     }
     removeThrow(thatThrow: Throw): Pattern {
         const newThrows = this.throws.filter(t => t !== thatThrow)
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.initialHands)
     }
 
     /** 
@@ -214,7 +229,8 @@ export class PatternImpl implements Pattern {
      */
     addRole(newRole: string): Pattern {
         const newRowIdx = this.nrRows
-        return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]))
+        throw new Error("Method not implemented.");
+        // return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]))
     }
 
     hasRole(manipulatorRole: string): boolean {
@@ -273,7 +289,10 @@ export class PatternImpl implements Pattern {
 
         const mapRows = labelsOnly ? this.mapRows : this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
-        return new PatternImpl(this.throws, this.nrHands, mapRows, roles)
+        assert(this.mapCrossing.every((v) => !v), "TODO: flipCrossing not implemented for swapRoles")
+        assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: swapHands not implemented for swapRoles with different values")
+
+        return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.mapHands, this.mapCrossing, this.initialHands)
     }
 
     private validationError: string | undefined = undefined
@@ -286,33 +305,53 @@ export class PatternImpl implements Pattern {
     isValid(): boolean {
         if (this.validationError) return false
 
-        const foundThrown: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
-        const foundCaught: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
+        const foundThrown: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array.from({ length: 2 }, () => Array(this.getLength()).fill(undefined)))
+        const foundCaught: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array.from({ length: 2 }, () => Array(this.getLength()).fill(undefined)))
 
         for (const t of this.throws) {
-            if (foundThrown[t.fromPasserIdx][t.throwBeat]) {
-                this.validationError = `more than one throw on beat ${t.throwBeat} from ${t.fromPasserIdx}`
+            const hand = this.getThrowHand(t, 0)
+            if (foundThrown[t.fromPasserIdx][hand][t.throwBeat]) {
+                this.validationError = `more than one throw on beat ${t.throwBeat} from ${t.fromPasserIdx}/${hand?"L":"R"}: \n\t${JSON.stringify(foundThrown[t.fromPasserIdx][t.throwBeat])} and \n\t${JSON.stringify(t)}`
                 return false
             } else
-                foundThrown[t.fromPasserIdx][t.throwBeat] = true
+                foundThrown[t.fromPasserIdx][hand][t.throwBeat] = t
 
             const causeBeat = this.getThrowCauseBeat(t)
-            if (foundCaught[t.toPasserIdx][causeBeat]) {
-                this.validationError = `more than one catch on beat ${causeBeat} by ${t.toPasserIdx}`
+            // if we cross the pattern boundary, consider a pass from a previous period to be the incoming one to get the hands right in the wraparound
+            let causeTime = this.getThrowCauseTime(t)
+            let iteration = 0
+            while (causeTime >= this.getLength()) {
+                causeTime -= this.getLength()
+                iteration--
+            }
+            while (causeTime < 0) {
+                causeTime += this.getLength()
+                iteration++
+            }
+            const targetHand = this.getTargetHand(t, iteration)
+            // const from = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration*this.getLength())
+            // const to = this.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, Math.max(iteration,0)*this.getLength()+t.throwLength-this.nrHands)
+            const from = t.fromPasserIdx
+            const to = t.toPasserIdx
+            // console.log(`${from}/${hand?"L":"R"} @ ${t.throwBeat} -> ${to}/${targetHand?"L":"R"} @ ${causeBeat} (${this.getThrowCauseTime(t)}, ${iteration})`)
+            if (foundCaught[to][targetHand][causeBeat]) {
+                this.validationError = `more than one catch on beat ${causeBeat} by ${t.toPasserIdx}/${targetHand?"L":"R"}: \n\t${JSON.stringify(foundCaught[t.toPasserIdx][causeBeat])} and \n\t${JSON.stringify(t)}`
                 return false
             } else
-                foundCaught[t.toPasserIdx][causeBeat] = true
+                foundCaught[to][targetHand][causeBeat] = t
         }
-        for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++) {
+        for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++)  {
             for (let beat = 0; beat < this.getLength(); beat++) {
-                if (!foundThrown[rowIdx][beat]) {
-                    this.validationError = `no throw found on beat ${beat} from ${rowIdx}`
-                    return false
+                for (const hand of [Hand.Right, Hand.Left]) {
+                    if (foundThrown[rowIdx][hand][beat] && !foundCaught[rowIdx][hand][beat]) {
+                        this.validationError = `throw on beat ${beat} from ${rowIdx}/${hand?"L":"R"} but no incoming catch`
+                        return false
+                    }
+                    if (foundCaught[rowIdx][hand][beat] && !foundThrown[rowIdx][hand][beat]) {
+                        this.validationError = `catch on beat ${beat} by ${rowIdx}/${hand?"L":"R"} but no outgoing throw`
+                        return false
                 }
-                if (!foundCaught[rowIdx][beat]) {
-                    this.validationError = `no catch found on beat ${beat} by ${rowIdx}`
-                    return false
-                }
+            }
             }
         }
         return true
@@ -326,29 +365,44 @@ export class PatternImpl implements Pattern {
     /**
      * returns the starting objects in each hand for each row, as pair of [right, left] numbers
      */
-    getStartingHands(): [number,number][] {
+    getStartingHands(): [number, number][] {
+        // we assume the pattern is valid, so there is an incoming throw for each outgoing one
         assert(this.isValid())
-        const foundCaught: boolean[/*row*/][/*beat*/] = Array.from({ length: this.nrRows }, () => Array(this.getLength()).fill(false))
 
+        const result: [number, number][] = Array.from({ length: this.nrRows }, () => [1, 1])
+
+        // find throws that are caught in the first iteration
         for (const t of this.throws) {
-            const rethrowTime = t.throwBeat+t.throwLength
-            const causeBeat = this.getThrowCauseBeat(t)
-            if (rethrowTime<this.getLength()) 
-                    foundCaught[this.samePasserNBeatsLater(t.toPasserIdx,causeBeat, this.nrHands)][rethrowTime] = true
-        }
-        // console.log(foundCaught)
-        const result: [number,number][] = []
-        for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++) {
-            let right = 0
-            let left = 0
-            for (let beat = 0; beat < this.getLength(); beat++) {
-                if (!foundCaught[rowIdx][beat]) {
-                    if (beat % 2 === 0) right++
-                    else left++
-                }
+            let causeTime = this.getThrowCauseTime(t)
+            let iteration = 0
+            // if a throw crosses the pattern boundary, it means we'll start with an extra club in the hand that catches it
+            // if we wrap around repeatedly, we start with an extra club for every wraparound
+            while (causeTime >= this.getLength()) {
+                causeTime -= this.getLength()
+                iteration--
+
+                const catchHand = this.getTargetHand(t, iteration)
+                const from = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration*this.getLength())
+                const to = this.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, iteration*this.getLength()+t.throwLength-this.nrHands)
+                // console.log(`catching ${from}/${hand(t.fromHand)} ${t.throwLength} @ ${t.throwBeat} -> ${to}/${hand(catchHand)} @ ${causeTime} (${iteration})`)
+                result[to][catchHand]++
             }
-            result.push([right, left])
-        }
+            while (causeTime<0) {
+                const catchHand = this.getTargetHand(t, iteration)
+                const from = this.adjustRowIdxByTime(iteration*this.getLength(), t.fromPasserIdx)
+                const to = this.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, iteration*this.getLength()+t.throwLength-this.nrHands)
+                // console.log(`catching ${from}/${hand(t.fromHand)} ${t.throwLength} @ ${t.throwBeat} -> ${to}/${hand(catchHand)} @ ${causeTime} (${iteration})`)
+                result[to][catchHand]--
+
+                causeTime += this.getLength()
+                iteration++
+            }
+    }
+
+
+            // TODO: if the cause is before the beginning of the pattern, we have to deal with empty hands
+
+
         return result
 
     }
@@ -356,5 +410,68 @@ export class PatternImpl implements Pattern {
         return this.roles[0][1]
     }
 
+    getPrefixLength(): number {
+        throw new Error("Method not implemented.");
+    }
+    isSwappedHands(rowIdx: number, iteration: number): boolean {
+        if (iteration > 0) {
+            const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
+            const previousSwap = this.mapHands[previousRowIdx]!
+            const didSwap = previousSwap[(iteration - 1) % previousSwap.length]!
+            return didSwap !== this.isSwappedHands(previousRowIdx, iteration - 1)
+        }
+        if (iteration < 0) {
+            const nextRowIdx = this.mapRows[rowIdx]
+            const swap = this.mapHands[rowIdx]!
+            const willSwap = swap[-iteration % swap.length]!
+            return willSwap !== this.isSwappedHands(nextRowIdx, iteration + 1)
+        }
+        assert(iteration === 0)
+        return false
+    }
+    isSwappedCrossing(rowIdx: number, iteration: number): boolean {
+        if (iteration > 0) {
+            const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
+            const previousSwap = this.mapCrossing[previousRowIdx]!
+            const didSwap = previousSwap[(iteration - 1) % previousSwap.length]!
+            return didSwap !== this.isSwappedCrossing(previousRowIdx, iteration - 1)
+        }
+        if (iteration < 0) {
+            const nextRowIdx = this.mapRows[rowIdx]
+            const swap = this.mapCrossing[rowIdx]!
+            const willSwap = swap[-iteration % swap.length]!
+            return willSwap !== this.isSwappedCrossing(nextRowIdx, iteration + 1)
+        }
+        assert(iteration === 0)
+        return false
+    }
+    getThrowHand(t: Throw, iteration: number): Hand {
+        assert(t)
+        const hand = t.fromHand
+        const isSwap = this.isSwappedHands(t.fromPasserIdx, iteration)
 
+        return isSwap ? 1 - hand : hand
+    }
+    isCrossingPass(t: Throw, iteration: number): boolean {
+        assert(t)
+        const isCrossing = t.isCrossing
+        return this.isSwappedCrossing(t.fromPasserIdx, iteration) !== isCrossing
+    }
+    getTargetHand(t: Throw, iteration: number): Hand {
+        assert(t)
+        const hand = this.getThrowHand(t, iteration)
+        if (this.isSelfThrow(t)) 
+            return t.isCrossing ? 1-hand:hand
+        else
+            return this.isCrossingPass(t, iteration) ? 1 - hand : hand
+    }
+
+    isSelfThrow(t: Throw): boolean {
+        return this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, t.throwLength - this.nrHands) === t.toPasserIdx
+    }
+}
+
+
+function hand(h: Hand): string {
+    return h === Hand.Left ? "L" : "R"
 }

@@ -4,5 +4,14 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   },
-  "exports": "./pattern-structure.ts"
+  "exports": "./pattern-structure.ts",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true
+  }
 }
