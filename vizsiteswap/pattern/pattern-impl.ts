@@ -147,8 +147,9 @@ export class PatternImpl implements Pattern {
             const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
             const printType = markers.length === 0 ? "" : "/" + markers.join("")
             const hand = this.getThrowHand(t, 0)
-            const isCrossing = this.isSelfThrow(t) ? "" : this.isCrossingPass(t, 0) ? "|" : "X"
-            const str = `${t.throwLength}${toRole}${gray(""+t.toPasserIdx)}${printType}`+bold(isCrossing)
+            const isCrossing = this.isSelfThrow(t) ? "" : bold(this.isCrossingPass(t, 0) ? "|" : "X")
+            const targetFirstIteration = t.toPasserIdx+(this.getTargetHandFirstIteration(t)===Hand.Left?"L":"R")+this.getThrowCauseBeat(t)
+            const str = `${t.throwLength}${toRole}${isCrossing}${gray(targetFirstIteration)}${printType}`
             return hand === Hand.Left ? green(str)  : blue(str)
         }
 
@@ -318,27 +319,17 @@ export class PatternImpl implements Pattern {
 
             const causeBeat = this.getThrowCauseBeat(t)
             // if we cross the pattern boundary, consider a pass from a previous period to be the incoming one to get the hands right in the wraparound
-            let causeTime = this.getThrowCauseTime(t)
-            let iteration = 0
-            while (causeTime >= this.getLength()) {
-                causeTime -= this.getLength()
-                iteration--
-            }
-            while (causeTime < 0) {
-                causeTime += this.getLength()
-                iteration++
-            }
-            const targetHand = this.getTargetHand(t, iteration)
+            const targetHandInFirstIteration = this.getTargetHandFirstIteration(t)
             // const from = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration*this.getLength())
             // const to = this.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, Math.max(iteration,0)*this.getLength()+t.throwLength-this.nrHands)
             const from = t.fromPasserIdx
             const to = t.toPasserIdx
             // console.log(`${from}/${hand?"L":"R"} @ ${t.throwBeat} -> ${to}/${targetHand?"L":"R"} @ ${causeBeat} (${this.getThrowCauseTime(t)}, ${iteration})`)
-            if (foundCaught[to][targetHand][causeBeat]) {
-                this.validationError = `more than one catch on beat ${causeBeat} by ${t.toPasserIdx}/${targetHand?"L":"R"}: \n\t${JSON.stringify(foundCaught[t.toPasserIdx][causeBeat])} and \n\t${JSON.stringify(t)}`
+            if (foundCaught[to][targetHandInFirstIteration][causeBeat]) {
+                this.validationError = `more than one catch on beat ${causeBeat} by ${t.toPasserIdx}/${targetHandInFirstIteration?"L":"R"}: \n\t${JSON.stringify(foundCaught[t.toPasserIdx][causeBeat])} and \n\t${JSON.stringify(t)}`
                 return false
             } else
-                foundCaught[to][targetHand][causeBeat] = t
+                foundCaught[to][targetHandInFirstIteration][causeBeat] = t
         }
         for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++)  {
             for (let beat = 0; beat < this.getLength(); beat++) {
@@ -348,7 +339,8 @@ export class PatternImpl implements Pattern {
                         return false
                     }
                     if (foundCaught[rowIdx][hand][beat] && !foundThrown[rowIdx][hand][beat]) {
-                        this.validationError = `catch on beat ${beat} by ${rowIdx}/${hand?"L":"R"} but no outgoing throw`
+                        const c = foundCaught[rowIdx][hand][beat]
+                        this.validationError = `catch on beat ${beat} by ${rowIdx}/${hand?"L":"R"} (from beat ${c?.throwBeat}) but no outgoing throw`
                         return false
                 }
             }
@@ -464,6 +456,19 @@ export class PatternImpl implements Pattern {
             return t.isCrossing ? 1-hand:hand
         else
             return this.isCrossingPass(t, iteration) ? 1 - hand : hand
+    }
+    getTargetHandFirstIteration(t: Throw): Hand {
+        let causeTime = this.getThrowCauseTime(t)
+        let iteration = 0
+        while (causeTime >= this.getLength()) {
+            causeTime -= this.getLength()
+            iteration--
+        }
+        while (causeTime < 0) {
+            causeTime += this.getLength()
+            iteration++
+        }
+        return this.getTargetHand(t, iteration)
     }
 
     isSelfThrow(t: Throw): boolean {
