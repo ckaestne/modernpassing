@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { BackgroundLayout, GroupPatternLayout, GroupPatternStaticLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "@modernpassing/pattern";
+import { BackgroundLayout, GroupPatternLayout, GroupPatternStaticLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "../pattern/pattern.ts";
 import { PatternPath, PatternPaths } from "./pattern-paths.ts";
 import { loadPathsFromSvg } from "./pattern-paths-loader.ts";
 

@@ -1,6 +1,5 @@
-import { Beat, CarryAction, InterceptAction, ManipulatorAction, Pattern, Role, SubstitutionAction, Throw, ThrowAction, ThrowType, Time } from "./pattern.ts";
+import { Beat, CarryAction, InterceptAction, ManipulatorAction, Pattern, Role, SubstitutionAction, Throw, ThrowAction, ThrowType, Time } from "@modernpassing/pattern";
 import assert from "node:assert";
-import { PatternImpl } from "./pattern-impl.ts";
 
 
 

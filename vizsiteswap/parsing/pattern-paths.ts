@@ -1,4 +1,4 @@
-import { MovementSegment, MovementSequence } from "@modernpassing/pattern";
+import { MovementSegment, MovementSequence } from "../pattern/pattern.ts";
 
 
 

@@ -1,5 +1,5 @@
 import { Path, SVG } from "@svgdotjs/svg.js";
-import { MovementSegment } from "@modernpassing/pattern";
+import { MovementSegment } from "../pattern/pattern.ts";
 import { createSVG, scaledown } from "./svg-util.ts";
 import assert from "node:assert";
 import { PatternPath } from "./pattern-paths.ts";

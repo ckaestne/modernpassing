@@ -13,11 +13,11 @@ and (5) it is entirely right-handed with many more interesting patterns to move 
 It recently has even made it into juggling games the the IJA and ECJ festivals. 
 
 
-<TODO-manipulator-sync video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4">
+<sync-group video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4">
 A: 3pB333 3pB333 -> B
 B: 3pA333 3pA333 -> A
-M: SBezSBlz IBv>.CBz
-</TODO-manipulator-sync>
+M: SBezSBlz IBvo.CBz
+</sync-group>
 
 
 The Roundabout is based on 6-club four-count and the manipulator has the following actions on right-handed beats: 

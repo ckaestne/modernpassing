@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import test from "node:test";
 import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { Pattern, Throw, ThrowType } from "./pattern.ts";
+import { Pattern, Throw, ThrowType } from "@modernpassing/pattern";
 import { parseGroupSyncPattern, createPatternFromRaw } from "@modernpassing/parsing"
 
 

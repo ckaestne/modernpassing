@@ -253,14 +253,13 @@ Bruno's one-count is possible on all the other variations, like *Magermix* for s
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
 **Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles.
-The feeder has an extra pass at the end of their sequence, and there is an extra beat while walking (7-count instead of 6-count). 
-Since this is technically a feed on a four-handed siteswap (966 feeding 966666), it requires changes to whether passes are straight or crossing: The feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. Technically the walk is 7.5 beats long, but the half beat is barely noticeable and it can be juggled as a normal seven-count.
+However, since this is juggled on a four-handed siteswap feed, the walking and notation is somewhat unusual:
+The feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. Feedee B walks on 7.5 beats, but the half beat is barely noticeable and it can be juggled as a normal seven-count (in the notation, the extra half beat is visible in the 7 on the last beat of B, which is a slow self(!) to make up switching the half beat between sides).
 
 <todo-sync-group>
-**TODO is this 966 and walking on 6.5 count?**
-A: 4pB33 4pC33 4pB33 4pC -> B
-B: .34pA3 333   34pA3 3   -> C
-C: .333   34pA3 333   3   -> A
+A: 9B  6   6   9C  6   6   9B  6   6   9C  6 -> B
+B: , 6   9A  6   6   6   6   6   9A  6   7  -> C
+C: , 6   6   6   6   9A  6   6   6   6   6  -> A
 positions: L(A,B,C)
 move: Bmove(B)Bfall(C),mirror
 </todo-sync-group>

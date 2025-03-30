@@ -1,4 +1,4 @@
-import { MovementSegment } from "@modernpassing/pattern";
+import { MovementSegment } from "../pattern/pattern.ts";
 import { createSVGWindow } from "svgdom";
 import { registerWindow, Svg, SVG } from "@svgdotjs/svg.js";
 

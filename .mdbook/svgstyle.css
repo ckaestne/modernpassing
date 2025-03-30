@@ -51,3 +51,38 @@ todo-siteswap-group {
 todo-siteswap-group:before {
     content: "TODO: "
 }
+
+
+svg .tab {
+    -webkit-box-flex:0;
+    border-bottom:2px solid var(--color-lightGrey);
+    color:var(--color-darkGrey);
+    flex:0 1 auto;
+    flex:0 1 auto;
+    padding:1rem 2rem;
+    text-align:center
+}
+
+:root {
+    --bg-color:#fff;
+    --bg-secondary-color:#f3f3f6;
+    --tab-inactive:#d2d6dd;
+    --tab-hover:#747681;
+    --tab-active:#3f4144;
+  }
+
+.tab > line {
+    stroke: var(--tab-inactive)
+}
+.tab-active > line {
+    stroke: var(--tab-active)
+}
+.tab:hover > line {
+    stroke: var(--tab-hover)
+}
+.tab > rect {
+    fill: var(--bg-secondary-color)
+}
+.tab-active > rect {
+    fill: var(--bg-color)
+}

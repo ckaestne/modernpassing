@@ -1,7 +1,10 @@
 {
-  "name": "@modernpassing/pattern",
+  "name": "@modernpassing/manipulation",
   "version": "0.1.0",
-  "exports": "./pattern.ts",
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "exports": "./manipulator-processing.ts",
   "compilerOptions": {
     "strict": true,
     "noImplicitAny": true,

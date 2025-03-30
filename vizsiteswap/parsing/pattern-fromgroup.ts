@@ -1,7 +1,7 @@
-import { Beat, createPattern, GroupPattern, GroupPatternLayout, Hand, ManipulatorAction, MovementTrigger, PassAnimation, PassLayout, Pattern, PositionLayout, RelabelAnimation, Role, Throw, ThrowType, Time } from "@modernpassing/pattern";
+import { Beat, createPattern, GroupPattern, GroupPatternLayout, Hand, ManipulatorAction, MovementTrigger, PassAnimation, PassLayout, Pattern, PositionLayout, RelabelAnimation, Role, Throw, ThrowType, Time } from "../pattern/pattern.ts";
 import assert from "node:assert";
 import { alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, rep, rule, seq, str, tok } from "npm:typescript-parsec";
-import { applyManipulations, fillPatternGaps } from "@modernpassing/pattern";
+import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation";
 import { PSequence, SyncPatternConfig, TokenKind, TSequence, TThrow } from "./pattern-fromsync.ts";
 import { createShapeLayout, defaultLayoutForTwo, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
 

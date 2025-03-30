@@ -2,7 +2,7 @@ import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
 import { createSyncGroupPattern, parseGroupSyncPattern, PManipulatorSequence, PRow, tokenizer } from "./pattern-fromgroup.ts";
-import { GroupPattern, Throw } from "@modernpassing/pattern";
+import { GroupPattern, Throw } from "../pattern/pattern.ts";
 
 
 test("parse simple group pattern", async (t) => {
