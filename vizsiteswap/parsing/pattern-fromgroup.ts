@@ -1,4 +1,4 @@
-import { Beat, createPattern, GroupPattern, GroupPatternLayout, Hand, ManipulatorAction, MovementTrigger, PassAnimation, PassLayout, Pattern, PositionLayout, RelabelAnimation, Role, Throw, ThrowType, Time } from "../pattern/pattern.ts";
+import { Beat, createPattern, GroupPattern, GroupPatternLayout, Hand, ManipulatorAction, MovementTrigger, PassAnimation, PassLayout, Pattern, PositionLayout, RelabelAnimation, Role, Throw, ThrowType, Time } from "@modernpassing/pattern";
 import assert from "node:assert";
 import { alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, rep, rule, seq, str, tok } from "npm:typescript-parsec";
 import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation";
@@ -40,7 +40,7 @@ export enum MoreTokenKind {
 }
 type Tok = TokenKind | MoreTokenKind
 export const tokenizer = buildLexer<Tok>([
-    [true, /^([0-9a-y](p)?(x)?[A-Z]?)|^,/g, TokenKind.Throw],
+    [true, /^([0-9a-y](p)?[A-Z]?(x)?)|^,/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, MoreTokenKind.Role],
     [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, MoreTokenKind.ManipulatorAction],
     //     [true, /^positions/g, MoreTokenKind.Positions],

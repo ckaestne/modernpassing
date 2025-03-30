@@ -1,5 +1,6 @@
-import { Pattern, Throw } from "./pattern-structure.ts";
+import { createPattern, Pattern, Throw } from "@modernpassing/pattern";
 import { FourHandedSiteswap } from "./siteswap.ts";
+import assert from "node:assert";
 
 
 export const defaultSiteswapPatternConfig: SiteswapPatternConfig = {
@@ -25,32 +26,24 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
         startingHands = [[startingHands[1][1],startingHands[1][0]],startingHands[0] ];
 
 
-    const pattern = {
-        passerNames: ["A", "B"],
-        startingHands: startingHands,
-        prefixPeriod: 0,
-        period: sw.length()/2,
-        getThrows(iterationNr: number): Throw[] {
-            if (iterationNr < 1) throw new Error("iterationNr must be >= 1");
-            const ts: Throw[] = [];
-            for (let idx = 0; idx < iterationNr* sw.length(); idx++) {
-                const passerIdx = (idx + startingJuggler) % 2;
-        
-                const t: Throw = {
-                    throwTime: idx/2,
-                    causeTime: sw.causes(idx)/2,
-                    rethrowTime: sw.thrownNext(idx)/2,
-                    fromPasserIdx: passerIdx,
-                    toPasserIdx: (sw.jugglerAt(sw.thrownNext(idx))+ startingJuggler) % 2,
-                    fromHand: (idx + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
-                    toHand: (sw.thrownNext(idx) + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
-                    label: sw.throwLetterAt(idx),
-                    annotation: getStraightCrossText(passerIdx, sw.throwAt(idx))
-                }
-                ts.push(t);
-            }
-            return ts
+    const ts: Throw[] = [];
+    for (let beat = 0; beat < sw.length(); beat++) {
+        const passerIdx = beat % 2;
+        const isCrossing = (passerIdx===0 ? [2,3] : [1,2]).includes(sw.throwAt(beat)%4)
+        const t: Throw = {
+            throwBeat: beat,
+            throwLength: sw.throwAt(beat),
+            fromPasserIdx: (passerIdx+ startingJuggler) % 2,
+            toPasserIdx: (sw.jugglerAt(sw.thrownNext(beat))+ startingJuggler) % 2,
+            fromHand: (beat + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
+            isCrossing,
+            note: sw.throwLetterAt(beat)
         }
-    };
-    return pattern;
+        ts.push(t);
+    }
+
+    assert.ok(startingJuggler === 0, "not implemented yet: need to flip various mappings below")
+
+    return createPattern(ts, 4, sw.length()%2==0?[0,1]:[1,0],['A','B'],[[[2,1].includes(sw.length()%4)],[[2,3].includes(sw.length()%4)]],[[sw.length()%2==1],[sw.length()%2==1]])
+
 }
