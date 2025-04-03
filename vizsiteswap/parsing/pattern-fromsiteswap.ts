@@ -16,6 +16,12 @@ function getStraightCrossText(juggler: number, t: number): string {
     return (p ^ juggler) ? /*"∥"*/ "||" : "X";
 }
 
+export function createSiteswapPatternStr(sw: string, config: Partial<SiteswapPatternConfig>): Pattern {
+    const s = new FourHandedSiteswap(sw);
+    return createSiteswapPattern(s, config);
+}
+
+
 export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<SiteswapPatternConfig>): Pattern {
     const {
         startingJuggler
@@ -34,7 +40,7 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
             throwBeat: beat,
             throwLength: sw.throwAt(beat),
             fromPasserIdx: (passerIdx+ startingJuggler) % 2,
-            toPasserIdx: (sw.jugglerAt(sw.thrownNext(beat))+ startingJuggler) % 2,
+            toPasserIdxAtThrow: (sw.jugglerAt(sw.thrownNext(beat))+ startingJuggler) % 2,
             fromHand: (beat + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
             isCrossing,
             note: sw.throwLetterAt(beat)
