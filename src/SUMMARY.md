@@ -51,13 +51,13 @@
 - [Notation](./6b-notation.md)
 - [Roundabout](./6c-roundabout.md)
 - [Roundabout variations](./6d-roundabout-variations.md)
-- [](./6e-extra-club.md)
-- [](./6e-northwall.md)
-- [](./6f-aidan-patterns.md)
-- [](./6g-ambled-patterns.md)
-- [](./6h-zippy-etc.md)
-- [](./6i-beyond-basics.md)
-- [](./6j-siteswap-takeouts.md) 
+- [Extra club patterns](./6e-extra-club.md)
+- [North-wall patterns](./6e-northwall.md)
+- [Aidan patterns](./6f-aidan-patterns.md)
+- [Ambled patterns](./6g-ambled-patterns.md)
+- [Zippy and more](./6h-zippy-etc.md)
+- [Siteswap patterns](./6j-siteswap-takeouts.md) 
+- [Beyond the basics](./6i-beyond-basics.md)
 
 # Appendix
 
