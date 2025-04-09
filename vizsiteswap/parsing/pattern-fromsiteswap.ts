@@ -7,6 +7,10 @@ export const defaultSiteswapPatternConfig: SiteswapPatternConfig = {
     startingJuggler: 0,
 }
 export type SiteswapPatternConfig = {
+    /**
+     * 0 = juggler A starts, both right handed
+     * 1 = juggler B starts right handed, A follows left handed (i.e., one beat later than usual)
+     */
     startingJuggler: 0 | 1,
 }
 
@@ -35,7 +39,7 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
     const ts: Throw[] = [];
     for (let beat = 0; beat < sw.length(); beat++) {
         const passerIdx = beat % 2;
-        const isCrossing = (passerIdx===0 ? [2,3] : [1,2]).includes(sw.throwAt(beat)%4)
+        const isCrossing = ((passerIdx+ startingJuggler)%2===0 ? [2,3] : [1,2]).includes(sw.throwAt(beat)%4)
         const t: Throw = {
             throwBeat: beat,
             throwLength: sw.throwAt(beat),
@@ -48,8 +52,14 @@ export function createSiteswapPattern(sw: FourHandedSiteswap, config: Partial<Si
         ts.push(t);
     }
 
-    assert.ok(startingJuggler === 0, "not implemented yet: need to flip various mappings below")
 
-    return createPattern(ts, 4, sw.length()%2==0?[0,1]:[1,0],['A','B'],[[[2,1].includes(sw.length()%4)],[[2,3].includes(sw.length()%4)]],[[sw.length()%2==1],[sw.length()%2==1]])
+    const swapSides = sw.length()%2==1
+    const o =sw.length()%4
+    const aSwapHands = (o===2) || o===1// ((startingJuggler === 0) && (o===1)) || ((startingJuggler === 1) && (o===3))
+    const bSwapHands = (o===2) || o===3// ((startingJuggler === 0) && (o===3)) || ((startingJuggler === 1) && (o===1))
+    const mapHands = [[aSwapHands],[bSwapHands]]
+    const mapCrossing = [[swapSides],[swapSides]]
+
+    return createPattern(ts, 4, swapSides?[1,0]:[0,1],['A','B'],mapHands, mapCrossing)
 
 }
