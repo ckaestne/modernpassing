@@ -1,3 +1,4 @@
-import { createPatternFromRaw, parseGroupSyncPattern } from "./pattern-fromgroup.ts";
+import { createGroupPattern } from "./pattern-fromgroup.ts";
+import { createSyncPattern } from "./pattern-fromsync.ts";
 
-export { createPatternFromRaw, parseGroupSyncPattern }
+export { createSyncPattern, createGroupPattern }

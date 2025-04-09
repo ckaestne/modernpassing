@@ -612,5 +612,5 @@ export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayo
             return f.createLayout(roles, parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : [])
     throw new Error(`layout/movement combination not supported ${parsedLayoutInstructions.type} ${JSON.stringify(parsedMovementInstructions)}`)
 }
-
+ 
 // function createLayout(p:PLayout)
