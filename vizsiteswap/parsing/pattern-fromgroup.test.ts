@@ -1,32 +1,45 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
-import { GroupPattern, Throw } from "../pattern/pattern.ts";
-import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
+import { GroupPattern, Hand, Throw } from "../pattern/pattern.ts";
+import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
+import { createSiteswapPatternStr } from "./pattern-fromsiteswap.ts";
 
-
+const R = Hand.Right
+const L = Hand.Left
 
 test("test pattern creation", async (t) => {
     const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)", {})
     const p = gp.pattern
+
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
     const roles = ['A', 'B', 'C']
     assert.deepStrictEqual(p.getInitialRoles(), roles)
     assert.equal(p.getLength(), 6)
     // assert.equal(p.prefixPeriod, 0)
     const throws = p.throws
-    function assertContainsThrow(throws: Throw[], fromRole: string, throwLength: number, toRole: string, beat: number) {
-        const t = throws.find(t => t.fromPasserIdx === roles.indexOf(fromRole) && t.throwLength === throwLength && t.toPasserIdxAtThrow === roles.indexOf(toRole) && t.throwBeat === beat)
+    function assertContainsThrow(throws: Throw[], fromRole: string, fromHand: Hand, throwLength: number, toRole: string, toHand: Hand, beat: number) {
+        const t = throws.find(t => t.fromPasserIdx === roles.indexOf(fromRole) && t.fromHand === fromHand &&
+            t.throwLength === throwLength && t.toPasserIdxAtThrow === roles.indexOf(toRole) && t.throwBeat === beat)
         if (!t) fail(`throw ${fromRole} ${throwLength} -> ${toRole} at ${beat} not found`)
+        assert.equal(p.getTargetHand(t, 0), toHand)
     }
 
-    assertContainsThrow(throws, 'A', 3, 'B', 0)
-    assertContainsThrow(throws, 'B', 3, 'C', 0)
-    assertContainsThrow(throws, 'C', 3, 'A', 0)
-    assertContainsThrow(throws, 'A', 3, 'A', 1)
-    assertContainsThrow(throws, 'B', 3, 'B', 1)
-    assertContainsThrow(throws, 'C', 3, 'C', 1)
-    assertContainsThrow(throws, 'A', 3, 'C', 3)
+    assertContainsThrow(throws, 'A', R, 3, 'B', L, 0)
+    assertContainsThrow(throws, 'B', R, 3, 'C', L, 0)
+    assertContainsThrow(throws, 'C', R, 3, 'A', L, 0)
+    assertContainsThrow(throws, 'A', L, 3, 'A', R, 1)
+    assertContainsThrow(throws, 'B', L, 3, 'B', R, 1)
+    assertContainsThrow(throws, 'C', L, 3, 'C', R, 1)
+    assertContainsThrow(throws, 'A', L, 3, 'C', R, 3)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 2), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, -1), Hand.Right)
+
     // console.log(gp.layout)
     // console.log(throws)
 })
@@ -41,7 +54,20 @@ positions: Box(A,C,D,B)`
     const gp: GroupPattern = createSyncGroupPattern(pattern, {})
     const p = gp.pattern
     const roles = ['A', 'B', 'C']
-    // console.log(gp.layout)
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 2)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 3)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 2)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 3)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 2), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 3), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, -1), Hand.Left)
 })
 
 test('walking v', async (t) => {
@@ -51,6 +77,179 @@ C: 3 3 3pA3  3  3  -- A
 positions: V(A,B,C)
 move: Vmove(B,3.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(pattern, {})
-    // console.log(gp.layout?.animation)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Right)
+
 })
 
+
+test('hands: double pass', async (t) => {
+    const pattern = `4p 2 3\n3 3p 3`
+    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+
+    assert.equal(p.findThrow(0, 0)!.isCrossing, false)
+    assert.equal(p.findThrow(1, 0)!.isCrossing, false)
+    assert.equal(p.findThrow(2, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(0, 1)!.isCrossing, true)
+    assert.equal(p.findThrow(1, 1)!.isCrossing, true)
+    assert.equal(p.findThrow(2, 1)!.isCrossing, true)
+
+})
+
+
+test('hands: jim\'s three count', async (t) => {
+    const pattern = `3p  3 3 3p  3 3
+                     3px 3 3 3px 3 3`
+    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(1, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(1, 1)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(2, 0)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(2, 1)!, 0), Hand.Right)
+
+    assert.equal(p.getThrowHand(p.findThrow(3, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(3, 1)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(4, 0)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(4, 1)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(5, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(5, 1)!, 0), Hand.Right)
+
+    // flip hands even though it is even length
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(1, 0)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(1, 1)!, 1), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(2, 0)!, 1), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(2, 1)!, 1), Hand.Left)
+
+    assert.equal(p.findThrow(0, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(1, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(2, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(0, 1)!.isCrossing, false)
+    assert.equal(p.findThrow(1, 1)!.isCrossing, true)
+    assert.equal(p.findThrow(2, 1)!.isCrossing, true)
+
+})
+
+
+
+test('hands: jim\'s three count -- short', async (t) => {
+    const pattern = `A: 3p33--B\nB: 3px33 -- A`
+    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+    assert.deepEqual(p.getStartingHands(), [[2, 1], [2, 1]])
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(1, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(1, 1)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(2, 0)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(2, 1)!, 0), Hand.Right)
+
+    // flip hands even though it is even length
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 1)!, 1), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(1, 0)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(1, 1)!, 1), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(2, 0)!, 1), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(2, 1)!, 1), Hand.Right)
+
+    assert.equal(p.findThrow(0, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(1, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(2, 0)!.isCrossing, true)
+    assert.equal(p.findThrow(0, 1)!.isCrossing, false)
+    assert.equal(p.findThrow(1, 1)!.isCrossing, true)
+    assert.equal(p.findThrow(2, 1)!.isCrossing, true)
+
+})
+
+
+test('hands: 8c two count', () => {
+    const pattern = `(4px 4x)\n(4px 4x)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.deepEqual(p.getStartingHands(), [[2, 2], [2, 2]])
+
+})
+
+test('hands: techno', () => {
+    const pattern = `
+        (4p 4x)(4x 2  )(4x 4p)(2   4x)
+        (4x  2)(4x 4px)(2  4x)(4px 4x)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+    assert.equal(p.findThrow(0, 0, undefined, Hand.Right)?.fromHand, Hand.Right)
+    assert.equal(p.findThrow(0, 0, undefined, Hand.Right)?.isCrossing, false)
+    assert.deepEqual(p.findThrows(1, undefined, undefined), []) // no throws on odd beats
+    assert.equal(p.findThrow(2, 1, undefined, Hand.Left)?.isCrossing, true)
+
+    assert.deepEqual(p.getStartingHands(), [[2, 2], [2, 1]])
+})
+
+
+test('siteswaps, basics', () => {
+    const q = createSiteswapPatternStr("756", {})
+    const p = createGroupPattern(`
+        A: 7 6 -- B
+        B: ,5  -- A
+        `, 4, {}).pattern
+
+    console.log(q.prettyPrintThrows())
+    console.log(p.prettyPrintThrows())
+
+    assert.equal(p.getLength(), q.getLength())
+    assert.deepEqual(p.prettyPrintThrows(), q.prettyPrintThrows())
+    assert.deepEqual(p.getStartingHands(), q.getStartingHands())
+
+})
+
+test('hands/crossing complicated: extra club brunos', () => {
+    const pattern = `
+        A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
+        B: , 6   9A  6   6   6   6   6   9A  6   7   -- C
+        C:!, 6   6   6   6   9Ax 6   6   6   6   6   -- A
+        positions: Brunos(A,B,C)
+        move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5) `
+    const gp: GroupPattern = createGroupPattern(pattern, 4, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+})
+
+
+test('hands: 7 club two count, straight doubles', () => {
+    const pattern = `
+        A: 4px 3
+        B:!3   4px`
+    const gp: GroupPattern = createGroupPattern(pattern, 2, {})
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+})
+
+//TODO 7 club 2 count, straight

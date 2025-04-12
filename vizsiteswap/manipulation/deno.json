@@ -4,14 +4,5 @@
   "imports": {
     "@std/assert": "jsr:@std/assert@1"
   },
-  "exports": "./manipulator-processing.ts",
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true
-  }
+  "exports": "./manipulator-processing.ts"
 }

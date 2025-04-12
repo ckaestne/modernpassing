@@ -94,7 +94,7 @@ export function parseMovements(input: string[], roles: Role[]): TMovement {
     if (input.length === 0) return []
     const allInputs = input.join('')
     //split after closing parenthesis
-    const parts = allInputs.split(')').filter(p => p.length > 0).map(s => s + ')')
+    const parts = allInputs.split(')').filter(p => p.trim().length > 0).map(s => s + ')')
     return parts.map((p)=>parseMovement(p, roles)).flat()
 }
 

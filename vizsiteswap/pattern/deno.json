@@ -1,14 +1,5 @@
 {
   "name": "@modernpassing/pattern",
   "version": "0.1.0",
-  "exports": "./pattern.ts",
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "noImplicitThis": true
-  }
+  "exports": "./pattern.ts"
 }

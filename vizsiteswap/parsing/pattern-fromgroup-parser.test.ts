@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import { expectSingleResult, expectEOF } from "typescript-parsec";
-import { parseGroupPattern, PManipulatorSequence, PRow, tokenizer } from "./pattern-fromgroup-parser.ts";
+import { expectSingleResult, expectEOF, Lexer, Token } from "typescript-parsec";
+import { parseGroupPattern, PManipulatorSequence, PRow, PThrow, tokenizer } from "./pattern-fromgroup-parser.ts";
 import test from "node:test";
 
 Deno.test("parse simple group pattern", async (t) => {
@@ -84,7 +84,7 @@ O: IBvbCA  .   SAloz   zf  SAloz   .   `
 test('manipulator with multiple actions on the same beat and delayed placement', async (t) => {
     const pp = `A: 3pB 3pB 3  -- B
 B: 3pA 3pA 3   -- A
-M: . (SBd2, 2) 
+M: . (SBd2 2) 
 `
     const p = parseGroupPattern(pp)
 
@@ -99,5 +99,23 @@ test('parse manipulator row', () => {
     
     const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    assert(b.isManipulator)
     console.log(a,b)
 })
+
+test('parse allsync pattern', () => {
+    const t = `(4px4x)`
+    logTokens(tokenizer.parse(t))
+    const a = expectSingleResult(expectEOF(PThrow.parse(tokenizer.parse(t))))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    assert(!b.isManipulator)
+    console.log(b)
+})
+
+
+function logTokens(x: Token<any>|undefined) {
+        while (x) {
+        console.log(x.text, x.kind)
+        x = x.next
+    }
+}

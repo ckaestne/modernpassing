@@ -6,5 +6,6 @@ import { createSyncPattern } from "./pattern-fromsync.ts";
 
 test("parse simple pattern", async (t) => {
     const p = createSyncPattern("3p33")
+    assert.ok(p.isValid(), p.getValidationError())
     console.log(p.prettyPrintThrows())
 })

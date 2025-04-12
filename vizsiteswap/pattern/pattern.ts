@@ -1,4 +1,4 @@
-import { PatternImpl } from "./pattern-impl.ts";
+import { PatternImpl, ThrowImpl } from "./pattern-impl.ts";
 
 /**
  * abstraction of a visualization that represents a pattern
@@ -109,7 +109,7 @@ export interface Pattern {
      */
     getInitialRoles(): string[];
 
-    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw | undefined
+    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number, fromHand?: Hand, toHand?: Hand): Throw | undefined
 
     findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw[]
 
@@ -263,50 +263,50 @@ export interface Pattern {
 }
 
 
-export type Throw = {
+export interface Throw {
     /**
      * the beat of the pattern on which this throw is thrown
      * 
      * beat, not time; whole number, 0 <= beat < pattern length
      */
-    throwBeat: Beat 
+    readonly throwBeat: Beat
 
     /**
      * this is the row corresponding to the first iteration of the pattern; 
      * it does not care about relabeling from intercepts, labels can be derived from this
      */
-    fromPasserIdx: number 
+    readonly fromPasserIdx: number
 
     /**
      * hand from which this throw is thrown in the first iteration
      */
-    fromHand: Hand 
+    readonly fromHand: Hand
 
     /**
      * whether the throw is crossing (with regards to hands)
      * (note that traditional straight passes are crossing from a right to a left hand)
      */
-    isCrossing: boolean
+    readonly isCrossing: boolean
 
     /**
      * the height of the throw in siteswap terminology (3 or 6 is a self depending on whether we use 2 or 4 handed siteswaps as the timing)
      */
-    throwLength: number
+    readonly throwLength: number
 
     /**
      * this is the row of the receiving passer on the throw beat (it may land in a different row if we need to remap at the end of the sequence)
      */
-    toPasserIdxAtThrow: number 
+    readonly toPasserIdxAtThrow: number
 
     /**
      * optional markers to indicate what kind of throw this is; multiple markers possible
      */
-    markers?: ThrowType[],
+    readonly markers?: ThrowType[],
 
     /**
      * optional free text note for this throw, mostly for debugging
      */
-    note?: string
+    readonly note?: string
 }
 export enum ThrowType {
     Base = 'B',
@@ -503,7 +503,29 @@ export type RelabelAnimation = {
     changes: [Role, Role][] // oldRole, newRole
 }
 
-export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], initialHands?: Hand[]): Pattern {
-    return new PatternImpl(throws, nrHands, mapRows, roles, mapHands, mapCrossing, initialHands)
+export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], initialHands?: Hand[], patternLength?: number): Pattern {
+    return new PatternImpl(throws, nrHands, mapRows, roles, mapHands, mapCrossing, initialHands, patternLength)
+}
+
+export function createThrow(
+    throwBeat: number,
+    fromPasserIdx: number,
+    fromHand: Hand,
+    isCrossing: boolean,
+    toPasserIdxAtThrow: number,
+    throwLength: number,
+    markers?: ThrowType[],
+    note?: string
+) {
+    return new ThrowImpl(
+        throwBeat,
+        fromPasserIdx,
+        fromHand,
+        isCrossing,
+        toPasserIdxAtThrow,
+        throwLength,
+        markers,
+        note
+    )
 }
 
