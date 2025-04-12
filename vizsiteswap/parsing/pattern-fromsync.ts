@@ -22,7 +22,7 @@ export function createSyncPattern(expr: string): Pattern {
     const [a, b] = expr.includes(',') ? expr.split(",") : [expr, expr]
     const p = `A: ${a}\nB: ${b}`
 
-    return createGroupPattern(p,2,{}).pattern
+    return createGroupPattern(p,2).pattern
 }
 
 

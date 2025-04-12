@@ -1,9 +1,7 @@
 import fs from "node:fs";
 import test from "node:test";
-import { createSiteswapPattern } from "../rendering-tikz/pattern-fromsiteswap.ts";
-import { checkValidPattern } from "../rendering-tikz/pattern-structure.ts";
-import { renderPattern } from "../rendering-tikz./rendering-svg/renderer-tikz.ts";
-import { FourHandedSiteswap } from '../rendering-tikz/siteswap.ts';
+import { renderPattern } from "./renderer-tikz.ts";
+import { createSiteswapPattern } from "@modernpassing/parsing";
 
 
 
@@ -14,8 +12,8 @@ test("create examples file", async (t) => {
     let content = "\\documentclass{article}\\usepackage{tikz}\\usepackage[T1]{fontenc}\\begin{document}"
     
     for (const p of patterns) {
-        const pattern = createSiteswapPattern(new FourHandedSiteswap(p),{})
-        const errors = checkValidPattern(pattern)
+        const pattern = createSiteswapPattern(p,{})
+        const errors = pattern.getValidationError()
         const tikz = renderPattern(pattern, {showLines:true, lineKind:"causal",showStraightCross:true,iterations:4,yMargin:30})
 
         content += `\\section{${p}}\n\n${tikz}   \n\n${errors}`

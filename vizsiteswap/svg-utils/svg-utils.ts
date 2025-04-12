@@ -1,6 +1,6 @@
-import { MovementSegment } from "../pattern/pattern.ts";
+import type { MovementSegment } from "@modernpassing/pattern";
+import { registerWindow, type Svg, SVG } from "@svgdotjs/svg.js";
 import { createSVGWindow } from "svgdom";
-import { registerWindow, Svg, SVG } from "@svgdotjs/svg.js";
 
 export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow();
@@ -9,7 +9,7 @@ export function createSVG(width?: number, height?: number): Svg {
 
     const svg: any = SVG(document.documentElement);
     if (width && height)
-        svg.size(width, height)
+        svg.size(width, height) 
     return svg;
 }
 

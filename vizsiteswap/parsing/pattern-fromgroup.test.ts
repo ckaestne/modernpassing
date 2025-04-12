@@ -4,7 +4,7 @@ import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
 import { GroupPattern, Hand, Throw } from "../pattern/pattern.ts";
 import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
-import { createSiteswapPatternStr } from "./pattern-fromsiteswap.ts";
+import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
 
 const R = Hand.Right
 const L = Hand.Left
@@ -211,7 +211,7 @@ test('hands: techno', () => {
 
 
 test('siteswaps, basics', () => {
-    const q = createSiteswapPatternStr("756", {})
+    const q = createSiteswapPattern("756", {})
     const p = createGroupPattern(`
         A: 7 6 -- B
         B: ,5  -- A
@@ -252,4 +252,5 @@ test('hands: 7 club two count, straight doubles', () => {
 
 })
 
-//TODO 7 club 2 count, straight
+
+// TODO: pattern prefix

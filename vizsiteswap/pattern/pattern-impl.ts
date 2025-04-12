@@ -36,6 +36,7 @@ export class PatternImpl implements Pattern {
         this.mapCrossing = mapCrossing ?? Array(mapRows.length).fill([false])
         this.initialHands = initialHands ?? Array(mapRows.length).fill(Hand.Right)
         this.length = patternLength
+        assert(throws.every(t => t.throwBeat>= 0), "prefix throws not implemented yet TODO")
     }
 
 
@@ -440,7 +441,8 @@ export class PatternImpl implements Pattern {
     }
 
     getPrefixLength(): number {
-        throw new Error("Method not implemented.");
+        // throw new Error("Method not implemented.");
+        return 0
     }
     isSwappedHands(rowIdx: number, iteration: number): boolean {
         if (iteration > 0) {

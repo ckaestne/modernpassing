@@ -1,10 +1,11 @@
-import { checkValidPattern, Pattern, Throw } from '../pattern-structure.ts';
-import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
+import type { Pattern, Throw } from '@modernpassing/pattern'
+import { defaultRendererConfig, type RendererConfig } from './renderer-config.ts';
+import { getThrowsFromPattern, RenderedThrow } from "./rendering-structure.ts";
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): string {
-    if (checkValidPattern(p).length !== 0)
-        throw new Error(`Invalid pattern: ${p}: ${checkValidPattern(p)}`);
+    if (!p.isValid())
+        throw new Error(`Invalid pattern: ${p}: ${p.getValidationError()}`);
 
 
 
@@ -48,7 +49,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
     const hasAnnotation = showStraightCross || showLeftRight;
     const annotationMargin = hasAnnotation ? annotationTextSize : 0;
 
-    const maxTime = p.prefixPeriod + p.period * iterations;
+    const maxTime = p.getPrefixLength() + p.getLength() * iterations;
 
 
 
@@ -68,7 +69,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
 
     const width = xMargin * 2 + throwCircleSize +
         (showStartingHands ? startingHandsOffset : 0) +
-        (p.prefixPeriod + p.period * iterations - 1) * xDist
+        (p.getPrefixLength() + p.getLength() * iterations - 1) * xDist
     const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist
 
 
@@ -79,7 +80,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
 
 
     const ladderOffset = lineKind === "ladder" ? 4 : 0
-    function causalLine(t: Throw) {
+    function causalLine(t: RenderedThrow) {
         const startTime = t.throwTime
         const endTime = lineKind === "ladder" ? t.rethrowTime : t.causeTime
         const bendAdjustment = lineKind === "ladder" ? .6 : 1
@@ -115,7 +116,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         }
     }
 
-    const allThrows: Throw[] = p.getThrows(iterations)
+    const allThrows: RenderedThrow[] = getThrowsFromPattern(p,iterations)
 
     if (showLines || emphasizeLines.length>0) {
         const maxIdx = maxTime
@@ -156,8 +157,8 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
     }
 
     if (showStartingHands) {
-        const hands = p.startingHands
-        for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
+        const hands = p.getStartingHands()
+        for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
             const startingHands = hands[passerIdx]
 
             result += `\\draw (${xMargin + startingHandsOffset / 2}pt, ${yo(passerIdx, null)}pt) node [text=${annotationTextColor},font=\\small] {${startingHands.join("|")}};\n`

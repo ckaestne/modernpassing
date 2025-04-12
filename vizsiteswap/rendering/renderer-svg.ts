@@ -1,7 +1,9 @@
-import { AnimationLayout, BackgroundLayout, FrameLayout, GroupPattern, GroupPatternStaticLayout, Hand, Pattern, Role, Throw } from "@modernpassing/pattern";
+import { AnimationLayout, type BackgroundLayout, FrameLayout, GroupPattern, GroupPatternStaticLayout, Hand, Pattern, Role, Throw } from "@modernpassing/pattern";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
 import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
+import { scaledown, scaleup } from "@modernpassing/svg-utils"; 
+import { getThrowsFromPattern, type RenderedThrow } from "./rendering-structure.ts";
 
 
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
@@ -9,8 +11,8 @@ import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
-    if (checkValidPattern(p).length !== 0)
-        throw new Error(`Invalid pattern: ${p}: ${checkValidPattern(p)}`);
+    if (!p.isValid())
+        throw new Error(`Invalid pattern: ${p}: ${p.getValidationError()}`);
 
 
     const cfg: RendererConfig = { ...defaultRendererConfig, ...config }
@@ -57,11 +59,11 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     const hasAnnotation = showStraightCross || showLeftRight;
     const annotationMargin = hasAnnotation ? annotationTextSize : 0;
 
-    const maxTime = p.prefixPeriod + p.period * iterations;
+    const maxTime = p.getPrefixLength() + p.getLength() * iterations;
 
 
-    if (lineBendOrientation.length <= p.passerNames.length)
-        lineBendOrientation = p.passerNames.map(() => -1)
+    while (lineBendOrientation.length <= p.nrRows)
+        lineBendOrientation.push(-1)
 
 
     // x offset of any point in the pattern (negative numbers for prefix)
@@ -79,12 +81,13 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         return r
     }
 
+    const anyRelabel = p.mapRows.some((v,i) => v!==i)
     const relabelWidth = passerRolesOffset
     const width = xMargin * 2 + throwCircleSize / 2 +
         (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
-        (p.prefixPeriod + p.period * iterations) * xDist +
-        (p.relabel && showPasserRoles ? relabelWidth : 0)
-    const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist * (p.passerNames.length - 1)
+        (p.getPrefixLength() + p.getLength() * iterations) * xDist +
+        (anyRelabel && showPasserRoles ? relabelWidth : 0)
+    const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist * (p.nrRows - 1)
         + (separateleftRightRows ? yHandDist * 2 : 0)
 
 
@@ -94,9 +97,9 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
 
     const ladderOffset = lineKind === "ladder" ? 4 : 0
-    function causalLine(svg: Svg, t: Throw) {
+    function causalLine(svg: Svg, t: RenderedThrow) {
         //no lines for 0s
-        if (t.throwTime === t.rethrowTime) return
+        if (t.throwLength===0) return
 
         const startTime = t.throwTime
         const endTime = lineKind === "ladder" ? t.rethrowTime : t.causeTime
@@ -132,7 +135,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         }
     }
 
-    const allThrows: Throw[] = p.getThrows(iterations)
+    const allThrows: RenderedThrow[] = getThrowsFromPattern(p, iterations)
 
     if (showLines || emphasizeLines.length > 0) {
         const maxIdx = maxTime
@@ -180,13 +183,13 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
 
     if (showPasserRoles) {
         // console.log(p.relabel)
-        for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
-            svg.text("").plain(p.passerNames[passerIdx] + ":").
+        for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
+            svg.text("").plain(p.getInitialRoles()[passerIdx] + ":").
                 addClass("passer-roles").
                 font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(xMargin + passerRolesOffset / 2)
-            if (p.relabel) {
-                const newLabel = p.relabel.find(([role, _]) => role === p.passerNames[passerIdx])
+            if (anyRelabel) {
+                const newLabel = p.getInitialRoles()[p.mapRows[passerIdx]]
                 if (newLabel) {
                     svg.text("").plain("→ " + newLabel[1]).
                         addClass("passer-roles-relabel").
@@ -199,9 +202,9 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     }
 
     if (showStartingHands) {
-        const hands = p.startingHands
+        const hands = p.getStartingHands()
         if (!separateleftRightRows) {
-            for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++) {
+            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
                 const startingHands = hands[passerIdx]
                 svg.text("").plain(startingHands.join("|")).
                     amove(xMargin + startingHandsOffset / 2 + (showPasserRoles ? passerRolesOffset : 0), yo(passerIdx, null)).
@@ -209,7 +212,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
                     font({ size: startingHandsTextSize, 'text-anchor': "middle", fill: annotationTextColor, 'dominant-baseline': "central" })
             }
         } else {
-            for (let passerIdx = 0; passerIdx < p.passerNames.length; passerIdx++)
+            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++)
                 for (const handIdx of [0, 1]) {
                     const startingHand = hands[passerIdx][handIdx]
                     svg.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
@@ -251,8 +254,8 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
         if (gp.layout.animation) {
             const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
-            const beatXOffsets: number[] = [...Array(gp.pattern.period + 1).keys()].map((i) => getXOffset(renderConfig, i))
-            javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.period, beatIndicator, beatXOffsets)
+            const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
+            javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
         } else
             renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })

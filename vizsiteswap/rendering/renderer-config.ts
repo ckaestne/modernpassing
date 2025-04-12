@@ -96,3 +96,14 @@ export const defaultRendererConfig: RendererConfig = {
     passerRolesTextSize: 28,
     renderLayoutOnly: undefined
 };
+
+
+export const defaultSyncPatternConfig: SyncPatternConfig = {
+    gallop: false,
+    useSimpleLabels: true
+}
+export type SyncPatternConfig = {
+    // rendering options
+    gallop: boolean,
+    useSimpleLabels: boolean // use s and p instead of 3 and 3p, etc.
+}

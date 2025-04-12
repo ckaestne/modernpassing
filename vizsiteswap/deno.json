@@ -1,5 +1,5 @@
 {
-    "workspace": ["./pattern", "./parsing", "./rendering","./manipulation"],
+    "workspace": ["./pattern", "./parsing", "./rendering","./manipulation","./svg-utils"],
     "compilerOptions": {
         "strict": true,
         "noImplicitAny": true,

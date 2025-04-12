@@ -15,28 +15,12 @@ import { createShapeLayout, parseLayout, TLayout, TMovement } from "./pattern-sh
  */
 
 
-export const defaultSyncPatternConfig: SyncPatternConfig = {
-    flipStraightCrossing: false,
-    gallop: false,
-    useSimpleLabels: true
-}
-export type SyncPatternConfig = {
-    // shorthand during parsing
-    flipStraightCrossing: boolean,
-
-    // rendering options
-    gallop: boolean,
-    useSimpleLabels: boolean // use s and p instead of 3 and 3p, etc.
-}
 
 
-export function createSyncGroupPattern(patternStr: string, config: Partial<SyncPatternConfig> = {}): GroupPattern {
-    return createGroupPattern(patternStr, 2, config)
+export function createSyncGroupPattern(patternStr: string): GroupPattern {
+    return createGroupPattern(patternStr, 2)
 }
-export function createGroupPattern(patternStr: string, nrHands: number, config: Partial<SyncPatternConfig>): GroupPattern {
-    const {
-        flipStraightCrossing
-    } = { ...defaultSyncPatternConfig, ...config }
+export function createGroupPattern(patternStr: string, nrHands: number): GroupPattern {
 
     const [rows, layout, movement] = parseGroupPattern(patternStr)
 
@@ -204,7 +188,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
             rawPattern,
             nrHands)
-    // for now let's assume that everybody starting on even beats is James (straight singles); TODO: make this configurable, maybe even per partner
+    // for now let's assume that everybody starting on even beats is James (straight singles); any other adjustments are doing with `x` for passes
     const isJames: boolean[] = nrHands === 4 ? getJames(rawPattern) : []
 
 

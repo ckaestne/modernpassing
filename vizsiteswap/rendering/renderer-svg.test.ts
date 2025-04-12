@@ -3,17 +3,10 @@ import { Svg } from "@svgdotjs/svg.js";
 import assert from "node:assert";
 import fs from "node:fs";
 import test from "node:test";
-import { createSyncGroupPattern } from "./pattern-fromgroup.ts";
-import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
-import { createSyncPattern } from "./pattern-fromsync.ts";
-import { checkValidPattern } from "./pattern-structure.ts";
 import { renderGroupPattern, renderLayoutFrames, renderPattern } from "./renderer-svg.ts";
-import { FourHandedSiteswap } from './siteswap.ts';
+import { createSiteswapPattern, createSyncPattern} from "@modernpassing/parsing";
+import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
-test("simple siteswap", async (t) => {
-    const p = createSiteswapPattern(new FourHandedSiteswap("972"), {})
-    assert.deepStrictEqual(checkValidPattern(p), []);
-})
 
 
 test("create siteswap examples file", async (t) => {
@@ -23,10 +16,10 @@ test("create siteswap examples file", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const p of patterns) {
-        const pattern = createSiteswapPattern(new FourHandedSiteswap(p), {})
-        const errors = checkValidPattern(pattern)
+        const pattern = createSiteswapPattern(p, {})
+        const errors = pattern.getValidationError()
         // console.log(JSON.stringify(pattern.getThrows(2)))
-        const svg = renderPattern(pattern, { showLines: true, lineKind: "ladder", showStraightCross: false, iterations: 4, yMargin: 30 })
+        const svg = renderPattern(pattern, { showLines: true, lineKind: "ladder", showStraightCross: true, iterations: 4, yMargin: 30 })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p><br/>${errors}`
     }
@@ -44,7 +37,7 @@ test("create basic sync examples", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const p of patterns) {
-        const pattern = createSyncPattern(p, { flipStraightCrossing: true })
+        const pattern = createSyncPattern(p)
         const svg = renderPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 4 })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -68,7 +61,7 @@ test("highlight in sync patterns", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const [conf, p] of patterns) {
-        const pattern = createSyncPattern(p, conf)
+        const pattern = createSyncPattern(p)
         const svg = renderPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -81,8 +74,8 @@ test("highlight in sync patterns", async (t) => {
 
 test("advanced sync patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{}, '3p3 -> 33p3, 4p23'],
-        [{ "flipStraightCrossing": true, "iterations": 3 }, '4p,- -> 34p,4p3'],
+        [{}, '3p3 | 33p3, 4p23'],
+        [{ "flipStraightCrossing": true, "iterations": 3 }, '4p,. | 34p,4p3'],
         [{ "flipStraightCrossing": false, "iterations": 4 }, '4p3,34p'],
         [{ "flipStraightCrossing": true, "iterations": 4 }, '4p3,34p'],
         [{ "flipStraightCrossing": true }, '4p33353,3534p33'],
@@ -94,7 +87,7 @@ test("advanced sync patterns", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const [conf, p] of patterns) {
-        const pattern = createSyncPattern(p, conf)
+        const pattern = createSyncPattern(p)
         const svg = renderPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -113,7 +106,7 @@ test("jims and galloped sync patterns", async (t) => {
         [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21], xDist: 80, yDist: 80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],
         [{ showLines: true, lineKind: "ladder", xDist: 80, yDist: 80, "emphasizeThrows": [2, 5, 8, 13, 14, 19, 22, 25, 28, 33, 34, 39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
-        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,- -> 34p,4p3'],
+        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,. | 34p,4p3'],
         [{ "gallop": true, iterations: 4 }, '5p3'],
         [{ "gallop": true, flipStraightCrossing: true, showLines: true, xDist: 80, yDist: 80, lineKind: "ladder" }, '6p3534p3,34p36p35'],
     ]
@@ -122,7 +115,7 @@ test("jims and galloped sync patterns", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const [conf, p] of patterns) {
-        const pattern = createSyncPattern(p, conf)
+        const pattern = createSyncPattern(p)
         const svg = renderPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -138,19 +131,19 @@ test("jims and galloped sync patterns", async (t) => {
 test("fully synchronous patterns", async (t) => {
     const patterns: [any, string][] = [
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false },
-            '(4p,4x)(4x,2)(4x,4p)(2,4x),(4x,2)(4x,4px)(2,4x)(4px,4x)'],
+            '(4p 4x)(4x 2)(4x 4p)(2 4x),(4x 2)(4x 4px)(2 4x)(4px 4x)'],
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
-            '(4px,4x),(4px,4x)'],
+            '(4px 4x),(4px 4x)'],
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 4 },
-            '(4px,4x)(4x,4px),(4px,4x)(4x,4px)'],
+            '(4px 4x)(4x 4px),(4px 4x)(4x 4px)'],
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 4 },
-            '(4px,4x)(4px,4x),(4px,4x)(4,4p)'],
+            '(4px 4x)(4px 4x),(4px 4x)(4 4p)'],
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
-            '(6px,4x)'],
+            '(6px 4x)'],
         [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 70, xDist: 80 },
-            '(6px,4px)(2,2),(6px,2)(2,4px)'],
+            '(6px 4px)(2 2),(6px 2)(2 4px)'],
         [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 60, xDist: 80 },
-            '(4px,6)(2,2)(6,4px)(2,2),(2,2)(4p,6)(2,2)(6,4p)'],
+            '(4px 6)(2 2)(6 4px)(2 2),(2 2)(4p 6)(2 2)(6 4p)'],
         // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       
     ]
 
@@ -158,7 +151,7 @@ test("fully synchronous patterns", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const [conf, p] of patterns) {
-        const pattern = createSyncPattern(p, conf)
+        const pattern = createSyncPattern(p)
         // console.log(pattern)
         // console.log(pattern.getThrows(1))
         const svg = renderPattern(pattern, conf)
@@ -190,7 +183,7 @@ test("create basic group sync examples", async (t) => {
     let content = "<!DOCTYPE html><html>"
 
     for (const p of patterns) {
-        const pattern = createSyncGroupPattern(p, {})
+        const pattern = createSyncGroupPattern(p)
         const [svg, _] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
 
         let staticFrames: Svg[] = []

@@ -1,11 +1,11 @@
 import  assert  from "node:assert";
-import { createSiteswapPatternStr } from "./pattern-fromsiteswap.ts";
+import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
 import { Hand } from "../pattern/pattern.ts";
 
 
 Deno.test("Pattern from siteswap, 756", () => {
 
-    const s756 = createSiteswapPatternStr("756", {  });
+    const s756 = createSiteswapPattern("756", {  });
     console.log(s756.prettyPrintThrows())
     const t7=s756.findThrow(0)!
     const t5=s756.findThrow(1)!
@@ -45,7 +45,7 @@ Deno.test("Pattern from siteswap, 756", () => {
 
 Deno.test("Pattern from siteswap, 756, B starting", () => {
 
-    const s756 = createSiteswapPatternStr("756", { startingJuggler: 1 });
+    const s756 = createSiteswapPattern("756", { startingJuggler: 1 });
     console.log(s756.prettyPrintThrows())
     const t7=s756.findThrow(0)!
     const t5=s756.findThrow(1)!
@@ -84,7 +84,7 @@ Deno.test("Pattern from siteswap, 756, B starting", () => {
 
 Deno.test("Pattern from siteswap, 77722", () => {
 
-    const s756 = createSiteswapPatternStr("77722", { startingJuggler: 0 });
+    const s756 = createSiteswapPattern("77722", { startingJuggler: 0 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!
@@ -102,7 +102,7 @@ Deno.test("Pattern from siteswap, 77722", () => {
 })
 Deno.test("Pattern from siteswap, 77722, B starting", () => {
 
-    const s756 = createSiteswapPatternStr("77722", { startingJuggler: 1 });
+    const s756 = createSiteswapPattern("77722", { startingJuggler: 1 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!
@@ -123,7 +123,7 @@ Deno.test("Pattern from siteswap, 77722, B starting", () => {
 
 Deno.test("Pattern from siteswap, 7", () => {
 
-    const s756 = createSiteswapPatternStr("7", { startingJuggler: 0 });
+    const s756 = createSiteswapPattern("7", { startingJuggler: 0 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!
@@ -137,7 +137,7 @@ Deno.test("Pattern from siteswap, 7", () => {
 
 Deno.test("Pattern from siteswap, 75", () => {
 
-    const s756 = createSiteswapPatternStr("75", { startingJuggler: 0 });
+    const s756 = createSiteswapPattern("75", { startingJuggler: 0 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!
@@ -156,7 +156,7 @@ Deno.test("Pattern from siteswap, 75", () => {
 
 Deno.test("Pattern from siteswap, 7575", () => {
 
-    const s756 = createSiteswapPatternStr("7575", { startingJuggler: 0 });
+    const s756 = createSiteswapPattern("7575", { startingJuggler: 0 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!
@@ -175,7 +175,7 @@ Deno.test("Pattern from siteswap, 7575", () => {
 
 Deno.test("Pattern from siteswap, 756756", () => {
 
-    const s756 = createSiteswapPatternStr("756756", { startingJuggler: 0 });
+    const s756 = createSiteswapPattern("756756", { startingJuggler: 0 });
     console.log(s756.prettyPrintThrows())
 
     const t1= s756.findThrow(0)!

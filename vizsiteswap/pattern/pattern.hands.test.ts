@@ -446,7 +446,6 @@ Deno.test("starting hands, various siteswaps", () => {
     assert.deepEqual(sw([9, 9, 9]).getStartingHands(), [[3, 2], [2, 2]])
     assert.deepEqual(sw([7,7,7,2,2]).getStartingHands(), [[2, 1], [1, 1]])
     assert.deepEqual(sw([9]).getStartingHands(), [[3, 2], [2, 2]])
-    //TODO: assert.deepEqual(sw([6,6]).getStartingHands(), [[3, 2], [2, 2]])
 
     assert.deepEqual(sw([9,7,2]).getStartingHands(), [[1, 2], [2, 1]])
     assert.deepEqual(sw([7,2,9]).getStartingHands(), [[3, 1], [2, 0]])

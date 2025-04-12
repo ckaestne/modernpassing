@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "exports": "./rendering.ts",
   "imports": {
-    "@std/assert": "jsr:@std/assert@1",
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
     "jsdom": "npm:jsdom@^24.1.1",
     "svgdom": "npm:svgdom@^0.1.19",

@@ -260,6 +260,9 @@ export interface Pattern {
     getTargetHand(t: Throw, iteration: number): Hand
 
     getTargetHandFirstIteration(t: Throw): Hand
+
+    isCrossingPass(t: Throw, iteration: number): boolean 
+    isSelfThrow(t: Throw): boolean 
 }
 
 
