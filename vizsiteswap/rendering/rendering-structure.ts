@@ -21,13 +21,11 @@ export type RenderedThrow = {
 }
 
 export function getThrowsFromPattern(pattern: Pattern, iterations: number): RenderedThrow[] {
-    if (pattern.getPrefixLength() > 0)
-        throw new Error("TODO: prefixes not supported yet")
-    let prefixTimeOffset = 0
+    let prefixTimeOffset = pattern.getPrefixLength()
     let iterationTimeOffset = 0
     const result: RenderedThrow[] = []
     for (let iteration = 0; iteration < iterations; iteration++) {
-        for (const t of pattern.throws) {
+        for (const t of pattern.throws) if (t.throwBeat >= 0 || iteration===0){
             result.push({
                 throwTime: prefixTimeOffset+iterationTimeOffset+t.throwBeat,
                 rethrowTime: prefixTimeOffset+iterationTimeOffset+t.throwBeat + t.throwLength,

@@ -12,7 +12,7 @@ import { getThrowsFromPattern, type RenderedThrow } from "./rendering-structure.
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
     if (!p.isValid())
-        throw new Error(`Invalid pattern: ${p}: ${p.getValidationError()}`);
+        throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
 
 
     const cfg: RendererConfig = { ...defaultRendererConfig, ...config }

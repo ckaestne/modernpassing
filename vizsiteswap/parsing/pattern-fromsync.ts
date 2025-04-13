@@ -19,6 +19,10 @@ import { createGroupPattern } from "./pattern-fromgroup.ts";
  */
 export function createSyncPattern(expr: string): Pattern {
     
+    if (expr.split(',').length > 2) 
+        throw new Error('Invalid pattern: cannot have more than one comma in the expression');
+    
+    
     const [a, b] = expr.includes(',') ? expr.split(",") : [expr, expr]
     const p = `A: ${a}\nB: ${b}`
 

@@ -167,7 +167,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     const baseIdxRelabel: number[] = rawPattern.filter(t => !t.isManipulator).map(t => baseRoles.indexOf(t.relabel ?? t.role!))
     const nrBaseRoles = baseRoles.length
     const throws = allThrowsByBeat(rawPattern, nrHands)
-    const patternLength = getPatternLength(rawPattern, nrHands)
+    const patternLength = getPatternLength(throws)
     const prefixLength = 0-throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
 
     // hand ordering is nontrivial unfortunately
@@ -466,25 +466,26 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
 }
 
 
-function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
-    return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
-}
+// function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
+//     return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
+// }
     
-function getRowLength(row: TPatternRow, nrHands: number): number {
-    assert(nrHands === 2 || nrHands === 4, `only supporting 2 and 4 hands for now`)
+// // number of beats in the sequence, not counting prefix throws
+// function getRowLength(row: TPatternRow, nrHands: number): number {
+//     assert(nrHands === 2 || nrHands === 4, `only supporting 2 and 4 hands for now`)
 
-    let beat = 0
-    for (let seqIdx = 0; seqIdx < row.sequence.length; seqIdx++) {
-        const currentThrow = row.sequence[seqIdx]
+//     let beat = 0
+//     for (let seqIdx = 0; seqIdx < row.sequence.length; seqIdx++) {
+//         const currentThrow = row.sequence[seqIdx]
 
-        if (currentThrow !== HandSwap)
-            beat += currentThrow === ',' ? .5 : 1
-        if (Array.isArray(currentThrow) && !row.isManipulator)
-            beat += 1
-    }
-    if (nrHands===2) return beat
-    else return beat*2-1 
-}
+//         if (currentThrow !== HandSwap)
+//             beat += currentThrow === ',' ? .5 : 1
+//         if (Array.isArray(currentThrow) && !row.isManipulator)
+//             beat += 1
+//     }
+//     if (nrHands===2) return beat
+//     else return beat*2-1 
+// }
 
 
 /**
@@ -507,6 +508,10 @@ function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, H
         return a[0] - b[0]
     })
     return result
+}
+
+function getPatternLength(throws: [number, Beat, Hand | undefined, string][]): number {
+    return throws.reduce((max, v) => Math.max(max, v[2]===undefined ? v[1]: v[1]+1), 0)+1
 }
 
 function getJames(rawPattern: TPatternRow[]): boolean[] {

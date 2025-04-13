@@ -74,11 +74,11 @@ test("highlight in sync patterns", async (t) => {
 
 test("advanced sync patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{}, '3p3 | 33p3, 4p23'],
-        [{ "flipStraightCrossing": true, "iterations": 3 }, '4p,. | 34p,4p3'],
-        [{ "flipStraightCrossing": false, "iterations": 4 }, '4p3,34p'],
-        [{ "flipStraightCrossing": true, "iterations": 4 }, '4p3,34p'],
-        [{ "flipStraightCrossing": true }, '4p33353,3534p33'],
+        [{  showLines: true, lineKind: "causal",}, '3p | 333p, 3p | 34p2'],
+        [{  "iterations": 3 }, '4px | !34px,4px3'],
+        [{  "iterations": 4 }, '4p3,34p'],
+        [{ "iterations": 4 }, '!4px3,34px'],
+        [{ }, '!4px33353,3534px33'],
         [{}, "3p4p3,4p34p"],
         [{}, "3p 3 4 , 4 4 3p"],
         [{}, "4p4p4,4p4p4"],
@@ -106,7 +106,7 @@ test("jims and galloped sync patterns", async (t) => {
         [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21], xDist: 80, yDist: 80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],
         [{ showLines: true, lineKind: "ladder", xDist: 80, yDist: 80, "emphasizeThrows": [2, 5, 8, 13, 14, 19, 22, 25, 28, 33, 34, 39] }, '3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3'],
-        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p,. | 34p,4p3'],
+        [{ "gallop": true, flipStraightCrossing: true, iterations: 4 }, '4p | 34p,4p3'],
         [{ "gallop": true, iterations: 4 }, '5p3'],
         [{ "gallop": true, flipStraightCrossing: true, showLines: true, xDist: 80, yDist: 80, lineKind: "ladder" }, '6p3534p3,34p36p35'],
     ]
@@ -141,7 +141,7 @@ test("fully synchronous patterns", async (t) => {
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
             '(6px 4x)'],
         [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 70, xDist: 80 },
-            '(6px 4px)(2 2),(6px 2)(2 4px)'],
+            '(6px 4px)(2 2),(2 6px)(4px 2)'],
         [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 60, xDist: 80 },
             '(4px 6)(2 2)(6 4px)(2 2),(2 2)(4p 6)(2 2)(6 4p)'],
         // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       
