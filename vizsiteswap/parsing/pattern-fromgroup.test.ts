@@ -9,8 +9,8 @@ import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
 const R = Hand.Right
 const L = Hand.Left
 
-test("test pattern creation", async (t) => {
-    const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)", {})
+test("test pattern creation", (t) => {
+    const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)")
     const p = gp.pattern
 
     console.log(p.prettyPrintThrows())
@@ -51,7 +51,7 @@ B: 3pA3pC3
 C: 3pD3pB3
 D: 3pC33
 positions: Box(A,C,D,B)`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     const roles = ['A', 'B', 'C']
     console.log(p.prettyPrintThrows())
@@ -76,7 +76,7 @@ B: 3pA3  3  3  3pA3 -- C
 C: 3 3 3pA3  3  3  -- A
 positions: V(A,B,C)
 move: Vmove(B,3.9,3)`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -89,7 +89,7 @@ move: Vmove(B,3.9,3)`
 
 test('hands: double pass', async (t) => {
     const pattern = `4p 2 3\n3 3p 3`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -110,7 +110,7 @@ test('hands: double pass', async (t) => {
 test('hands: jim\'s three count', async (t) => {
     const pattern = `3p  3 3 3p  3 3
                      3px 3 3 3px 3 3`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -150,7 +150,7 @@ test('hands: jim\'s three count', async (t) => {
 
 test('hands: jim\'s three count -- short', async (t) => {
     const pattern = `A: 3p33--B\nB: 3px33 -- A`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -183,7 +183,7 @@ test('hands: jim\'s three count -- short', async (t) => {
 
 test('hands: 8c two count', () => {
     const pattern = `(4px 4x)\n(4px 4x)`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -196,7 +196,7 @@ test('hands: techno', () => {
     const pattern = `
         (4p 4x)(4x 2  )(4x 4p)(2   4x)
         (4x  2)(4x 4px)(2  4x)(4px 4x)`
-    const gp: GroupPattern = createSyncGroupPattern(pattern, {})
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -215,7 +215,7 @@ test('siteswaps, basics', () => {
     const p = createGroupPattern(`
         A: 7 6 -- B
         B: ,5  -- A
-        `, 4, {}).pattern
+        `, 4).pattern
 
     console.log(q.prettyPrintThrows())
     console.log(p.prettyPrintThrows())
@@ -233,7 +233,7 @@ test('hands/crossing complicated: extra club brunos', () => {
         C:!, 6   6   6   6   9Ax 6   6   6   6   6   -- A
         positions: Brunos(A,B,C)
         move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5) `
-    const gp: GroupPattern = createGroupPattern(pattern, 4, {})
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -245,7 +245,7 @@ test('hands: 7 club two count, straight doubles', () => {
     const pattern = `
         A: 4px 3
         B:!3   4px`
-    const gp: GroupPattern = createGroupPattern(pattern, 2, {})
+    const gp: GroupPattern = createGroupPattern(pattern, 2)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
@@ -253,4 +253,47 @@ test('hands: 7 club two count, straight doubles', () => {
 })
 
 
-// TODO: pattern prefix
+test('prefix and hands: 7 club two count', () => {
+    const pattern = `
+        A: 4px| !3 4px 
+        B: 4px 3`
+    const gp: GroupPattern = createGroupPattern(pattern, 2)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+
+    assert.equal(p.getPrefixLength(), 1)
+    assert.equal(p.getLength(), 2)
+
+    assert.equal(p.getThrowHand(p.findThrow(-1, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Left)
+
+    assert.ok(p.isValid(), p.getValidationError())
+})
+
+test('prefix and hands: 7 club two count, start left-handed', () => {
+    const pattern = `
+        A: 4px| 3 4px 
+        B: !4px 3`
+    const gp: GroupPattern = createGroupPattern(pattern, 2)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+
+    assert.equal(p.getPrefixLength(), 1)
+    assert.equal(p.getLength(), 2)
+
+    assert.equal(p.getThrowHand(p.findThrow(-1, 0)!, 0), Hand.Left)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+
+    assert.ok(p.isValid(), p.getValidationError())
+})
+
+test('prefix notations', () => {
+    const p = createGroupPattern(`
+        A: 4px| !3 4px 
+        B: 4px 3`, 2).pattern
+    const q = createGroupPattern(`
+            A: 4px| !3 4px 
+            B: .| 4px 3`, 2).pattern
+
+    assert.equal(p.prettyPrintThrows(), q.prettyPrintThrows())
+})

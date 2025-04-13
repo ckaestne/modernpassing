@@ -49,7 +49,7 @@ M: SBcz SAlz SAcz SAlz IAv]. CA`
     assert.equal(p[0][1].role, 'B')
     assert.equal(p[0][1].isManipulator, false)
     assert.equal(p[0][1].relabel, "A")
-    assert.deepStrictEqual(p[0][2].sequence, ["SBc", "z", "SAl", "z", "SAc", "z", "SAl", "z", "IAv]", ".", "CA","."])
+    assert.deepStrictEqual(p[0][2].sequence, ["SBc", "z", "SAl", "z", "SAc", "z", "SAl", "z", "IAv]", ".", "CA"])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
     assert.equal(p[0][2].relabel, undefined)
@@ -86,9 +86,17 @@ test('manipulator with multiple actions on the same beat and delayed placement',
 B: 3pA 3pA 3   -- A
 M: . (SBd2 2) 
 `
+
+    logTokens(tokenizer.parse(pp))
+    const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(". (SBd2 2) "))))
+    // console.log(expectEOF(PRow.parse(tokenizer.parse("A: . (SBd2 2) "))))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(". (SBd2 2) "))))
+    console.log(a, b)
+    assert(b.isManipulator)
+
     const p = parseGroupPattern(pp)
 
-    assert.deepStrictEqual(p[0][2].sequence, ['.', ['SBd2', '2'], '.'])
+    assert.deepStrictEqual(p[0][2].sequence, ['.', ['SBd2', '2']])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
 
@@ -96,11 +104,22 @@ M: . (SBd2 2)
 
 test('parse manipulator row', () => {
     const t = `M: IA.CzSAz`
-    
+    logTokens(tokenizer.parse(t))
+
     const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(b.isManipulator)
-    console.log(a,b)
+    console.log(a, b)
+})
+
+test('parse manipulator row - handle carry', () => {
+    const t = `M: IA.CfzSAz`
+    logTokens(tokenizer.parse(t))
+
+    const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    assert(b.isManipulator)
+    console.log(a, b)
 })
 
 test('parse allsync pattern', () => {
@@ -111,11 +130,30 @@ test('parse allsync pattern', () => {
     assert(!b.isManipulator)
     console.log(b)
 })
+let max = 500
+
+test('parse prefix in row', () => {
+    const t = `4px | 3 4px`
+    // logTokens(tokenizer.parse(t))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    assert(!b.isManipulator)
+    console.log(b)
+
+})
+test('parse prefix in row 2', () => {
+    const t = `. 4px 3`
+    // logTokens(tokenizer.parse(t))
+    const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
+    assert(!b.isManipulator)
+    console.log(b)
+
+})
 
 
-function logTokens(x: Token<any>|undefined) {
-        while (x) {
+function logTokens(x: Token<any> | undefined) {
+    while (x && max > 0) {
         console.log(x.text, x.kind)
         x = x.next
+        max--
     }
 }

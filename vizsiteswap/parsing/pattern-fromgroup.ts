@@ -151,10 +151,6 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
 
 
 
-function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
-    return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
-}
-
 
 
 /**
@@ -170,7 +166,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     const baseRoles = rawPattern.filter(t => !t.isManipulator).map(row => row.role!)
     const baseIdxRelabel: number[] = rawPattern.filter(t => !t.isManipulator).map(t => baseRoles.indexOf(t.relabel ?? t.role!))
     const nrBaseRoles = baseRoles.length
+    const throws = allThrowsByBeat(rawPattern, nrHands)
     const patternLength = getPatternLength(rawPattern, nrHands)
+    const prefixLength = 0-throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
 
     // hand ordering is nontrivial unfortunately
     // we assume right-left alternating by default, starting right-handed
@@ -183,11 +181,12 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     // if something is wrong, this will result in an invalid pattern
 
     // default hand order is right-left-right-left-right-left...; `!` flips that; those defaults may be changed later as we process throws
-    const handSequence: Hand[][] =
+    const handSequence: Hand[/*rowIdx*/][/*beat*/] =
         applyHandswaps(
             altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
             rawPattern,
             nrHands)
+    const prefixHandSequence: Hand[/*rowIdx*/][/*-beat*/] = altHands(handSequence.map(v=>1-v[0]),prefixLength, rawPattern.length, nrHands)
     // for now let's assume that everybody starting on even beats is James (straight singles); any other adjustments are doing with `x` for passes
     const isJames: boolean[] = nrHands === 4 ? getJames(rawPattern) : []
 
@@ -209,7 +208,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         else if (isPass && !targetRole) throw Error(`ambiguous target role for pass ${throwStr}`)
         else if (throwStr.length === 1 && nrBaseRoles === 2 && nrHands === 4 && throwLength % 2 === 1) to = 1 - who
 
-        const fromHand = fixedHand ?? handSequence[who][when]
+        const fromHand = fixedHand ?? (when>=0 ? handSequence[who][when] : prefixHandSequence[who][-when-1])
         const isCrossing = flipCrossing !== (nrHands === 2 ? throwLength % 2 === 1 : getCrossing(throwLength, isJames[who]))
 
         assert(to >= 0, `target role not clear for throw  ${throwStr}`)
@@ -385,14 +384,15 @@ export function createLayout(input: string, patternLength: number = 0): GroupPat
 }
 
 
-function altHands(startingHand: Hand, sequenceLength: number, rows: number, nrHands: number): Hand[][] {
+function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: number, nrHands: number): Hand[][] {
     const result = []
     for (let row = 0; row < rows; row++) {
         const seq: Hand[] = []
         let c = 0
         for (let i = 0; i < sequenceLength; i++) {
-            const hand = nrHands===2? (startingHand+c)%2 :
-                (startingHand+c)%4<2 ? Hand.Right : Hand.Left
+            const sh = Array.isArray(startingHand) ? startingHand[row] : startingHand
+            const hand = nrHands===2? (sh+c)%2 :
+                (sh+c)%4<2 ? Hand.Right : Hand.Left
             seq.push(hand)
             c++
         }
@@ -433,9 +433,15 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
     assert(nrHands === 2 || nrHands === 4, `only supporting 2 and 4 hands for now`)
 
     const result: [Beat, (TThrow | THandSwap)][] = []
+
+    assert(row.sequence.filter(t=>t==="|").length<=1, `at most one prefix allowed in a row`)
+    const prefixDelimiter = row.sequence.indexOf("|")
+    const [sequence, prefix] = 
+       prefixDelimiter>=0? [row.sequence.slice(prefixDelimiter+1), row.sequence.slice(0,prefixDelimiter)] : [row.sequence, []]
+
     let beat = 0
-    for (let seqIdx = 0; seqIdx < row.sequence.length; seqIdx++) {
-        const currentThrow = row.sequence[seqIdx]
+    for (let seqIdx = 0; seqIdx < sequence.length; seqIdx++) {
+        const currentThrow = sequence[seqIdx]
 
 
         if (currentThrow && currentThrow !== ',' && currentThrow !== '.')
@@ -446,9 +452,24 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
         if (Array.isArray(currentThrow) && !row.isManipulator)
             beat += 1
     }
+    beat = 0 
+    for (let seqIdx = 0; seqIdx < prefix.length; seqIdx++) {
+        const currentThrow = prefix[prefix.length-1-seqIdx]
+        if (currentThrow && currentThrow !== ',' && currentThrow !== '.')
+            result.push([nrHands === 4 ? beat * 2 : -1 - beat, currentThrow])
+        if (currentThrow !== HandSwap)
+            beat += currentThrow === ',' ? .5 : 1
+        if (Array.isArray(currentThrow) && !row.isManipulator)
+            beat += 1
+    }
     return result
 }
 
+
+function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
+    return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
+}
+    
 function getRowLength(row: TPatternRow, nrHands: number): number {
     assert(nrHands === 2 || nrHands === 4, `only supporting 2 and 4 hands for now`)
 

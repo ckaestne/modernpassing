@@ -11,7 +11,7 @@ A trailing `x` indicates a throw that's crossing hands opposite of what would be
 
 As special throws `-` indicates a skipped beat.
 
-Parentheses can be used to express pairs of throws where the first throw in the pair is the right hand and the second the left hand, e.g. `(4p,4x)`.
+Parentheses can be used to express pairs of throws where the first throw in the pair is the right hand and the second the left hand, e.g. `(4p 4x)`.
 
 A sequence of throws can be separated by white space, but does not need to be (e.g., `3p3p42 = 3p 3p 4 2`)
 
@@ -89,5 +89,12 @@ By default all rows start right-handed and have no prefix.
 
 In four-handed siteswaps, rows starting with an empty beat are assumed to throw crossing singles and rows starting with a throw are assumed to throw straight singles.
 
-If pair notation is used for throws, the first throw in the pair is always thrown from the right hand. Without pair notation, handedness is inferred: 
-The first throw is assumed to be right-handed (or left-handed when indicated with `!`).  Every subsequent throw is thrown from the hand where the prior throw was caught (enabling Jim's throws). TODO
+If pair notation is used for throws, the first throw in the pair is always thrown from the right hand, there is no automated mirroring of hands (e.g., Techno needs to be written out with both sides). Without pair notation, handedness is inferred: By default, a passer starts right-handed and then alternates hands. The `!` can be used to swap the default order, typically before the first throw, but possibly also later in the pattern. Every throw that is forced by a throw in the same iteration (and only in the same iteration!) is thrown from the hand where a pass is caught -- this is usually enough to enable Jim's throws without using `!`.
+It is not a good idea to mix pair notation and single-throw notation in the same pattern.
+
+## Prefix
+
+A prefix is a sequence of throws before the first iteration of the pattern. It affects starting hands computations.
+A prefix throw happens before the first iteration of the pattern. A prefix throw must land on a beat of the pattern (i.e., cannot force another prefix throw).
+For handedness, it is assumed that the prefix throw immediately before the pattern is thrown with the opposite hand of the first throw, the one before that again with the opposite hand and so forth. Specifying a different hand order with `!` in prefix throws is not currently supported. To start with a right-handed prefix throw, use `!` to flip the hands in the main pattern (e.g., 4px | !3 4px , 4px 3`)
+If not all rows have prefix throws, it is assumed that the other passers have no actions on these beats.

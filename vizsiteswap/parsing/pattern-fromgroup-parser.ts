@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { alt, alt_sc, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, str, tok } from "npm:typescript-parsec";
+import { alt, alt_sc, amb, apply, betterError, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, ParseError, Parser, ParserOutput, rep, resultOrError, rule, seq, str, tok, Token } from "npm:typescript-parsec";
 import { createPattern, GroupPatternLayout, Role } from "@modernpassing/pattern"
 import { defaultLayoutForTwo, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
 
@@ -32,31 +32,38 @@ export type TPatternRow = {
 }
 export type THandSwap = "__handswap__"
 export const HandSwap: THandSwap = "__handswap__"
+export type TPipe = "|"
 export type TThrow = string | [string, string] // single throw or sync throw with both hands
 export type TSequence =TBeat[] // one passer's sequence of throws (or other indicators)
 export type TPattern = TSequence[] // a sequence for each passer
 export type TEmpty = "."
 export type THalfEmpty = ","
-export type TBeat = TThrow | THandSwap | TEmpty | THalfEmpty
+export type TBeat = TThrow | THandSwap | TPipe | TEmpty | THalfEmpty
 
 
 export enum TokenKind {
-    Throw, HalfEmpty, Arrow, Empty, Hurry,
+    Throw,  // 0
+    HalfEmpty, 
+    Arrow, 
+    Empty,
+     Hurry,
     LParen,
     RParen,
     Space,
     Colon,
     Role,
-    ManipulatorAction,
-    HandSwap
+    ManipulatorAction, //10
+    HandSwap,
+    Pipe
 }
 export const tokenizer = buildLexer<TokenKind>([
     [true, /^([0-9a-y](p)?[A-Z]?(x)?)/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, TokenKind.Role],
-    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?|[o\.-])/g, TokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e|l|v[oxb\[\]]|v|c)?|C[A-Z]{0,2}f?|zf?)/g, TokenKind.ManipulatorAction],
     [true, /^[\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.HalfEmpty],
     [true, /^:/g, TokenKind.Colon],
+    [true, /^\|/g, TokenKind.Pipe],
     [true, /^\(/g, TokenKind.LParen],
     [true, /^\)/g, TokenKind.RParen],
     [true, /^--|→/g, TokenKind.Arrow],
@@ -88,12 +95,20 @@ PHandSwap.setPattern(
 )
 
 
+const anyThrow = alt_sc(
+    PThrow, 
+    PHandSwap, 
+    apply(tok(TokenKind.Empty), () => "."), 
+    apply(tok(TokenKind.HalfEmpty), () => ",")
+)
+
+
 PBaseSequence.setPattern(
-    rep1(alt(
-        PThrow, 
-        PHandSwap, 
-        apply(tok(TokenKind.Empty), () => "."), 
-        apply(tok(TokenKind.HalfEmpty), () => ","))
+   apply(seq(opt(kleft(rep1(anyThrow), tok(TokenKind.Pipe))),    rep1(anyThrow)),
+        v => {
+            const throws: TSequence = v[0] ? [...v[0], "|", ...v[1]] :v[1]
+            return throws
+        }
     )
 )
 
@@ -105,7 +120,7 @@ const PAtomicManipulatorAction = rule<TokenKind, string>();
 PAtomicManipulatorAction.setPattern(alt_sc(
     apply(tok<TokenKind>(TokenKind.ManipulatorAction), t => t.text),
     apply(tok<TokenKind>(TokenKind.Throw), t => t.text),
-    apply(str("C"), t => t.text)
+    apply(str("C"), t => t.text),//needed because a C without modifier is parsed as a role token
 ))
 
 export const PManipulatorAction = rule<TokenKind, (TThrow|THandSwap)>();
@@ -120,19 +135,15 @@ PManipulatorAction.setPattern(
     )
 )
 export const PManipulatorSequence = rule<TokenKind, (TThrow|THandSwap)[]>();
-PManipulatorSequence.setPattern(
-    apply(seq(PManipulatorAction, rep(PManipulatorAction)),
-        v => [v[0], ...v[1]])
-)
+PManipulatorSequence.setPattern(rep1(PManipulatorAction))
 
 export const PRow = rule<TokenKind, TPatternRow>();
 PRow.setPattern(
-    alt_sc(
+    apply(amb(alt(
         apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PBaseSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(false)),
         apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PManipulatorSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(true))
-    )
+    )), m=>m[0]) // if it matches both base and manipulator, use base sequence
 )
-
 
 function createPatternRow(isManipulator: boolean) {
     return function (v: [Role | undefined, TSequence, Role?]): TPatternRow {
