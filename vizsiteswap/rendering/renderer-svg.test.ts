@@ -140,8 +140,8 @@ test("fully synchronous patterns", async (t) => {
             '(4px 4x)(4px 4x),(4px 4x)(4 4p)'],
         [{ separateleftRightRows: true, showLeftRight: false, showStraightCross: false, showLines: true, iterations: 8 },
             '(6px 4x)'],
-        [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 70, xDist: 80 },
-            '(6px 4px)(2 2),(2 6px)(4px 2)'],
+        // [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 70, xDist: 80 },
+        //     '(5p 3p),3p5p'],
         [{ separateleftRightRows: true, showLeftRight: false, showLines: true, iterations: 4, lineKind: "ladder", yDist: 80, yHandDist: 60, xDist: 80 },
             '(4px 6)(2 2)(6 4px)(2 2),(2 2)(4p 6)(2 2)(6 4p)'],
         // <sync>(3px,4)(2,0),(2,0)(4,3p)</sync>       

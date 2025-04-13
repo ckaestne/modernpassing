@@ -83,7 +83,7 @@ test("render first animation (star with a hole)", async (t) => {
 
     let content = "<!DOCTYPE html><html>" +
     '  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>'+
-    '  <script src="../runtime/animations.js"></script>'
+    '  <script src="../../runtime/animations.js"></script>'
 
     for (const p of patterns) {
 
