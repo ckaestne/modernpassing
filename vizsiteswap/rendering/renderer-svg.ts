@@ -1,7 +1,7 @@
 import { AnimationLayout, type BackgroundLayout, FrameLayout, GroupPattern, GroupPatternStaticLayout, Hand, Pattern, Role, Throw } from "@modernpassing/pattern";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { defaultRendererConfig, RendererConfig } from './renderer-config.ts';
+import { customRendererConfigDefaults, defaultRendererConfig, RendererConfig } from './renderer-config.ts';
 import { scaledown, scaleup } from "@modernpassing/svg-utils"; 
 import { getThrowsFromPattern, type RenderedThrow } from "./rendering-structure.ts";
 
@@ -15,8 +15,8 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
 
 
-    const cfg: RendererConfig = { ...defaultRendererConfig, ...config }
-    let {
+    const cfg: RendererConfig = { ...customRendererConfigDefaults(p.nrHands, p.nrRows), ...config }
+    const {
         xDist,
         yDist,
         xMargin,
@@ -52,7 +52,12 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         showPasserRoles,
         passerRolesOffset,
         passerRolesTextSize,
-    } = cfg;
+        gallop,
+        useSimpleLabels,
+        useAllSyncLabels,
+        showPassInLabel,
+        showPassDestinationRole,
+        } = cfg;
 
 
 
@@ -135,7 +140,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         }
     }
 
-    const allThrows: RenderedThrow[] = getThrowsFromPattern(p, iterations)
+    const allThrows: RenderedThrow[] = getThrowsFromPattern(p, iterations, cfg)
 
     if (showLines || emphasizeLines.length > 0) {
         const maxIdx = maxTime

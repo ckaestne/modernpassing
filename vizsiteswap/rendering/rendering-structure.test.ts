@@ -1,11 +1,13 @@
 import assert from "node:assert";
 import { createSiteswapPattern } from "@modernpassing/parsing";
 import { getThrowsFromPattern } from "./rendering-structure.ts";
+import { defaultRenderLayoutConfig } from "./renderer-svg.ts";
+import { customRendererConfigDefaults, defaultRendererConfig } from "./renderer-config.ts";
 
 
 Deno.test("getThrowsFromPattern, 756",()=>{
     const p = createSiteswapPattern("756", {})
-    const ts = getThrowsFromPattern(p, 4)
+    const ts = getThrowsFromPattern(p, 4,customRendererConfigDefaults(p.nrHands, p.nrRows))
     
     assertPartialEqual(ts[0], {fromPasserIdx:0, toPasserIdx:1, fromHand:0, toHand:1, throwTime:0, throwLength: 7})
     assertPartialEqual(ts[1], {fromPasserIdx:1, toPasserIdx:0, fromHand:0, toHand:1, throwTime:1, throwLength: 5})

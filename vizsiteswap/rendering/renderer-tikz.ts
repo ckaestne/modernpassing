@@ -8,7 +8,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         throw new Error(`Invalid pattern: ${p}: ${p.getValidationError()}`);
 
 
-
+    const cfg:RendererConfig= { ...defaultRendererConfig, ...config }
     const {
         xDist,
         yDist,
@@ -39,8 +39,13 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         emphasizeLines,
         emphasizeLineColor,
         emphasizeLineWith,
-        emphasizeLineDash
-    } = { ...defaultRendererConfig, ...config };
+        emphasizeLineDash,
+        gallop,
+        useSimpleLabels,
+        useAllSyncLabels,
+        showPassInLabel,
+        showPassDestinationRole,
+        } = cfg;
     
 
     let result = ""
@@ -116,7 +121,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         }
     }
 
-    const allThrows: RenderedThrow[] = getThrowsFromPattern(p,iterations)
+    const allThrows: RenderedThrow[] = getThrowsFromPattern(p,iterations, cfg)
 
     if (showLines || emphasizeLines.length>0) {
         const maxIdx = maxTime
