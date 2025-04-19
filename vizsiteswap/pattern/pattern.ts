@@ -263,6 +263,18 @@ export interface Pattern {
 
     isCrossingPass(t: Throw, iteration: number): boolean 
     isSelfThrow(t: Throw): boolean 
+
+    /** 
+     * computes the number of iterations needed for the pattern to repeat.
+     * repeating implies the same physical passers start the period in the same role, with the same hand, and the same james/not-james state.
+     * 
+     * Since the Pattern does not know about positions, movement and positions
+     * are not relevant for the computation
+     * 
+     * for example, four-count repeats every iteration, three-count every other, 4hsiteswaps after 4,
+     * roundabout after 6, and so forth
+     **/
+    iterationsUntilRepeat(): number
 }
 
 

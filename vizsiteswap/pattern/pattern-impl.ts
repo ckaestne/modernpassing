@@ -563,6 +563,39 @@ export class PatternImpl implements Pattern {
     isSelfThrow(t: Throw): boolean {
         return t.fromPasserIdx === t.toPasserIdxAtThrow
     }
+
+    iterationsUntilRepeat(): number {
+        // simplest case: nothing changes
+        if (this.mapRows.every((v, i) => v === i) && this.mapHands.every(r => r.every(h => !h)) && this.mapCrossing.every(r => r.every(c => !c))) 
+            return 1
+        
+        const isSameStart = (iteration: number): boolean => {
+            // roles must match
+            for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++)
+              if (this.getRole(0, 0) !== this.getRole(iteration * this.getLength(), 0))
+                return false
+            // hands and crossing must match
+            for (const t of this.throws) {
+              if (this.getThrowHand(t, 0) !== this.getThrowHand(t, iteration))
+                return false
+              if (this.isCrossingPass(t, 0) !== this.isCrossingPass(t, iteration))
+                return false
+            }
+            return true
+          }
+
+        // else, let's just run it through to see when we are back
+        let iteration = 0
+        while (true) {
+            iteration++
+            if (iteration>100) 
+                throw new Error("the pattern does not repeat within 100 iterations, something is likely wrong")
+            if (isSameStart(iteration)) 
+                return iteration
+        }
+
+     
+    }
 }
 
 

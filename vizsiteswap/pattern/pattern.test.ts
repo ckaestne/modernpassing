@@ -31,6 +31,7 @@ Deno.test("invalid prefix throws: to a hand already receiving a throw", () => {
     const p = createPattern(t, 2, [0,1],["A","B"])
 
     assert.ok(!p.isValid())
+    assert.equal(p.iterationsUntilRepeat(), 1)
 })
 
 

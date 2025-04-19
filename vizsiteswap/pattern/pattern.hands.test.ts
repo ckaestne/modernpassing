@@ -52,6 +52,7 @@ Deno.test("hands, four count", () => {
         assert.equal(pattern.getTargetHand(pattern.throws[7], iteration), Hand.Right)
     }
     assert.deepEqual(pattern.getStartingHands(), [[2, 1], [2, 1]])
+    assert.equal(pattern.iterationsUntilRepeat(), 1)
 })
 
 
@@ -122,6 +123,7 @@ Deno.test("hands, three count", () => {
 
     }
     assert.deepEqual(pattern.getStartingHands(), [[2, 1], [2, 1]])
+    assert.equal(pattern.iterationsUntilRepeat(), 2)
 })
 
 
@@ -189,6 +191,7 @@ Deno.test("hands, 756", () => {
     assert.equal(pattern.getThrowHand(pattern.throws[2], 3), Hand.Left)
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 1], [2, 1]])
+    assert.equal(pattern.iterationsUntilRepeat(), 4)
 
 })
 
@@ -308,6 +311,8 @@ Deno.test("hands, 756756", () => {
     assert.equal(pattern.getTargetHand(pattern.throws[5], 2), Hand.Left)
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 1], [2, 1]])
+
+    assert.equal(pattern.iterationsUntilRepeat(), 2)
 })
 
 
@@ -337,6 +342,7 @@ Deno.test("hands, 7-club two-count straight", () => {
     }
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 2], [1, 2]])
+    assert.equal(pattern.iterationsUntilRepeat(), 1)
 })
 
 
@@ -356,6 +362,7 @@ Deno.test("hands, 8-club two-count", () => {
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2, 2]])
+    assert.equal(pattern.iterationsUntilRepeat(), 1)
 })
 
 
@@ -405,6 +412,7 @@ Deno.test("hands, 720", () => {
 
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 0], [1, 0]])
+    assert.equal(pattern.iterationsUntilRepeat(), 4)
 
 })
 
@@ -502,5 +510,6 @@ Deno.test("hands, 10 club brunos", () => {
     console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
     assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2,1],[1,2]])
+    assert.equal(pattern.iterationsUntilRepeat(), 6)
 
 })
