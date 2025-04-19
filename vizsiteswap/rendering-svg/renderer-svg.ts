@@ -1,9 +1,9 @@
 import { AnimationLayout, type BackgroundLayout, FrameLayout, GroupPattern, GroupPatternStaticLayout, Hand, Pattern, Role, Throw } from "@modernpassing/pattern";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { customRendererConfigDefaults, defaultRendererConfig, RendererConfig } from './renderer-config.ts';
+import { customRendererConfigDefaults, defaultRendererConfig, RendererConfig } from "@modernpassing/rendering-core";
 import { scaledown, scaleup } from "@modernpassing/svg-utils"; 
-import { getThrowsFromPattern, type RenderedThrow } from "./rendering-structure.ts";
+import { getThrowsFromPattern, type RenderedThrow } from "@modernpassing/rendering-core";
 
 
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime

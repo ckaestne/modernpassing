@@ -1,7 +1,7 @@
 {
-  "name": "@modernpassing/rendering",
+  "name": "@modernpassing/rendering-svg",
   "version": "0.1.0",
-  "exports": "./rendering.ts",
+  "exports": "./rendering-svg.ts",
   "imports": {
     "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
     "jsdom": "npm:jsdom@^24.1.1",

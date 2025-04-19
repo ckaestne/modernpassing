@@ -1,8 +1,7 @@
 import assert from "node:assert";
 import { createSiteswapPattern } from "@modernpassing/parsing";
 import { getThrowsFromPattern } from "./rendering-structure.ts";
-import { defaultRenderLayoutConfig } from "./renderer-svg.ts";
-import { customRendererConfigDefaults, defaultRendererConfig } from "./renderer-config.ts";
+import { customRendererConfigDefaults } from "./renderer-config.ts";
 
 
 Deno.test("getThrowsFromPattern, 756",()=>{

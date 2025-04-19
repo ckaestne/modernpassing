@@ -1,6 +1,5 @@
 import type { Pattern, Throw } from '@modernpassing/pattern'
-import { defaultRendererConfig, type RendererConfig } from './renderer-config.ts';
-import { getThrowsFromPattern, RenderedThrow } from "./rendering-structure.ts";
+import { getThrowsFromPattern, RenderedThrow, defaultRendererConfig, type RendererConfig } from "@modernpassing/rendering-core";
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): string {

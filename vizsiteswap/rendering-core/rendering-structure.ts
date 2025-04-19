@@ -80,7 +80,7 @@ export function convertToLabelSync(throwLength: number, isSelf: boolean, isCross
             case "5px": return "d*"
             case "6p": return "r*"
             case "6px": return "r*"
-            default: throw Error("no predefined simple label for throw in gallop pattern " + normalizedLabel)
+            // default: throw Error("no predefined simple label for throw in gallop pattern " + normalizedLabel)
         }
         if (rendererConfig.useAllSyncLabels) switch (normalizedLabel) {
             case "2": return ""
@@ -93,7 +93,7 @@ export function convertToLabelSync(throwLength: number, isSelf: boolean, isCross
             case "6": return "h*"
             case "6p": return "d*"
             case "6px": return "d*"
-            default: throw Error("no predefined simple label for throw in allSync pattern " + normalizedLabel)
+            // default: throw Error("no predefined simple label for throw in allSync pattern " + normalizedLabel)
         }
         switch (normalizedLabel) {
             case "1": return "z"
@@ -107,7 +107,7 @@ export function convertToLabelSync(throwLength: number, isSelf: boolean, isCross
             case "4px": return "d"
             case "5p": return "r"
             case "5px": return "r"
-            default: throw Error("no predefined simple label for throw " + normalizedLabel)
         }
+        throw Error("no predefined simple label for throw " + normalizedLabel)
     } else return "" + throwLength + (rendererConfig.showPassInLabel && !isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
 }

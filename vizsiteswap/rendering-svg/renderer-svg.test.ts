@@ -1,13 +1,12 @@
 // deno-lint-ignore-file no-explicit-any
 import { Svg } from "@svgdotjs/svg.js";
-import assert from "node:assert";
 import fs from "node:fs";
 import test from "node:test";
 import { renderGroupPattern, renderLayoutFrames, renderPattern } from "./renderer-svg.ts";
-import { createSiteswapPattern, createSyncPattern} from "@modernpassing/parsing";
+import { createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing";
 import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
-
+if (!fs.existsSync("test")) fs.mkdirSync("test");
 
 test("create siteswap examples file", async (t) => {
 
@@ -74,11 +73,11 @@ test("highlight in sync patterns", async (t) => {
 
 test("advanced sync patterns", async (t) => {
     const patterns: [any, string][] = [
-        [{  showLines: true, lineKind: "causal",}, '3p | 333p, 3p | 34p2'],
-        [{  "iterations": 3 }, '4px | !34px,4px3'],
-        [{  "iterations": 4 }, '4p3,34p'],
+        [{ showLines: true, lineKind: "causal", }, '3p | 333p, 3p | 34p2'],
+        [{ "iterations": 3 }, '4px | !34px,4px3'],
+        [{ "iterations": 4 }, '4p3,34p'],
         [{ "iterations": 4 }, '!4px3,34px'],
-        [{ }, '!4px33353,3534px33'],
+        [{}, '!4px33353,3534px33'],
         [{}, "3p4p3,4p34p"],
         [{}, "3p 3 4 , 4 4 3p"],
         [{}, "4p4p4,4p4p4"],
@@ -154,6 +153,7 @@ test("fully synchronous patterns", async (t) => {
         const pattern = createSyncPattern(p)
         // console.log(pattern)
         // console.log(pattern.getThrows(1))
+        conf.useAllSyncLabels = true
         const svg = renderPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -188,10 +188,10 @@ test("create basic group sync examples", async (t) => {
 
         let staticFrames: Svg[] = []
         if (pattern.layout && pattern.layout.frames) {
-             staticFrames = renderLayoutFrames(pattern.layout.frames, 200,200)
+            staticFrames = renderLayoutFrames(pattern.layout.frames, 200, 200)
         }
 
-        content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s=>s.svg())}</p>`
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s => s.svg())}</p>`
     }
 
     content += "</html>"

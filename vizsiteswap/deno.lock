@@ -603,7 +603,17 @@
           "npm:typescript-parsec@~0.3.4"
         ]
       },
-      "rendering": {
+      "rendering-core": {
+        "dependencies": [
+          "npm:@svgdotjs/svg.js@^3.2.4",
+          "npm:@types/jsdom@^21.1.7",
+          "npm:@types/node@^22.5.0",
+          "npm:@types/svgdom@~0.1.2",
+          "npm:jsdom@^24.1.1",
+          "npm:svgdom@~0.1.19"
+        ]
+      },
+      "rendering-svg": {
         "dependencies": [
           "npm:@svgdotjs/svg.js@^3.2.4",
           "npm:@types/jsdom@^21.1.7",
