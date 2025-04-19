@@ -99,3 +99,26 @@ B: 3pA3 33   3pA3 33   3pC3 -> C
 C: 33   3pA3 3pB3 3pA3 3pB3 -> A
 M  SAez SBlz IBv>.CBz  SCez  
 </TODO-manipulator-sync>
+
+
+## Adding Extra Clubs
+
+There have been several attempts to create Roundabout-style patterns that use more clubs and higher passes. Most commonly, the goal is to keep the manipulator sequences as in the base pattern, but have the two passers juggle a harder sequence with an extra club.
+
+**Extra-club roundabout.** The original *extra-club roundabout* is a good example of this strategy. Notice that the manipulator actions are the same as in *Roundabout* and all passer actions that relate to the manipulator, highlighted, especially passes and selfs that get stolen, remain as in the base pattern, but a lot of other throws are changed to crossing double passes and heffs. The base pattern itself becomes a hard, long synchronous 7-club pattern, specifically designed to keep the manipulator actions unchanged.
+
+**TODO Notation**
+
+**Ronjabout.** *Ronjabout* is a newer and more elegant solution to the problem, making the pattern one beat longer but maintaining simpler base pattern with all straight double passes (with the [usual trick](2d-advanced.md) of having one passer start left-handed).  Here the manipulator is technically substituting a double pass and has more time for the substitution, though it may be barely noticable as they wait for an empty hand anyway.
+
+<TODO-manipulator-sync video="https://passing.zone/ronjabout/">
+A: 4pB 3   5 3 4pB 3   5 3 4pA -> B
+B: 3   4pA 3 3 3   4pA 3 3 3 -> A
+M: SBe.    z SBl(zIBv>).. CBz
+</TODO-manipulator-sync>
+
+
+**Beyond.** There are (usually hard) extra-club versions of many common patterns and also patterns that add two clubs, resulting in triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). Alternatively consider [takeouts in four-handed siteswaps](6j-siteswap-takeouts.md) on a base pattern with 7 or more clubs. 
+
+
+

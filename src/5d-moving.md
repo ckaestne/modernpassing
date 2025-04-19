@@ -260,8 +260,8 @@ The feeder always throws crossing passes to the feedee walking and straight pass
 A: 9B  6   6   9C  6   6   9B  6   6   9C  6 -> B
 B: , 6   9A  6   6   6   6   6   9A  6   7  -> C
 C: , 6   6   6   6   9A  6   6   6   6   6  -> A
-positions: L(A,B,C)
-move: Bmove(B)Bfall(C),mirror
+positions: Brunos(A,B,C)
+move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 </todo-sync-group>
 
 (Technically the approach also works for 10-club Bruno's one-count by leaving out the extra selfs.)
