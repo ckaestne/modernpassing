@@ -3,9 +3,10 @@
 
 *Manipulator patterns*, also known as *walking and takeout patterns*, are passing patterns where one or more jugglers *steal* and *place* clubs in a passing pattern, usually also swapping roles with one of the regular passers -- similar to the role changes in [moving patterns](5d-moving.md). This is easier to see in a video than explain with words, here with the popular [Roundabout](./6c-roundabout.md) pattern on a four-count base pattern:
 
-<a href="https://juggling.tv/5437" target="_blank"><video width="100%" controls preload="metadata" poster="https://juggling.tv/thumb/l-0_5437.jpg"><source src="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4" type="video/mp4" /></video></a>
+<!-- <a href="https://juggling.tv/5437" target="_blank"><video width="100%" controls preload="metadata" poster="https://juggling.tv/thumb/l-0_5437.jpg"><source src="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4" type="video/mp4" /></video></a> -->
 
 
+<video>https://juggling.tv/5437</video>
 
 
 The new actions in manipulator patterns are *stealing* and *placing* clubs. A sequence of first stealing a club and then placing a different club where the original club would have landed is called a *takeout* or (now more commonly) a *substitution*.

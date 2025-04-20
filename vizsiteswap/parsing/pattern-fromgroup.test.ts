@@ -308,11 +308,27 @@ positions: V(A,B,C)`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
-    console.log(prettyPrintThrowsSvg(p))
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
 
     assert.ok(p.isValid(), p.getValidationError())
     assert.equal(p.iterationsUntilRepeat(),2)
+})
+
+test.only('brunos 10 club -- siteswap walking feed', () => {
+    const pattern=`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
+B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
+positions: Brunos(A,B,C)
+move: Bmove(B,4.9,6)Bmove(B,15.9,5)Bmove(C,9.9,5)`
+const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+
+    assert.ok(p.isValid(), p.getValidationError())
+    // assert.equal(p.iterationsUntilRepeat(),6)
 })

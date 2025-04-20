@@ -58,7 +58,7 @@ app.use(async (ctx, next) => {
     }
 
     await next();
-}); 
+});
 app.use(async (ctx, next) => {
     if (ctx.request.url.pathname === "/") {
         if (ctx.request.method === "GET") {
@@ -76,9 +76,11 @@ app.use(async (ctx, next) => {
             try {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
-                const t = renderGroupPattern(gp, {})
-                rendered = t[0].svg()
-                js = t[1]
+                if (p.isValid()) {
+                    const t = renderGroupPattern(gp, {})
+                    rendered = t[0].svg()
+                    js = t[1]
+                }
                 svg = prettyPrintThrowsSvg(p)
                 isValid = p.isValid();
                 error = p.getValidationError()

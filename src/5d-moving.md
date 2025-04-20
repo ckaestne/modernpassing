@@ -146,11 +146,10 @@ In this pattern, on all double passes, the feeder throws one more pass to their 
 
 To maintain the usual approach to throw all double passes straight instead of crossing, the feedees start left-handed or one beat late (see *[7-club two-count](2d-advanced.md)* and [adding clubs to synchronous feeds](5b-feeds.md)). Since the walking technically changes from the left-handed to the right-handed side of the pattern, there can only be three selfs in the five-count and passer walking needs to take one of these options: (a) juggle a four-count very slowly to match the speed of a five-count, (b) throw one of the three selfs of a four-count as a double self followed by a wait to gain an extra beat of time, or (c) walk on a normal four-count and throw an early triple pass followed by a wait. In either case, timing is right if, after walking, the first pass responds to an incoming pass with the offset timing common for *7-club two count*.
 
-**TODO: switch left and righthand start**
 <sync-group>
-A: 4pB3  4pC3  4pB3  4pC -- B
-B: 34pA  3  3  34pA  3  -- C
-C: 33  34pA 3  3  3   -- A
+A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </sync-group>
@@ -256,13 +255,13 @@ Bruno's one-count is possible on all the other variations, like *Magermix* for s
 However, since this is juggled on a four-handed siteswap feed, the walking and notation is somewhat unusual:
 The feeder always throws crossing passes to the feedee walking and straight passes to the other one; the first pass after walking is always crossing, and the passes while walking are always straight. Feedee B walks on 7.5 beats, but the half beat is barely noticeable and it can be juggled as a normal seven-count (in the notation, the extra half beat is visible in the 7 on the last beat of B, which is a slow self(!) to make up switching the half beat between sides).
 
-<todo-sync-group>
-A: 9B  6   6   9C  6   6   9B  6   6   9C  6 -- B
+<siteswap-group>
+A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
 B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
-C: , 6   6   6   6   9A  6   6   6   6   6  -- A
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
-move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
-</todo-sync-group>
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)
+</siteswap-group>
 
 (Technically the approach also works for 10-club Bruno's one-count by leaving out the extra selfs.)
 
@@ -309,7 +308,7 @@ B: 2 333-- D
 C: 3pA   222   -- B
 D: 3pB   333 -- A
 positions: Circle(A,B,C,D,_)
-move: Cmove(C,0.9,3,144,1)
+move: Cmove(C,0.9,2.5,144,1)
 </sync-group>
 
 Note: The passer with role C starts with 2 clubs.

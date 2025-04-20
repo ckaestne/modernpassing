@@ -118,7 +118,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
                     mod: completePatternLength,
                     duration: pattern.nrHands === 4 ? 2 : 1,
                 })
-                console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
+                // console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
             }
     const endOfPatternRelabel: RelabelAnimation[] = []
     endOfPatternRelabel.push({

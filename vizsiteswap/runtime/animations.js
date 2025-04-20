@@ -123,7 +123,7 @@ function genPath(canvas, segment) {
 
 const timers = {}
 function addTimer(f, speed) {
-    console.log(speed)
+    // console.log(speed)
     if (!timers[speed]) timers[speed]=[]
     timers[speed].push(f)
     if (timers[speed].length===1)

@@ -113,9 +113,11 @@ function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig)
             case "4": return "h"
             case "5": return "t"
             case "3p": return "p"
+            case "3x": return "p*"
             case "3px": return "p"
             case "4p": return "d"
             case "4px": return "d"
+            case "4x": return "h*"
             case "5p": return "r"
             case "5px": return "r"
         }
