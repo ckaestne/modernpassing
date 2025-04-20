@@ -40,7 +40,7 @@ export function createGroupPattern(patternStr: string, nrHands: number): GroupPa
     return {
         pattern: rewritten,
         aidenNotation: [pattern, manipulatorActions],
-        layout: layout ? genLayout(layout, movement, pattern) : undefined
+        layout: layout ? genLayout(layout, movement, rewritten) : undefined
     }
 }
 
@@ -49,7 +49,7 @@ export function createGroupPattern(patternStr: string, nrHands: number): GroupPa
  * 
  * as a issue, we need the full passing sequence with both left and right hands, so for
  * odd period patterns, we consider a longer sequence that loops all the way around.
- * hence, we have both the patternLength and the adjustedThrowSequenceLength
+ * hence, we have both the patternLength and the completePatternLength
  * @param layout 
  * @param movement 
  * @param adjustedThrows 
@@ -69,50 +69,60 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
         return p
     }
 
-    // function pass(t: Throw): PassLayout {
-    //     return {
-    //         fromRole: findPosition(t.fromPasserIdx).role,
-    //         fromHand: Hand.Right,//TODO repair animations t.fromHand,
-    //         toRole: findPosition(t.toPasserIdx).role,
-    //         toHand: Hand.Left,// TODO repair animations: t.toHand,
-    //         label: (t.throwBeat + 1).toString()
-    //     }
-    // }
+    function pass(t: Throw, iteration: number): PassLayout {
+        return {
+            fromRole: findPosition(t.fromPasserIdx).role,
+            fromHand: pattern.getThrowHand(t, iteration),
+            toRole: findPosition(t.toPasserIdxAtThrow).role,
+            toHand: pattern.getTargetHand(t, iteration),
+            label: (t.throwBeat + 1).toString()
+        }
+    }
 
     // console.log(throws)
-    const passesToRender: Map<[number, number, number, number], PassLayout> = new Map()
+    const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassLayout> = new Map()
     const passesPerBeat: Map<number, PassLayout[]> = new Map()
     const passAnimations: PassAnimation[] = []
-    // TODO repair animations
-    // for (const t of adjustedThrows) if (t.fromPasserIdx !== t.toPasserIdx) {
-    //     // update passes for overall static layout
-    //     const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
-    //         const x = pass(t)
-    //         x.label = ""
-    //         return x
-    //     })
-    //     if (p.label !== "") p.label += ", "
-    //     p.label += (t.throwTime + 1)
+    const nrIterations = pattern.iterationsUntilRepeat()
+    const completePatternLength = pattern.getLength() * nrIterations
+    // for every iteration of a complete cycle
+    for (let iteration = 0; iteration < nrIterations; iteration++)
+        //every throw that is a pass
+        for (const t of pattern.throws)
+            if (t.fromPasserIdx !== t.toPasserIdxAtThrow) {
+                const timeOffset = iteration * pattern.getLength()
+                // // update passes for overall static layout (no movement, no role adjustments)
+                // const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
+                //     const x = pass(t)
+                //     x.label = ""
+                //     return x
+                // })
+                // if (p.label !== "") p.label += ", "
+                // p.label += (t.throwTime + 1)
 
-    //     // updated passes for individual frames
-    //     const passesOnBeat = getOrUpdate(passesPerBeat, t.throwTime, () => [])
-    //     passesOnBeat.push(pass(t))
+                // // updated passes for individual frames
+                // const passesOnBeat = getOrUpdate(passesPerBeat, t.throwTime, () => [])
+                // passesOnBeat.push(pass(t))
 
-    //     // passes for animations
-    //     if (t.throwTime < adjustedThrowSequenceLength)
-    //         passAnimations.push({
-    //             pass: {
-    //                 fromRole: findPosition(t.fromPasserIdx).role,
-    //                 fromHand: t.fromHand,
-    //                 toRole: findPosition(t.toPasserIdx).role,
-    //                 toHand: t.toHand,
-    //                 label: ""
-    //             },
-    //             onBeat: t.throwTime,
-    //             mod: adjustedThrowSequenceLength,
-    //             duration: 1
-    //         })
-    // }
+                // passes for animations
+                // const fromPasserIdx = pattern.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, timeOffset)
+                const fromPasserRole = pattern.getRole(timeOffset + t.throwBeat, t.fromPasserIdx)
+                const fromHand = pattern.getThrowHand(t, iteration)
+                const toPasserRoleAtThrow = pattern.getRole(timeOffset + t.throwBeat, t.toPasserIdxAtThrow)
+                const toHand = pattern.getTargetHand(t, iteration)
+                    passAnimations.push({
+                        pass: {
+                            fromRole:fromPasserRole,
+                            fromHand,
+                            toRole:toPasserRoleAtThrow,
+                            toHand,
+                            label: ""
+                        },
+                        onBeat: timeOffset + t.throwBeat,
+                        mod: completePatternLength,
+                        duration: pattern.nrHands === 4 ? 2 : 1,
+                    })
+            }
     const endOfPatternRelabel: RelabelAnimation[] = []
 
 
@@ -126,20 +136,21 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
 
 
     return {
-        static: { positions: positions, passes: passesToRender.values().toArray() },
-        frames: passesPerBeat.keys().map(k => {
-            return {
-                label: (k + 1).toString(),
-                static: { positions, passes: passesPerBeat.get(k)! }
-            }
-        }).toArray(),
+        // static: { positions: positions, passes: passesToRender.values().toArray() },
+        // frames: passesPerBeat.keys().map(k => {
+        //     return {
+        //         label: (k + 1).toString(),
+        //         static: { positions, passes: passesPerBeat.get(k)! }
+        //     }
+        // }).toArray(),
         animation: {
             initialPositions: positions,
             passAnimations: passAnimations,
             movementSegments,
             movementSequences,
             movementTriggers,
-            relabeling: endOfPatternRelabel
+            relabeling: endOfPatternRelabel,
+            speed: pattern.nrHands===4?2:1
         },
         background
     }
@@ -168,7 +179,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     const nrBaseRoles = baseRoles.length
     const throws = allThrowsByBeat(rawPattern, nrHands)
     const patternLength = getPatternLength(throws)
-    const prefixLength = 0-throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
+    const prefixLength = 0 - throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
 
     // hand ordering is nontrivial unfortunately
     // we assume right-left alternating by default, starting right-handed
@@ -186,7 +197,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
             rawPattern,
             nrHands)
-    const prefixHandSequence: Hand[/*rowIdx*/][/*-beat*/] = altHands(handSequence.map(v=>1-v[0]),prefixLength, rawPattern.length, nrHands)
+    const prefixHandSequence: Hand[/*rowIdx*/][/*-beat*/] = altHands(handSequence.map(v => 1 - v[0]), prefixLength, rawPattern.length, nrHands)
     // for now let's assume that everybody starting on even beats is James (straight singles); any other adjustments are doing with `x` for passes
     const isJames: boolean[] = nrHands === 4 ? getJames(rawPattern) : []
 
@@ -208,7 +219,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         else if (isPass && !targetRole) throw Error(`ambiguous target role for pass ${throwStr}`)
         else if (throwStr.length === 1 && nrBaseRoles === 2 && nrHands === 4 && throwLength % 2 === 1) to = 1 - who
 
-        const fromHand = fixedHand ?? (when>=0 ? handSequence[who][when] : prefixHandSequence[who][-when-1])
+        const fromHand = fixedHand ?? (when >= 0 ? handSequence[who][when] : prefixHandSequence[who][-when - 1])
         const isCrossing = flipCrossing !== (nrHands === 2 ? throwLength % 2 === 1 : getCrossing(throwLength, isJames[who]))
 
         assert(to >= 0, `target role not clear for throw  ${throwStr}`)
@@ -380,7 +391,7 @@ function getCirclePosition(degree: number): [number, number] {
 
 
 export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
-    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], []))
+    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ['A', 'B', 'C', 'D', 'E']))
 }
 
 
@@ -391,8 +402,8 @@ function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: num
         let c = 0
         for (let i = 0; i < sequenceLength; i++) {
             const sh = Array.isArray(startingHand) ? startingHand[row] : startingHand
-            const hand = nrHands===2? (sh+c)%2 :
-                (sh+c)%4<2 ? Hand.Right : Hand.Left
+            const hand = nrHands === 2 ? (sh + c) % 2 :
+                (sh + c) % 4 < 2 ? Hand.Right : Hand.Left
             seq.push(hand)
             c++
         }
@@ -434,10 +445,10 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
 
     const result: [Beat, (TThrow | THandSwap)][] = []
 
-    assert(row.sequence.filter(t=>t==="|").length<=1, `at most one prefix allowed in a row`)
+    assert(row.sequence.filter(t => t === "|").length <= 1, `at most one prefix allowed in a row`)
     const prefixDelimiter = row.sequence.indexOf("|")
-    const [sequence, prefix] = 
-       prefixDelimiter>=0? [row.sequence.slice(prefixDelimiter+1), row.sequence.slice(0,prefixDelimiter)] : [row.sequence, []]
+    const [sequence, prefix] =
+        prefixDelimiter >= 0 ? [row.sequence.slice(prefixDelimiter + 1), row.sequence.slice(0, prefixDelimiter)] : [row.sequence, []]
 
     let beat = 0
     for (let seqIdx = 0; seqIdx < sequence.length; seqIdx++) {
@@ -452,9 +463,9 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
         if (Array.isArray(currentThrow) && !row.isManipulator)
             beat += 1
     }
-    beat = 0 
+    beat = 0
     for (let seqIdx = 0; seqIdx < prefix.length; seqIdx++) {
-        const currentThrow = prefix[prefix.length-1-seqIdx]
+        const currentThrow = prefix[prefix.length - 1 - seqIdx]
         if (currentThrow && currentThrow !== ',' && currentThrow !== '.')
             result.push([nrHands === 4 ? beat * 2 : -1 - beat, currentThrow])
         if (currentThrow !== HandSwap)
@@ -469,7 +480,7 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
 // function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
 //     return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
 // }
-    
+
 // // number of beats in the sequence, not counting prefix throws
 // function getRowLength(row: TPatternRow, nrHands: number): number {
 //     assert(nrHands === 2 || nrHands === 4, `only supporting 2 and 4 hands for now`)
@@ -511,7 +522,7 @@ function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, H
 }
 
 function getPatternLength(throws: [number, Beat, Hand | undefined, string][]): number {
-    return throws.reduce((max, v) => Math.max(max, v[2]===undefined ? v[1]: v[1]+1), 0)+1
+    return throws.reduce((max, v) => Math.max(max, v[2] === undefined ? v[1] : v[1] + 1), 0) + 1
 }
 
 function getJames(rawPattern: TPatternRow[]): boolean[] {
@@ -527,4 +538,24 @@ function getJames(rawPattern: TPatternRow[]): boolean[] {
 function getCrossing(throwLength: number, isJames: boolean): boolean {
     // assume four handed sw
     return (isJames ? [2, 3] : [1, 2]).includes(throwLength % 4)
+}
+
+
+
+function getOrUpdate<A, B>(m: Map<A, B>, key: A, def: () => B): B {
+    const v = m.get(key)
+    if (v === undefined) {
+        const nv = def()
+        m.set(key, nv)
+        return nv
+    } else return v
+}
+
+function getOrUpdate4<B>(m: Map<[number, number, number, number], B>, key1: number, key2: number, key3: number, key4: number, def: () => B): B {
+    const k = m.keys().find(k => k[0] === key1 && k[1] === key2 && k[2] === key3 && k[3] === key4)
+    if (k === undefined) {
+        const nv = def()
+        m.set([key1, key2, key3, key4], nv)
+        return nv
+    } else return m.get(k)!
 }

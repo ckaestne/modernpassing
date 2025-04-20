@@ -1,9 +1,8 @@
-import { AnimationLayout, type BackgroundLayout, FrameLayout, GroupPattern, GroupPatternStaticLayout, Hand, Pattern, Role, Throw } from "@modernpassing/pattern";
+import { AnimationLayout, type BackgroundLayout, GroupPattern, Hand, Pattern } from "@modernpassing/pattern";
+import { customRendererConfigDefaults, defaultRendererConfig, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
+import { scaleup } from "@modernpassing/svg-utils";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
-import { customRendererConfigDefaults, defaultRendererConfig, RendererConfig } from "@modernpassing/rendering-core";
-import { scaledown, scaleup } from "@modernpassing/svg-utils"; 
-import { getThrowsFromPattern, type RenderedThrow } from "@modernpassing/rendering-core";
 
 
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
@@ -15,7 +14,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
 
 
-    const cfg: RendererConfig = { ...customRendererConfigDefaults(p.nrHands, p.nrRows), ...config }
+    const cfg: RendererConfig = { ...customRendererConfigDefaults(p), ...config }
     const {
         xDist,
         yDist,
@@ -52,11 +51,6 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         showPasserRoles,
         passerRolesOffset,
         passerRolesTextSize,
-        gallop,
-        useSimpleLabels,
-        useAllSyncLabels,
-        showPassInLabel,
-        showPassDestinationRole,
         } = cfg;
 
 
@@ -189,14 +183,14 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     if (showPasserRoles) {
         // console.log(p.relabel)
         for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
-            svg.text("").plain(p.getInitialRoles()[passerIdx] + ":").
+            svg.text("").plain(p.getRole(0,passerIdx) + ":").
                 addClass("passer-roles").
                 font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(xMargin + passerRolesOffset / 2)
             if (anyRelabel) {
                 const newLabel = p.getInitialRoles()[p.mapRows[passerIdx]]
                 if (newLabel) {
-                    svg.text("").plain("→ " + newLabel[1]).
+                    svg.text("").plain("→ " + p.getRole(p.getLength(),passerIdx)).
                         addClass("passer-roles-relabel").
                         font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
                         amove(0, yo(passerIdx, null)).cx(width - xMargin - relabelWidth / 2 - throwCircleSize / 2)
@@ -245,7 +239,7 @@ export function createSVG(width?: number, height?: number): Svg {
 export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
     let javascript = ""
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig = { ...defaultRendererConfig, ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
     const svg = !renderConfig.renderLayoutOnly ?
         renderPattern(gp.pattern, renderConfig) : createSVG(1, renderConfig.renderLayoutOnly)
@@ -261,8 +255,9 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
             const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
             javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
-        } else
-            renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
+        } 
+        // else
+        //     renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })
         // g.move(width, 0)
     }
@@ -278,46 +273,46 @@ type RenderLayoutConfig = {
 export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black"] }
 
 
-function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
-    // console.log(layout)
-    const s = Math.min(width, height) - config.positionCircle
-    let left = config.positionCircle / 2
-    let top = config.positionCircle / 2
-    const strokeWidth = 3
+// function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
+//     // console.log(layout)
+//     const s = Math.min(width, height) - config.positionCircle
+//     let left = config.positionCircle / 2
+//     let top = config.positionCircle / 2
+//     const strokeWidth = 3
 
-    //shift the layout to the center
-    const topMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
-    const bottomMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
-    top = top + (s - (bottomMost - topMost)) / 2
-    // const leftMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.x * s), 0)
-    // const rightMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.x * s), 0)
-    // left = left + (s - (rightMost - leftMost)) / 2
-    function scalep(p: [number, number]): [number, number] {
-        return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
-    }
+//     //shift the layout to the center
+//     const topMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
+//     const bottomMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.y * s), 0)
+//     top = top + (s - (bottomMost - topMost)) / 2
+//     // const leftMost = layout.positions.reduce((acc, pos) => Math.min(acc, pos.x * s), 0)
+//     // const rightMost = layout.positions.reduce((acc, pos) => Math.max(acc, pos.x * s), 0)
+//     // left = left + (s - (rightMost - leftMost)) / 2
+//     function scalep(p: [number, number]): [number, number] {
+//         return [Math.round(left + p[0] * s), Math.round(top + p[1] * s)]
+//     }
 
-    canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
-    // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
-    for (let roleIdx = 0; roleIdx < layout.positions.length; roleIdx++) {
-        const pos = layout.positions[roleIdx]
-        const [x, y] = [Math.round(left + pos.x * s), Math.round(top + pos.y * s)]
-        canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
-        canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
-    }
-    function lookupPosition(role: Role): [number, number] {
-        const r = layout.positions.find(p => p.role === role)!
-        return [r.x, r.y]
-    }
-    for (const pass of layout.passes) {
-        const [fromX, fromY, toX, toY, labelX, labelY] = computePassp(scalep(lookupPosition(pass.fromRole)), pass.fromHand, scalep(lookupPosition(pass.toRole)), pass.toHand)
-        arrow(canvas, fromX, fromY, toX, toY, "black")
-        // canvas.circle(4).center(labelX, labelY).fill("red")
-        canvas.text(pass.label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black")
-    }
+//     canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
+//     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
+//     for (let roleIdx = 0; roleIdx < layout.positions.length; roleIdx++) {
+//         const pos = layout.positions[roleIdx]
+//         const [x, y] = [Math.round(left + pos.x * s), Math.round(top + pos.y * s)]
+//         canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
+//         canvas.text(pos.role).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+//     }
+//     function lookupPosition(role: Role): [number, number] {
+//         const r = layout.positions.find(p => p.role === role)!
+//         return [r.x, r.y]
+//     }
+//     for (const pass of layout.passes) {
+//         const [fromX, fromY, toX, toY, labelX, labelY] = computePassp(scalep(lookupPosition(pass.fromRole)), pass.fromHand, scalep(lookupPosition(pass.toRole)), pass.toHand)
+//         arrow(canvas, fromX, fromY, toX, toY, "black")
+//         // canvas.circle(4).center(labelX, labelY).fill("red")
+//         canvas.text(pass.label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black")
+//     }
 
 
-    canvas.rect(width, height).fill('none').stroke("none")
-}
+//     canvas.rect(width, height).fill('none').stroke("none")
+// }
 
 function arrow(svg: Containable, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
     const line = svg.line(x1, y1, x2, y2).stroke({ color })
@@ -327,22 +322,22 @@ function arrow(svg: Containable, x1: number, y1: number, x2: number, y2: number,
 
 
 // deno-lint-ignore no-explicit-any
-export function renderLayoutFrames(frames: FrameLayout[], frameWidth: number, frameHeight: number, _config: any = {}): Svg[] {
-    return frames.map((frame) => {
-        const svg = createSVG(frameWidth, frameHeight)
-        renderLayout(frame.static, frameWidth, frameHeight, svg.group(), defaultRenderLayoutConfig)
-        svg.rect(20, 20).fill("black").move(0, 0)
-        svg.text(frame.label).font({ size: 16 }).cx(10).cy(10).fill("white")
-        return svg
-    }
-    )
-}
+// export function renderLayoutFrames(frames: FrameLayout[], frameWidth: number, frameHeight: number, _config: any = {}): Svg[] {
+//     return frames.map((frame) => {
+//         const svg = createSVG(frameWidth, frameHeight)
+//         renderLayout(frame.static, frameWidth, frameHeight, svg.group(), defaultRenderLayoutConfig)
+//         svg.rect(20, 20).fill("black").move(0, 0)
+//         svg.text(frame.label).font({ size: 16 }).cx(10).cy(10).fill("white")
+//         return svg
+//     }
+//     )
+// }
 
-export function renderStaticLayout(frame: GroupPatternStaticLayout, frameWidth: number, frameHeight: number, _config: any = {}): Svg {
-    const svg = createSVG(frameWidth, frameHeight)
-    renderLayout(frame, frameWidth, frameHeight, svg.group(), defaultRenderLayoutConfig)
-    return svg
-}
+// export function renderStaticLayout(frame: GroupPatternStaticLayout, frameWidth: number, frameHeight: number, _config: any = {}): Svg {
+//     const svg = createSVG(frameWidth, frameHeight)
+//     renderLayout(frame, frameWidth, frameHeight, svg.group(), defaultRenderLayoutConfig)
+//     return svg
+// }
 
 
 function computePassp(p1: [number, number], hand1: Hand, p2: [number, number], hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
@@ -480,7 +475,7 @@ export function renderAnimation(
         const beat = Math.floor(when % mod)
         const delay = (when % mod) - beat
         const t = timers.findIndex(([b, m, _]) => b === beat && m === mod)
-        js = js.replace(/\$DELAY/g, Math.round(delay * 1000).toString())
+        js = js.replace(/\$DELAY/g, Math.round(delay * 1000 / layout.speed).toString())
         if (t >= 0) timers[t][2] += js
         else timers.push([beat, mod, js])
     }
@@ -493,7 +488,7 @@ export function renderAnimation(
 
         addJs(passAnimation.onBeat, passAnimation.mod, `//
         let ${v} = null;
-        s.animate({duration:${passAnimation.duration * 1000},when:'now',delay:$DELAY}).
+        s.animate({duration:${passAnimation.duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
            on('start',function(){${v}=renderPass(data, g,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
            after(function(){${v}.remove()});`)
     }
@@ -508,7 +503,7 @@ export function renderAnimation(
         ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
             after(${pos}[3]).back().hide();
         ${pos}[3].
-            animate({duration:${movementTrigger.duration * 1000},when:'now',delay:$DELAY}).
+            animate({duration:${movementTrigger.duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
             on('start', function(){${path}.show();}).
             during(function (pos) {
                 const p = ${path}.pointAt(pos * ${path}.length());
@@ -546,10 +541,10 @@ export function renderAnimation(
         ${timers.map(([beat, mod, js]) => `if ((time%${mod})==${beat}) { ${js} }`).join("\n")}
         if (beatIndicator) {            
             beatIndicator.
-                animate({duration:1000,when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
+                animate({duration:1000/${layout.speed},when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
                 after(()=>beatIndicator.x(beatoffsets[(beatIdx+1)%${patternLength}]));
         }
-    })
+    }, ${layout.speed})
     timeline.play();`
 
     canvas.rect(width, height).fill('none').stroke("none")

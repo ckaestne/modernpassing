@@ -6,7 +6,7 @@ import { customRendererConfigDefaults } from "./renderer-config.ts";
 
 Deno.test("getThrowsFromPattern, 756",()=>{
     const p = createSiteswapPattern("756", {})
-    const ts = getThrowsFromPattern(p, 4,customRendererConfigDefaults(p.nrHands, p.nrRows))
+    const ts = getThrowsFromPattern(p, 4,customRendererConfigDefaults(p))
     
     assertPartialEqual(ts[0], {fromPasserIdx:0, toPasserIdx:1, fromHand:0, toHand:1, throwTime:0, throwLength: 7})
     assertPartialEqual(ts[1], {fromPasserIdx:1, toPasserIdx:0, fromHand:0, toHand:1, throwTime:1, throwLength: 5})

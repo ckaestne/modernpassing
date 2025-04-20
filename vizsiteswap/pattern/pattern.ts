@@ -381,18 +381,18 @@ export type GroupPattern = {
 export type GroupPatternLayout = {
     // group pattern layouts have three forms: static overall, static frames, and animation
     // they are separately, and partially redundantly encoded
-    static: GroupPatternStaticLayout,
-    frames?: FrameLayout[],
+    // static: GroupPatternStaticLayout,
+    // frames?: FrameLayout[],
     animation?: AnimationLayout,
     background?: BackgroundLayout[]
 }
-export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
+// export type FrameLayout = { label: string, static: GroupPatternStaticLayout }
 
 export type Role = string
-export type GroupPatternStaticLayout = {
-    positions: PositionLayout[],
-    passes: PassLayout[]
-}
+// export type GroupPatternStaticLayout = {
+//     positions: PositionLayout[],
+//     passes: PassLayout[]
+// }
 export type PositionLayout = {
     passerIdx: number, // unique, permanent id, despite relabeling
     x: number,
@@ -453,7 +453,8 @@ export type AnimationLayout = {
     movementSegments: MovementSegment[],
     movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
     movementTriggers: MovementTrigger[],
-    relabeling: RelabelAnimation[]
+    relabeling: RelabelAnimation[],
+    speed: number // relative speed, normal = 1, 4hsw = 2
 }
 
 /**

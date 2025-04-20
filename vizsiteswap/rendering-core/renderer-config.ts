@@ -1,3 +1,5 @@
+import { Pattern } from "@modernpassing/pattern";
+import assert  from "node:assert";
 
 
 export interface RendererConfig {
@@ -57,10 +59,8 @@ export interface RendererConfig {
     renderLayoutOnly?: number; // default undefined/0; any other number (width/height of the layout) surpresses output of the actual pattern
 
     gallop: boolean, // right hand is 0.1 earlier and left hand 0.1 later
-    useSimpleLabels: boolean // use s and p instead of 3 and 3p, etc.; adjusts automatically for gallop
-    useAllSyncLabels: boolean // use in combination with useSimpleLabels
-    showPassInLabel: boolean // show 3p instead of just 3; deactivated in simpleLabels
-    showPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
+    labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
+    labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
 
 export const defaultRendererConfig: RendererConfig = {
@@ -102,17 +102,23 @@ export const defaultRendererConfig: RendererConfig = {
     renderLayoutOnly: undefined,
 
     gallop: false, 
-    showPassInLabel: true,
-    useSimpleLabels: true ,
-    useAllSyncLabels: false,
-    showPassDestinationRole: true,
+    labelThrows: "classic",
+    labelPassDestinationRole: true,
 };
 
-export function customRendererConfigDefaults(nrHands: number, nrRows: number): RendererConfig {
+export function customRendererConfigDefaults(pattern: Pattern): RendererConfig {
+    assert(pattern.throws, "Pattern must have throws defined");
+    const allSync = pattern.throws.some((value, index, array) => 
+        array.findIndex(item => 
+            item.fromHand!==value.fromHand && item.fromPasserIdx===value.fromPasserIdx && item.throwBeat===value.throwBeat
+        ) >=0
+    )
     return {
         ... defaultRendererConfig,
-        showPassInLabel: nrHands===2,
-        useSimpleLabels: nrHands===2 ,
-        showPassDestinationRole: nrRows > 2,
+        labelThrows: pattern.nrHands===4 ? "siteswap" : allSync ? "simpleAllSync" : "simple" ,
+        labelPassDestinationRole: pattern.nrRows > 2,
+        separateleftRightRows: allSync,
+        xDist: defaultRendererConfig.xDist / (allSync || pattern.nrHands===4 ? 2 :1),
+        showLeftRight: allSync ? false : defaultRendererConfig.showLeftRight,
     }
 }

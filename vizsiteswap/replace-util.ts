@@ -25,7 +25,12 @@ export function replaceElement( elementName:string, text: string, transform: (en
             }
 
 
+        try {
         return transform(match, inner, c)
+        } catch (e) {
+            console.error(`Error transforming element <${elementName}>${inner}</${elementName} / ${JSON.stringify(c)}>: ${e}`);
+            throw e
+        }
     });
 }
 

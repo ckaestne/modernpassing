@@ -2,7 +2,7 @@
 import { Svg } from "@svgdotjs/svg.js";
 import fs from "node:fs";
 import test from "node:test";
-import { renderGroupPattern, renderLayoutFrames, renderPattern } from "./renderer-svg.ts";
+import { renderGroupPattern, renderPattern } from "./renderer-svg.ts";
 import { createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing";
 import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
@@ -153,7 +153,7 @@ test("fully synchronous patterns", async (t) => {
         const pattern = createSyncPattern(p)
         // console.log(pattern)
         // console.log(pattern.getThrows(1))
-        conf.useAllSyncLabels = true
+        conf.labelThrows = "simpleAllSync"
         const svg = renderPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
@@ -170,6 +170,7 @@ test("fully synchronous patterns", async (t) => {
 test("create basic group sync examples", async (t) => {
 
     const patterns = [
+        "\nA: 3pB33\n           B: 3pC33\n            C: 3pA33\n            positions: Circle(A,B,C)",
         "\nA: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)",
         "A: 3pB333pB33\n           B: 3pC333pC33\n            C: 3pA333pA33\n            positions: Circle(A,B,C)\n\n",
         "A: 3pB3pC3\n  B: 3pA33\n C: 4pA23\n positions: V(A,B,C)",
@@ -184,18 +185,19 @@ test("create basic group sync examples", async (t) => {
 
     for (const p of patterns) {
         const pattern = createSyncGroupPattern(p)
-        const [svg, _] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true })
+        const [svg, js] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true, labelThrows: "simple" })
 
-        let staticFrames: Svg[] = []
-        if (pattern.layout && pattern.layout.frames) {
-            staticFrames = renderLayoutFrames(pattern.layout.frames, 200, 200)
-        }
+        // let staticFrames: Svg[] = []
+        // if (pattern.layout && pattern.layout.frames) {
+        //     staticFrames = renderLayoutFrames(pattern.layout.frames, 200, 200)
+        // }
 
-        content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s => s.svg())}</p>`
+        // content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s => s.svg())}</p>`
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><script>window.addEventListener("load",function(){${js}\n})\n</script><pre>${js}</pre>`
     }
 
-    content += "</html>"
-    fs.writeFileSync("test/group_sync.html", content);
+    content += "     <script src=\"../../runtime/animations.js\"></script>  <script src=\"../../runtime/svg.min.js\"></script></html>"
+    fs.writeFileSync("test/pattern_animation.html", content);
 
 
 })

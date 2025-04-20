@@ -1,7 +1,7 @@
 import assert from "node:assert";
-import { BackgroundLayout, GroupPatternLayout, GroupPatternStaticLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "../pattern/pattern.ts";
-import { PatternPath, PatternPaths } from "./pattern-paths.ts";
+import { BackgroundLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "../pattern/pattern.ts";
 import { loadPathsFromSvg } from "./pattern-paths-loader.ts";
+import { PatternPath, PatternPaths } from "./pattern-paths.ts";
 
 
 
@@ -614,3 +614,4 @@ export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayo
 }
  
 // function createLayout(p:PLayout)
+ 

@@ -193,24 +193,6 @@ export function parseGroupPattern(input: string): [TPatternRow[], TLayout?, TMov
 
 
 
-// function getOrUpdate<A, B>(m: Map<A, B>, key: A, def: () => B): B {
-//     const v = m.get(key)
-//     if (v === undefined) {
-//         const nv = def()
-//         m.set(key, nv)
-//         return nv
-//     } else return v
-// }
-
-// function getOrUpdate4<B>(m: Map<[number, number, number, number], B>, key1: number, key2: number, key3: number, key4: number, def: () => B): B {
-//     const k = m.keys().find(k => k[0] === key1 && k[1] === key2 && k[2] === key3 && k[3] === key4)
-//     if (k === undefined) {
-//         const nv = def()
-//         m.set([key1, key2, key3, key4], nv)
-//         return nv
-//     } else return m.get(k)!
-// }
-
 
 
 

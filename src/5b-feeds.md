@@ -86,23 +86,23 @@ positions: V(A,B,C)
 **Adding clubs to synchronous feeds.**
 It is possible to add extra clubs to a feed. The most common traditional pattern is a feeder passing [7-club two-count](2d-advanced.md) to two feedees passing 7-club four-count on doubles:
 
-<todo-sync-group style='{"swaphands":["B","C"]}'>
-A: 4pB34pC3
-B: 34pA33
-C: 3334pA
+<sync-group>
+A: 4pBx34pCx3
+B: !34pAx33
+C: !3334pAx
 positions: V(A,B,C)
-</todo-sync-group>
+</sync-group>
 
 (Note that, as for *[7-club two-count](2d-advanced.md)*, rather than crossing all doubles, the feedees conventionally start left-handed or a beat late. Also the two feedees each juggle a pattern that would not work with two passers, since they split the extra club between them.)
 
 Also *[8-club pass-pass-self](2d-advanced.md)* can straightforwardly feed two feedees juggling *[8-club three-count](2d-advanced.md)*:
 
-<todo-sync-group style='{"swaphands":["B","C"]}'>
-A: 4pB4pC4
-B: 4pA44
-C: 44pA4
+<sync-group>
+A: 4pBx4pCx4
+B: !4pAx44
+C: !44pAx4
 positions: V(A,B,C)
-</todo-sync-group>
+</sync-group>
 
 (As with 6-club patterns above, any sequence of double passes to feedes and heffs can be combined to create more patterns.)
 
@@ -116,59 +116,61 @@ There are many common feeds of four-handed siteswaps and it is easy to create mo
 
 **774 vs. 5-club one-count.** To integrate beginner's into a feed it is possible for a more experienced passer to feed two passers in *[5-club one-count](1-learn-teach.md)* with *[774](4b-4hsw-beginner.md)* or three passers in *5-club one-count* with *[7-club one-count](4b-4hsw-beginner.md)*.
 
-<todo-siteswap-group>
+<siteswap-group>
 A: 7B7C4
-B: .47A4
-C: .447A
+B: ,47A4
+C: ,447A
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 **Mild madness vs. Jim's three-count.**
 Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Martin's mildness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps 7767746 and 7777266:
 
-<todo-siteswap-group>
-A: 7B7C67B7C26
-B: .7667466
-C: .6766746
+<siteswap-group>
+A: 7B7C267B7C6
+B: ,7A667A466
+C: ,67A667A46
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 **Martin's one-count vs. why not.** For more experienced feedees, Martin's one-count (pass-pass-pass-pass-zip) feeding two juggler's passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees to wait for an incoming pass to trigger their heff is the easiest-to-remember start.
 
-<todo-siteswap-group>
-A: 7B->7C7B7C27B 
-B: 82 ->.27A67A8 //local?
-C: o->.827A67A
+<siteswap-group>
+A: 7B7C7B7C2
+B: ,827A67A
+C: ,7A827A6
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
+
+[TODO: change shown start]
 
 **Why not vs. 5-count popcorn.** This feed is roughly of similar difficulty for all passers; as usual, *5-count popcorn* can be juggled with either [heffs](4d-4hsw-heffs.md) or [trelfs](4f-4hsw-trelfs.md).
 
-<todo-siteswap-group>
+<siteswap-group>
 A: 7B67C82
-B: .a67A66
-C: .66a67A
+B: ,a67A66
+C: ,66a67A
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 **7-club one-count vs. funky bookends and why not.** Combining three different patterns, the feeder needs to remember the passing sequence B-B-C-B-C independent of whether throwing with the left or right hand.
 
-<todo-siteswap-group>
+<siteswap-group>
 A: 7B7B7C7B7C
-B: .7A87A7A6
-C: .67A827A
+B: ,7A87A7A6
+C: ,67A827A
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 **972 vs. 7-club three-count and French three count.** In this pattern, the feeder passes double passes with one feedee and single passes with the other.
 
-<todo-siteswap-group>
-A: 9B7C2
-B: .69A6
-C: .687A
+<siteswap-group>
+A: 7B   9C    2 
+B: ,  8   7A   6 
+C: ,  6   6    9A
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 (It is possible for the feeder to throw both singles and doubles as straight passes if both feedees cross their passes.)
@@ -176,12 +178,12 @@ positions: V(A,B,C)
 
 **8-club pass-pass-self vs. 7-club three-count.** The siteswap 996 can naturally feed two feedees passing 966 for a total of 11 clubs.
 
-<todo-siteswap-group  style='{"flipStraightCrossing": true}'>
+<siteswap-group  style='{"flipStraightCrossing": true}'>
 A: 9B9C6
-B: .69A6
-C: .669C
+B: ,69A6
+C: ,669A
 positions: V(A,B,C)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 For a challenge, add a club and have the feeder juggle 9-club one-count (on doubles) against against one feedee passing 996 and another passing 966. Or pass 9-club one-count against three feedees each passing 966.

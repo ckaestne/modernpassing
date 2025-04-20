@@ -5,11 +5,12 @@
  * with inline SVG images (and sometimes some javascript for animations)
  */
 
+import { createGroupPattern, createSiteswapPattern, createSyncPattern } from '@modernpassing/parsing';
+import { renderGroupPattern, renderPattern } from '@modernpassing/rendering-svg';
+import { assert } from "node:console";
 import fs from 'node:fs';
 import process from "node:process";
-import { createSyncPattern, createSiteswapPattern, createGroupPattern } from '@modernpassing/parsing';
 import { replaceElement } from './replace-util.ts';
-import { assert } from "node:console";
 
 // handling of mdbook specific protocol
 if (process.argv[2] === "supports") {
@@ -54,11 +55,17 @@ for (const sec of book.sections) {
             sec.Chapter.content = replaceElement("sync-group", sec.Chapter.content, (match, p, config) => {
                 return handleGroupPattern(p, 2, config)
             });
-            sec.Chapter.content = replaceElement("positions", sec.Chapter.content, (match, p, config) => {
-                nrPatterns[1]++
-                const layout = createLayout(p)
-                const svg = renderStaticLayout(layout.static, 148, 148, config);
-                return svg.svg();
+            sec.Chapter.content = replaceElement("siteswap-group", sec.Chapter.content, (match, p, config) => {
+                return handleGroupPattern(p, 4, config)
+            });
+            // sec.Chapter.content = replaceElement("positions", sec.Chapter.content, (match, p, config) => {
+            //     nrPatterns[1]++
+            //     const layout = createLayout(p)
+            //     const svg = renderStaticLayout(layout.static, 148, 148, config);
+            //     return svg.svg();
+            // });
+            sec.Chapter.content = replaceElement("video", sec.Chapter.content, (match, p, config) => {
+                return `<crossreference>Video: <a href="${p}" target="_blank">${p}</a></crossreference>`;
             });
         }
     } catch (e) {
@@ -75,15 +82,15 @@ function handleGroupPattern(p: string, nrHands: number, config: any): string {
     const pattern = createGroupPattern(p, nrHands)
 
     try {
-        if (!config.renderFramesOnly) {
+        // if (!config.renderFramesOnly) {
             const [svg, js] = renderGroupPattern(pattern, config);
             result = svg.svg() + `\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
-        } else {
-            const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);
-            result = '<div class="group-pattern-frames">'
-                + frames.map((f) => f.svg()).join("\n")
-                + '</div>'
-        }
+        // } else {
+        //     const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);
+        //     result = '<div class="group-pattern-frames">'
+        //         + frames.map((f) => f.svg()).join("\n")
+        //         + '</div>'
+        // }
     } catch (e) {
         console.error(`Error rendering syncgroup ${p}: ${e}\n${(e as Error).stack}`)
         result = `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`

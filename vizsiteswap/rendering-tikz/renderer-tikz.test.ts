@@ -16,7 +16,7 @@ test("create examples file", async (t) => {
     for (const p of patterns) {
         const pattern = createSiteswapPattern(p, {})
         const errors = pattern.getValidationError()
-        const tikz = renderPattern(pattern, { ...customRendererConfigDefaults(4, 2), showLines: true, lineKind: "causal", showStraightCross: true, iterations: 4, yMargin: 30 })
+        const tikz = renderPattern(pattern, { ...customRendererConfigDefaults(pattern), showLines: true, lineKind: "causal", showStraightCross: true, iterations: 4, yMargin: 30 })
 
         content += `\\section{${p}}\n\n${tikz}   \n\n${errors}`
     }

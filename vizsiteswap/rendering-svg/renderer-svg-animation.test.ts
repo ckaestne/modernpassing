@@ -2,7 +2,8 @@
 import fs from "node:fs";
 import test from "node:test";
 import { AnimationLayout, Hand, MovementSegment, PassAnimation, PassLayout } from "@modernpassing/pattern";
-import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground } from "./renderer-svg.ts";
+import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground, renderGroupPattern } from "./renderer-svg.ts";
+import { createGroupPattern } from "@modernpassing/parsing";
 
 test("render first animation (star with a hole)", async (t) => {
 
@@ -25,7 +26,7 @@ test("render first animation (star with a hole)", async (t) => {
         }
     }
 
-    function move(fromPosIdx: number, toPosIdx: number):MovementSegment {
+    function move(fromPosIdx: number, toPosIdx: number): MovementSegment {
         return {
             fromX: p[fromPosIdx][1],
             fromY: p[fromPosIdx][2],
@@ -36,7 +37,8 @@ test("render first animation (star with a hole)", async (t) => {
     }
 
     const animation: AnimationLayout = {
-        initialPositions: p.slice(0, 4).map(([role, x, y], idx) => ({ passerIdx: idx, x, y, role })),        
+        initialPositions: p.slice(0, 4).map(([role, x, y], idx) => ({ passerIdx: idx, x, y, role })),
+        speed: 1,
         passAnimations: [
             {
                 pass: rpass("A", "D"),
@@ -57,7 +59,7 @@ test("render first animation (star with a hole)", async (t) => {
                 mod: 4
             },
         ],
-        movementSegments: [move(2,4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],
+        movementSegments: [move(2, 4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],
         movementTriggers: [
             {
                 onBeat: 1,
@@ -82,16 +84,17 @@ test("render first animation (star with a hole)", async (t) => {
     const patterns = [animation]
 
     let content = "<!DOCTYPE html><html>" +
-    '  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>'+
-    '  <script src="../../runtime/animations.js"></script>'
+        '  <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>' +
+        '  <script src="../../runtime/animations.js"></script>'
 
     for (const p of patterns) {
 
         const svg = createSVG(350, 350)
         svg.id()
-        renderBackground([{ type: "circle", r:0.5, x: 0.5, y: 0.5, fill:'none',
+        renderBackground([{
+            type: "circle", r: 0.5, x: 0.5, y: 0.5, fill: 'none',
             stroke: 'lightgrey', strokeWidth: 1
-         }], 350,350, svg,defaultRenderLayoutConfig)
+        }], 350, 350, svg, defaultRenderLayoutConfig)
         const js = renderAnimation(p, 350, 350, svg, defaultRenderLayoutConfig, 4)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>
@@ -102,5 +105,17 @@ test("render first animation (star with a hole)", async (t) => {
     content += "</html>"
     fs.writeFileSync("test/animation.html", content);
 
+
+})
+
+Deno.test.only("entry point for animations", () => {
+    const gp = createGroupPattern(`A: 3pB333pC33
+B: 3pC333pA33
+C: 3pA333pB33
+positions: Circle(A,B,C)`, 2)
+    const config = {}
+    const [svg, js] = renderGroupPattern(gp, config)
+    console.log(svg.svg());
+    console.log(js)
 
 })

@@ -49,19 +49,3 @@
 
 - [Getting started](./6a-intro.md)
 - [Notation](./6b-notation.md)
-- [Roundabout](./6c-roundabout.md)
-- [Roundabout variations](./6d-roundabout-variations.md)
-- [](./6e-extra-club.md)
-- [](./6e-northwall.md)
-- [](./6f-aidan-patterns.md)
-- [](./6g-ambled-patterns.md)
-- [](./6h-zippy-etc.md)
-- [](./6i-beyond-basics.md)
-- [](./6j-siteswap-takeouts.md) 
-
-# Appendix
-
-- [Siteswap list](./7-appendix-siteswaplist.md)
-<!-- - [TODO: Starting compatible siteswaps](./introduction.md) -->
-- [More Bruno's](./7-appendix-brunos.md)
-- [TODO: 8-club one counts](./7-appendix-8c1c.md)

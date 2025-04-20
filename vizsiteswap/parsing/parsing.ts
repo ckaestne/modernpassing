@@ -1,5 +1,3 @@
-import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
-import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
-import { createSyncPattern } from "./pattern-fromsync.ts";
-
-export { createSyncPattern, createGroupPattern, createSiteswapPattern, createSyncGroupPattern }
+export { createGroupPattern, createLayout, createSyncGroupPattern } from "./pattern-fromgroup.ts";
+export { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+export { createSyncPattern } from "./pattern-fromsync.ts";

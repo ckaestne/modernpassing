@@ -23,3 +23,8 @@ Unnamed siteswap
 
 
 "Passer A", not "Passer 1" or "Juggler 1"
+
+
+number of passers
+
+3-person pattern (not three-person, not three-passer)

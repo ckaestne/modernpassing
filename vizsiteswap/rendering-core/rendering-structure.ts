@@ -38,6 +38,7 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
             const toHand = pattern.getTargetHand(t, iteration)
             const fromPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, t.fromPasserIdx)
             const toPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, t.toPasserIdxAtThrow)
+            const targetRoleAtThrow = pattern.getRole(t.throwBeat+iterationTimeOffset, t.toPasserIdxAtThrow)
             result.push({
                 throwTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat, t.fromHand),
                 rethrowTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat + t.throwLength, toHand),
@@ -47,7 +48,7 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
                 toPasserIdx,
                 toHand,
                 throwLength: t.throwLength,
-                label: convertToLabelSync(t.throwLength, fromPasserIdx === toPasserIdx, fromHand !== toHand, rendererConfig),
+                label: convertToLabel(t.throwLength, fromPasserIdx === toPasserIdx, fromHand !== toHand, targetRoleAtThrow, rendererConfig),
                 annotation: getAnnotation(pattern, t, iteration)
             })
         }
@@ -60,18 +61,28 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
 function getAnnotation(p: Pattern, t: Throw, iteration: number): string {
     const isPass = !p.isSelfThrow(t)
     if (isPass)
-        return p.isCrossingPass(t, iteration) ? "||" : "X"
+        return p.isCrossingPass(t, iteration) ? "∥"/*"||"*/ : "X"
 
     return ""
 }
 
 
-export function convertToLabelSync(throwLength: number, isSelf: boolean, isCrossing: boolean, rendererConfig: RendererConfig): string {
+export function convertToLabel(throwLength: number, isSelf: boolean, isCrossing: boolean, targetRole: string, rendererConfig: RendererConfig): string {
+    if (rendererConfig.labelThrows === "none") return ""
+    if (rendererConfig.labelThrows === "siteswap") return throwLength.toString() + (rendererConfig.labelPassDestinationRole && !isSelf?targetRole : "")
     const expectCrossing = throwLength % 2 === 1
-    const normalizedLabel = "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
 
-    if (rendererConfig.useSimpleLabels) {
-        //throwToken: string, gallop: boolean, allSync: boolean): string {
+    if (rendererConfig.labelThrows === "simple" || rendererConfig.labelThrows === "simpleAllSync") {
+        const normalizedLabel = "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
+        return getSimpleLabel(normalizedLabel, rendererConfig) + (rendererConfig.labelPassDestinationRole && !isSelf?targetRole : "")
+    } 
+    if (rendererConfig.labelThrows === "classic") 
+        return "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x") + (rendererConfig.labelPassDestinationRole&&!isSelf?targetRole : "")
+    throw Error("Unknown labelThrows config: " + rendererConfig.labelThrows)
+}
+
+function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig): string {
+    //throwToken: string, gallop: boolean, allSync: boolean): string {
         if (rendererConfig.gallop) switch (normalizedLabel) {
             case "4x": return "s*"
             case "4p": return "p*"
@@ -82,7 +93,7 @@ export function convertToLabelSync(throwLength: number, isSelf: boolean, isCross
             case "6px": return "r*"
             // default: throw Error("no predefined simple label for throw in gallop pattern " + normalizedLabel)
         }
-        if (rendererConfig.useAllSyncLabels) switch (normalizedLabel) {
+        if (rendererConfig.labelThrows === "simpleAllSync") switch (normalizedLabel) {
             case "2": return ""
             case "4": return "l*"
             case "4x": return "s*"
@@ -108,6 +119,5 @@ export function convertToLabelSync(throwLength: number, isSelf: boolean, isCross
             case "5p": return "r"
             case "5px": return "r"
         }
-        throw Error("no predefined simple label for throw " + normalizedLabel)
-    } else return "" + throwLength + (rendererConfig.showPassInLabel && !isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
+        throw Error("no predefined simple label for throw " + normalizedLabel+" in config " + rendererConfig.labelThrows)
 }

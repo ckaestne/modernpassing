@@ -8,3 +8,6 @@ target/
 compatsiteswaps/mdbook-compatsiteswaps
 vizsiteswap/mdbook-siteswapsvg
 vizsiteswap/vizsiteswap
+.vscode/
+*.exe
+tmp/

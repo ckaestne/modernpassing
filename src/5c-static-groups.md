@@ -60,7 +60,6 @@ To extend this sequence for a more challenging pattern, we can swap roles after 
 **Extra club three-count.** 
 With all passes thrown as crossing doubles, it is easy to add a 10th club to a triangle three-count pattern, with double passes all going in a circle in one direction:
 
-**TODO: fix starting hands**
 <sync-group>
 A: 4pB33   
 B: 34pC3 

@@ -6,14 +6,14 @@ There are many more variations of synchronous patterns, especially when explorin
 
 We already introduced *early doubles* as a crossing double pass in [basic 6-club synchronous patterns](2b-basic-sync.md). Those are a good way to practice double passes. In fact, continuous early doubles in *6-club three-count* (after a first normal pass) are a good way to practice doubles with both hands:
 
-<sync>3p3 -> 33p3, 4p23</sync>
+<sync>3p | !333p, 3p | !34p2</sync>
 
 
 **7-club two-count.** Many passers learn *7-club two-count* as a milestone. Being one-sided, I consider this traditional passing, not modern passing and recommend the four-handed siteswap [*7-club three-count*](4c-4hsw-doubles.md) instead.
 
 The conventional setup is the following: Both passers, throw straight double passes with every right hand; passer A starts with four clubs and a double pass as the first throw; passer B starts with three clubs and a double pass on the *second* beat. That is, passer B throws a right-hand pass when passer A throws a left-handed self and vice versa.
 
-<sync style='{"flipStraightCrossing": true, "iterations":3}'>4p,- -> 34p,4p3</sync>
+<sync style='{"iterations":3}'>4px | !34px, . | 4px3</sync>
 
 
 When learning *7-club two-count* aim for consistent passes. Since both passers cannot see their passes land, provide feedback on placement and spin. A good strategy is to remember the spot on the ceiling where the first club peaks, to then try throwing all following passes such that they peak in the same place – consistency is usually more important than the exact placement. 
@@ -27,12 +27,12 @@ The patterns are indeed from the same family. By default, passers in synchronous
 
 Strictly following the theory, the most obvious approach for 7-club two-count would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw, which is a right-handed pass for passer A and a right-handed self for passer B. This is actually a fairly nice pattern to allow one passer to practice left-handed doubles.
 
-<sync style='{"flipStraightCrossing": false, "iterations":4}'>4p3,34p</sync>
+<sync style='{"iterations":4}'>4p3,34p</sync>
 
 
 By flipping straight and crossing passes and having passer B start with the left hand, we get a pattern with straight doubles. 
 
-<sync style='{"flipStraightCrossing": true, "iterations":4}'>4p3,34p</sync>
+<sync style='{"iterations":4}'>4px3,!34px</sync>
 
 In practice, passer B often leaves out that first left-handed self to start on a right-handed pass one beat later, resulting in the conventional start shown above. However, actually starting with a left-handed self can help with timing.
 
@@ -43,9 +43,9 @@ In practice, passer B often leaves out that first left-handed self to start on a
 
 
 
-**6-count popcorn.** One of several one-sided *popcorn* patterns, named after the trelfs that pop up on alternating sides. Can also be thrown with heff-heff instead of trelf-self. Again, notice that, conventionally, we again throw the doubles straight and passer B starts with the left hand (but often skips the first self).
+**6-count popcorn.** This is one of several one-sided *popcorn* patterns -- named after the trelfs that pop up on alternating sides. It can also be thrown with heff-heff instead of trelf-self, which many find easier to learn. Again, notice that, conventionally, we again throw the double passes straight and passer B starts with the left hand (but often skips the first self).
 
-<sync style='{"flipStraightCrossing": true}'>4p33353,3534p33</sync>
+<sync style=''>4px33353,!3534px33</sync>
 
 <crossreference>See [5-count popcorn with heffs](4d-4hsw-heffs.md) and [5-count popcorn with trelfs](4f-4hsw-trelfs.md) for ambidextrous versions.</crossreference>
 

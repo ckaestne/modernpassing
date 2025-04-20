@@ -43,7 +43,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         useSimpleLabels,
         useAllSyncLabels,
         showPassInLabel,
-        showPassDestinationRole,
+        labelPassDestinationRole,
         } = cfg;
     
 

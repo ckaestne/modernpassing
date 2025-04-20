@@ -5,6 +5,7 @@ import { GroupPattern, Hand, Throw } from "../pattern/pattern.ts";
 import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+import {prettyPrintThrowsSvg} from "../rendering-svg/debug-renderer-svg.ts";
 
 const R = Hand.Right
 const L = Hand.Left
@@ -296,4 +297,22 @@ test('prefix notations', () => {
             B: .| 4px 3`, 2).pattern
 
     assert.equal(p.prettyPrintThrows(), q.prettyPrintThrows())
+})
+
+
+test.only('siteswap feed',()=>{
+    const pattern = `A: 7B7C267B7C6
+B: ,7A667A466
+C: ,67A667A46
+positions: V(A,B,C)`
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    console.log(prettyPrintThrowsSvg(p))
+
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
+    assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
+
+    assert.ok(p.isValid(), p.getValidationError())
+    assert.equal(p.iterationsUntilRepeat(),2)
 })

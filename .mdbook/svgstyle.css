@@ -12,7 +12,7 @@ img+em {
 
 crossreference {
     background-color: var(--quote-bg);
-    color: var(--quote-fg);
+    border: 3px solid var(--quote-border);
     display: block;
     padding: 8px;
 }

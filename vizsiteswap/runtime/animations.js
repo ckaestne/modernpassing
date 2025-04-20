@@ -121,11 +121,13 @@ function genPath(canvas, segment) {
     return canvas.path(p.join(' '))
 }
 
-const timers = []
-function addTimer(f) {
-    timers.push(f)
-    if (timers.length===1)
+const timers = {}
+function addTimer(f, speed) {
+    console.log(speed)
+    if (!timers[speed]) timers[speed]=[]
+    timers[speed].push(f)
+    if (timers[speed].length===1)
         setInterval(() => {
-            timers.forEach(f => f())
-        }, 1000)
+            timers[speed].forEach(f => f())
+        }, 1000/speed)
 }
