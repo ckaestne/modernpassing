@@ -37,6 +37,7 @@ function page(p: string, svg: string, isValid: boolean, errors: string, isFourHa
                     <hr/>
                     <p>${svg}</p>
                     <pre>${errors}</pre>
+                    <pre>${js}</pre>
                 </body>
             </html>
         `;

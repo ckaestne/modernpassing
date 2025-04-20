@@ -53,9 +53,6 @@ export function createGroupPattern(patternStr: string, nrHands: number): GroupPa
  * @param layout 
  * @param movement 
  * @param adjustedThrows 
- * @param patternRoles 
- * @param endOfPatternRelabel 
- * @param patternLength 
  * @returns 
  */
 function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pattern): GroupPatternLayout {
@@ -105,25 +102,30 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
                 // passesOnBeat.push(pass(t))
 
                 // passes for animations
-                // const fromPasserIdx = pattern.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, timeOffset)
-                const fromPasserRole = pattern.getRole(timeOffset + t.throwBeat, t.fromPasserIdx)
+                const fromPasserRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
                 const fromHand = pattern.getThrowHand(t, iteration)
-                const toPasserRoleAtThrow = pattern.getRole(timeOffset + t.throwBeat, t.toPasserIdxAtThrow)
+                const toPasserRoleAtThrow = pattern.getRole(t.throwBeat, t.toPasserIdxAtThrow)
                 const toHand = pattern.getTargetHand(t, iteration)
-                    passAnimations.push({
-                        pass: {
-                            fromRole:fromPasserRole,
-                            fromHand,
-                            toRole:toPasserRoleAtThrow,
-                            toHand,
-                            label: ""
-                        },
-                        onBeat: timeOffset + t.throwBeat,
-                        mod: completePatternLength,
-                        duration: pattern.nrHands === 4 ? 2 : 1,
-                    })
+                passAnimations.push({
+                    pass: {
+                        fromRole: fromPasserRole,
+                        fromHand,
+                        toRole: toPasserRoleAtThrow,
+                        toHand,
+                        label: ""
+                    },
+                    onBeat: timeOffset + t.throwBeat,
+                    mod: completePatternLength,
+                    duration: pattern.nrHands === 4 ? 2 : 1,
+                })
+                console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
             }
     const endOfPatternRelabel: RelabelAnimation[] = []
+    endOfPatternRelabel.push({
+        onBeat: 0,
+        mod: pattern.getLength(),
+        changes: pattern.mapRows.map((r, idx) => [pattern.getRole(0, idx), pattern.getRole(0, r)]),
+    })
 
 
     // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
@@ -150,7 +152,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
             movementSequences,
             movementTriggers,
             relabeling: endOfPatternRelabel,
-            speed: pattern.nrHands===4?2:1
+            speed: pattern.nrHands === 4 ? 2 : 1
         },
         background
     }
