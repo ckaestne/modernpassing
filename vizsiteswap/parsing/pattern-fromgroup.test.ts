@@ -300,7 +300,7 @@ test('prefix notations', () => {
 })
 
 
-test.only('siteswap feed',()=>{
+test('siteswap feed',()=>{
     const pattern = `A: 7B7C267B7C6
 B: ,7A667A466
 C: ,67A667A46
@@ -316,12 +316,12 @@ positions: V(A,B,C)`
     assert.equal(p.iterationsUntilRepeat(),2)
 })
 
-test.only('brunos 10 club -- siteswap walking feed', () => {
+test('brunos 10 club -- siteswap walking feed', () => {
     const pattern=`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
 B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
 C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
-move: Bmove(B,4.9,6)Bmove(B,15.9,5)Bmove(C,9.9,5)`
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`
 const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())

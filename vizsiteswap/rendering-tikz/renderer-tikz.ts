@@ -39,11 +39,6 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         emphasizeLineColor,
         emphasizeLineWith,
         emphasizeLineDash,
-        gallop,
-        useSimpleLabels,
-        useAllSyncLabels,
-        showPassInLabel,
-        labelPassDestinationRole,
         } = cfg;
     
 

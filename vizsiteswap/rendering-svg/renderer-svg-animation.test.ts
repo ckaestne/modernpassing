@@ -108,7 +108,7 @@ test("render first animation (star with a hole)", async (t) => {
 
 })
 
-Deno.test.only("entry point for animations", () => {
+Deno.test("entry point for animations", () => {
     const gp = createGroupPattern(`A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33
