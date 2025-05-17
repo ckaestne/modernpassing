@@ -1,26 +1,26 @@
-import { createPatternFromRaw, parseGroupSyncPattern } from "@modernpassing/parsing";
+import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
 import { describe, it } from "jsr:@std/testing/bdd";
 import assert from "node:assert";
 import test from "node:test";
 import { applyManipulations } from "./manipulator-processing.ts";
 
 const twoPersonFourBeatPattern = createPatternFromRaw(parseGroupSyncPattern(
-    `A: 3 3 3 3 -> B
-        B: 3 3 3 3 -> A`
+    `A: 3 3 3 3 -- B
+        B: 3 3 3 3 -- A`
 )[0], 2)[0]
 
 const twoPersonFourBeatPatternWithInterceptOnOne = (() => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 3 3  3 3 -> B
-         B: 3 3  3 3 -> A
+        `A: 3 3  3 3 -- B
+         B: 3 3  3 3 -- A
          M: . IB C`
     )[0], 2)
     return applyManipulations(p, manipulations)
 })()
 const twoPersonFourBeatPatternWithInterceptOnZeroA = (() => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 3 3  3 3 -> B
-         B: 3 3  3 3 -> A
+        `A: 3 3  3 3 -- B
+         B: 3 3  3 3 -- A
          M: IA C`
     )[0], 2)
     return applyManipulations(p, manipulations)

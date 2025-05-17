@@ -777,6 +777,11 @@
       ]
     },
     "members": {
+      "manipulation": {
+        "dependencies": [
+          "jsr:@std/assert@1"
+        ]
+      },
       "parsing": {
         "dependencies": [
           "jsr:@std/assert@1",

@@ -1,4 +1,4 @@
-import { createPatternFromRaw, parseGroupSyncPattern } from "@modernpassing/parsing";
+import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
 import assert from "node:assert";
 import test from "node:test";
 import { applyManipulations, fillPatternGaps, prettyPrintManipulatorActions } from "./manipulator-processing.ts";
@@ -6,8 +6,8 @@ import { createPattern, ManipulatorAction, Pattern, Throw } from "@modernpassing
 
 
 const basicFourCountWithoutManipulator =
-    `A: 3pB 3 3 3 -> B
-     B: 3pA 3 3 3 -> A`
+    `A: 3pB 3 3 3 -- B
+     B: 3pA 3 3 3 -- A`
 
 
 Deno.test('shift: basic', async () => {
@@ -79,8 +79,8 @@ Deno.test('shift: basic', async () => {
 
 
 const basicFour42CountWithoutManipulator =
-    `A: 3pB 4 2 3 -> B
-     B: 3pA 3 3 3 -> A`
+    `A: 3pB 4 2 3 -- B
+     B: 3pA 3 3 3 -- A`
 
 
 Deno.test('shift: nonsymetric', async () => {
@@ -160,15 +160,15 @@ function assertEqualThrows(pattern1: Pattern, pattern2: Pattern) {
         return a.fromPasserIdx - b.fromPasserIdx
     }
 
-    const t1 = pattern1.throws.map(t => { return `${t.throwBeat} ${pattern1.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern1.getRole(t.throwBeat, t.toPasserIdx)}` }).sort()
-    const t2 = pattern2.throws.map(t => { return `${t.throwBeat} ${pattern2.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern2.getRole(t.throwBeat, t.toPasserIdx)}` }).sort()
+    const t1 = pattern1.throws.map(t => { return `${t.throwBeat} ${pattern1.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern1.getRole(t.throwBeat, t.toPasserIdxAtCausal)}` }).sort()
+    const t2 = pattern2.throws.map(t => { return `${t.throwBeat} ${pattern2.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern2.getRole(t.throwBeat, t.toPasserIdxAtCausal)}` }).sort()
 
     assert.deepStrictEqual(t1, t2)
 }
 
 const basic1BeatIntercept =
-    `A: 3pB 3 3 3 -> B
-        B: 3pA 3 3 3 -> A
+    `A: 3pB 3 3 3 -- B
+        B: 3pA 3 3 3 -- A
         M: IA C`
 
 Deno.test('shift: with manipulator applied', async () => {
@@ -214,66 +214,66 @@ Deno.test('shift: with manipulator applied', async () => {
 
 
 const basic2BeatIntercept =
-    `A: 3pB 3 3 3 -> B
-        B: 3pA 3 3 3 -> A
+    `A: 3pB 3 3 3 -- B
+        B: 3pA 3 3 3 -- A
         M: IB . C`
 const basicLate1BeatIntercept =
-    `A: 3pB 3 3 3 -> B
-        B: 3pA 3 3 3 -> A
+    `A: 3pB 3 3 3 -- B
+        B: 3pA 3 3 3 -- A
         M: ..IB C`
 const hard1beatInterceptOf4 =
-    `A: 2 3 3 3 -> B
-         B: 3 3 3 4 -> A
+    `A: 2 3 3 3 -- B
+         B: 3 3 3 4 -- A
          M: .C . IA `
 const threeBeatCarry =
-    `A: 3 3 3pB 3 -> B
-         B: 3 3 3pA 3 -> A
+    `A: 3 3 3pB 3 -- B
+         B: 3 3 3pA 3 -- A
          M: IA . . C`
 const twoIndependentManipulators =
-    `A: 3pB 3  3 3 3  3 3 -> B
-        B: 3pA 3  3 3 3  3 3 -> A
+    `A: 3pB 3  3 3 3  3 3 -- B
+        B: 3pA 3  3 3 3  3 3 -- A
         M: .   IB C
         N: .   .  . . IB C`
 const interceptingACarry =
-    `A: 3pB 3  3 3 3  3 3 -> B
-    B: 3pA 3  3 3 3  3 3 -> A
+    `A: 3pB 3  3 3 3  3 3 -- B
+    B: 3pA 3  3 3 3  3 3 -- A
     M: .   IB C
     N: .   .  IB C`
 const delayedHandin1 =
-    `A: 3333 -> B
-         B: 3333  -> A
+    `A: 3333 -- B
+         B: 3333  -- A
          M: . SBd `
 const delayedHandin2 =
-    `A: 3333 -> B
-         B: 3333  -> A
+    `A: 3333 -- B
+         B: 3333  -- A
          M: . SBd2 `
 const earlyIntercept =
-    `A: 3 3pB 3 3 -> B
-    B: 3 3pA  3 3 -> A
+    `A: 3 3pB 3 3 -- B
+    B: 3 3pA  3 3 -- A
     M: . IBAe CA`
 const scrambedV =
-    `A: 3B 3  3C 3  3B 3 -> B
-    B: 3A 3  3  3  3A 3  -> C
-    C: 3  3  3A 3  3  3  -> A
+    `A: 3B 3  3C 3  3B 3 -- B
+    B: 3A 3  3  3  3A 3  -- C
+    C: 3  3  3A 3  3  3  -- A
     M: C  z  SB z  ICe 
     positions: V(A,B,C)`
 
 const ambled3_a =
-   `A: 4B 3  4C 3  4B 3  4C -> B
-    B: 3  4A 3  3  3  4A 3  -> C
-    C: 3  3  3  4A 3  3  3  -> A
+   `A: 4B 3  4C 3  4B 3  4C -- B
+    B: 3  4A 3  3  3  4A 3  -- C
+    C: 3  3  3  4A 3  3  3  -- A
     M: C  z  .  SB z  IC 
     positions: V(A,B,C)`
 const ambled3_b =
-    `A: 4B 3  4C 3  4B 3  4C -> B
-    B: 3  4A 3  3  3  4A 3  -> C
-    C: 3  3  3  4A 3  3  3  -> A
+    `A: 4B 3  4C 3  4B 3  4C -- B
+    B: 3  4A 3  3  3  4A 3  -- C
+    C: 3  3  3  4A 3  3  3  -- A
     M: .  C  z  SCAIAB
     positions: V(A,B,C)`
 const ambled3_c =
-   `A: 4B 3  4C 3  4B 3  4C -> B
-    B: 3  4A 3  3  3  4A 3  -> C
-    C: 3  3  3  4A 3  3  3  -> A
+   `A: 4B 3  4C 3  4B 3  4C -- B
+    B: 3  4A 3  3  3  4A 3  -- C
+    C: 3  3  3  4A 3  3  3  -- A
     M: .  C  z  (SCAd,3) IABe 
     positions: V(A,B,C)`
 
@@ -390,9 +390,9 @@ test('invariant: applying manipulator actions should be stable across shifts', a
 const aidenPatterns: { [key: string]: string } = function () {
 
     const base =
-        `A: 3B 3  3C 3  3B 3 -> B
-B: 3A 3  3  3  3A 3  -> C
-C: 3  3  3A 3  3  3  -> A`
+        `A: 3B 3  3C 3  3B 3 -- B
+B: 3A 3  3  3  3A 3  -- C
+C: 3  3  3A 3  3  3  -- A`
     const positionsLine = `positions: V(A,B,C)`
     const result: { [key: string]: string } = {}
 
@@ -434,7 +434,7 @@ test('generate all aiden patterns', async () => {
 
 
 function throwToString(p: Pattern, t: Throw) {
-    return `from ${p.getRole(t.throwBeat, t.fromPasserIdx)} to ${p.getRole(p.getThrowCauseBeat(t), t.toPasserIdx)} - ${t.throwLength}`
+    return `from ${p.getRole(t.throwBeat, t.fromPasserIdx)} to ${p.getRole(p.getThrowCauseBeat(t), t.toPasserIdxAtCausal)} - ${t.throwLength}`
 }
 
 
@@ -447,8 +447,8 @@ function assertEqualPattern(p1: Pattern, p2: Pattern) {
 
     // rows may not be in the same order, so let's compare transformations in role changes
     assert.deepEqual(
-        p1.mapRows.map((r, i) => p1.getRole(0, i) + "->" + p1.getRole(0, r)).sort(),
-        p2.mapRows.map((r, i) => p2.getRole(0, i) + "->" + p2.getRole(0, r)).sort()
+        p1.mapRows.map((r, i) => p1.getRole(0, i) + "--" + p1.getRole(0, r)).sort(),
+        p2.mapRows.map((r, i) => p2.getRole(0, i) + "--" + p2.getRole(0, r)).sort()
     )
     assert.deepEqual(normalizeRoles(p1), normalizeRoles(p2))
 
@@ -485,8 +485,8 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         return {
             ...t,
             throwBeat: (t.throwBeat - 1 + pattern.getLength()) % pattern.getLength(),
-            toPasserIdx: throwCauseTime === pattern.getLength() ? pattern.adjustRowIdxByTime(-1, t.toPasserIdx) :
-                throwCauseTime === 0 ? pattern.adjustRowIdxByTime(-1, t.toPasserIdx) : t.toPasserIdx,
+            toPasserIdxAtCausal: throwCauseTime === pattern.getLength() ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) :
+                throwCauseTime === 0 ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) : t.toPasserIdxAtCausal,
             fromPasserIdx: t.throwBeat === 0 ? pattern.adjustRowIdxByTime(-1, t.fromPasserIdx) : t.fromPasserIdx,
             note: ""
         }
@@ -528,16 +528,16 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
 /**
  * throws are identified by row index (wraparound will change the row of a self!)
  */
-function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
-    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
+function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdxAtCausal: number, msg?: string) {
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
-    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdx}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdx}`).join(', ')}`)
-    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdx}, expected one [${msg}]`)
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
 }
-function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, toPasserIdx: number, msg?: string) {
-    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx && t.toPasserIdx === toPasserIdx)
+function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, toPasserIdxAtCausal: number, msg?: string) {
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
-    assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdx}, expected none [${msg}]`)
+    assert(ts.length === 0, `${ts.length} throw(s) found for ${beat} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected none [${msg}]`)
 }
 
 

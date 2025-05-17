@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { Pattern, Throw, Beat, Role, Time, ThrowType, Hand } from "./pattern.ts";
-import { green, bold, gray, red, blue, dim } from "https://deno.land/std@0.123.0/fmt/colors.ts"
+import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
 
 
 
@@ -43,9 +43,9 @@ export class PatternImpl implements Pattern {
     private prefixLength: number | undefined = undefined
 
 
-    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number, fromHand?: Hand, toHand?: Hand): Throw | undefined {
+    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxAtCausal?: number, fromHand?: Hand, toHand?: Hand): Throw | undefined {
         assert(throwBeat >= -this.getPrefixLength() && throwBeat < this.getLength())
-        let ts = this.findThrows(throwBeat, fromPasserIdx, toPasserIdx)
+        let ts = this.findThrows(throwBeat, fromPasserIdx, toPasserIdxAtCausal)
         if (fromHand !== undefined) ts = ts.filter(t => t.fromHand === fromHand)
         if (toHand !== undefined) ts = ts.filter(t => this.getTargetHand(t, 0) === toHand)
         if (ts.length === 0) return undefined
@@ -53,16 +53,16 @@ export class PatternImpl implements Pattern {
         if (ts.length > 1) {
             ts = ts.sort((a, b) => b.throwLength - a.throwLength)
             if (ts.filter(t => t.throwLength > 2).length > 1)
-                console.warn(`found multiple throws for time ${throwBeat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdx}/${toHand}, returning the one with the highest throw\n${JSON.stringify(ts)}`)
+                console.warn(`found multiple throws for time ${throwBeat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdxAtCausal}/${toHand}, returning the one with the highest throw\n${JSON.stringify(ts)}`)
         }
         return ts[0]
     }
 
-    findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxOnCausal?: number): Throw[] {
+    findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxAtCausal?: number): Throw[] {
         assert(throwBeat >= -this.getPrefixLength() && throwBeat < this.getLength())
         let ts = this.throws.filter(t => t.throwBeat === throwBeat)
         if (fromPasserIdx !== undefined) ts = ts.filter(t => t.fromPasserIdx === fromPasserIdx)
-        if (toPasserIdxOnCausal !== undefined) ts = ts.filter(t => this.getToPasserIdxOnCausal(t) === toPasserIdxOnCausal)
+        if (toPasserIdxAtCausal !== undefined) ts = ts.filter(t => this.getToPasserIdxOnCausal(t) === toPasserIdxAtCausal)
         return ts
     }
 
@@ -160,7 +160,8 @@ export class PatternImpl implements Pattern {
     }
 
 
-    prettyPrintThrows(): string {
+    prettyPrintThrows(withColor:boolean = true): string {
+        setColorEnabled(withColor)
 
         let result = ""
 
@@ -168,10 +169,10 @@ export class PatternImpl implements Pattern {
         const printThrow = (t: Throw): string => {
             // if (['S', 'C', 'I', 'P'].includes(t.note[0])) return `${t.throwLength}${this.getRole(t.throwBeat, t.toPasserIdx)}|${t.note}`
             // const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
-            const toRole = this.getRole(this.getThrowCauseBeat(t), this.getToPasserIdxAtThrow(t))
+            const toRole = this.getToPasserRole(t) //this.getRole(this.getThrowCauseBeat(t), this.getToPasserIdxAtThrow(t))
             // const printRole = fromRole !== toRole ? toRole : ""
             const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
-            const printType = markers.length === 0 ? "" : "/" + markers.join("")
+            const printType = markers.length === 0 ? "" : markers.join("")
             const hand = this.getThrowHand(t, 0)
             const isCrossing = this.isSelfThrow(t) ? "" : bold(this.isCrossingPass(t, 0) ? "‖" : "X")
             const targetFirstIteration = this.getToPasserIdxOnCausal(t) + (this.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + this.getThrowCauseBeat(t)
@@ -270,8 +271,18 @@ export class PatternImpl implements Pattern {
      */
     addRole(newRole: string): Pattern {
         const newRowIdx = this.nrRows
-        throw new Error("Method not implemented.");
-        // return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]))
+
+        // mostly this is straightforward, but mapping of hands and crossing is tricky. 
+        // for now let's guess that the manipulator is James and swaps hands on odd-length patterns
+
+        // TODO: I suspect this will not work for all cases; we probably should revisit this and test this well; 
+        // we might need to guess to see what's valid again by putting in a placeholder for now
+
+
+        return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]),
+            this.mapHands.concat([[this.getLength()%2===1]]),//TODO check this
+            this.mapCrossing.concat([[false]]), //TODO check this
+            undefined, this.length)
     }
 
     hasRole(manipulatorRole: string): boolean {
@@ -293,14 +304,14 @@ export class PatternImpl implements Pattern {
 
 
 
-    /**
+     /**
      * swap row reindexing at the end of the pattern too
      * and adjusts labeling earlier: at and after a given beat by swapping two roles 
      * 
      * @param labelsOnly if true, this does not change the relabeling at the end
      *   should probably be used only for debugging/testing
      */
-    swapRoles(beat: Beat, roleA: string, roleB: string, labelsOnly: boolean = false): Pattern {
+     swapRoles(beat: Beat, roleA: string, roleB: string, labelsOnly: boolean = false): Pattern {
         assert(beat >= 0 && beat < this.getLength())
         let roles = this.roles.slice()
         let lastRoles = roles.findLast(r => r[0] <= beat)!
@@ -330,8 +341,8 @@ export class PatternImpl implements Pattern {
 
         const mapRows = labelsOnly ? this.mapRows : this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
-        assert(this.mapCrossing.every((v) => !v), "TODO: flipCrossing not implemented for swapRoles")
-        assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: swapHands not implemented for swapRoles with different values")
+        assert(this.mapCrossing.every((v) => v.every(x=>!x)), `TODO: mapCrossing not implemented for swapRoles (${this.mapCrossing})`)
+        assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: mapHands not implemented for mapHands with different values")
 
         return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.mapHands, this.mapCrossing, this.initialHands)
     }

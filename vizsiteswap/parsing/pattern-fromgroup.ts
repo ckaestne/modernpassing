@@ -302,7 +302,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             return {
                 kind: 'T',
                 throwLength: t.throwLength,
-                toPasserRole: pattern.getToPasserRole(t),
+                toPasserRole: roles[pattern.getToPasserIdxAtThrow(t)],
                 fromHand: t.fromHand,
                 isCrossing: t.isCrossing,
                 beat: t.throwBeat,
@@ -514,7 +514,8 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
  * for all nonmanipulator rows, sorted by beat, then row */
 function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, Hand | undefined, string][] {
     const result: [number, Beat, Hand | undefined, string][] = []
-    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
+    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) 
+        if (!rows[rowIdx].isManipulator) {
         const throwsByBeat = throwByBeat(rows[rowIdx], nrHands)
         for (const [beat, t] of throwsByBeat) {
             if (Array.isArray(t)) {

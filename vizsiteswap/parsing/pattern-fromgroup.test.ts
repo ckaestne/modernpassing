@@ -1,13 +1,146 @@
 import assert, { fail } from "node:assert";
 import test from "node:test";
 import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
-import { GroupPattern, Hand, Throw } from "../pattern/pattern.ts";
 import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
+import { GroupPattern, Hand, Pattern, Throw } from "@modernpassing/pattern";
 
 const R = Hand.Right
 const L = Hand.Left
+
+
+Deno.test('test parsing four-count', () => {
+    const t = createGroupPattern(
+        `A: 3pB 3 3 3 -- B
+        B: 3pA 3 3 3 -- A`, 2
+    ).pattern
+
+    console.log(t.prettyPrintThrows())
+    const A = 0, B = 1
+
+    assertThrow(t, 0, 3, A, B)
+    assertThrow(t, 0, 3, B, A)
+    assertThrow(t, 1, 3, A, A)
+    assertThrow(t, 1, 3, B, B)
+    assertThrow(t, 2, 3, A, A)
+    assertThrow(t, 2, 3, B, B)
+    assertThrow(t, 3, 3, A, A)
+    assertThrow(t, 3, 3, B, B)
+})
+
+
+/**
+ * throws are identified by passer index (i.e. stable, not affected by relabeling)
+ */
+export function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdxAtThrow: number, msg?: string) {
+    // automated relabel of rows past the end of the pattern
+    let toTime = pattern.getThrowCauseTime_(beat, length)
+
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && pattern.getToPasserIdxAtThrow(t) === toPasserIdxAtThrow)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtThrow}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${pattern.getToPasserIdxAtThrow(t)}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtThrow}, expected one [${msg}]`)
+}
+
+
+Deno.test('test parsing four-count in different notations', () => {
+    // with p and target
+    const t1 = createGroupPattern(
+        `A: 3pB 3 3 3 -- B
+        B: 3pA 3 3 3 -- A`
+        , 2).pattern
+    // implied target
+    const t2 = createGroupPattern(
+        `A: 3p 3 3 3 -- B
+        B: 3p 3 3 3 -- A`
+        , 2).pattern
+    // target without p
+    const t3 = createGroupPattern(
+        `A: 3B 3 3 3 -- B
+        B: 3A 3 3 3 -- A`
+        , 2).pattern
+    // extra self-targets
+    const t4 = createGroupPattern(
+        `A: 3B 3A 3A 3A -- B
+        B: 3A 3B 3B 3B -- A`
+        , 2).pattern
+    const A = 0, B = 1
+    for (const t of [t1, t2, t3, t4]) {
+        assertThrow(t, 0, 3, A, B)
+        assertThrow(t, 0, 3, B, A)
+        assertThrow(t, 1, 3, A, A)
+        assertThrow(t, 1, 3, B, B)
+        assertThrow(t, 2, 3, A, A)
+        assertThrow(t, 2, 3, B, B)
+        assertThrow(t, 3, 3, A, A)
+        assertThrow(t, 3, 3, B, B)
+    }
+})
+
+
+
+Deno.test('test parsing 867', () => {
+    const t = createGroupPattern(
+        `A:  7 6 8 7 6 -- B
+         B: , 8 7 6 8 -- A`, 4
+    ).pattern
+
+    console.log(t.prettyPrintThrows())
+
+
+    const A = 0, B = 1
+
+    assertThrow(t, 0, 7, A, B)
+    assertThrow(t, 1, 8, B, B)
+    assertThrow(t, 2, 6, A, A)
+    assertThrow(t, 3, 7, B, A)
+    assertThrow(t, 4, 8, A, A)
+    assertThrow(t, 5, 6, B, B)
+    assertThrow(t, 6, 7, A, B)
+    assertThrow(t, 7, 8, B, B)
+    assertThrow(t, 8, 6, A, A)
+
+})
+Deno.test('test parsing 867 notation variations', () => {
+    // default notation without annotations
+    const t1 = createGroupPattern(
+        `A:  7 6 8 7 6 -- B
+         B: , 8 7 6 8 -- A`
+        , 4).pattern
+    // implied target with p
+    const t2 = createGroupPattern(
+        `A:  7p 6 8 7p 6 -- B
+         B: , 8 7p 6 8 -- A`
+        , 4).pattern
+    // target without p
+    const t3 = createGroupPattern(
+        `A:  7B 6 8 7B 6 -- B
+         B: , 8 7A 6 8 -- A`
+        , 4).pattern
+    // extra self-targets
+    const t4 = createGroupPattern(
+        `A:  7B 6A 8A 7B 6A -- B
+         B: , 8B 7A 6B 8B -- A`
+        , 4).pattern
+
+
+    const A = 0, B = 1
+
+    for (const t of [t1, t2, t3, t4]) {
+        assertThrow(t, 0, 7, A, B)
+        assertThrow(t, 1, 8, B, B)
+        assertThrow(t, 2, 6, A, A)
+        assertThrow(t, 3, 7, B, A)
+        assertThrow(t, 4, 8, A, A)
+        assertThrow(t, 5, 6, B, B)
+        assertThrow(t, 6, 7, A, B)
+        assertThrow(t, 7, 8, B, B)
+        assertThrow(t, 8, 6, A, A)
+    }
+
+})
+
 
 test("test pattern creation", (t) => {
     const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)")
@@ -331,3 +464,4 @@ const gp: GroupPattern = createGroupPattern(pattern, 4)
     assert.ok(p.isValid(), p.getValidationError())
     // assert.equal(p.iterationsUntilRepeat(),6)
 })
+

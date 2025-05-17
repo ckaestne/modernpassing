@@ -109,9 +109,9 @@ export interface Pattern {
      */
     getInitialRoles(): string[];
 
-    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number, fromHand?: Hand, toHand?: Hand): Throw | undefined
+    findThrow(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxAtCausal?: number, fromHand?: Hand, toHand?: Hand): Throw | undefined
 
-    findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdx?: number): Throw[]
+    findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxAtCausal?: number): Throw[]
 
     /**
      * Due to limits of the notation, this is not straightforward --
@@ -370,7 +370,7 @@ export type ManipulatorAction = InterceptAction | CarryAction | SubstitutionActi
 export type InterceptAction = {
     beat: Beat,
     fromPasserRole?: Role,
-    toPasserRole: Role,
+    toPasserRole: Role, // at throw time
     manipulatorRole: Role,
     kind: 'I'
     modifiers: string
@@ -378,7 +378,7 @@ export type InterceptAction = {
 export type SubstitutionAction = {
     beat: Beat,
     fromPasserRole?: Role,
-    toPasserRole: Role,
+    toPasserRole: Role, // at throw time
     manipulatorRole: Role,
     kind: 'S'
     modifiers: string
@@ -386,7 +386,7 @@ export type SubstitutionAction = {
 export type ThrowAction = {
     beat: Beat,
     throwLength: number,
-    toPasserRole: Role,
+    toPasserRole: Role, // at throw time
     manipulatorRole: Role,
     fromHand: Hand,
     isCrossing: boolean,
@@ -394,7 +394,7 @@ export type ThrowAction = {
 }
 export type CarryAction = {
     beat: Beat,
-    toPasserRole?: Role,
+    toPasserRole?: Role, // at throw time
     manipulatorRole: Role,
     kind: 'C' // carry
 }
