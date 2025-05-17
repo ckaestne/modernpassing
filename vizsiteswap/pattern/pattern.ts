@@ -151,6 +151,17 @@ export interface Pattern {
      * (hopefully clearer version of adjustRowIdxByTime)
      */
     samePasserNBeatsLater(rowIdx: number, currentTime: Time, timeDelta: number): number
+    /**
+     * another version of the same idea for convenience -- find which row 
+     * the passer on rowIdx at currentTime will be at newTime
+     * 
+     * same as samePasserNBeatsLater(rowIdx, currentTime, newTime - currentTime)
+     * 
+     * @param rowIdx rowidx of the passer
+     * @param currentTime time to which the provided rowIdx relates
+     * @param newTime time for which an updated rowIdx is needed
+     */
+    samePasserOtherTime(rowIdx: number, currentTime: Time, newTime: number): number
 
 
 
@@ -175,6 +186,7 @@ export interface Pattern {
     getThrowCauseBeat(t: Throw): number
     getThrowCauseBeat_(throwTime: number, throwLength: number): number
 
+    getThrowCauseLength(t: Throw): number
 
     addThrow(newThrow: Throw): Pattern
     removeThrow(thatThrow: Throw): Pattern
@@ -289,6 +301,8 @@ export interface Throw {
     /**
      * this is the row corresponding to the first iteration of the pattern; 
      * it does not care about relabeling from intercepts, labels can be derived from this
+     * 
+     * for the role see also `pattern.getFromPasserRole`
      */
     readonly fromPasserIdx: number
 
@@ -309,9 +323,19 @@ export interface Throw {
     readonly throwLength: number
 
     /**
-     * this is the row of the receiving passer on the throw beat (it may land in a different row if we need to remap at the end of the sequence)
+     * this is the row of the receiving passer on the causal beat
+     * 
+     * this can be unintuitive if we pass through the end of the pattern due to remapping.
+     * so a self may well point to another row in the next round.
+     * 
+     * This is not how we think in terms of targets (pA means pass who the row where
+     * A is at the time of the throw, not the time of the catch), but it is the better
+     * internal representation.
+     * 
+     * To get the row/role of the throw at the time of the throw, use `pattern.getToPasserIdxAtThrow`
+     * or `pattern.getToPasserRole`
      */
-    readonly toPasserIdxAtThrow: number
+    readonly toPasserIdxAtCausal: number
 
     /**
      * optional markers to indicate what kind of throw this is; multiple markers possible
@@ -528,7 +552,7 @@ export function createThrow(
     fromPasserIdx: number,
     fromHand: Hand,
     isCrossing: boolean,
-    toPasserIdxAtThrow: number,
+    toPasserIdxAtCausal: number,
     throwLength: number,
     markers?: ThrowType[],
     note?: string
@@ -538,7 +562,7 @@ export function createThrow(
         fromPasserIdx,
         fromHand,
         isCrossing,
-        toPasserIdxAtThrow,
+        toPasserIdxAtCausal,
         throwLength,
         markers,
         note

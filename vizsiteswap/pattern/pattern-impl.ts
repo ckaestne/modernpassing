@@ -67,7 +67,10 @@ export class PatternImpl implements Pattern {
     }
 
     getToPasserIdxOnCausal(t: Throw): number {
-        return this.samePasserNBeatsLater(t.toPasserIdxAtThrow, t.throwBeat, this.getThrowCauseLength(t))
+        return t.toPasserIdxAtCausal
+    }
+    getToPasserIdxAtThrow(t: Throw): number {
+        return this.samePasserOtherTime(t.toPasserIdxAtCausal, this.getThrowCauseTime(t), t.throwBeat)
     }
 
     findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[] {
@@ -95,7 +98,7 @@ export class PatternImpl implements Pattern {
         const ts = this.findThrows((time + this.getLength()) % this.getLength(), fromPasserIdx, undefined) // cannot identify target due to possible relabeling
         if (toRoleAtThrow)
             return ts.filter(t =>
-                t.toPasserIdxAtThrow === this.getRowIdxByRole(t.throwBeat, toRoleAtThrow))
+                this.getToPasserIdxAtThrow(t) === this.getRowIdxByRole(t.throwBeat, toRoleAtThrow))
         else return ts
     }
 
@@ -149,6 +152,9 @@ export class PatternImpl implements Pattern {
         return this.adjustRowIdxByTime(currentTime + timeDelta, rowIdx)
     }
 
+    samePasserOtherTime(rowIdx: number, currentTime: Time, newTime: number): number {
+        return this.samePasserNBeatsLater(rowIdx, currentTime, newTime - currentTime)
+    }
 
 
     prettyPrintThrows(): string {
@@ -159,7 +165,7 @@ export class PatternImpl implements Pattern {
         const printThrow = (t: Throw): string => {
             // if (['S', 'C', 'I', 'P'].includes(t.note[0])) return `${t.throwLength}${this.getRole(t.throwBeat, t.toPasserIdx)}|${t.note}`
             // const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
-            const toRole = this.getRole(this.getThrowCauseBeat(t), t.toPasserIdxAtThrow)
+            const toRole = this.getRole(this.getThrowCauseBeat(t), this.getToPasserIdxAtThrow(t))
             // const printRole = fromRole !== toRole ? toRole : ""
             const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
             const printType = markers.length === 0 ? "" : "/" + markers.join("")
@@ -390,7 +396,7 @@ export class PatternImpl implements Pattern {
             // should land on a hand that throws
             const causeBeat = this.getThrowCauseBeat(t)
             const targetHand = this.getTargetHand(t, 0)
-            const targetPasserIdx = this.adjustRowIdxByTime(causeTime, t.toPasserIdxAtThrow)
+            const targetPasserIdx = t.toPasserIdxAtCausal
             if (!foundThrown[targetPasserIdx][targetHand][causeBeat]) {
                 this.validationError = `prefix throw on beat ${t.throwBeat} from ${t.fromPasserIdx}/${t.fromHand} lands on a hand that does not throw on that beat`
                 return false
@@ -417,11 +423,11 @@ export class PatternImpl implements Pattern {
             if (causeTime< this.getLength()) continue
             const causeBeat = this.getThrowCauseBeat(t)
             const toHand = this.getTargetHand(t,0)
-            const causedThrow = foundThrown[this.samePasserNBeatsLater(t.toPasserIdxAtThrow, t.throwBeat, causeTime-t.throwBeat)][this.getTargetHandFirstIteration(t)][causeBeat]
+            const causedThrow = foundThrown[t.toPasserIdxAtCausal][this.getTargetHandFirstIteration(t)][causeBeat]
             assert(causedThrow, "caused throw not found")
             const causedThrowHand = this.getThrowHand(causedThrow, Math.floor(causeTime/this.getLength()))
             if (toHand!==causedThrowHand){
-                this.validationError= `crossing/straight throw ${t.throwLength}${this.getRole(causeBeat, t.toPasserIdxAtThrow)}${t.isCrossing ? "X" : ""} from ${t.fromPasserIdx}/${fromHand} to ${t.toPasserIdxAtThrow}/${toHand} is not consistent with the crossing/straight pass`
+                this.validationError= `crossing/straight throw ${t.throwLength}${this.getRole(causeBeat, t.toPasserIdxAtCausal)}${t.isCrossing ? "X" : ""} from ${t.fromPasserIdx}/${fromHand} to ${t.toPasserIdxAtCausal}/${toHand} is not consistent with the crossing/straight pass`
                 return false
             } 
         }
@@ -476,7 +482,7 @@ export class PatternImpl implements Pattern {
             const fromHand = this.getThrowHand(t, 0)
             const toHand = this.getTargetHand(t, 0)
             const fromPasserIdx = t.fromPasserIdx
-            const targetPasserIdx = this.adjustRowIdxByTime(this.getThrowCauseTime(t), t.toPasserIdxAtThrow)
+            const targetPasserIdx = t.toPasserIdxAtCausal
             result[fromPasserIdx][fromHand]++
             result[targetPasserIdx][toHand]--
         }
@@ -561,7 +567,7 @@ export class PatternImpl implements Pattern {
     }
 
     isSelfThrow(t: Throw): boolean {
-        return t.fromPasserIdx === t.toPasserIdxAtThrow
+        return t.fromPasserIdx === this.getToPasserIdxAtThrow(t)
     }
 
     iterationsUntilRepeat(): number {
@@ -610,7 +616,7 @@ export class ThrowImpl implements Throw {
         fromPasserIdx: number,
         fromHand: Hand,
         isCrossing: boolean,
-        toPasserIdxAtThrow: number,
+        toPasserIdxAtCausal: number,
         throwLength: number,
         markers?: ThrowType[],
         note?: string
@@ -622,8 +628,8 @@ export class ThrowImpl implements Throw {
         this.fromPasserIdx = fromPasserIdx
         assert(fromHand === Hand.Left || fromHand === Hand.Right, "fromHand must be either Hand.Left or Hand.Right, but got " + fromHand);
         this.fromHand = fromHand
-        assert(Number.isInteger(toPasserIdxAtThrow) && toPasserIdxAtThrow>=0, "toPasserIdxAtThrow must be a whole number >=0, but got " + toPasserIdxAtThrow);
-        this.toPasserIdxAtThrow = toPasserIdxAtThrow
+        assert(Number.isInteger(toPasserIdxAtCausal) && toPasserIdxAtCausal>=0, "toPasserIdxAtThrow must be a whole number >=0, but got " + toPasserIdxAtCausal);
+        this.toPasserIdxAtCausal = toPasserIdxAtCausal
         assert(Number.isInteger(throwLength) && throwLength>=0, "throwLength must be a whole number >=0, but got " + throwLength);
         this.throwLength = throwLength
         this.markers = markers
@@ -636,7 +642,7 @@ export class ThrowImpl implements Throw {
     fromHand: Hand;
     isCrossing: boolean;
     throwLength: number;
-    toPasserIdxAtThrow: number;
+    toPasserIdxAtCausal: number;
     markers?: ThrowType[] | undefined;
     note?: string | undefined;
 

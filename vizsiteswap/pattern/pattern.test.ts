@@ -1,5 +1,6 @@
 import assert from "node:assert";
-import { createPattern, createThrow, Hand } from "./pattern.ts";
+import { createPattern, Hand, createThrow } from "./pattern.ts";
+
 
 Deno.test("prefix throws", () => {
 
