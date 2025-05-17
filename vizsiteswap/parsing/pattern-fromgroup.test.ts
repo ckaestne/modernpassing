@@ -5,7 +5,6 @@ import { GroupPattern, Hand, Throw } from "../pattern/pattern.ts";
 import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
-import {prettyPrintThrowsSvg} from "../rendering-svg/debug-renderer-svg.ts";
 
 const R = Hand.Right
 const L = Hand.Left
@@ -24,7 +23,7 @@ test("test pattern creation", (t) => {
     const throws = p.throws
     function assertContainsThrow(throws: Throw[], fromRole: string, fromHand: Hand, throwLength: number, toRole: string, toHand: Hand, beat: number) {
         const t = throws.find(t => t.fromPasserIdx === roles.indexOf(fromRole) && t.fromHand === fromHand &&
-            t.throwLength === throwLength && t.toPasserIdxAtThrow === roles.indexOf(toRole) && t.throwBeat === beat)
+            t.throwLength === throwLength && p.getToPasserIdxAtThrow(t) === roles.indexOf(toRole) && t.throwBeat === beat)
         if (!t) fail(`throw ${fromRole} ${throwLength} -> ${toRole} at ${beat} not found`)
         assert.equal(p.getTargetHand(t, 0), toHand)
     }
@@ -209,7 +208,7 @@ test('hands: techno', () => {
 
     assert.deepEqual(p.getStartingHands(), [[2, 2], [2, 1]])
 })
-
+ 
 
 test('siteswaps, basics', () => {
     const q = createSiteswapPattern("756", {})

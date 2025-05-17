@@ -44,7 +44,7 @@ function createSiteswapPatternImpl(sw: FourHandedSiteswap, config: Partial<Sites
             throwBeat: beat,
             throwLength: sw.throwAt(beat),
             fromPasserIdx: (passerIdx+ startingJuggler) % 2,
-            toPasserIdxAtThrow: (sw.jugglerAt(sw.thrownNext(beat))+ startingJuggler) % 2,
+            toPasserIdxAtCausal: (sw.jugglerAt(sw.causes(beat) % sw.length())+ startingJuggler) % 2,
             fromHand: (beat + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
             isCrossing,
             note: sw.throwLetterAt(beat)

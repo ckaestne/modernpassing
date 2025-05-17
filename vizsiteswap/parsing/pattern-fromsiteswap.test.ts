@@ -10,9 +10,9 @@ Deno.test("Pattern from siteswap, 756", () => {
     const t7=s756.findThrow(0)!
     const t5=s756.findThrow(1)!
     const t6=s756.findThrow(2)!
-    assert.equal(t7.toPasserIdxAtThrow, 1);
-    assert.equal(t5.toPasserIdxAtThrow, 0);
-    assert.equal(t6.toPasserIdxAtThrow, 0);
+    assert.equal(t7.toPasserIdxAtCausal, 0);
+    assert.equal(t5.toPasserIdxAtCausal, 0);
+    assert.equal(t6.toPasserIdxAtCausal, 1);
     assert.equal(t7.fromPasserIdx,0)
     assert.equal(t5.fromPasserIdx,1)
     assert.equal(t6.fromPasserIdx,0)
@@ -50,9 +50,9 @@ Deno.test("Pattern from siteswap, 756, B starting", () => {
     const t7=s756.findThrow(0)!
     const t5=s756.findThrow(1)!
     const t6=s756.findThrow(2)!
-    assert.equal(t7.toPasserIdxAtThrow, 0);
-    assert.equal(t5.toPasserIdxAtThrow, 1);
-    assert.equal(t6.toPasserIdxAtThrow, 1);
+    assert.equal(t7.toPasserIdxAtCausal, 1);
+    assert.equal(t5.toPasserIdxAtCausal, 1);
+    assert.equal(t6.toPasserIdxAtCausal, 0);
     assert.equal(t7.fromPasserIdx,1)
     assert.equal(t5.fromPasserIdx,0)
     assert.equal(t6.fromPasserIdx,1)

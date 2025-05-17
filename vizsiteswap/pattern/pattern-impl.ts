@@ -72,6 +72,9 @@ export class PatternImpl implements Pattern {
     getToPasserIdxAtThrow(t: Throw): number {
         return this.samePasserOtherTime(t.toPasserIdxAtCausal, this.getThrowCauseTime(t), t.throwBeat)
     }
+    getToPasserRole/*atThrow*/(t: Throw): Role {
+        return this.getRole(t.throwBeat, this.getToPasserIdxAtThrow(t))
+    }
 
     findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[] {
         // due to limits of the notation, this is not straightforward --

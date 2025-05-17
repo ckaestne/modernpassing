@@ -1,7 +1,7 @@
-import { Beat, createPattern, createThrow, GroupPattern, GroupPatternLayout, Hand, ManipulatorAction, MovementTrigger, PassAnimation, PassLayout, Pattern, PositionLayout, RelabelAnimation, Throw, ThrowType, Time } from "@modernpassing/pattern";
+import { type Beat, createPattern, createThrow, type GroupPattern, type GroupPatternLayout, Hand, type ManipulatorAction, type MovementTrigger, type PassAnimation, type PassLayout, type Pattern, type PositionLayout, type RelabelAnimation, type Throw, ThrowType } from "@modernpassing/pattern";
 import assert from "node:assert";
-import { HandSwap, parseGroupPattern, parseThrow, THandSwap, TPatternRow, TThrow } from "./pattern-fromgroup-parser.ts";
-import { createShapeLayout, parseLayout, TLayout, TMovement } from "./pattern-shapes.ts";
+import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
+import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
 
 /**
  * parsing of multi-line patterns, pretty much anything but vanilla siteswaps (and fromsync has simpler shorthands
@@ -70,7 +70,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
         return {
             fromRole: findPosition(t.fromPasserIdx).role,
             fromHand: pattern.getThrowHand(t, iteration),
-            toRole: findPosition(t.toPasserIdxAtThrow).role,
+            toRole: findPosition(pattern.getToPasserIdxAtThrow(t)).role,
             toHand: pattern.getTargetHand(t, iteration),
             label: (t.throwBeat + 1).toString()
         }
@@ -86,7 +86,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
     for (let iteration = 0; iteration < nrIterations; iteration++)
         //every throw that is a pass
         for (const t of pattern.throws)
-            if (t.fromPasserIdx !== t.toPasserIdxAtThrow) {
+            if (t.fromPasserIdx !== pattern.getToPasserIdxAtThrow(t)) {
                 const timeOffset = iteration * pattern.getLength()
                 // // update passes for overall static layout (no movement, no role adjustments)
                 // const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
@@ -104,7 +104,7 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
                 // passes for animations
                 const fromPasserRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
                 const fromHand = pattern.getThrowHand(t, iteration)
-                const toPasserRoleAtThrow = pattern.getRole(t.throwBeat, t.toPasserIdxAtThrow)
+                const toPasserRoleAtThrow = pattern.getToPasserRole(t)
                 const toHand = pattern.getTargetHand(t, iteration)
                 passAnimations.push({
                     pass: {
@@ -230,12 +230,21 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         if (causeTime < patternLength && fixedHand === undefined)
             handSequence[to][causeTime] = isCrossing ? 1 - fromHand : fromHand
 
+        // deal with relabeling (transforming toPasserIdxAtThrow to toPasserIdxAtCausal)
+        let toPasserIdxAtCausal = to
+        for (let wrap = 0; wrap < Math.floor(causeTime / patternLength); wrap++)
+            toPasserIdxAtCausal = baseIdxRelabel[toPasserIdxAtCausal]
+        for (let wrap = 0; wrap > Math.floor(causeTime / patternLength); wrap--)
+            toPasserIdxAtCausal = baseIdxRelabel.indexOf(toPasserIdxAtCausal)
+
+
+
         return createThrow(
             when,
             who,
             fromHand,
             isCrossing,
-            to,
+            toPasserIdxAtCausal,
             throwLength,
             [ThrowType.Base],
             throwStr
@@ -293,7 +302,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             return {
                 kind: 'T',
                 throwLength: t.throwLength,
-                toPasserRole: roles[t.toPasserIdxAtThrow],
+                toPasserRole: pattern.getToPasserRole(t),
                 fromHand: t.fromHand,
                 isCrossing: t.isCrossing,
                 beat: t.throwBeat,

@@ -212,6 +212,12 @@ export interface Pattern {
     getRowIdxByRole(time: Time, role: string): number
 
 
+    getToPasserIdxOnCausal(t: Throw): number 
+
+    getToPasserIdxAtThrow(t: Throw): number 
+    
+    getToPasserRole/*atThrow*/(t: Throw): Role
+
 
     /**
      * swap row reindexing at the end of the pattern too
@@ -336,6 +342,8 @@ export interface Throw {
      * or `pattern.getToPasserRole`
      */
     readonly toPasserIdxAtCausal: number
+    
+
 
     /**
      * optional markers to indicate what kind of throw this is; multiple markers possible

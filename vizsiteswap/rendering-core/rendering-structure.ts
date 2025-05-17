@@ -37,8 +37,8 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
             const fromHand = pattern.getThrowHand(t, iteration)
             const toHand = pattern.getTargetHand(t, iteration)
             const fromPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, t.fromPasserIdx)
-            const toPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, t.toPasserIdxAtThrow)
-            const targetRoleAtThrow = pattern.getRole(t.throwBeat+iterationTimeOffset, t.toPasserIdxAtThrow)
+            const toPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, pattern.getToPasserIdxAtThrow(t))
+            const targetRoleAtThrow = pattern.getRole(t.throwBeat+iterationTimeOffset, pattern.getToPasserIdxAtThrow(t))
             result.push({
                 throwTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat, t.fromHand),
                 rethrowTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat + t.throwLength, toHand),
