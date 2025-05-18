@@ -1295,6 +1295,8 @@ test.skip('delayed substitute placement: roundabout with German turn', () => {
     assertThrow(rewritten, 1, 1, M, M, 'zip 1')
     assertThrow(rewritten, 4, 1, M, M, 'zip 2') // this one is problematic!
     assertThrow(rewritten, 7, 1, B, B, 'zip 3')
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -1325,6 +1327,8 @@ Deno.test('modifiers: early intercept', () => {
     // 1 beat carry is easy, unchanged in this case except for redirecting it
     assertThrow(rewritten, 2, 3, A, M, 'carry')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -1354,6 +1358,8 @@ Deno.test('ambled 3 (with early intercept)', () => {
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
     // assertEmpty(rewritten, 3, M, 'catch intercept')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-travel)', () => {
@@ -1361,7 +1367,7 @@ Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-trav
         `A: 4B 3  4C 3  4B 3  4C -- B
         B: 3  4A 3  3  3  4A 3  -- C
         C: 3  3  3  4A 3  3  3  -- A
-        M: .  C  z  (SCAd,3) IABe 
+        M: .  C  z  (SCAd 3) IABe 
         positions: V(A,B,C)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
@@ -1383,6 +1389,8 @@ Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-trav
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
     // assertEmpty(rewritten, 3, M, 'catch intercept')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -1411,6 +1419,8 @@ Deno.test('intercept: at end of pattern with different base rows', () => {
     assertThrow(rewritten, 2, 3, M, M, 'moved')
     assertNoThrow(rewritten, 2, A, A, 'moved')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -1654,6 +1664,8 @@ Deno.test('intercept: at end of pattern again after prior relabeling', () => {
     assertThrow(rewritten, 2, 3, M, M, 'moved')
     assertNoThrow(rewritten, 2, A, A, 'moved')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 

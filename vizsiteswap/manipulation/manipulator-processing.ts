@@ -224,23 +224,29 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let toPasserIdxAtCausal = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdxAtCausal
             let markers = t.markers || []
+            let isCrossing = t.isCrossing
+            let throwLength = t.throwLength
             if (isInterceptThrow) {
                 markers = [...markers, ThrowType.Intercept]
-            } else if (isCarry) {
-                markers = [...markers, ThrowType.Carry]
-            } else if (isSkippedCarry) {
-                markers = [...markers, ThrowType.Filled]
             }
-            let throwLength = isSkippedCarry ? pattern.nrHands : t.throwLength
+            if (isCarry) {
+                markers = [...markers, ThrowType.Carry]
+            }
+            if (isSkippedCarry) {
+                markers = [...markers, ThrowType.Filled]
+                isCrossing = false
+                throwLength = pattern.nrHands
+            }
             if (isInterceptThrow && isEarlyIntercept) {
                 throwLength = pattern.nrHands / 2
+                isCrossing = true
                 toPasserIdxAtCausal = pattern.samePasserNBeatsLater(toPasserIdxAtCausal, pattern.getThrowCauseBeat(t), throwLength - t.throwLength)
             }
             newThrow = {
                 ...t,
                 fromPasserIdx,
                 toPasserIdxAtCausal: isSkippedCarry ? fromPasserIdx : toPasserIdxAtCausal,
-                isCrossing: isSkippedCarry ? false : t.isCrossing,
+                isCrossing,
                 throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
