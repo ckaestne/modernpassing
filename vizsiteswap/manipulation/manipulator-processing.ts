@@ -552,22 +552,23 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     function insertZipToPriorThrow(rowIdx: number, hand: Hand, beat: number): boolean {
         const beat1BeatEarlier = (beat - pattern.nrHands / 2 + pattern.getLength()) % pattern.getLength()
         const rowIdx1BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands / 2)
-        const hand1BeatEarlier = 1 - hand
+
+        const potentialThrow = {
+            fromPasserIdx: rowIdx,
+            fromHand: hand,
+            isCrossing: true,
+            toPasserIdxAtCausal: rowIdx1BeatsEarlier,
+            throwLength: pattern.nrHands / 2,
+            throwBeat: beat,
+            markers: [ThrowType.Filled],
+            note: '0'
+        }
+        const hand1BeatEarlier = pattern.getTargetHandFirstIteration(potentialThrow)
 
         if (foundCaught2[rowIdx][hand][beat] && !foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] && foundThrown2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier]) {
-            const newThrow = {
-                fromPasserIdx: rowIdx,
-                fromHand: hand,
-                isCrossing: true,
-                toPasserIdxAtCausal: rowIdx1BeatsEarlier,
-                throwLength: pattern.nrHands / 2,
-                throwBeat: beat,
-                markers: [ThrowType.Filled],
-                note: '0'
-            }
-            pattern = pattern.addThrow(newThrow)
-            foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] = newThrow
-            foundThrown2[rowIdx][hand][beat] = newThrow
+            pattern = pattern.addThrow(potentialThrow)
+            foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] = potentialThrow
+            foundThrown2[rowIdx][hand][beat] = potentialThrow
             return true
         }
         return false
