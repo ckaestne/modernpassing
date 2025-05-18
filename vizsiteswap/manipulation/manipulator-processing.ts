@@ -328,6 +328,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
         toPasserIdxAtCausal: manipulatorRowIdxOnPelfArrival,
+        isCrossing: pelfLength % pattern.nrHands !==0,
         throwLength: pelfLength,
         markers: [ThrowType.SubstitutionPelf],
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
