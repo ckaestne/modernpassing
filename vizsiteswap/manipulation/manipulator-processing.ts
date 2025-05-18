@@ -342,6 +342,8 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
 
     const handinThrowBeat = (substitutedThrow.throwBeat + placementDelay) % pattern.getLength()
+    const handinThrowHand = (substitutedThrow.fromHand + placementDelay)%2
+    const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
     // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
     // however, the row may have changed if the pattern wraps around
     const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
@@ -350,6 +352,8 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     pattern = pattern.addThrow({
         ...substitutedThrow,
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,
+        fromHand: handinThrowHand,
+        isCrossing: handinIsCrossing,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
         markers: [ThrowType.SubstitutionPlacement],
