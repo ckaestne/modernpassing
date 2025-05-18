@@ -483,7 +483,7 @@ export class PatternImpl implements Pattern {
                 const from = this.adjustRowIdxByTime(iteration * this.getLength(), t.fromPasserIdx)
                 const to = this.samePasserNBeatsLater(this.getToPasserIdxOnCausal(t), t.throwBeat, iteration * this.getLength() + t.throwLength - this.nrHands)
                 // console.log(`catching ${from}/${hand(t.fromHand)} ${t.throwLength} @ ${t.throwBeat} -> ${to}/${hand(catchHand)} @ ${causeTime} (${iteration})`)
-                result[to][catchHand]--
+                result[from][catchHand]--
 
                 causeTime += this.getLength()
                 iteration++

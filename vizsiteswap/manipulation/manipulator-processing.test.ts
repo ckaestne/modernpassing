@@ -65,7 +65,7 @@ Deno.test('test parsing manege', () => {
 })
 
 
-Deno.test.only('intercept rewrite: basic', () => {
+Deno.test('intercept rewrite: basic', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -- B
         B: 3pA 3 3 3 -- A
@@ -97,7 +97,7 @@ Deno.test.only('intercept rewrite: basic', () => {
     assertThrow(rewritten, 3, 3, B, B, 'unmodified self 3')
 
     const full = fillPatternGaps(rewritten)
-    assert.ok(full.isValid)
+    assert.ok(full.isValid())
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [2, 1])
@@ -334,7 +334,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary', () => {
     assertThrow(rewritten, 0, 3, M, B, 'carry')
 
     const full = fillPatternGaps(rewritten)
-    assert.ok(full.isValid)
+    assert.ok(full.isValid())
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 1])
@@ -1003,6 +1003,7 @@ Deno.test('scrambled V', () => {
     assert.deepEqual(p.mapRows, [B, C, A])
     let rewritten = applyManipulations(p, manipulations)
     console.log(rewritten.prettyPrintThrows())
+    assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
 
     assertThrow(rewritten, 0, 3, M, B, 'carry')
@@ -1015,7 +1016,7 @@ Deno.test('scrambled V', () => {
 
 
     const full = fillPatternGaps(rewritten)
-    assert.ok(full.isValid)
+    assert.ok(full.isValid())
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 1])
@@ -1025,18 +1026,20 @@ Deno.test('scrambled V', () => {
 
 })
 
-Deno.test('ambled V', () => {
+Deno.test.only('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
-        `A: 4B 3  4C 3  4B 3  4C -- B
-        B: 3  4A 3  3  3  4A 3  -- C
-        C: 3  3  3  4A 3  3  3  -- A
+        `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+        B: !34pAx  3  3  34pAx  4x  -- C
+        C: !2 33 4pAx 3  3  3   -- A
         M: C  z  .  SB z  IC 
         positions: V(A,B,C)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
+    console.log(p.prettyPrintThrows())
     let rewritten = applyManipulations(p, manipulations)
     console.log(rewritten.prettyPrintThrows())
+    assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
 
     assertThrow(rewritten, 0, 4, M, B, 'carry')
@@ -1048,7 +1051,7 @@ Deno.test('ambled V', () => {
     assertThrow(rewritten, 6, 2, C, C, 'flip to prepare for carry')
 
     const full = fillPatternGaps(rewritten)
-    assert.ok(full.isValid)
+    assert.ok(full.isValid(), full.getValidationError())
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 2])

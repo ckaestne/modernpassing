@@ -37,7 +37,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
     const printThrow = (t: Throw): string => {
         // if (['S', 'C', 'I', 'P'].includes(t.note[0])) return `${t.throwLength}${pattern.getRole(t.throwBeat, t.toPasserIdx)}|${t.note}`
         // const fromRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
-        const toRole = pattern.getRole(pattern.getThrowCauseBeat(t), t.toPasserIdxAtThrow)
+        const toRole = pattern.getToPasserRole(t)
         // const printRole = fromRole !== toRole ? toRole : ""
         const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
         const printType = markers.length === 0 ? "" : "/" + markers.join("")
@@ -105,23 +105,28 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         svg.text(message).move(x + 10, y - 5).fill("red").font({ size: 12 })
     }
 
-    function causal(x1: number, y1: number, x2: number, y2: number): Path {
+    function causal(x1: number, y1: number, x2: number, y2: number, throwLength: number): Path {
         let dir = 1
-        if (x1 > x2) {
-            dir = -3
-            const tmp = x1
-            x1 = x2
-            x2 = tmp
-            const tmpY = y1
-            y1 = y2
-            y2 = tmpY
-        }
+        // if (x1 > x2) {
+        //     dir = -3
+        //     const tmp = x1
+        //     x1 = x2
+        //     x2 = tmp
+        //     const tmpY = y1
+        //     y1 = y2
+        //     y2 = tmpY
+        // }
         const xDiff = x2 - x1
         //backward arrows are straight, the rest follows some heuristic
-        const bendOffset = xDiff <= 0 ? 0 : dist / 5.5 * xDiff / dist * .9
+        const bendOffset = xDiff > 0 ? 0 : dist / 5.5 * xDiff / dist * .9
 
-        return svg.path(`M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`).
+        const path = svg.path(`M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`).
             fill("transparent")
+        if (throwLength < 0)
+            path.stroke({ dasharray: '2,2' });
+
+        
+        return path
 
     }
 
@@ -151,8 +156,14 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         } else
             foundCaught[to][targetHandInFirstIteration][causeBeat] = t
 
-        causal(getX(t.throwBeat), getY(from, hand), getX(causeBeat), getY(to, targetHandInFirstIteration))
+        const path = causal(getX(t.throwBeat), getY(from, hand), getX(causeBeat), getY(to, targetHandInFirstIteration), pattern.getThrowCauseLength(t))
             .stroke({ width: 2, color: targetHandInFirstIteration ? "green" : "blue" })
+
+        if (t.throwBeat!==causeBeat || from!==to || hand!==targetHandInFirstIteration) 
+        path.marker('end', 10, 10, add => 
+                add.polygon('0,0 7.5,5 0,10').fill(targetHandInFirstIteration ? "green" : "blue").scale(.5,.5)
+            );
+    
     }
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
         for (let beat = 0; beat < pattern.getLength(); beat++) {
@@ -206,11 +217,11 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         if (causeTime < pattern.getLength()) continue
         const causeBeat = pattern.getThrowCauseBeat(t)
         const toHand = pattern.getTargetHand(t, 0)
-        const causedThrow = foundThrown[pattern.samePasserNBeatsLater(t.toPasserIdxAtThrow, t.throwBeat, causeTime - t.throwBeat)][pattern.getTargetHandFirstIteration(t)][causeBeat]
+        const causedThrow = foundThrown[t.toPasserIdxAtCausal][pattern.getTargetHandFirstIteration(t)][causeBeat]
         if (causedThrow) {
             const causedThrowHand = pattern.getThrowHand(causedThrow, Math.floor(causeTime / pattern.getLength()))
             if (toHand !== causedThrowHand) {
-                error(getX(causeBeat), getY(t.toPasserIdxAtThrow, toHand), `inconsistent crossing/straight`)
+                error(getX(causeBeat), getY(t.toPasserIdxAtCausal, toHand), `inconsistent crossing/straight`)
             }
         }
     }

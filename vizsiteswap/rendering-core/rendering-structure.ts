@@ -107,11 +107,13 @@ function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig)
             // default: throw Error("no predefined simple label for throw in allSync pattern " + normalizedLabel)
         }
         switch (normalizedLabel) {
+            case "0": return ""
             case "1": return "z"
             case "2": return "f"
             case "3": return "s"
             case "4": return "h"
             case "5": return "t"
+            case "1p": return "p" //pelf
             case "3p": return "p"
             case "3x": return "p*"
             case "3px": return "p"
@@ -121,5 +123,6 @@ function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig)
             case "5p": return "r"
             case "5px": return "r"
         }
-        throw Error("no predefined simple label for throw " + normalizedLabel+" in config " + rendererConfig.labelThrows)
+        console.error("no predefined simple label for throw " + normalizedLabel+" in config " + rendererConfig.labelThrows)
+        return normalizedLabel
 }

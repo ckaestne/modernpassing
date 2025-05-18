@@ -86,6 +86,7 @@ app.use(async (ctx, next) => {
                 error = p.getValidationError()
             } catch (e) {
                 error = e instanceof Error ? e.message : String(e);
+                console.error("Error:", (e as Error).stack);
             }
             ctx.response.body = page(pattern, svg, isValid, error, hands === 4, rendered, js);
         }

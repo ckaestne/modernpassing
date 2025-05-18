@@ -233,6 +233,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 ...t,
                 fromPasserIdx,
                 toPasserIdxAtCausal: isSkippedCarry ? fromPasserIdx : toPasserIdxAtCausal,
+                isCrossing: isSkippedCarry ? false : t.isCrossing,
                 throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,

@@ -2,6 +2,7 @@ import { type Beat, createPattern, createThrow, type GroupPattern, type GroupPat
 import assert from "node:assert";
 import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
 import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
+import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation";
 
 /**
  * parsing of multi-line patterns, pretty much anything but vanilla siteswaps (and fromsync has simpler shorthands
@@ -34,8 +35,8 @@ export function createGroupPattern(patternStr: string, nrHands: number): GroupPa
 
     const [pattern, manipulatorActions] = createPatternFromRaw(rows, nrHands)
 
-    const rewritten = pattern
-    // const rewritten = fillPatternGaps(applyManipulations(pattern, manipulatorActions))//TODO 
+    // const rewritten = pattern
+    const rewritten = (applyManipulations(pattern, manipulatorActions))
 
     return {
         pattern: rewritten,
