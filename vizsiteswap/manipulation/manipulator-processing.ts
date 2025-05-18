@@ -328,7 +328,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
         toPasserIdxAtCausal: manipulatorRowIdxOnPelfArrival,
-        isCrossing: pelfLength % pattern.nrHands !==0,
+        isCrossing: pelfLength % pattern.nrHands !== 0,
         throwLength: pelfLength,
         markers: [ThrowType.SubstitutionPelf],
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
@@ -528,24 +528,28 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     //                 if (!foundThrown[rowIdx][beat])
     //                     fn(rowIdx, beat)
     // }
-    function onMissingCatchAndThrow(fn: (rowIdx: number, hand: Hand, beat: number) => void, repeat: boolean = false) {
+    function onMissingCatchAndThrow(fn: (rowIdx: number, hand: Hand, beat: number) => boolean, repeat: boolean = false) {
+        let changed = false
         for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
             for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
                 for (const hand of [Hand.Right, Hand.Left])
                     for (let beat = 0; beat < pattern.getLength(); beat++)
                         if (foundCaught2[rowIdx][hand][beat] === undefined && foundThrown2[rowIdx][hand][beat] === undefined)
-                            fn(rowIdx, hand, beat)
+                            changed = fn(rowIdx, hand, beat) || changed
+        return changed
     }
-    function onCatchWithMissingThrow(fn: (rowIdx: number, hand: Hand, beat: number) => void, repeat: boolean = false) {
+    function onCatchWithMissingThrow(fn: (rowIdx: number, hand: Hand, beat: number) => boolean, repeat: boolean = false): boolean {
+        let changed = false
         for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
             for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
                 for (const hand of [Hand.Right, Hand.Left])
                     for (let beat = 0; beat < pattern.getLength(); beat++)
                         if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
-                            fn(rowIdx, hand, beat)
+                            changed = fn(rowIdx, hand, beat) || changed
+        return changed
     }
 
-    function insertZipToPriorThrow(rowIdx: number, hand: Hand, beat: number) {
+    function insertZipToPriorThrow(rowIdx: number, hand: Hand, beat: number): boolean {
         const beat1BeatEarlier = (beat - pattern.nrHands / 2 + pattern.getLength()) % pattern.getLength()
         const rowIdx1BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands / 2)
         const hand1BeatEarlier = 1 - hand
@@ -553,7 +557,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         if (foundCaught2[rowIdx][hand][beat] && !foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] && foundThrown2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier]) {
             const newThrow = {
                 fromPasserIdx: rowIdx,
-                fromHand: hand1BeatEarlier,
+                fromHand: hand,
                 isCrossing: true,
                 toPasserIdxAtCausal: rowIdx1BeatsEarlier,
                 throwLength: pattern.nrHands / 2,
@@ -564,10 +568,12 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
             pattern = pattern.addThrow(newThrow)
             foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] = newThrow
             foundThrown2[rowIdx][hand][beat] = newThrow
+            return true
         }
+        return false
 
     }
-    function insertCatchWithEmptyHand(rowIdx: number, hand: Hand, beat: number) {
+    function insertCatchWithEmptyHand(rowIdx: number, hand: Hand, beat: number): boolean {
         const beat2BeatEarlier = (beat - pattern.nrHands + pattern.getLength()) % pattern.getLength()
         const rowIdx2BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands)
 
@@ -584,7 +590,9 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
             pattern = pattern.addThrow(newThrow)
             foundCaught2[rowIdx2BeatsEarlier][hand][beat2BeatEarlier] = newThrow
             foundThrown2[rowIdx][hand][beat] = newThrow
+            return true
         }
+        return false
     }
     // function insertHoldOnThrowButNoCatch(requireCatch: boolean): (rowIdx: number, beat: number) => void {
     //     return (rowIdx: number, beat: number) => {
@@ -628,9 +636,9 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     //     }
     // }
     // }
-    function insertFlipWherePossible(rowIdx: number, hand: Hand, beat: number) {
+    function insertFlipWherePossible(rowIdx: number, hand: Hand, beat: number): boolean {
         // heuristic: only insert flip if other hand is not already throwing/catching and only opposite hand of where catch/throw happened on the last beat
-        if (foundThrown2[rowIdx][1 - hand][beat] || foundCaught2[rowIdx][1 - hand][beat]) return
+        if (foundThrown2[rowIdx][1 - hand][beat] || foundCaught2[rowIdx][1 - hand][beat]) return false
         const beat1BeatEarlier = (beat - pattern.nrHands / 2 + pattern.getLength()) % pattern.getLength()
         const rowIdx1BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands / 2)
         if (foundThrown2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier] || foundCaught2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier])
@@ -649,17 +657,23 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
             pattern = pattern.addThrow(newThrow)
             foundCaught2[rowIdx][hand][beat] = newThrow
             foundThrown2[rowIdx][hand][beat] = newThrow
+            return true
         }
+        return false
     }
 
-    onCatchWithMissingThrow(insertZipToPriorThrow, true)
-    onCatchWithMissingThrow(insertCatchWithEmptyHand, true)
-    // onMissingCatch(insertHoldOnThrowButNoCatch(true), true)
-    // onMissingCatch(insertZipOnThrowButNoCatch(true), true)
-    onMissingCatchAndThrow(insertFlipWherePossible)
-    // onMissingCatch(insertHoldOnThrowButNoCatch(false), true)
-    // onMissingCatch(insertZipOnThrowButNoCatch(false), true)
+    let changed = true
+    while (changed) {
+        changed = false
+        changed = onCatchWithMissingThrow(insertZipToPriorThrow, true) || changed
+        changed = onCatchWithMissingThrow(insertCatchWithEmptyHand, true) || changed
+        // onMissingCatch(insertHoldOnThrowButNoCatch(true), true)
+        // onMissingCatch(insertZipOnThrowButNoCatch(true), true)
+        changed = onMissingCatchAndThrow(insertFlipWherePossible) || changed
 
+        // onMissingCatch(insertHoldOnThrowButNoCatch(false), true)
+        // onMissingCatch(insertZipOnThrowButNoCatch(false), true)
+    }
     // console.log("catches", foundCaught)
     // console.log("throws", foundThrown)
 
@@ -688,7 +702,7 @@ function swapHands(pattern: Pattern, beat: number, rowA: number, rowB: number): 
         newMapCrossing,
         pattern.initialHands,
         pattern.getLength()
-        
+
     );
 
 }

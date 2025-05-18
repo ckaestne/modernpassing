@@ -1061,7 +1061,7 @@ Deno.test('ambled V', () => {
 })
 
 
-Deno.test.only('ambled 3 (with late intercept)', () => {
+Deno.test('ambled 3 (with late intercept)', () => {
     //this is with all crossing passes and no handedness weirdness
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -- B
