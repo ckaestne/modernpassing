@@ -253,7 +253,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 pattern = pattern.addThrow({
                     fromPasserIdx: toPasserIdxAtCausal,
                     toPasserIdxAtCausal,
-                    fromHand: pattern.getTargetHand(t, 0), // where the skipped carry would have landed // TODO: does this need to be adjusted for wraparound?
+                    fromHand: pattern.getTargetHand(t, Math.floor(pattern.getThrowCauseTime(t) / pattern.getLength())), // where the skipped carry would have landed 
                     isCrossing: false,
                     throwLength: pattern.nrHands,
                     throwBeat: pattern.getThrowCauseBeat(t),
