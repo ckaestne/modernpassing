@@ -104,6 +104,7 @@ Deno.test('intercept rewrite: basic', () => {
     assert.deepEqual(hands[B], [2, 1])
     assert.deepEqual(hands[M], [1, 0])
 
+
 })
 
 
@@ -137,6 +138,9 @@ Deno.test('intercept rewrite: 456about should be easy', () => {
 
     //redirect the pass from B to A now to M
     assertThrow(rewritten, 3, 5, B, M, 'redirected pass')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 
 })
@@ -174,6 +178,9 @@ Deno.test('intercept rewrite: manege', () => {
     assertThrow(rewritten, 3, 7, B, A, 'carry')
 
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 
@@ -205,6 +212,9 @@ Deno.test('intercept rewrite: basic two beat carry', () => {
     assertThrow(rewritten, 2, 3, A, M, 'carry')
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 Deno.test('intercept rewrite: basic three beat carry', () => {
@@ -232,6 +242,9 @@ Deno.test('intercept rewrite: basic three beat carry', () => {
     assertThrow(rewritten, 3, 3, A, M, 'carry')
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
     assertThrow(rewritten, 3, 2, M, M, 'carry-induced flip at old manipulator')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -262,6 +275,9 @@ Deno.test('intercept rewrite: two carry on a pass', () => {
     assertThrow(rewritten, 1, 2, A, A, 'carry-induced flip before carry')
     assertThrow(rewritten, 2, 3, A, B, 'carry')
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -295,6 +311,9 @@ Deno.test('intercept rewrite: three-beat carry over a pass', () => {
     assertThrowRaw(rewritten, 3, 3, A, A, 'carry')
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
     assertThrow(rewritten, 3, 2, B, B, 'carry-induced flip at old manipulator')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -375,6 +394,9 @@ Deno.test('intercept rewrite: intercept over pattern boundary with three passers
     assertNoThrow(rewritten, 3, M, M, 'moving original throws from A to M')
 
     assertThrow(rewritten, 0, 3, M, C, 'carry')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -414,6 +436,9 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', (
     assertThrow(rewritten, 1, 3, M, B, 'carry')
     assertThrow(rewritten, 1, 2, B, B, 'carry-induced flip at receiver of pass after intercept')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 
@@ -447,6 +472,9 @@ Deno.test('intercept rewrite: high intercept throw over pattern boundary', () =>
     assertNoThrow(rewritten, 3, A, A, 'moving original throws from A to M')
 
     assertThrow(rewritten, 1, 3, A, B, 'carry')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -486,6 +514,9 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary lik
     assertThrow(rewritten, 0, 3, M, B, 'carry')
     assertThrow(rewritten, 0, 2, A, A, 'carry-induced flip at receiver of pass after intercept')
 
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 
@@ -519,6 +550,9 @@ Deno.test('intercept rewrite: two intercepts from same manipulator', () => {
     assertThrow(rewritten, 6, 3, B, B, 'B now has Bs throws again')
     assertNoThrow(rewritten, 6, M, M, 'B now has Bs throws')
 
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -552,6 +586,9 @@ Deno.test('intercept rewrite: two intercepts from same manipulator, but differen
     assertThrow(rewritten, 6, 3, B, B, 'B now has As throws')
     assertNoThrow(rewritten, 6, A, A, 'B now has As throws')
 
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -595,6 +632,9 @@ Deno.test('intercept rewrite: two independent intercepts', () => {
     assertThrow(rewritten, 2, 3, B, M, 'first carry')
     assertThrow(rewritten, 5, 3, M, N, 'second carry')
 
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -633,6 +673,9 @@ Deno.test('intercept rewrite: intercepting a carry', () => {
     assertThrow(rewritten, 2, 3, B, N, 'first carry is also second intercept')
     assertThrow(rewritten, 3, 3, M, N, 'second carry')
 
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -701,6 +744,9 @@ Deno.test('apply substitution: basics', () => {
     assertThrow(rewritten, 1, 1, B, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 1, 3, M, B, 'putting in the replacement for the substituted throw')
     // assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -724,6 +770,9 @@ Deno.test('apply substitution: substituting the first beat requires reverse wrap
     assertThrow(rewritten, 0, 1, A, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 0, 3, M, B, 'putting in the replacement for the substituted throw')
     // assertThrow(rewritten, 3, 0, M, M, 'catching pelf with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -747,6 +796,9 @@ Deno.test('apply substitution: substituting the last beat', () => {
     assertThrow(rewritten, 3, 1, B, M, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 3, 3, M, B, 'putting in the replacement for the substituted throw')
     // assertThrow(rewritten, 2, 0, M, M, 'catching pelf with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -780,6 +832,9 @@ Deno.test('apply substitution: substituting right person after relabel', () => {
     assertThrow(rewritten, 4, 1, M, B, 'pelf: taking out the substituted throw')
     assertThrow(rewritten, 4, 3, B, M, 'putting in the replacement for the substituted throw')
     // assertThrow(rewritten, 3, 0, B, B, 'catching pelf with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -801,6 +856,9 @@ Deno.test('apply substitution: intercept a substitution', () => {
     assertThrow(rewritten, 0, 3, M, N, 'intercept of the placement part of the substitution')
     assertThrow(rewritten, 1, 3, B, N, 'carry')
     // assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -819,6 +877,9 @@ Deno.test('manipulator throw: basics', () => {
 
     const M = 2
     assertThrow(rewritten, 2, 1, M, M, 'new manipulator throw')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -849,6 +910,9 @@ Deno.test('manipulator throw: zip after substitution', () => {
     // assertThrow(rewritten, 0, 0, M, M, 'catching pelf with an empty hand')
 
     assertThrow(rewritten, 2, 1, M, M, 'new manipulator throw')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -880,6 +944,9 @@ Deno.test('roundabout', () => {
     assertThrow(rewritten, 1, 1, M, M, 'zip 1')
     assertThrow(rewritten, 3, 1, M, M, 'zip 2')
     assertThrow(rewritten, 7, 1, B, B, 'zip 3')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -911,6 +978,9 @@ Deno.test('chopabout', () => {
     assertThrow(rewritten, 3, 1, M, M, 'zip 2')
     assertThrow(rewritten, 5, 1, M, M, 'zip 3')
     assertThrow(rewritten, 7, 1, M, M, 'zip 4')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -932,6 +1002,9 @@ Deno.test('phonecian walz', () => {
     assertNoThrow(rewritten, 6, A, B, 'remove intercepted')
     // assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept')
     assertThrow(rewritten, 7, 3, B, A, 'carry')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 })
 
 
@@ -960,6 +1033,8 @@ Deno.test('opernball', () => {
     assertSub(rewritten, 6, 3, N, A, M, 'sub north to intercept 3')
     // assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')
     assertSub(rewritten, 6, 3, O, B, N, 'sub south 3')
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -987,6 +1062,10 @@ Deno.test('minued', () => {
     // assertNoThrow(rewritten, 4, C, C, 'intercepted')
     // assertThrow(rewritten, 5, 0, M, M, 'catch intercept')
     // assertThrow(rewritten, 5, 2, C, C, 'flip to prepare for carry')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 
 })
 
@@ -1108,13 +1187,17 @@ Deno.test('modifiers: delayed placement (for German turn)', () => {
 
     assertThrow(rewritten, 1, 1, B, M, 'steal')
     assertThrow(rewritten, 3, 1, M, B, 'late placement')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 Deno.test('modifiers: delayed placement with flips (for German turn)', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3 3 3 -- B
         B: 3 3 3 3 3 -- A
-        M: . (SBd2,2) 2 `
+        M: . (SBd2 2) 2 `
     )[0], 2)
     const A = 0, B = 1, M = 2
     let rewritten = applyManipulations(p, manipulations)
@@ -1125,6 +1208,10 @@ Deno.test('modifiers: delayed placement with flips (for German turn)', () => {
     assertThrow(rewritten, 3, 1, M, B, 'late placement')
     assertThrow(rewritten, 1, 2, M, M, 'flip')
     assertThrow(rewritten, 2, 2, M, M, 'flip')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
 })
 
 function createPattern(s: string): Pattern {

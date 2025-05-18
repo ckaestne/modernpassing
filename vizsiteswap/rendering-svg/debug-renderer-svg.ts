@@ -28,7 +28,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         return (beat + pattern.getPrefixLength() + 2) * dist
     }
     function getY(rowIdx: number, hand: Hand): number {
-        return (rowIdx + 2) * dist + (hand === Hand.Left ? 5 : -5)
+        return (rowIdx + 2) * dist + (hand === Hand.Left ? 7 : -7)
     }
     function getXY(beat: number, rowIdx: number, hand: Hand): [number, number] {
         return [getX(beat), getY(rowIdx, hand)]

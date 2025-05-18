@@ -588,7 +588,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
                 note: '0'
             }
             pattern = pattern.addThrow(newThrow)
-            foundCaught2[rowIdx2BeatsEarlier][hand][beat2BeatEarlier] = newThrow
+            foundCaught2[rowIdx2BeatsEarlier][pattern.getTargetHandFirstIteration(newThrow)][beat2BeatEarlier] = newThrow
             foundThrown2[rowIdx][hand][beat] = newThrow
             return true
         }
