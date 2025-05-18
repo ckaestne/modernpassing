@@ -328,8 +328,11 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     }
 
 
-    const mapHands: boolean[][] = roles.map((_r) => [patternLength % 2 === 1])
-    const p = tryHandMapping(createPattern(getBaseThrows(), nrHands, baseIdxRelabel, baseRoles, mapHands, undefined, undefined, patternLength))
+    const baseThrows = getBaseThrows()
+    const mapHands: boolean[][] = nrHands===2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
+        : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t=>t.fromPasserIdx===roleIdx).length % 2 === 1])
+    const mapCrossing: boolean[][]|undefined = nrHands===2 ? undefined : baseRoles.map((_r) => [true])
+    const p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength))
     const m = getManipulatorActions(p)
 
     return [p, m]

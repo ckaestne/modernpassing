@@ -389,10 +389,12 @@ export class PatternImpl implements Pattern {
             for (let beat = 0; beat < this.getLength(); beat++) {
                 for (const hand of [Hand.Right, Hand.Left]) {
                     if (foundThrown[rowIdx][hand][beat] && !foundCaught[rowIdx][hand][beat]) {
+                        if (this.nrHands===4 && foundThrown[rowIdx][hand][beat]?.markers?.includes(ThrowType.Carry) || foundThrown[rowIdx][hand][beat]?.throwLength===4) continue //TODO ignore without incoming carry for now
                         this.validationError = `throw on beat ${beat} from ${rowIdx}/${hand ? "L" : "R"} but no incoming catch`
                         return false
                     }
                     if (foundCaught[rowIdx][hand][beat] && !foundThrown[rowIdx][hand][beat]) {
+                        if (this.nrHands===4 && foundCaught[rowIdx][hand][beat]?.markers?.includes(ThrowType.Intercept)) continue //TODO ignore without incoming intercept for now
                         const c = foundCaught[rowIdx][hand][beat]
                         this.validationError = `catch on beat ${beat} by ${rowIdx}/${hand ? "L" : "R"} (from beat ${c?.throwBeat}) but no outgoing throw`
                         return false

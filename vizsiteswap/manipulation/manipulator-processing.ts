@@ -342,7 +342,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
 
     const handinThrowBeat = (substitutedThrow.throwBeat + placementDelay) % pattern.getLength()
-    const handinThrowHand = (substitutedThrow.fromHand + placementDelay)%2
+    const handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
     const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
     // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
     // however, the row may have changed if the pattern wraps around
@@ -507,6 +507,10 @@ function assertUniqueSubstitutions(mActions: ManipulatorAction[]) {
 
 
 export function fillPatternGaps(pattern: Pattern): Pattern {
+    if (pattern.nrHands === 4) {
+        console.warn(`warning: unclear how to fill gaps in 4 hand patterns, ignored for now`)
+        return pattern
+    }
 
     const foundThrown2: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
     const foundCaught2: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
@@ -549,14 +553,19 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         return changed
     }
     function onCatchWithMissingThrow(fn: (rowIdx: number, hand: Hand, beat: number) => boolean, repeat: boolean = false): boolean {
+        let anyChange = false
         let changed = false
-        for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
-            for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
-                for (const hand of [Hand.Right, Hand.Left])
-                    for (let beat = 0; beat < pattern.getLength(); beat++)
-                        if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
-                            changed = fn(rowIdx, hand, beat) || changed
-        return changed
+        do {
+            changed = false
+            for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
+                for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
+                    for (const hand of [Hand.Right, Hand.Left])
+                        for (let beat = 0; beat < pattern.getLength(); beat++)
+                            if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
+                                changed = fn(rowIdx, hand, beat) || changed
+            anyChange = anyChange || changed
+        } while (changed && repeat)
+        return anyChange
     }
 
     function insertZipToPriorThrow(rowIdx: number, hand: Hand, beat: number): boolean {

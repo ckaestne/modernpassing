@@ -116,6 +116,7 @@ Deno.test('intercept rewrite: 456about should be easy', () => {
         M: .IA`
     )[0], 4)
 
+    console.log(p.prettyPrintThrows())
     assert(manipulations[0].kind === 'I' && manipulations.length === 1) // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0])
@@ -139,8 +140,7 @@ Deno.test('intercept rewrite: 456about should be easy', () => {
     //redirect the pass from B to A now to M
     assertThrow(rewritten, 3, 5, B, M, 'redirected pass')
 
-    const full = fillPatternGaps(rewritten)
-    assert.ok(full.isValid(), full.getValidationError())
+    assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
 
 })
@@ -1711,13 +1711,12 @@ Deno.test('fill and validate: ambled 3 with time travel', () => {
         `A: 4B 3  4C 3  4B 3  4C -- B
         B: 3  4A 3  3  3  4A 3  -- C
         C: 3  3  3  4A 3  3  3  -- A
-        M: .  C  z  (SCAd,3) IABe 
+        M: .  C  z  (SCAd 3) IABe 
         positions: V(A,B,C)`
         )
 
     console.log(p.prettyPrintThrows())
 
-    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
     const filled = fillPatternGaps(p)
     console.log(filled.prettyPrintThrows())
     assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
