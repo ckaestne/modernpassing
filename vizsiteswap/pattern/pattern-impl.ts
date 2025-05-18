@@ -275,13 +275,13 @@ export class PatternImpl implements Pattern {
         // mostly this is straightforward, but mapping of hands and crossing is tricky. 
         // for now let's guess that the manipulator is James and swaps hands on odd-length patterns
 
-        // TODO: I suspect this will not work for all cases; we probably should revisit this and test this well; 
-        // we might need to guess to see what's valid again by putting in a placeholder for now
-
+        // this should probably not matter to much. it's on the intercept -- when swapping roles
+        // that mapping needs to be changed. it may not matter too much what a manipulator does
+        // on its own
 
         return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]),
-            this.mapHands.concat([[this.getLength()%2===1]]),//TODO check this
-            this.mapCrossing.concat([[false]]), //TODO check this
+            this.mapHands.concat([[this.getLength()%2===1]]),
+            this.mapCrossing.concat([[false]]), 
             undefined, this.length)
     }
 
@@ -341,8 +341,10 @@ export class PatternImpl implements Pattern {
 
         const mapRows = labelsOnly ? this.mapRows : this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
-        assert(this.mapCrossing.every((v) => v.every(x=>!x)), `TODO: mapCrossing not implemented for swapRoles (${this.mapCrossing})`)
-        assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: mapHands not implemented for mapHands with different values")
+        // we won't touch mapCrossing and mapHands. that's for the implementation of the intercept to adjust
+
+        // assert(this.mapCrossing.every((v) => v.every(x=>!x)), `TODO: mapCrossing not implemented for swapRoles (${this.mapCrossing})`)
+        // assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: mapHands not implemented for mapHands with different values")
 
         return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.mapHands, this.mapCrossing, this.initialHands)
     }

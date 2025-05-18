@@ -21,7 +21,7 @@ import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation
 export function createSyncGroupPattern(patternStr: string): GroupPattern {
     return createGroupPattern(patternStr, 2)
 }
-export function createGroupPattern(patternStr: string, nrHands: number): GroupPattern {
+export function createGroupPattern(patternStr: string, nrHands: number, skipRewrite: boolean = false, skipFillDuringRewrite: boolean = false): GroupPattern {
 
     const [rows, layout, movement] = parseGroupPattern(patternStr)
 
@@ -36,7 +36,8 @@ export function createGroupPattern(patternStr: string, nrHands: number): GroupPa
     const [pattern, manipulatorActions] = createPatternFromRaw(rows, nrHands)
 
     // const rewritten = pattern
-    const rewritten = (applyManipulations(pattern, manipulatorActions))
+    let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
+    rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
     return {
         pattern: rewritten,

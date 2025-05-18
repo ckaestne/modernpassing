@@ -5,11 +5,12 @@ import { createGroupPattern } from "@modernpassing/parsing";
 import { prettyPrintThrowsSvg } from "./debug-renderer-svg.ts";
 import { renderGroupPattern } from "./renderer-svg.ts";
 import { nextTick } from "node:process";
+import { applyManipulations, fillPatternGaps } from "../manipulation/manipulator-processing.ts";
 
 const app = new Application();
 
 
-function page(p: string, svg: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, js: string): string {
+function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, js: string): string {
     return `
             <!DOCTYPE html>
             <html>
@@ -35,7 +36,12 @@ function page(p: string, svg: string, isValid: boolean, errors: string, isFourHa
                     <p>${rendered}</p>
                     <script>window.addEventListener("load",function(){${js}\n})\n</script>
                     <hr/>
-                    <p>${svg}</p>
+                    <h2>Plain:</h2>
+                    <p>${svg1}</p>
+                    <h2>Manipulator applied:</h2>
+                    <p>${svg2}</p>
+                    <h2>Filled:</h2>
+                    <p>${svg3}</p>
                     <pre>${errors}</pre>
                     <pre>${js}</pre>
                 </body>
@@ -70,7 +76,9 @@ app.use(async (ctx, next) => {
 
             let error = ""
             let isValid = false
-            let svg = ""
+            let svgPlain = ""
+            let svgManipulator = ""
+            let svgFilled = ""
             let rendered = ""
             let js = ""
             try {
@@ -81,14 +89,20 @@ app.use(async (ctx, next) => {
                     rendered = t[0].svg()
                     js = t[1]
                 }
-                svg = prettyPrintThrowsSvg(p)
+
+           
+                svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
+                const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
+                svgManipulator = prettyPrintThrowsSvg(rewritten)
+                const filled =  fillPatternGaps(rewritten)
+                svgFilled = prettyPrintThrowsSvg(filled)
                 isValid = p.isValid();
                 error = p.getValidationError()
             } catch (e) {
                 error = e instanceof Error ? e.message : String(e);
                 console.error("Error:", (e as Error).stack);
             }
-            ctx.response.body = page(pattern, svg, isValid, error, hands === 4, rendered, js);
+            ctx.response.body = page(pattern, svgPlain, svgManipulator, svgFilled, isValid, error, hands === 4, rendered, js);
         }
     }
     else next()

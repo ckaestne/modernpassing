@@ -1,5 +1,6 @@
-import { Beat, CarryAction, Hand, InterceptAction, ManipulatorAction, Pattern, Role, SubstitutionAction, Throw, ThrowAction, ThrowType, Time } from "@modernpassing/pattern";
+import { Beat, CarryAction, createPattern, Hand, InterceptAction, ManipulatorAction, Pattern, Role, SubstitutionAction, Throw, ThrowAction, ThrowType, Time } from "@modernpassing/pattern";
 import assert from "node:assert";
+import { PatternImpl } from "../pattern/pattern-impl.ts";
 
 
 
@@ -145,6 +146,12 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     // swap labels on the iBeat and relabeling at the end of the pattern
     pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
 
+    // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
+    // the same hand sequences 
+    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
+
+
+
     const manipulatorRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatorRowIdxAfterIBeat)
     const manipulatedRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatedRowIdxAfterIBeat)
 
@@ -246,7 +253,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 pattern = pattern.addThrow({
                     fromPasserIdx: toPasserIdxAtCausal,
                     toPasserIdxAtCausal,
-                    fromHand: pattern.getTargetHand(t,0), // where the skipped carry would have landed // TODO: does this need to be adjusted for wraparound?
+                    fromHand: pattern.getTargetHand(t, 0), // where the skipped carry would have landed // TODO: does this need to be adjusted for wraparound?
                     isCrossing: false,
                     throwLength: pattern.nrHands,
                     throwBeat: pattern.getThrowCauseBeat(t),
@@ -533,7 +540,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
             for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
                 for (const hand of [Hand.Right, Hand.Left])
                     for (let beat = 0; beat < pattern.getLength(); beat++)
-                        if (foundCaught2[rowIdx][hand][beat]!==undefined && foundThrown2[rowIdx][hand][beat] === undefined)
+                        if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
                             fn(rowIdx, hand, beat)
     }
 
@@ -545,7 +552,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         if (foundCaught2[rowIdx][hand][beat] && !foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier] && foundThrown2[rowIdx1BeatsEarlier][hand1BeatEarlier][beat1BeatEarlier]) {
             const newThrow = {
                 fromPasserIdx: rowIdx,
-                fromHand: hand1BeatEarlier, 
+                fromHand: hand1BeatEarlier,
                 isCrossing: true,
                 toPasserIdxAtCausal: rowIdx1BeatsEarlier,
                 throwLength: pattern.nrHands / 2,
@@ -564,7 +571,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         const rowIdx2BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands)
 
         if (foundCaught2[rowIdx][hand][beat] && !foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx2BeatsEarlier][hand][beat2BeatEarlier]) {
-            const newThrow = {                
+            const newThrow = {
                 fromPasserIdx: rowIdx,
                 fromHand: hand, isCrossing: false,
                 toPasserIdxAtCausal: rowIdx2BeatsEarlier,
@@ -622,10 +629,10 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     // }
     function insertFlipWherePossible(rowIdx: number, hand: Hand, beat: number) {
         // heuristic: only insert flip if other hand is not already throwing/catching and only opposite hand of where catch/throw happened on the last beat
-        if (foundThrown2[rowIdx][1-hand][beat] || foundCaught2[rowIdx][1-hand][beat])  return
+        if (foundThrown2[rowIdx][1 - hand][beat] || foundCaught2[rowIdx][1 - hand][beat]) return
         const beat1BeatEarlier = (beat - pattern.nrHands / 2 + pattern.getLength()) % pattern.getLength()
         const rowIdx1BeatsEarlier = pattern.samePasserNBeatsLater(rowIdx, beat, - pattern.nrHands / 2)
-        if (foundThrown2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier] || foundCaught2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier]) 
+        if (foundThrown2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier] || foundCaught2[rowIdx1BeatsEarlier][hand][beat1BeatEarlier])
             hand = 1 - hand
 
         if (!foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx][hand][beat]) {
@@ -658,3 +665,29 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     return pattern
 }
 
+
+function swapHands(pattern: Pattern, beat: number, rowA: number, rowB: number): Pattern {
+    // const oldMapCrossingA = pattern.mapCrossing[rowA]
+    // const oldMapHandsA = pattern.mapHands[rowA]
+    // Swap crossing and hands maps between rows
+    const newMapCrossing = [...pattern.mapCrossing];
+    newMapCrossing[rowA] = pattern.mapCrossing[rowB]
+    newMapCrossing[rowB] = pattern.mapCrossing[rowA]
+    const newMapHands = [...pattern.mapHands];
+    newMapHands[rowA] = pattern.mapHands[rowB]
+    newMapHands[rowB] = pattern.mapHands[rowA]
+
+    // Return pattern with updated mappings
+    return createPattern(
+        pattern.throws,
+        pattern.nrHands,
+        pattern.mapRows,
+        pattern.roles,
+        newMapHands,
+        newMapCrossing,
+        pattern.initialHands,
+        pattern.getLength()
+        
+    );
+
+}

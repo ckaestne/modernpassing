@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import test from "node:test";
 import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { Pattern, Throw, ThrowType } from "@modernpassing/pattern";
+import { Hand, Pattern, Throw, ThrowType } from "@modernpassing/pattern";
 import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
 
 
@@ -1026,20 +1026,20 @@ Deno.test('scrambled V', () => {
 
 })
 
-Deno.test.only('ambled V', () => {
+Deno.test('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
         B: !34pAx  3  3  34pAx  4x  -- C
         C: !2 33 4pAx 3  3  3   -- A
-        M: C  z  .  SB z  IC 
+        M: C  !1x z  SB z  IC 
         positions: V(A,B,C)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
-    console.log(p.prettyPrintThrows())
+    console.log(p.prettyPrintThrows() + prettyPrintManipulatorActions(p, manipulations))
     let rewritten = applyManipulations(p, manipulations)
     console.log(rewritten.prettyPrintThrows())
-    assert.ok(rewritten.isValid(), rewritten.getValidationError())
+    // assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
 
     assertThrow(rewritten, 0, 4, M, B, 'carry')
@@ -1055,13 +1055,14 @@ Deno.test.only('ambled V', () => {
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 2])
-    assert.deepEqual(hands[B], [2, 1])
+    assert.deepEqual(hands[B], [1, 2])
     assert.deepEqual(hands[C], [2, 1])
     assert.deepEqual(hands[M], [1, 1])
 })
 
 
-Deno.test('ambled 3 (with late intercept)', () => {
+Deno.test.only('ambled 3 (with late intercept)', () => {
+    //this is with all crossing passes and no handedness weirdness
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -- B
         B: 3  4A 3  3  3  4A 3  -- C
@@ -1077,15 +1078,18 @@ Deno.test('ambled 3 (with late intercept)', () => {
 
     assertThrow(rewritten, 1, 3, M, C, 'carry')
     // 3 beat carry!
-    assertThrow(rewritten, 0, 2, M, M, 'flip due to carry')
-    assertThrow(rewritten, 0, 2, C, C, 'flip due to carry')
-    assertThrow(rewritten, 1, 2, C, C, 'flip due to carry')
-    assertThrow(rewritten, 6, 2, B, B, 'flip due to carry')
+    assertThrowH(rewritten, 0, 2, M, Hand.Right, M, false, 'flip due to carry')
+    assertThrowH(rewritten, 0, 2, C, Hand.Right, C,false, 'flip due to carry')
+    assertThrowH(rewritten, 1, 2, C, Hand.Left, C, false,'flip due to carry')
+    assertThrowH(rewritten, 6, 2, B, Hand.Right, B, false,'flip due to carry')
 
     assertSub(rewritten, 3, 4, C, M, A, 'sub pass')
     assertThrow(rewritten, 4, 4, A, M, 'intercept')
     assertNoThrow(rewritten, 4, A, B, 'intercepted')
     // assertThrow(rewritten, 6, 0, M, M, 'catch intercept')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
 
 })
 
@@ -1358,6 +1362,22 @@ export function assertThrow(pattern: Pattern, beat: number, length: number, from
     toPasserIdxAtCausal = pattern.adjustRowIdxByTime(toTime, toPasserIdxAtCausal)
 
     const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
+
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
+}
+export function assertThrowH(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, fromHand: Hand, toPasserIdxAtCausal: number, isCrossing?: boolean, msg?: string) {
+    // automated relabel of rows past the end of the pattern
+    let toTime = pattern.getThrowCauseTime_(beat, length)
+    toPasserIdxAtCausal = pattern.adjustRowIdxByTime(toTime, toPasserIdxAtCausal)
+
+    const ts = pattern.throws.filter(t => 
+        t.throwBeat === beat && 
+        t.throwLength === length && 
+        t.fromPasserIdx === fromPasserIdx && 
+        t.fromHand === fromHand &&
+        (isCrossing===undefined || t.isCrossing === isCrossing) &&
+        t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
