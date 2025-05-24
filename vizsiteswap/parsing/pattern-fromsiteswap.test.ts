@@ -99,6 +99,8 @@ Deno.test("Pattern from siteswap, 77722", () => {
     assert.equal(s756.getThrowHand(t2, 2), Hand.Left)
     assert.equal(t1.isCrossing, true)
     assert.equal(t2.isCrossing, false)
+    assert(s756.isValid(), s756.getValidationError())
+
 })
 Deno.test("Pattern from siteswap, 77722, B starting", () => {
 
@@ -151,6 +153,7 @@ Deno.test("Pattern from siteswap, 75", () => {
     assert.equal(s756.getThrowHand(t2, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Right)
     assert.equal(t1.isCrossing, true)
+    assert(s756.isValid(), s756.getValidationError())
 })
 
 
@@ -192,3 +195,15 @@ Deno.test("Pattern from siteswap, 756756", () => {
 })
 
 
+Deno.test("more siteswaps", () => {
+    function ensureValid(s: string) {
+        const p = createSiteswapPattern(s, { });
+        console.log(p.prettyPrintThrows())
+        assert(p.isValid(), s+": "+p.getValidationError())    
+    }
+
+    ensureValid("7")
+    ensureValid("726")
+    ensureValid("77722")
+    ensureValid("77880")
+})
