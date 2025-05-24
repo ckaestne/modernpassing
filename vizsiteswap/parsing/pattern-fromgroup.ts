@@ -329,9 +329,13 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
 
     const baseThrows = getBaseThrows()
-    const mapHands: boolean[][] = nrHands===2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
-        : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t=>t.fromPasserIdx===roleIdx).length % 2 === 1])
-    const mapCrossing: boolean[][]|undefined = nrHands===2 ? undefined : baseRoles.map((_r) => [true])
+    const mapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
+        : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
+    // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
+    const mapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
+        const toRow = baseIdxRelabel[idx]
+        return [isJames[idx] !== isJames[toRow]]
+    })
     const p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength))
     const m = getManipulatorActions(p)
 
@@ -363,10 +367,12 @@ function tryHandMapping(pattern: Pattern): Pattern {
             return smaller.flatMap(c => [c.concat(true), c.concat(false)]);
         };
 
-        const mapHandsCombinations = combinations(pattern.nrRows).map(c => c.map(v => [v]));
-        for (const mapHands of mapHandsCombinations) {
-            const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, pattern.mapCrossing, pattern.initialHands);
-            if (p.isValid()) return p;
+        const mappingCombinations = combinations(pattern.nrRows).map(c => c.map(v => [v]));
+        for (const mapCrossing of mappingCombinations) {
+            for (const mapHands of mappingCombinations) {
+                const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
+                if (p.isValid()) return p;
+            }
         }
     }
     // I guess nothing worked, so just return the original invalid pattern
@@ -519,18 +525,18 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
  * for all nonmanipulator rows, sorted by beat, then row */
 function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, Hand | undefined, string][] {
     const result: [number, Beat, Hand | undefined, string][] = []
-    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) 
+    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++)
         if (!rows[rowIdx].isManipulator) {
-        const throwsByBeat = throwByBeat(rows[rowIdx], nrHands)
-        for (const [beat, t] of throwsByBeat) {
-            if (Array.isArray(t)) {
-                result.push([rowIdx, beat, Hand.Right, t[0]])
-                result.push([rowIdx, beat, Hand.Left, t[1]])
+            const throwsByBeat = throwByBeat(rows[rowIdx], nrHands)
+            for (const [beat, t] of throwsByBeat) {
+                if (Array.isArray(t)) {
+                    result.push([rowIdx, beat, Hand.Right, t[0]])
+                    result.push([rowIdx, beat, Hand.Left, t[1]])
+                }
+                else
+                    result.push([rowIdx, beat, undefined, t])
             }
-            else
-                result.push([rowIdx, beat, undefined, t])
         }
-    }
     result.sort((a, b) => {
         if (a[1] !== b[1]) return a[1] - b[1]
         return a[0] - b[0]
