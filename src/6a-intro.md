@@ -56,11 +56,11 @@ In a nutshell, the manipulator flips both clubs and carries the left club as a p
 
 [TODO: video]
 
-<sync-group style='{"animationOnly": true}'>
+<TODO-manipulator-sync style='{"animationOnly": true}'>
 A: 3pB333pB33
 B: 3pA333pA33
-M: SB.IBCA..
-</sync-group>
+M: SB.IB C..
+</TODO-manipulator-sync>
 
 
 
