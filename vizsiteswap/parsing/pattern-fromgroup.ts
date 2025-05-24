@@ -182,7 +182,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     const baseIdxRelabel: number[] = rawPattern.filter(t => !t.isManipulator).map(t => baseRoles.indexOf(t.relabel ?? t.role!))
     const nrBaseRoles = baseRoles.length
     const throws = allThrowsByBeat(rawPattern, nrHands)
-    const patternLength = getPatternLength(throws)
+    const patternLength = getPatternLength(throws, nrHands)
     const prefixLength = 0 - throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
 
     // hand ordering is nontrivial unfortunately
@@ -209,7 +209,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     function convert(throwStr: TThrow, who: number, fixedHand: Hand | undefined, when: Beat): Throw {
         assert(!Array.isArray(throwStr))
         assert(throwStr !== ',', `cannot convert ',' into a throw -- this should have been processed elsewhere`)
-        assert(fixedHand === undefined || nrHands === 2, `only supporting sync throws for 2 handed for now`)
+        // assert(fixedHand === undefined || nrHands === 2, `only supporting sync throws for 2 handed for now`)
 
         const [throwLength, isPass, targetRole, flipCrossing] = parseThrow(throwStr)
         assert(throwLength < 12, `unlikely high throw ${throwLength} in ${throwStr}`)
@@ -544,8 +544,8 @@ function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, H
     return result
 }
 
-function getPatternLength(throws: [number, Beat, Hand | undefined, string][]): number {
-    return throws.reduce((max, v) => Math.max(max, v[2] === undefined ? v[1] : v[1] + 1), 0) + 1
+function getPatternLength(throws: [number, Beat, Hand | undefined, string][], nrHands: number): number {
+    return throws.reduce((max, v) => Math.max(max, v[2] === undefined ? v[1] : v[1] + nrHands/2), 0) + 1
 }
 
 function getJames(rawPattern: TPatternRow[]): boolean[] {

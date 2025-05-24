@@ -13,7 +13,11 @@ There are many ways to juggle 8-club one-count, scattered through several chapte
 * Straight singles -- Synchronous pattern 4p, thrown with singles, see [advanced synchronous patterns]()
   * Alternating hands or throwing left and right synchronously
   * Various lanes, e.g., all inside vs all outside, inside-outside, inside-inside-outside-outside, both hands passing left/right of all incoming passes, ...
-* Blinky -- Synchronous left and right hand passes from passer B [TODO: add notation here, it's a 4hsw-based pattern!]
+* Blinky -- Synchronous left and right hand passes from passer B
+<siteswap-group style='{"iterations":4}'>
+A:  9Bx 7B
+B: , (9A 7Ax)
+</siteswap-group>
   * Straight and crossing
   * Async passer can switch between straight and crossing at any time
   * Throw 8 to change sides in blinky
