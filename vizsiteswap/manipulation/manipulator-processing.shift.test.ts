@@ -2,7 +2,7 @@ import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
 import assert from "node:assert";
 import test from "node:test";
 import { applyManipulations, fillPatternGaps, prettyPrintManipulatorActions } from "./manipulator-processing.ts";
-import { createPattern, ManipulatorAction, Pattern, Throw } from "@modernpassing/pattern";
+import { createPattern, Hand, ManipulatorAction, Pattern, Throw } from "@modernpassing/pattern";
 
 
 const basicFourCountWithoutManipulator =
@@ -17,66 +17,114 @@ Deno.test('shift: basic', async () => {
     console.log(t.prettyPrintThrows())
 
     const A = 0, B = 1
-    assertThrow(t, 0, 3, A, B)
-    assertThrow(t, 0, 3, B, A)
-    assertThrow(t, 1, 3, A, A)
-    assertThrow(t, 1, 3, B, B)
-    assertThrow(t, 2, 3, A, A)
-    assertThrow(t, 2, 3, B, B)
-    assertThrow(t, 3, 3, A, B)
-    assertThrow(t, 3, 3, B, A)
+    assertThrowH(t, 0, 3, A, Hand.Right, B)
+    assertThrowH(t, 0, 3, B, Hand.Right, A)
+    assertThrowH(t, 1, 3, A, Hand.Left, A)
+    assertThrowH(t, 1, 3, B, Hand.Left, B)
+    assertThrowH(t, 2, 3, A, Hand.Right, A)
+    assertThrowH(t, 2, 3, B, Hand.Right, B)
+    assertThrowH(t, 3, 3, A, Hand.Left, B)
+    assertThrowH(t, 3, 3, B, Hand.Left, A)
 
     const [t2, m2] = shiftPattern(t, m)
 
     console.log(t2.prettyPrintThrows())
-    assertThrow(t2, 0, 3, A, A)
-    assertThrow(t2, 0, 3, B, B)
-    assertThrow(t2, 1, 3, A, A)
-    assertThrow(t2, 1, 3, B, B)
-    assertThrow(t2, 2, 3, A, A)
-    assertThrow(t2, 2, 3, B, B)
-    assertThrow(t2, 3, 3, A, A)
-    assertThrow(t2, 3, 3, B, B)
+    assertThrowH(t2, 0, 3, A, Hand.Left, A)
+    assertThrowH(t2, 0, 3, B, Hand.Left, B)
+    assertThrowH(t2, 1, 3, A, Hand.Right, A)
+    assertThrowH(t2, 1, 3, B, Hand.Right, B)
+    assertThrowH(t2, 2, 3, A, Hand.Left, A)
+    assertThrowH(t2, 2, 3, B, Hand.Left, B)
+    assertThrowH(t2, 3, 3, A, Hand.Right, A)
+    assertThrowH(t2, 3, 3, B, Hand.Right, B)
 
     const [t3, m3] = shiftPattern(t2, m2)
 
     console.log(t3.prettyPrintThrows())
-    assertThrow(t3, 0, 3, A, A)
-    assertThrow(t3, 0, 3, B, B)
-    assertThrow(t3, 1, 3, A, A)
-    assertThrow(t3, 1, 3, B, B)
-    assertThrow(t3, 2, 3, A, B)
-    assertThrow(t3, 2, 3, B, A)
-    assertThrow(t3, 3, 3, A, B)
-    assertThrow(t3, 3, 3, B, A)
+    assertThrowH(t3, 0, 3, A, Hand.Right, A)
+    assertThrowH(t3, 0, 3, B, Hand.Right, B)
+    assertThrowH(t3, 1, 3, A, Hand.Left, A)
+    assertThrowH(t3, 1, 3, B, Hand.Left, B)
+    assertThrowH(t3, 2, 3, A, Hand.Right, B)
+    assertThrowH(t3, 2, 3, B, Hand.Right, A)
+    assertThrowH(t3, 3, 3, A, Hand.Left, B)
+    assertThrowH(t3, 3, 3, B, Hand.Left, A)
 
     const [t4, m4] = shiftPattern(t3, m3)
 
     console.log(t4.prettyPrintThrows())
-    assertThrow(t4, 0, 3, A, A)
-    assertThrow(t4, 0, 3, B, B)
-    assertThrow(t4, 1, 3, A, B)
-    assertThrow(t4, 1, 3, B, A)
-    assertThrow(t4, 2, 3, A, A)
-    assertThrow(t4, 2, 3, B, B)
-    assertThrow(t4, 3, 3, A, B)
-    assertThrow(t4, 3, 3, B, A)
+    assertThrowH(t4, 0, 3, A, Hand.Left, A)
+    assertThrowH(t4, 0, 3, B, Hand.Left, B)
+    assertThrowH(t4, 1, 3, A, Hand.Right, B)
+    assertThrowH(t4, 1, 3, B, Hand.Right, A)
+    assertThrowH(t4, 2, 3, A, Hand.Left, A)
+    assertThrowH(t4, 2, 3, B, Hand.Left, B)
+    assertThrowH(t4, 3, 3, A, Hand.Right, B)
+    assertThrowH(t4, 3, 3, B, Hand.Right, A)
 
     const [t5, m5] = shiftPattern(t4, m4)
-    assertThrow(t5, 0, 3, A, B)
-    assertThrow(t5, 0, 3, B, A)
-    assertThrow(t5, 1, 3, A, A)
-    assertThrow(t5, 1, 3, B, B)
-    assertThrow(t5, 2, 3, A, A)
-    assertThrow(t5, 2, 3, B, B)
-    assertThrow(t5, 3, 3, A, B)
-    assertThrow(t5, 3, 3, B, A)
-
+    assertThrowH(t5, 0, 3, A, Hand.Right, B)
+    assertThrowH(t5, 0, 3, B, Hand.Right, A)
+    assertThrowH(t5, 1, 3, A, Hand.Left, A)
+    assertThrowH(t5, 1, 3, B, Hand.Left, B)
+    assertThrowH(t5, 2, 3, A, Hand.Right, A)
+    assertThrowH(t5, 2, 3, B, Hand.Right, B)
+    assertThrowH(t5, 3, 3, A, Hand.Left, B)
+    assertThrowH(t5, 3, 3, B, Hand.Left, A)
 
     assertEqualPattern(shiftPattern(t5, m5, 4)[0], t)
 
 })
 
+const basicThreeCountWithoutManipulator =
+    `A: 3pB 3 3  -- B
+     B: 3pA 3 3  -- A`
+
+Deno.test('shift: odd length, need hand switch', async () => {
+    const r = parseGroupSyncPattern(basicThreeCountWithoutManipulator)
+    const [t, m] = createPatternFromRaw(r[0], 2)
+
+    console.log(t.prettyPrintThrows())
+
+    const A = 0, B = 1
+    assertThrowH(t, 0, 3, A, Hand.Right, B)
+    assertThrowH(t, 0, 3, B, Hand.Right, A)
+    assertThrowH(t, 1, 3, A, Hand.Left, A)
+    assertThrowH(t, 1, 3, B, Hand.Left, B)
+    assertThrowH(t, 2, 3, A, Hand.Right, B)
+    assertThrowH(t, 2, 3, B, Hand.Right, A)
+
+    const [t2, m2] = shiftPattern(t, m)
+
+    console.log(t2.prettyPrintThrows())
+    assertThrowH(t2, 0, 3, A, Hand.Left, A)
+    assertThrowH(t2, 0, 3, B, Hand.Left, B)
+    assertThrowH(t2, 1, 3, A, Hand.Right, A)
+    assertThrowH(t2, 1, 3, B, Hand.Right, B)
+    assertThrowH(t2, 2, 3, A, Hand.Left, A)
+    assertThrowH(t2, 2, 3, B, Hand.Left, B)
+
+    const [t3, m3] = shiftPattern(t2, m2)
+
+    console.log(t3.prettyPrintThrows())
+    assertThrowH(t3, 0, 3, A, Hand.Right, A)
+    assertThrowH(t3, 0, 3, B, Hand.Right, B)
+    assertThrowH(t3, 1, 3, A, Hand.Left, B)
+    assertThrowH(t3, 1, 3, B, Hand.Left, A)
+    assertThrowH(t3, 2, 3, A, Hand.Right, B)
+    assertThrowH(t3, 2, 3, B, Hand.Right, A)
+
+    const [t4, m4] = shiftPattern(t3, m3)
+    assertThrowH(t4, 0, 3, A, Hand.Left, B)
+    assertThrowH(t4, 0, 3, B, Hand.Left, A)
+    assertThrowH(t4, 1, 3, A, Hand.Right, A)
+    assertThrowH(t4, 1, 3, B, Hand.Right, B)
+    assertThrowH(t4, 2, 3, A, Hand.Left, B)
+    assertThrowH(t4, 2, 3, B, Hand.Left, A)
+
+    assertEqualPattern(shiftPattern(t4, m4, 3)[0], t)
+
+})
 
 const basicFour42CountWithoutManipulator =
     `A: 3pB 4 2 3 -- B
@@ -259,7 +307,7 @@ const scrambedV =
     positions: V(A,B,C)`
 
 const ambled3_a =
-   `A: 4B 3  4C 3  4B 3  4C -- B
+    `A: 4B 3  4C 3  4B 3  4C -- B
     B: 3  4A 3  3  3  4A 3  -- C
     C: 3  3  3  4A 3  3  3  -- A
     M: C  z  .  SB z  IC 
@@ -271,10 +319,10 @@ const ambled3_b =
     M: .  C  z  SCAIAB
     positions: V(A,B,C)`
 const ambled3_c =
-   `A: 4B 3  4C 3  4B 3  4C -- B
+    `A: 4B 3  4C 3  4B 3  4C -- B
     B: 3  4A 3  3  3  4A 3  -- C
     C: 3  3  3  4A 3  3  3  -- A
-    M: .  C  z  (SCAd,3) IABe 
+    M: .  C  z  (SCAd 3) IABe 
     positions: V(A,B,C)`
 
 
@@ -417,10 +465,10 @@ test('generate all aiden patterns', async () => {
         try {
             const r = parseGroupSyncPattern(pattern)
             const [t, m] = createPatternFromRaw(r[0], 2)
-            pWithManipulator= fillPatternGaps(applyManipulations(t, m))
+            pWithManipulator = fillPatternGaps(applyManipulations(t, m))
 
             console.log(patternName)
-            assert.ok(pWithManipulator.isValid(), 'pattern is invalid after filling manipulator actions: '+pWithManipulator.getValidationError())
+            assert.ok(pWithManipulator.isValid(), 'pattern is invalid after filling manipulator actions: ' + pWithManipulator.getValidationError())
             console.log(pWithManipulator.prettyPrintThrows())
         } catch (e) {
             console.error(`## Pattern: ${patternName}`)
@@ -484,6 +532,7 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         const throwCauseTime = pattern.getThrowCauseTime(t)
         return {
             ...t,
+            fromHand: t.throwBeat === 0 ? pattern.getThrowHand(t, 1) : t.fromHand,
             throwBeat: (t.throwBeat - 1 + pattern.getLength()) % pattern.getLength(),
             toPasserIdxAtCausal: throwCauseTime === pattern.getLength() ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) :
                 throwCauseTime === 0 ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) : t.toPasserIdxAtCausal,
@@ -494,11 +543,18 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
 
     // manipulations are easy to shift. they are expressed in terms of roles, not rows 
     // so now row adjustment for any relabeling needed
+    // the only exception is the hand of hardcoded manipulator throws -- this is really hacky now, since we don't know the handMapping for the manipulator really
     const newManipulations = manipulations.map(m => {
-        return {
-            ...m,
-            beat: (m.beat - 1 + pattern.getLength()) % pattern.getLength(),
-        }
+        const beat = (m.beat - 1 + pattern.getLength()) % pattern.getLength()
+        if (m.kind === 'T') {
+            let fromHand = m.fromHand
+            if (m.beat===0 && pattern.mapHands[0][0]) fromHand = 1 - m.fromHand
+            return {
+                ...m,
+                fromHand,
+                beat,
+            }
+        } else return { ...m, beat }
     })
 
 
@@ -520,7 +576,7 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         lastRoles = r[1]
     }
 
-    return [createPattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles), newManipulations]
+    return [createPattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles, pattern.mapHands, pattern.mapCrossing), newManipulations]
 }
 
 
@@ -533,6 +589,12 @@ function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserI
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
+}
+function assertThrowH(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, fromHand: Hand, toPasserIdxAtCausal: number, msg?: string) {
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.fromHand === fromHand && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
+
+    assert(ts.length !== 0, `throw ${length}@${beat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
+    assert(ts.length <= 1, `multiple throws found for ${length}@${beat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdxAtCausal}, expected one [${msg}]`)
 }
 function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, toPasserIdxAtCausal: number, msg?: string) {
     const ts = pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
@@ -556,19 +618,19 @@ Deno.test('invariant: all patterns are valid after filling gaps', async () => {
 
 
 
-            try {
+        try {
 
-                assert.ok(pWithManipulatorFilled.isValid(), 'pattern is invalid after filling manipulator actions: '+pWithManipulatorFilled.getValidationError())
-            
-            } catch (e) {
-                console.error(`## Pattern: ${patternName}`)
-                console.log(pWithManipulator.prettyPrintThrows())
-                console.log(pWithManipulatorFilled.prettyPrintThrows())
+            assert.ok(pWithManipulatorFilled.isValid(), 'pattern is invalid after filling manipulator actions: ' + pWithManipulatorFilled.getValidationError())
 
-                throw e
-            }
+        } catch (e) {
+            console.error(`## Pattern: ${patternName}`)
+            console.log(pWithManipulator.prettyPrintThrows())
+            console.log(pWithManipulatorFilled.prettyPrintThrows())
 
+            throw e
         }
+
+    }
 
 
 
@@ -600,8 +662,8 @@ Deno.test('invariant: all patterns are valid after filling gaps, also after all 
                 shiftedT = x[0]; shiftedM = x[1]
                 shifted2 = fillPatternGaps(applyManipulations(shiftedT, shiftedM))
 
-                assert.ok(shifted1.isValid(), 'pattern is invalid after filling manipulator actions: '+shifted1.getValidationError())
-                assert.ok(shifted2.isValid(), 'pattern is invalid after filling manipulator actions: '+shifted2.getValidationError())
+                assert.ok(shifted1.isValid(), 'pattern is invalid after filling manipulator actions: ' + shifted1.getValidationError())
+                assert.ok(shifted2.isValid(), 'pattern is invalid after filling manipulator actions: ' + shifted2.getValidationError())
 
 
                 assertEqualPattern(shifted1, shifted2)

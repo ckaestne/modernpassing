@@ -342,7 +342,13 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
 
     const handinThrowBeat = (substitutedThrow.throwBeat + placementDelay) % pattern.getLength()
-    const handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
+    // we assume alternating hands, so for delayed throws we need to adjust the hand
+    let handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
+    // in the unusual case that we cross the pattern boundary, we need to check whether we need to map hands -- this is a bit hacky
+    const handinCrossesPatternBoundary = Math.floor((substitutedThrow.throwBeat + placementDelay) / pattern.getLength())
+    assert(handinThrowHand<=1, "cannot handle delay that wraps around the pattern multiple times")
+    if (handinCrossesPatternBoundary>0)
+        handinThrowHand = pattern.mapHands[substitutedThrow.fromPasserIdx][0] ? 1-handinThrowHand : handinThrowHand
     const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
     // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
     // however, the row may have changed if the pattern wraps around
@@ -544,12 +550,11 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
     // }
     function onMissingCatchAndThrow(fn: (rowIdx: number, hand: Hand, beat: number) => boolean, repeat: boolean = false) {
         let changed = false
-        for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
-            for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
-                for (const hand of [Hand.Right, Hand.Left])
-                    for (let beat = 0; beat < pattern.getLength(); beat++)
-                        if (foundCaught2[rowIdx][hand][beat] === undefined && foundThrown2[rowIdx][hand][beat] === undefined)
-                            changed = fn(rowIdx, hand, beat) || changed
+        for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
+            for (const hand of [Hand.Right, Hand.Left])
+                for (let beat = 0; beat < pattern.getLength(); beat++)
+                    if (foundCaught2[rowIdx][hand][beat] === undefined && foundThrown2[rowIdx][hand][beat] === undefined)
+                        changed = fn(rowIdx, hand, beat) || changed
         return changed
     }
     function onCatchWithMissingThrow(fn: (rowIdx: number, hand: Hand, beat: number) => boolean, repeat: boolean = false): boolean {
@@ -557,12 +562,11 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         let changed = false
         do {
             changed = false
-            for (let repeat = 0; repeat < (repeat ? pattern.nrRows : 1); repeat++)
-                for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
-                    for (const hand of [Hand.Right, Hand.Left])
-                        for (let beat = 0; beat < pattern.getLength(); beat++)
-                            if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
-                                changed = fn(rowIdx, hand, beat) || changed
+            for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++)
+                for (const hand of [Hand.Right, Hand.Left])
+                    for (let beat = 0; beat < pattern.getLength(); beat++)
+                        if (foundCaught2[rowIdx][hand][beat] !== undefined && foundThrown2[rowIdx][hand][beat] === undefined)
+                            changed = fn(rowIdx, hand, beat) || changed
             anyChange = anyChange || changed
         } while (changed && repeat)
         return anyChange
@@ -682,13 +686,19 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         return false
     }
 
+    // console.log("==============================")
+    // console.log(pattern.prettyPrintThrows())
     let changed = true
     while (changed) {
         changed = false
         changed = onCatchWithMissingThrow(insertZipToPriorThrow, true) || changed
-        changed = onCatchWithMissingThrow(insertCatchWithEmptyHand, true) || changed
-        // onMissingCatch(insertHoldOnThrowButNoCatch(true), true)
-        // onMissingCatch(insertZipOnThrowButNoCatch(true), true)
+        changed = onCatchWithMissingThrow(insertCatchWithEmptyHand, false) || changed
+        // console.log(pattern.prettyPrintThrows())
+    }
+    // onMissingCatch(insertHoldOnThrowButNoCatch(true), true)
+    // onMissingCatch(insertZipOnThrowButNoCatch(true), true)
+    while (changed) {
+        changed = false
         changed = onMissingCatchAndThrow(insertFlipWherePossible) || changed
 
         // onMissingCatch(insertHoldOnThrowButNoCatch(false), true)
