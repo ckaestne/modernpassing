@@ -1,4 +1,4 @@
-import { type Beat, createPattern, createThrow, type GroupPattern, type GroupPatternLayout, Hand, type ManipulatorAction, type MovementTrigger, type PassAnimation, type PassLayout, type Pattern, type PositionLayout, type RelabelAnimation, type Throw, ThrowType } from "@modernpassing/pattern";
+import { baseMarker, type Beat, createPattern, createThrow, type GroupPattern, type GroupPatternLayout, Hand, type ManipulatorAction, type MovementTrigger, type PassAnimation, type PassLayout, type Pattern, type PositionLayout, type RelabelAnimation, type Throw } from "@modernpassing/pattern";
 import assert from "node:assert";
 import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
 import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
@@ -245,7 +245,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             isCrossing,
             toPasserIdxAtCausal,
             throwLength,
-            [ThrowType.Base],
+            [baseMarker],
             throwStr
         )
     }

@@ -39,8 +39,8 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         // const fromRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
         const toRole = pattern.getToPasserRole(t)
         // const printRole = fromRole !== toRole ? toRole : ""
-        const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
-        const printType = markers.length === 0 ? "" : "/" + markers.join("")
+        const markers = t.markers ? t.markers.filter(m => m.kind !== 'B' && m.kind !== 'M') : []
+        const printType = markers.length === 0 ? "" : markers.map(m=>m.kind).join("")
         const hand = pattern.getThrowHand(t, 0)
         const isCrossing = pattern.isSelfThrow(t) ? "" : (pattern.isCrossingPass(t, 0) ? "‖" : "X")
         const targetFirstIteration = (pattern as PatternImpl).getToPasserIdxOnCausal(t) + (pattern.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + pattern.getThrowCauseBeat(t)
