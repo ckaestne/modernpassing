@@ -27,22 +27,19 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
 
     // basic checks
     const baseRows = rows.filter(r => !r.isManipulator)
-    const manipulatorRows = rows.filter(r => r.isManipulator)
     if (baseRows.length < 2) throw new Error("Need at least two non-manipulator roles in a pattern")
-    // const patternLength =  getPatternLength(rows, nrHands)
-    // if (baseRows.some(r => getRowLength(r, nrHands) !== patternLength)) throw new Error("patterns must have the same lengths for all passers")
-    // if (manipulatorRows.some(r => getRowLength(r, nrHands) > patternLength)) throw new Error("manipulator sequence cannot be longer than pattern sequence")
 
+    // parse basic notation and create base pattern
     const [pattern, manipulatorActions] = createPatternFromRaw(rows, nrHands)
 
-    // const rewritten = pattern
+    // apply manipulations
     let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
     return {
         pattern: rewritten,
         aidenNotation: [pattern, manipulatorActions],
-        layout: layout ? genLayout(layout, movement, rewritten) : undefined
+        layout: layout ? genLayout(layout, movement, pattern) : undefined
     }
 }
 
@@ -62,21 +59,21 @@ function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pa
     const [positions, movementSegments, movementSequences, background] = createShapeLayout(pattern.getInitialRoles(), layout, movement)
 
 
-    function findPosition(passerIdx: number): PositionLayout {
-        const p = positions.find(p => p.passerIdx === passerIdx)
-        if (!p) throw new Error(`position for passer ${passerIdx} not found`)
-        return p
-    }
+    // function findPosition(passerIdx: number): PositionLayout {
+    //     const p = positions.find(p => p.passerIdx === passerIdx)
+    //     if (!p) throw new Error(`position for passer ${passerIdx} not found`)
+    //     return p
+    // }
 
-    function pass(t: Throw, iteration: number): PassLayout {
-        return {
-            fromRole: findPosition(t.fromPasserIdx).role,
-            fromHand: pattern.getThrowHand(t, iteration),
-            toRole: findPosition(pattern.getToPasserIdxAtThrow(t)).role,
-            toHand: pattern.getTargetHand(t, iteration),
-            label: (t.throwBeat + 1).toString()
-        }
-    }
+    // function pass(t: Throw, iteration: number): PassLayout {
+    //     return {
+    //         fromRole: findPosition(t.fromPasserIdx).role,
+    //         fromHand: pattern.getThrowHand(t, iteration),
+    //         toRole: findPosition(pattern.getToPasserIdxAtThrow(t)).role,
+    //         toHand: pattern.getTargetHand(t, iteration),
+    //         label: (t.throwBeat + 1).toString()
+    //     }
+    // }
 
     // console.log(throws)
     const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassLayout> = new Map()

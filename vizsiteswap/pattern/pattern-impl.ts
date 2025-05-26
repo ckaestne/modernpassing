@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { Pattern, Throw, Beat, Role, Time, ThrowType, Hand } from "./pattern.ts";
 import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
+import { deprecate } from "node:util";
 
 
 
@@ -76,7 +77,10 @@ export class PatternImpl implements Pattern {
         return this.getRole(t.throwBeat, this.getToPasserIdxAtThrow(t))
     }
 
+    /** @deprecated Use findThrowsByRoleAtThrow instead */
     findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[] {
+        // Deprecated: should not be needed anymore (was used when interpreting roles on substitution instructions as atCausal rather than atThrow)
+
         // due to limits of the notation, this is not straightforward --
         // we are looking for a throw thrown on $time of unknown length that arrives 
         // to a passer who at the time of arrival of the throw has the role $toRole

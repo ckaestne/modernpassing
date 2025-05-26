@@ -1,4 +1,4 @@
-import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
+import { assertEqualPattern, createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 import assert from "node:assert";
 import test from "node:test";
 import { applyManipulations, fillPatternGaps, prettyPrintManipulatorActions } from "./manipulator-processing.ts";
@@ -199,20 +199,6 @@ Deno.test('shift: nonsymetric', async () => {
     assertEqualPattern(shiftPattern(t, m, 8)[0], t)
 
 })
-
-
-function assertEqualThrows(pattern1: Pattern, pattern2: Pattern) {
-    function s(a: Throw, b: Throw): number {
-        const x = a.throwBeat - b.throwBeat
-        if (x !== 0) return x
-        return a.fromPasserIdx - b.fromPasserIdx
-    }
-
-    const t1 = pattern1.throws.map(t => { return `${t.throwBeat} ${pattern1.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern1.getRole(t.throwBeat, t.toPasserIdxAtCausal)}` }).sort()
-    const t2 = pattern2.throws.map(t => { return `${t.throwBeat} ${pattern2.getRole(t.throwBeat, t.fromPasserIdx)} ${t.throwLength} ${pattern2.getRole(t.throwBeat, t.toPasserIdxAtCausal)}` }).sort()
-
-    assert.deepStrictEqual(t1, t2)
-}
 
 const basic1BeatIntercept =
     `A: 3pB 3 3 3 -- B
@@ -485,34 +471,6 @@ function throwToString(p: Pattern, t: Throw) {
     return `from ${p.getRole(t.throwBeat, t.fromPasserIdx)} to ${p.getRole(p.getThrowCauseBeat(t), t.toPasserIdxAtCausal)} - ${t.throwLength}`
 }
 
-
-
-function assertEqualPattern(p1: Pattern, p2: Pattern) {
-
-    assert.equal(p1.nrHands, p2.nrHands)
-    assert.equal(p1.getLength(), p2.getLength())
-    assert.equal(p1.nrRows, p2.nrRows)
-
-    // rows may not be in the same order, so let's compare transformations in role changes
-    assert.deepEqual(
-        p1.mapRows.map((r, i) => p1.getRole(0, i) + "--" + p1.getRole(0, r)).sort(),
-        p2.mapRows.map((r, i) => p2.getRole(0, i) + "--" + p2.getRole(0, r)).sort()
-    )
-    assert.deepEqual(normalizeRoles(p1), normalizeRoles(p2))
-
-    assertEqualThrows(p1, p2)
-}
-function normalizeRoles(pattern: Pattern): string[] {
-    const roles: string[] = []
-    for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
-        const fromRole = pattern.getRole(0, rowIdx)
-        for (let beat = 0; beat < pattern.getLength(); beat++) {
-            roles.push(`${fromRole}${beat}${pattern.getRole(beat, rowIdx)}`)
-
-        }
-    }
-    return roles.sort()
-}
 
 
 /**

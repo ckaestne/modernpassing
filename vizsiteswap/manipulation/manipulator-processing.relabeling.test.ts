@@ -1,4 +1,4 @@
-import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
+import { createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 import { describe, it } from "jsr:@std/testing/bdd";
 import assert from "node:assert";
 import test from "node:test";

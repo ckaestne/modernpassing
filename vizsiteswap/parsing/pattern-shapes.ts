@@ -204,7 +204,7 @@ factories.push({
                 const x = Math.cos(angle) * 0.5 + 0.5
                 const y = Math.sin(angle) * 0.5 + 0.5
                 assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+                positions.push({ role: roles[i], x, y })
             }
             angle += 2 * Math.PI / roles.length
         }
@@ -282,7 +282,7 @@ factories.push({
             const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
             assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+            positions.push({ role: roles[i], x, y })
         }
         background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
 
@@ -341,11 +341,11 @@ factories.push({
         const roles = layout.roles
         for (let i = 0; i < 5; i++)
             assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-        positions.push({ passerIdx: patternRoles.indexOf(roles[0]), role: roles[0], x: 0.25, y: 0 })
-        positions.push({ passerIdx: patternRoles.indexOf(roles[1]), role: roles[1], x: 0.75, y: 0 })
-        positions.push({ passerIdx: patternRoles.indexOf(roles[2]), role: roles[2], x: 0.0, y: 1 })
-        positions.push({ passerIdx: patternRoles.indexOf(roles[3]), role: roles[3], x: 0.5, y: 1 })
-        positions.push({ passerIdx: patternRoles.indexOf(roles[4]), role: roles[4], x: 1, y: 1 })
+        positions.push({ role: roles[0], x: 0.25, y: 0 })
+        positions.push({ role: roles[1], x: 0.75, y: 0 })
+        positions.push({ role: roles[2], x: 0.0, y: 1 })
+        positions.push({ role: roles[3], x: 0.5, y: 1 })
+        positions.push({ role: roles[4], x: 1, y: 1 })
         background.push({ type: "path", segments: ['M', 0.25, 0, 'L', .75, 0, 'L', 1, 1, 'L', 0, 1, 'L', 0.25, 0], stroke: "lightgrey", strokeWidth: 1 })
         return [positions, [], [], background]
     }
@@ -371,7 +371,7 @@ factories.push({
             const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
             const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
             assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x, y })
+            positions.push({ role: roles[i], x, y })
         }
         return [positions, [], [], background]
     }
@@ -393,7 +393,7 @@ factories.push({
         const roles = layout.roles
         for (let i = 0; i < roles.length; i++) {
             const s = PatternPaths.brunos.movementSegments[PatternPaths.brunos.initialPositions[i]]
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+            positions.push({ role: roles[i], x: s.fromX, y: s.fromY })
         }
 
 
@@ -440,7 +440,7 @@ factories.push({
         const roles = layout.roles
         for (let i = 0; i < roles.length; i++) {
             const s = PatternPaths.y.movementSegments[PatternPaths.y.initialPositions[i]]
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+            positions.push({ role: roles[i], x: s.fromX, y: s.fromY })
         }
 
 
@@ -477,10 +477,9 @@ factories.push({
         const roles = layout.roles
         for (let i = 0; i < 3; i++) {
             const s = PatternPaths.weave.movementSegments[PatternPaths.weave.initialPositions[i]]
-            positions.push({ passerIdx: patternRoles.indexOf(roles[i + 1]), role: roles[i + 1], x: s.fromX, y: s.fromY })
+            positions.push({ role: roles[i + 1], x: s.fromX, y: s.fromY })
         }
         positions.push({
-            passerIdx: 0,
             x: .5,
             y: .05,
             role: roles[0]
@@ -532,7 +531,7 @@ factories.push({
             const initialSegmentIdx = layout.roles[i][1]
             assert(initialSegmentIdx >= 0 && initialSegmentIdx < layout.segments.length, `initial segment index ${initialSegmentIdx} for role ${layout.roles[i][0]} out of bounds for ${layout.segments.length} segments`)
             const s = layout.segments[initialSegmentIdx]
-            positions.push({ passerIdx: patternRoles.indexOf(layout.roles[i][0]), role: layout.roles[i][0], x: s.fromX, y: s.fromY })
+            positions.push({ role: layout.roles[i][0], x: s.fromX, y: s.fromY })
         }
 
         for (const seg of layout.segments) {
@@ -559,6 +558,34 @@ factories.push({
 
 factories.push(fromPath('Clover', PatternPaths.clover))
 
+
+
+
+
+// -- brunos layout, brunos movement
+factories.push({
+    supportedShapes: ['Line'],
+    supportedMovement: [],
+    matches: function (layout: TLayout, movement: TMovement): boolean {
+        return layout.type === 'standard' && layout.shape === 'Line' && [2].includes(layout.roles.length) && movement.length === 0
+    },
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
+        const positions: PositionLayout[] = []
+
+        assert(layout.type === 'standard')
+        const roles = layout.roles
+        positions.push({ role: roles[0], x: 0, y: .5 })
+        positions.push({ role: roles[1], x: 1, y: .5 })
+
+        return [positions,[],[],[]]
+    }
+})
+
+
+
+
+
+
 // -- generic layout and movement ("move") on predefined paths in pattern-paths.ts
 function fromPath(name: string, path: PatternPath): PatternShapeFactory {
     return {
@@ -576,7 +603,7 @@ function fromPath(name: string, path: PatternPath): PatternShapeFactory {
             const roles = layout.roles
             for (let i = 0; i < roles.length; i++) {
                 const s = path.movementSegments[path.initialPositions[i]]
-                positions.push({ passerIdx: patternRoles.indexOf(roles[i]), role: roles[i], x: s.fromX, y: s.fromY })
+                positions.push({ role: roles[i], x: s.fromX, y: s.fromY })
             }
 
 
