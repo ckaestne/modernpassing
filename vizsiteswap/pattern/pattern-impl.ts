@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { type Pattern, type Throw, type Beat, type Role, type Time, Hand, ThrowMarker } from "./pattern.ts";
+import { type Pattern, type Throw, type Beat, type Role, type Time, Hand, ThrowMarker, InterceptMarker } from "./pattern.ts";
 import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
 import { deprecate } from "node:util";
 
@@ -105,7 +105,9 @@ export class PatternImpl implements Pattern {
         const ts = this.findThrows((time + this.getLength()) % this.getLength(), fromPasserIdx, undefined) // cannot identify target due to possible relabeling
         if (toRoleAtThrow)
             return ts.filter(t =>
-                this.getToPasserIdxAtThrow(t) === this.getRowIdxByRole(t.throwBeat, toRoleAtThrow))
+                this.getToPasserIdxAtThrow(t) === this.getRowIdxByRole(t.throwBeat, toRoleAtThrow) || 
+                t.markers?.some(m=> m.kind === 'I' && (m as InterceptMarker).originalToRoleAtThrow === toRoleAtThrow) // we also consider throws that have been redirected to a manipulator by an intercept if they originally pointed to that role
+            )
         else return ts
     }
 

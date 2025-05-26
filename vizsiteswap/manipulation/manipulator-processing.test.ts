@@ -870,6 +870,13 @@ Deno.test('apply substitution: intercept a substitution 2', () => {
          N: SB`
     )[0], 2)
 
+    // const pM = applyInterceptCarry(p, manipulations[0] as InterceptAction, manipulations[1] as CarryAction)
+    // console.log(pM.prettyPrintThrows())
+    // const pN = applySubstitution(p, manipulations[2] as SubstitutionAction)
+    // console.log(pN.prettyPrintThrows())
+    // const pNM = applyInterceptCarry(pN, manipulations[0] as InterceptAction, manipulations[1] as CarryAction)
+    // console.log(pNM.prettyPrintThrows())
+
     assert.deepEqual(p.mapRows, [1, 0])
     const rewritten = applyManipulations(p, manipulations)
     const A = 0, B = 1, M = 2, N = 3
