@@ -2,7 +2,7 @@ import { baseMarker, type Beat, createPattern, createThrow, type GroupPattern, t
 import assert from "node:assert";
 import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
 import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
-import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation";
+import { applyManipulations, fillPatternGaps, applyManipulatorLayout } from "@modernpassing/manipulation";
 
 /**
  * parsing of multi-line patterns, pretty much anything but vanilla siteswaps (and fromsync has simpler shorthands
@@ -39,7 +39,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     return {
         pattern: rewritten,
         aidenNotation: [pattern, manipulatorActions],
-        layout: layout ? genLayout(layout, movement, pattern) : undefined
+        layout: layout ? applyManipulatorLayout(rewritten, genLayout(layout, movement, pattern)) : undefined
     }
 }
 

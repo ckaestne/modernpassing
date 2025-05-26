@@ -137,25 +137,15 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     assert((carryDelay === undefined) === (interceptedThrow.throwLength <= pattern.nrHands), `carryDelay is required if and only if the intercepted throw is not a flip or zip`)
 
 
+
     // note, we are using manipulator and manipulated roles before the rows switch, that is manipulatorRowIdxAfterIBeat is the row of the manipulator before switching, where the manipulated will be after switching)
     const manipulatedRoleOnIBeat = pattern.getRole(iBeat, interceptedThrow.toPasserIdxAtCausal)
 
     const manipulatorRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, intercept.manipulatorRole)
     const manipulatedRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, manipulatedRoleOnIBeat)
 
-    // swap labels on the iBeat and relabeling at the end of the pattern
-    pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
-
-    // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
-    // the same hand sequences 
-    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
 
 
-
-    const manipulatorRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatorRowIdxAfterIBeat)
-    const manipulatedRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatedRowIdxAfterIBeat)
-
-    // console.log(pattern.prettyPrintThrows())
 
     // let's find the carry and all throws that are skipped in the original pattern if there is a delay
     let carriedThrow: Throw | undefined = undefined
@@ -175,6 +165,22 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
+    const carryMarker: CarryMarker = {kind:'C', toRoleAtThrow: pattern.getToPasserRole(carriedThrow!), originalFromRole: pattern.getFromPasserRole(carriedThrow!)}
+                
+
+    // swap labels on the iBeat and relabeling at the end of the pattern
+    pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
+
+    // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
+    // the same hand sequences 
+    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
+
+
+
+    const manipulatorRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatorRowIdxAfterIBeat)
+    const manipulatedRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatedRowIdxAfterIBeat)
+
+    // console.log(pattern.prettyPrintThrows())
 
     // the earliest carry can start on the iBeat; the latest must arrive on iBeat + patternLength
 
@@ -227,10 +233,11 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let isCrossing = t.isCrossing
             let throwLength = t.throwLength
             if (isInterceptThrow) {
-                markers = [...markers, {kind:'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole } as InterceptMarker]
+                const newMarker: InterceptMarker = {kind:'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole } 
+                markers = [...markers, newMarker]
             }
             if (isCarry) {
-                markers = [...markers, {kind:'C', toRoleAtThrow: pattern.getRole(carryThrowTime, carriedThrow!.toPasserIdxAtCausal)} as CarryMarker]
+                markers = [...markers, carryMarker]
             }
             if (isSkippedCarry) {
                 markers = [...markers,filledMarker]
@@ -333,13 +340,14 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     }
 
     // adding the throw (pelf) to be stolen
+    const newMarkerP: SubstitutionMarker = {kind:'S', throw:'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole} 
     pattern = pattern.addThrow({
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
         toPasserIdxAtCausal: manipulatorRowIdxOnPelfArrival,
         isCrossing: pelfLength % pattern.nrHands !== 0,
         throwLength: pelfLength,
-        markers: [...originalMarkers, {kind:'S', throw:'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole} as SubstitutionMarker],
+        markers: [...originalMarkers, newMarkerP],
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
     })
 
@@ -358,6 +366,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
 
     // putting in another club to replace the stolen one
+    const newMarkerS: SubstitutionMarker = {kind:'S', throw:'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole}
     pattern = pattern.addThrow({
         ...substitutedThrow,
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,
@@ -365,7 +374,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         isCrossing: handinIsCrossing,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
-        markers: [...originalMarkers, {kind:'S', throw:'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole} as SubstitutionMarker],
+        markers: [...originalMarkers, newMarkerS],
         note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdxAtCausal,
     })
 

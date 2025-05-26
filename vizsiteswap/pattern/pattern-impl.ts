@@ -76,6 +76,9 @@ export class PatternImpl implements Pattern {
     getToPasserRole/*atThrow*/(t: Throw): Role {
         return this.getRole(t.throwBeat, this.getToPasserIdxAtThrow(t))
     }
+    getFromPasserRole/*atThrow*/(t: Throw): Role {
+        return this.getRole(t.throwBeat, t.fromPasserIdx)
+    }
 
     /** @deprecated Use findThrowsByRoleAtThrow instead */
     findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[] {

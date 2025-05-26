@@ -210,6 +210,7 @@ export interface Pattern {
 
     getToPasserIdxAtThrow(t: Throw): number 
     
+    getFromPasserRole/*atThrow*/(t: Throw): Role
     getToPasserRole/*atThrow*/(t: Throw): Role
 
 
@@ -361,9 +362,9 @@ export interface ThrowMarker {
 }
 export const baseMarker: ThrowMarker = { kind: 'B'}
 export const baseManipulatorMarker: ThrowMarker = { kind: 'M'}
-export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P'|'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role} // from fromRole to manipulator and from manipulator to toRoleAtThrow
-export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role} // to manipulator
-export interface CarryMarker extends ThrowMarker { kind: 'C', toRoleAtThrow: Role}//from manipulator
+export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P'|'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role} // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
+export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role} // actually to manipulator
+export interface CarryMarker extends ThrowMarker { kind: 'C', originalFromRole: Role, toRoleAtThrow: Role} // actually from manipulator
 export const filledMarker: ThrowMarker = { kind: 'F' } // automatically filled non-actions or automated actions (hold or empty hand or zip)
 
 
@@ -488,6 +489,7 @@ export type AnimationLayout = {
     movementSegments: MovementSegment[],
     movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
     movementTriggers: MovementTrigger[],
+    directMovements?: DirectMovement[],
     relabeling: RelabelAnimation[],
     speed: number // relative speed, normal = 1, 4hsw = 2
 }
@@ -548,6 +550,26 @@ export type MovementTrigger = {
     role: Role,
     duration: number,
 }
+
+/**
+ * a direct movement is a movement that is not part of a sequence
+ * but indicates that a passer in a specific role will move
+ * to a precomputed position at a specific time
+ * 
+ * this is typically just used for manipulator movements, whereas
+ * all base passers will move on the sequence path
+ */
+export type DirectMovement = {
+    onBeat: number,
+    mod: number,
+    role: Role,
+    x: number,
+    y: number,
+    direction: number, // absolute rotation in degrees
+    duration: number, 
+}
+
+
 export type RelabelAnimation = {
     onBeat: number,
     mod: number,
