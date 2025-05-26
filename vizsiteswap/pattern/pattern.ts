@@ -114,17 +114,11 @@ export interface Pattern {
     findThrows(throwBeat: Beat, fromPasserIdx?: number, toPasserIdxAtCausal?: number): Throw[]
 
     /**
-     * Due to limits of the notation, this is not straightforward --
-     * we are looking for a throw thrown on $time of unknown length that arrives 
-     * to a passer who at the time of arrival of the throw has the role $toRole
-     * (this may not be the role the passer has at time $time)
-     *
-     * This is particularly unintuitive for an intercept that wraps around and lands 
-     * on a beat earlier than thrown, because of the role switching at the end of the 
-     * pattern. A self from B might well be thrown to A then.
-     * Fortunately we don't put the intercept on the very last beat in practice.
+     * Find a throw in the pattern that is thrown on beat $beat from/to passers
+     * identified by their roles on that beat
+     * (that is using role at the throw beat, not at the causal beat)
      */
-    findThrowsByRoleAtCausal(time: Time, fromRole?: Role, toRoleAtCausal?: Role): Throw[]
+    findThrowsByRoleAtThrow(beat: Beat, fromRole?: Role, toRoleAtThrow?: Role): Throw[]
 
 
     /**
@@ -426,10 +420,11 @@ export type Role = string
 //     passes: PassLayout[]
 // }
 export type PositionLayout = {
-    passerIdx: number, // unique, permanent id, despite relabeling
+    // passerIdx: number, // unique, permanent id, despite relabeling
     x: number,
     y: number,
     role: Role
+    direction?: number // rotation in degrees
 }
 export type PassLayout = {
     fromRole: Role,

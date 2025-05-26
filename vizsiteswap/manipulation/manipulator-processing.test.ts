@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import test from "node:test";
 import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { Hand, Pattern, Throw, ThrowType } from "@modernpassing/pattern";
-import { createPatternFromRaw, parseGroupSyncPattern } from "./testadapter.ts";
+import { Hand, type Pattern, SubstitutionAction, ThrowType } from "@modernpassing/pattern";
+import { assertEqualPattern, createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 
 
 
@@ -324,7 +324,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -- B
         B: 3pA 3 3 3 -- A
-        M: C..IA`
+        M: C..IB`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -368,7 +368,7 @@ Deno.test('intercept rewrite: intercept over pattern boundary with three passers
         `A: 3pB 3 3 3 -- B
         B: 3pA 3 3 3 -- C
         C: 3333 -- A
-        M: C..IC
+        M: C..IB
         positions: V(A,B,C)`
     )[0], 2)
 
@@ -406,7 +406,7 @@ Deno.test('intercept rewrite: two-beat intercept/carry over pattern boundary', (
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB 3 3 3 -- B
         B: 3pA 3 3 3 -- A
-        M: .C.IA`
+        M: .C.IB`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -447,7 +447,7 @@ Deno.test('intercept rewrite: high intercept throw over pattern boundary', () =>
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 2 3pB 3 4 -- B
         B: 2 3pA 3 4 -- A
-        M: .C.IA`
+        M: .C.IB`
     )[0], 2)
 
     assert.deepEqual(p.mapRows, [1, 0])
@@ -792,9 +792,10 @@ Deno.test('apply substitution: substituting the last beat', () => {
     console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 0, 2])
 
-    assertNoThrow(rewritten, 3, B, B, 'remove substituted throw')
-    assertThrow(rewritten, 3, 1, B, M, 'pelf: taking out the substituted throw')
-    assertThrow(rewritten, 3, 3, M, B, 'putting in the replacement for the substituted throw')
+    assertThrow(rewritten, 3, 3, B, B, 'keep Bs self')
+    assertNoThrow(rewritten, 3, A, B, 'remove substituted throw')
+    assertThrow(rewritten, 3, 1, A, M, 'pelf: taking out the substituted throw')
+    assertThrow(rewritten, 3, 3, M, A, 'putting in the replacement for the substituted throw')
     // assertThrow(rewritten, 2, 0, M, M, 'catching pelf with an empty hand')
 
     const full = fillPatternGaps(rewritten)
@@ -855,6 +856,29 @@ Deno.test('apply substitution: intercept a substitution', () => {
     assertThrow(rewritten, 0, 1, A, M, 'substitution -- steal')
     assertThrow(rewritten, 0, 3, M, N, 'intercept of the placement part of the substitution')
     assertThrow(rewritten, 1, 3, B, N, 'carry')
+    // assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+})
+
+Deno.test('apply substitution: intercept a substitution 2', () => {
+    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
+        `A: 3pB 3  3 3 3 3 -- B
+         B: 3pA 3  3 3 3 3 -- A
+         M: IB C
+         N: SB`
+    )[0], 2)
+
+    assert.deepEqual(p.mapRows, [1, 0])
+    const rewritten = applyManipulations(p, manipulations)
+    const A = 0, B = 1, M = 2, N = 3
+
+    console.log(rewritten.prettyPrintThrows())
+
+    assertThrow(rewritten, 0, 1, A, N, 'substitution -- steal')
+    assertThrow(rewritten, 0, 3, N, M, 'intercept of the placement part of the substitution')
+    assertThrow(rewritten, 1, 3, B, M, 'carry')
     // assertThrow(rewritten, 1, 0, N, N, 'catching intercept with an empty hand')
 
     const full = fillPatternGaps(rewritten)
@@ -1045,7 +1069,7 @@ Deno.test('minued', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3B 3B 3 3B 3B 3 3B 3B 3 -- B
         B: 3A 3A 3 3A 3A 3 3A 3A 3 -- A
-        M: .  SB IB C z  z SB .  SA `
+        M: .  SB IB C z  z SB .  SB `
     )[0], 2)
     const A = 0, B = 1, M = 2
     assert.deepEqual(p.mapRows, [B, A])
@@ -1401,7 +1425,7 @@ Deno.test('intercept: at end of pattern with different base rows', () => {
     const tt =
         `A: 2 3 3 3 -- B
      B: 3 3 3 4 -- A
-     M: .C . IA `
+     M: .C . IB `
     const r = parseGroupSyncPattern(tt)
     const [t, m] = createPatternFromRaw(r[0], 2)
     const rewritten = applyManipulations(t, m)
@@ -1534,108 +1558,108 @@ export function assertEmpty(pattern: Pattern, beat: number, fromPasserIdx: numbe
 
 
 
-Deno.test('Pattern.findThrowsByRole', () => {
-    const tt =
-        `A: 3 3B 3 3 -- B
-        B: 3 3A 3 3 -- A
-        M: .C . IB `
-    const r = parseGroupSyncPattern(tt)
-    const [t, m] = createPatternFromRaw(r[0], 2)
+// Deno.test('Pattern.findThrowsByRole', () => {
+//     const tt =
+//         `A: 3 3B 3 3 -- B
+//         B: 3 3A 3 3 -- A
+//         M: .C . IB `
+//     const r = parseGroupSyncPattern(tt)
+//     const [t, m] = createPatternFromRaw(r[0], 2)
 
-    console.log(t.prettyPrintThrows())
+//     console.log(t.prettyPrintThrows())
 
-    function assertT(ts: Throw[], fromRow: number, toRow: number) {
-        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
-        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
-        assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
-    }
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1)
-    assertT(t.findThrowsByRoleAtCausal(1, 'A', 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(1, undefined, 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(1, 'A', undefined), 0, 1)
+//     function assertT(ts: Throw[], fromRow: number, toRow: number) {
+//         assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+//         assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+//         assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
+//     }
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1)
+//     assertT(t.findThrowsByRoleAtCausal(1, 'A', 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(1, undefined, 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(1, 'A', undefined), 0, 1)
 
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', 'A'), 1, 0)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', 'A'), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 1, 0)
 
-    // assertT(t.findThrowsByRole(-2, 'A', 'A'), 0, 0)
-    // assertT(t.findThrowsByRole(-1, 'A', 'A'), 1, 0)
+//     // assertT(t.findThrowsByRole(-2, 'A', 'A'), 0, 0)
+//     // assertT(t.findThrowsByRole(-1, 'A', 'A'), 1, 0)
 
-})
-
-
-
-Deno.test('Pattern.findThrowsByRole2', () => {
-    const tt =
-        `A: 2 3 3 3 -- B
-        B: 3 3 3 4 -- A
-        M: .C . IB `
-    const r = parseGroupSyncPattern(tt)
-    const [t, m] = createPatternFromRaw(r[0], 2)
-
-    console.log(t.prettyPrintThrows())
-
-    function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
-        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
-        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
-        assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
-        if (throwLength !== undefined) {
-            assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
-        }
-    }
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0, 2)
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1, 3)
-
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', 'B'), 0, 1, 3)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', 'A'), 1, 0, 4)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 1, 0)
-
-})
+// })
 
 
-Deno.test('Pattern.findThrowsByRole with relabel', () => {
-    const tt =
-        `A: 2 3 3 3 -- B
-        B: 3 3 3 4 -- A
-        M: .C . IB `
-    const r = parseGroupSyncPattern(tt)
-    const [t2, m] = createPatternFromRaw(r[0], 2)
-    const t = t2.swapRoles(3, 'A', 'B', true)
 
-    console.log(t2.prettyPrintThrows())
-    console.log(t.prettyPrintThrows())
+// Deno.test('Pattern.findThrowsByRole2', () => {
+//     const tt =
+//         `A: 2 3 3 3 -- B
+//         B: 3 3 3 4 -- A
+//         M: .C . IB `
+//     const r = parseGroupSyncPattern(tt)
+//     const [t, m] = createPatternFromRaw(r[0], 2)
 
-    function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
-        assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
-        assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
-        assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
-        if (throwLength !== undefined) {
-            assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
-        }
-    }
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0, 2)
-    assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
-    assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1, 3)
+//     console.log(t.prettyPrintThrows())
 
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', 'A'), 1, 0, 4)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
-    assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 1, 0)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', 'B'), 0, 1, 3)
-    assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
-    assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 0, 1)
-})
+//     function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
+//         assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+//         assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+//         assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
+//         if (throwLength !== undefined) {
+//             assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
+//         }
+//     }
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0, 2)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1, 3)
+
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', 'B'), 0, 1, 3)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', 'A'), 1, 0, 4)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 1, 0)
+
+// })
+
+
+// Deno.test('Pattern.findThrowsByRole with relabel', () => {
+//     const tt =
+//         `A: 2 3 3 3 -- B
+//         B: 3 3 3 4 -- A
+//         M: .C . IB `
+//     const r = parseGroupSyncPattern(tt)
+//     const [t2, m] = createPatternFromRaw(r[0], 2)
+//     const t = t2.swapRoles(3, 'A', 'B', true)
+
+//     console.log(t2.prettyPrintThrows())
+//     console.log(t.prettyPrintThrows())
+
+//     function assertT(ts: Throw[], fromRow: number, toRow: number, throwLength?: number) {
+//         assert(ts.length === 1, `expected 1 throw, found ${ts.length}`)
+//         assert(ts[0].fromPasserIdx === fromRow, `expected throw from ${fromRow}, found ${ts[0].fromPasserIdx}`)
+//         assert(ts[0].toPasserIdxAtCausal === toRow, `expected throw to ${toRow}, found ${ts[0].toPasserIdxAtCausal}`)
+//         if (throwLength !== undefined) {
+//             assert(ts[0].throwLength === throwLength, `expected throw length ${throwLength}, found ${ts[0].throwLength}`)
+//         }
+//     }
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', 'A'), 0, 0, 2)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'A', undefined), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, undefined, 'A'), 0, 0)
+//     assertT(t.findThrowsByRoleAtCausal(0, 'B'), 1, 1, 3)
+
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', 'A'), 1, 0, 4)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'A'), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'A', undefined), 1, 0)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', 'B'), 0, 1, 3)
+//     assertT(t.findThrowsByRoleAtCausal(3, undefined, 'B'), 0, 1)
+//     assertT(t.findThrowsByRoleAtCausal(3, 'B', undefined), 0, 1)
+// })
 
 
 

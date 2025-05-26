@@ -92,7 +92,7 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
 }
 
 function findManipulatedThrow(pattern: Pattern, action: InterceptAction | SubstitutionAction): Throw {
-    let interceptedThrowCandidates = pattern.findThrowsByRoleAtCausal(action.beat, action.fromPasserRole, action.toPasserRole)
+    let interceptedThrowCandidates = pattern.findThrowsByRoleAtThrow(action.beat, action.fromPasserRole, action.toPasserRole)
     assert(interceptedThrowCandidates.length > 0, `no throw found to intercept on ${action.beat} from ${action.fromPasserRole} to ${action.toPasserRole}`)
     if (interceptedThrowCandidates.length > 1) {
         //ignoring warnings when ambiguous only with flips and zips
