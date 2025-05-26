@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import test from "node:test";
 import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { Hand, type Pattern, SubstitutionAction, ThrowType } from "@modernpassing/pattern";
+import { CarryAction, Hand, InterceptAction, type Pattern, SubstitutionAction, ThrowMarker } from "@modernpassing/pattern";
 import { assertEqualPattern, createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 
 
@@ -1462,7 +1462,7 @@ export function assertIntercept(pattern: Pattern, beat: number, length: number, 
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
-    assert(ts[0].markers!.includes(ThrowType.Intercept), `expected intercept, found ${ts[0].markers} [${msg}]`)
+    assert(ts[0].markers!.some(t=>t.kind==='I'), `expected intercept, found ${ts[0].markers} [${msg}]`)
 }
 export function assertCarry(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, toPasserIdxAtCausal: number, msg: string = "carry") {
     //uses raw rows, no intelligence for relabeling    
@@ -1470,7 +1470,7 @@ export function assertCarry(pattern: Pattern, beat: number, length: number, from
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
-    assert(ts[0].markers!.includes(ThrowType.Carry), `expected carry, found ${ts[0].markers} [${msg}]`)
+    assert(ts[0].markers!.some(t=>t.kind==='C'), `expected carry, found ${ts[0].markers} [${msg}]`)
 }
 
 

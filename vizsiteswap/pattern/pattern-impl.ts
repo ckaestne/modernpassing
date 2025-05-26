@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { Pattern, Throw, Beat, Role, Time, ThrowType, Hand } from "./pattern.ts";
+import { type Pattern, type Throw, type Beat, type Role, type Time, Hand, ThrowMarker } from "./pattern.ts";
 import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
 import { deprecate } from "node:util";
 
@@ -175,8 +175,8 @@ export class PatternImpl implements Pattern {
             // const fromRole = this.getRole(t.throwBeat, t.fromPasserIdx)
             const toRole = this.getToPasserRole(t) //this.getRole(this.getThrowCauseBeat(t), this.getToPasserIdxAtThrow(t))
             // const printRole = fromRole !== toRole ? toRole : ""
-            const markers = t.markers ? t.markers.filter(m => m !== ThrowType.Base && m !== ThrowType.BaseManipulator) : []
-            const printType = markers.length === 0 ? "" : markers.join("")
+            const markers = t.markers ? t.markers.filter(m => m.kind !== 'B' && m.kind !== 'M') : []
+            const printType = markers.length === 0 ? "" : markers.map(m=>m.kind).join("")
             const hand = this.getThrowHand(t, 0)
             const isCrossing = this.isSelfThrow(t) ? "" : bold(this.isCrossingPass(t, 0) ? "‖" : "X")
             const targetFirstIteration = this.getToPasserIdxOnCausal(t) + (this.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + this.getThrowCauseBeat(t)
@@ -393,12 +393,12 @@ export class PatternImpl implements Pattern {
             for (let beat = 0; beat < this.getLength(); beat++) {
                 for (const hand of [Hand.Right, Hand.Left]) {
                     if (foundThrown[rowIdx][hand][beat] && !foundCaught[rowIdx][hand][beat]) {
-                        if (this.nrHands===4 && foundThrown[rowIdx][hand][beat]?.markers?.includes(ThrowType.Carry) || foundThrown[rowIdx][hand][beat]?.throwLength===4) continue //TODO ignore without incoming carry for now
+                        if (this.nrHands===4 && foundThrown[rowIdx][hand][beat]?.markers?.some(m=>m.kind='C') || foundThrown[rowIdx][hand][beat]?.throwLength===4) continue //TODO ignore without incoming carry for now
                         this.validationError = `throw on beat ${beat} from ${rowIdx}/${hand ? "L" : "R"} but no incoming catch`
                         return false
                     }
                     if (foundCaught[rowIdx][hand][beat] && !foundThrown[rowIdx][hand][beat]) {
-                        if (this.nrHands===4 && foundCaught[rowIdx][hand][beat]?.markers?.includes(ThrowType.Intercept)) continue //TODO ignore without incoming intercept for now
+                        if (this.nrHands===4 && foundCaught[rowIdx][hand][beat]?.markers?.some(m=>m.kind='I')) continue //TODO ignore without incoming intercept for now
                         const c = foundCaught[rowIdx][hand][beat]
                         this.validationError = `catch on beat ${beat} by ${rowIdx}/${hand ? "L" : "R"} (from beat ${c?.throwBeat}) but no outgoing throw`
                         return false
@@ -640,7 +640,7 @@ export class ThrowImpl implements Throw {
         isCrossing: boolean,
         toPasserIdxAtCausal: number,
         throwLength: number,
-        markers?: ThrowType[],
+        markers?: ThrowMarker[],
         note?: string
     ) {
         
@@ -665,7 +665,8 @@ export class ThrowImpl implements Throw {
     isCrossing: boolean;
     throwLength: number;
     toPasserIdxAtCausal: number;
-    markers?: ThrowType[] | undefined;
+    markers?: ThrowMarker[];
     note?: string | undefined;
+
 
 }

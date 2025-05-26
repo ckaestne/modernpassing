@@ -1,4 +1,4 @@
-import { Beat, CarryAction, createPattern, Hand, InterceptAction, ManipulatorAction, Pattern, Role, SubstitutionAction, Throw, ThrowAction, ThrowType, Time } from "@modernpassing/pattern";
+import { baseManipulatorMarker, type Beat, type CarryAction, CarryMarker, createPattern, filledMarker, Hand, type InterceptAction, InterceptMarker, type ManipulatorAction, type Pattern, type Role, type SubstitutionAction, SubstitutionMarker, type Throw, type ThrowAction, type ThrowMarker } from "@modernpassing/pattern";
 import assert from "node:assert";
 import { PatternImpl } from "../pattern/pattern-impl.ts";
 
@@ -227,13 +227,13 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let isCrossing = t.isCrossing
             let throwLength = t.throwLength
             if (isInterceptThrow) {
-                markers = [...markers, ThrowType.Intercept]
+                markers = [...markers, {kind:'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole } as InterceptMarker]
             }
             if (isCarry) {
-                markers = [...markers, ThrowType.Carry]
+                markers = [...markers, {kind:'C', toRoleAtThrow: pattern.getRole(carryThrowTime, carriedThrow!.toPasserIdxAtCausal)} as CarryMarker]
             }
             if (isSkippedCarry) {
-                markers = [...markers, ThrowType.Filled]
+                markers = [...markers,filledMarker]
                 isCrossing = false
                 throwLength = pattern.nrHands
             }
@@ -263,7 +263,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                     isCrossing: false,
                     throwLength: pattern.nrHands,
                     throwBeat: pattern.getThrowCauseBeat(t),
-                    markers: [ThrowType.Filled],
+                    markers: [filledMarker],
                     note: '2'
                 })
             // // intercept: add 0 at target if there is no throw there yet
@@ -307,6 +307,9 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     // find the substituted throw
     const substitutedThrow = findManipulatedThrow(pattern, substitution)
     assert(substitutedThrow)
+    const originalFromRole = pattern.getRole(substitutedThrow.throwBeat, substitutedThrow.fromPasserIdx)
+    const originalToRole = pattern.getToPasserRole(substitutedThrow)
+    const originalMarkers = substitutedThrow.markers || []
 
     const isVeryLateSteal = substitution.modifiers.includes('v')
 
@@ -336,7 +339,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         toPasserIdxAtCausal: manipulatorRowIdxOnPelfArrival,
         isCrossing: pelfLength % pattern.nrHands !== 0,
         throwLength: pelfLength,
-        markers: [ThrowType.SubstitutionPelf],
+        markers: [...originalMarkers, {kind:'S', throw:'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole} as SubstitutionMarker],
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
     })
 
@@ -362,7 +365,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         isCrossing: handinIsCrossing,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
-        markers: [ThrowType.SubstitutionPlacement],
+        markers: [...originalMarkers, {kind:'S', throw:'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole} as SubstitutionMarker],
         note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdxAtCausal,
     })
 
@@ -410,7 +413,7 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
         isCrossing: t.isCrossing,
         throwBeat: t.beat,
         throwLength: t.throwLength,
-        markers: [ThrowType.BaseManipulator],
+        markers: [baseManipulatorMarker],
         note: ''
     })
     return pattern
@@ -583,7 +586,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
             toPasserIdxAtCausal: rowIdx1BeatsEarlier,
             throwLength: pattern.nrHands / 2,
             throwBeat: beat,
-            markers: [ThrowType.Filled],
+            markers: [filledMarker],
             note: '0'
         }
         const hand1BeatEarlier = pattern.getTargetHandFirstIteration(potentialThrow)
@@ -608,7 +611,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
                 toPasserIdxAtCausal: rowIdx2BeatsEarlier,
                 throwLength: 0,
                 throwBeat: beat,
-                markers: [ThrowType.Filled],
+                markers: [filledMarker],
                 note: '0'
             }
             pattern = pattern.addThrow(newThrow)
@@ -675,7 +678,7 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
                 toPasserIdxAtCausal: rowIdx,
                 throwLength: pattern.nrHands,
                 throwBeat: beat,
-                markers: [ThrowType.Filled],
+                markers: [filledMarker],
                 note: 'f'
             }
             pattern = pattern.addThrow(newThrow)

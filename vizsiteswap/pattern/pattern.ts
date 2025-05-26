@@ -342,22 +342,30 @@ export interface Throw {
     /**
      * optional markers to indicate what kind of throw this is; multiple markers possible
      */
-    readonly markers?: ThrowType[],
+    readonly markers?: ThrowMarker[]
 
     /**
      * optional free text note for this throw, mostly for debugging
      */
     readonly note?: string
 }
-export enum ThrowType {
-    Base = 'B',
-    BaseManipulator = 'M', // normal throw from the manipulator (not a substitution or intercept or carry)
-    SubstitutionPelf = 'P',
-    SubstitutionPlacement = 'S',
-    Intercept = 'I',
-    Carry = 'C',
-    Filled = 'F', // automatically filled non-actions or automated actions (hold or empty hand or zip)
+
+/**
+ * the marker stores information about the throw, especially for throws resulting from manipulations
+ * 
+ * for manipulation-induced throws, it also stores the roles involved, which is useful for animation
+ * and reasoning about original throws. Roles here are always fully resolved for from/to
+ */
+export interface ThrowMarker {
+    kind: string
 }
+export const baseMarker: ThrowMarker = { kind: 'B'}
+export const baseManipulatorMarker: ThrowMarker = { kind: 'M'}
+export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P'|'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role} // from fromRole to manipulator and from manipulator to toRoleAtThrow
+export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role} // to manipulator
+export interface CarryMarker extends ThrowMarker { kind: 'C', toRoleAtThrow: Role}//from manipulator
+export const filledMarker: ThrowMarker = { kind: 'F' } // automatically filled non-actions or automated actions (hold or empty hand or zip)
+
 
 
 export type ManipulatorAction = InterceptAction | CarryAction | SubstitutionAction | ThrowAction
@@ -557,7 +565,7 @@ export function createThrow(
     isCrossing: boolean,
     toPasserIdxAtCausal: number,
     throwLength: number,
-    markers?: ThrowType[],
+    markers?: ThrowMarker[],
     note?: string
 ) {
     return new ThrowImpl(
