@@ -1,8 +1,8 @@
-import { baseMarker, type Beat, createPattern, createThrow, type GroupPattern, type GroupPatternLayout, Hand, type ManipulatorAction, type MovementTrigger, type PassAnimation, type PassLayout, type Pattern, type PositionLayout, type RelabelAnimation, type Throw } from "@modernpassing/pattern";
+import { applyManipulations, applyManipulatorLayout, fillPatternGaps } from "@modernpassing/manipulation";
+import { baseMarker, type Beat, createPattern, createThrow, type GroupPattern, Hand, type ManipulatorAction, type Pattern, type Throw } from "@modernpassing/pattern";
 import assert from "node:assert";
 import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
-import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
-import { applyManipulations, fillPatternGaps, applyManipulatorLayout } from "@modernpassing/manipulation";
+import { addPassAnimations, genLayout, setLayoutRelabeling } from "./pattern-layout.ts";
 
 /**
  * parsing of multi-line patterns, pretty much anything but vanilla siteswaps (and fromsync has simpler shorthands
@@ -36,130 +36,17 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
+    const patternLayout = !layout ? undefined : 
+        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), rewritten)
+
+    
+
     return {
         pattern: rewritten,
         aidenNotation: [pattern, manipulatorActions],
-        layout: layout ? applyManipulatorLayout(rewritten, genLayout(layout, movement, pattern)) : undefined
+        layout: patternLayout
     }
 }
-
-/**
- * generates a layout from notation and some information about the passing sequence
- * 
- * as a issue, we need the full passing sequence with both left and right hands, so for
- * odd period patterns, we consider a longer sequence that loops all the way around.
- * hence, we have both the patternLength and the completePatternLength
- * @param layout 
- * @param movement 
- * @param adjustedThrows 
- * @returns 
- */
-function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pattern): GroupPatternLayout {
-
-    const [positions, movementSegments, movementSequences, background] = createShapeLayout(pattern.getInitialRoles(), layout, movement)
-
-
-    // function findPosition(passerIdx: number): PositionLayout {
-    //     const p = positions.find(p => p.passerIdx === passerIdx)
-    //     if (!p) throw new Error(`position for passer ${passerIdx} not found`)
-    //     return p
-    // }
-
-    // function pass(t: Throw, iteration: number): PassLayout {
-    //     return {
-    //         fromRole: findPosition(t.fromPasserIdx).role,
-    //         fromHand: pattern.getThrowHand(t, iteration),
-    //         toRole: findPosition(pattern.getToPasserIdxAtThrow(t)).role,
-    //         toHand: pattern.getTargetHand(t, iteration),
-    //         label: (t.throwBeat + 1).toString()
-    //     }
-    // }
-
-    // console.log(throws)
-    const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassLayout> = new Map()
-    const passesPerBeat: Map<number, PassLayout[]> = new Map()
-    const passAnimations: PassAnimation[] = []
-    const nrIterations = pattern.iterationsUntilRepeat()
-    const completePatternLength = pattern.getLength() * nrIterations
-    // for every iteration of a complete cycle
-    for (let iteration = 0; iteration < nrIterations; iteration++)
-        //every throw that is a pass
-        for (const t of pattern.throws)
-            if (t.fromPasserIdx !== pattern.getToPasserIdxAtThrow(t)) {
-                const timeOffset = iteration * pattern.getLength()
-                // // update passes for overall static layout (no movement, no role adjustments)
-                // const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
-                //     const x = pass(t)
-                //     x.label = ""
-                //     return x
-                // })
-                // if (p.label !== "") p.label += ", "
-                // p.label += (t.throwTime + 1)
-
-                // // updated passes for individual frames
-                // const passesOnBeat = getOrUpdate(passesPerBeat, t.throwTime, () => [])
-                // passesOnBeat.push(pass(t))
-
-                // passes for animations
-                const fromPasserRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
-                const fromHand = pattern.getThrowHand(t, iteration)
-                const toPasserRoleAtThrow = pattern.getToPasserRole(t)
-                const toHand = pattern.getTargetHand(t, iteration)
-                passAnimations.push({
-                    pass: {
-                        fromRole: fromPasserRole,
-                        fromHand,
-                        toRole: toPasserRoleAtThrow,
-                        toHand,
-                        label: ""
-                    },
-                    onBeat: timeOffset + t.throwBeat,
-                    mod: completePatternLength,
-                    duration: pattern.nrHands === 4 ? 2 : 1,
-                })
-                // console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
-            }
-    const endOfPatternRelabel: RelabelAnimation[] = []
-    endOfPatternRelabel.push({
-        onBeat: 0,
-        mod: pattern.getLength(),
-        changes: pattern.mapRows.map((r, idx) => [pattern.getRole(0, idx), pattern.getRole(0, r)]),
-    })
-
-
-    // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
-    const movementTriggers: MovementTrigger[] = movement ? movement.map(m => ({
-        onBeat: m.when,
-        mod: pattern.getLength(),
-        role: m.role,
-        duration: m.duration
-    })) : []
-
-
-    return {
-        // static: { positions: positions, passes: passesToRender.values().toArray() },
-        // frames: passesPerBeat.keys().map(k => {
-        //     return {
-        //         label: (k + 1).toString(),
-        //         static: { positions, passes: passesPerBeat.get(k)! }
-        //     }
-        // }).toArray(),
-        animation: {
-            initialPositions: positions,
-            passAnimations: passAnimations,
-            movementSegments,
-            movementSequences,
-            movementTriggers,
-            relabeling: endOfPatternRelabel,
-            speed: pattern.nrHands === 4 ? 2 : 1
-        },
-        background
-    }
-}
-
-
-
-
 
 
 
@@ -409,10 +296,6 @@ function getCirclePosition(degree: number): [number, number] {
 
 
 
-export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
-    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ['A', 'B', 'C', 'D', 'E']))
-}
-
 
 function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: number, nrHands: number): Hand[][] {
     const result = []
@@ -542,7 +425,7 @@ function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, H
 }
 
 function getPatternLength(throws: [number, Beat, Hand | undefined, string][], nrHands: number): number {
-    return throws.reduce((max, v) => Math.max(max, v[2] === undefined ? v[1] : v[1] + nrHands/2), 0) + 1
+    return throws.reduce((max, v) => Math.max(max, v[2] === undefined ? v[1] : v[1] + nrHands / 2), 0) + 1
 }
 
 function getJames(rawPattern: TPatternRow[]): boolean[] {

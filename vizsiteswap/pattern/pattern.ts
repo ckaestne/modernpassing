@@ -418,7 +418,7 @@ export type GroupPatternLayout = {
     // they are separately, and partially redundantly encoded
     // static: GroupPatternStaticLayout,
     // frames?: FrameLayout[],
-    animation?: AnimationLayout,
+    animation: AnimationLayout,
     background?: BackgroundLayout[]
 }
 // export type FrameLayout = { label: string, static: GroupPatternStaticLayout }

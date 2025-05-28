@@ -75,7 +75,7 @@ export function resolveManipulatorPositionAndRotation(layout: AnimationLayout, a
     return [x + offsetX, y + offsetY, absoluteRotation]
 }
 
-export function applyManipulatorLayout(pattern: Pattern, initialLayout: GroupPatternLayout): GroupPatternLayout {
+export function applyManipulatorLayout(initialLayout: GroupPatternLayout, pattern: Pattern): GroupPatternLayout {
     if (initialLayout.animation) {
         return {
             ...initialLayout,
