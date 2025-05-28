@@ -441,7 +441,7 @@ export function renderAnimation(
 
     // canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
-    const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
+    // const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
         const pos = layout.initialPositions[roleIdx]
         const [x, y] = scale.scale(pos.x, pos.y)
@@ -457,7 +457,7 @@ export function renderAnimation(
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
         l.children()[0].attr({ x: null })
 
-        positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
+        // positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
         let movementSequence: number[] = []
         if (layout.movementSequences && layout.movementSequences[roleIdx]) {
@@ -479,6 +479,27 @@ export function renderAnimation(
         if (t >= 0) timers[t][2] += js
         else timers.push([beat, mod, js])
     }
+    function animateMovement(onBeat: number, mod: number, role: string, duration: number, createSegmentCode: string) {
+        const seg = genId()
+        const pos = genId()
+        const path = genId()
+        addJs(onBeat, mod, `//
+        const ${pos} = getPositionByRole(data, '${role}');
+        const ${seg} = ${createSegmentCode.replaceAll('$POS', pos)};
+        const ${path} = genPath(s, ${seg});
+        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
+            after(${pos}[3]).back().hide();
+        console.log('moving on ${onBeat} from '+${seg}.fromX+', '+${seg}.fromY+' to '+${seg}.toX+', '+${seg}.toY);
+        ${pos}[3].
+            animate({duration:${duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
+            on('start', function(){${path}.show();}).
+            during(function (pos) {
+                const p = ${path}.pointAt(pos * ${path}.length());
+                ${pos}[3].center(p.x, p.y);
+            }).
+            after(function(){updateLocation(${pos}, ${seg}.toX, ${seg}.toY);${path}.remove();});      `
+        )
+    }
 
 
     for (const passAnimation of layout.passAnimations) {
@@ -493,24 +514,14 @@ export function renderAnimation(
            after(function(){${v}.remove()});`)
     }
     for (const movementTrigger of layout.movementTriggers) {
-        const seg = genId()
-        const pos = genId()
-        const path = genId()
-        addJs(movementTrigger.onBeat, movementTrigger.mod, `//
-        const ${seg} = nextMove(data, '${movementTrigger.role}');
-        const ${pos} = getPositionByRole(data, '${movementTrigger.role}');
-        const ${path} = genPath(s, ${seg});
-        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
-            after(${pos}[3]).back().hide();
-        ${pos}[3].
-            animate({duration:${movementTrigger.duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
-            on('start', function(){${path}.show();}).
-            during(function (pos) {
-                const p = ${path}.pointAt(pos * ${path}.length());
-                ${pos}[3].center(p.x, p.y);
-            }).
-            after(function(){updateLocation(${pos}, ${seg}.toX, ${seg}.toY);${path}.remove();});      `
-        )
+        animateMovement(movementTrigger.onBeat, movementTrigger.mod, movementTrigger.role, movementTrigger.duration, 
+            `nextMove(data, '${movementTrigger.role}')`
+        )       
+    }
+    for (const directMovement of layout.directMovements || []) {
+        animateMovement(directMovement.onBeat, directMovement.mod, directMovement.role, directMovement.duration, 
+            `{ fromX: $POS[1], fromY: $POS[2], path: [], toX: ${scale.scalex(directMovement.x)}, toY: ${scale.scaley(directMovement.y)} }`
+        )                
     }
     if (beatIndicator && beatXOffsets && beatXOffsets.length == patternLength + 1) {
         beatIndicator.x(beatXOffsets[0])
