@@ -489,7 +489,7 @@ export function renderAnimation(
         const ${path} = genPath(s, ${seg});
         ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
             after(${pos}[3]).back().hide();
-        console.log('moving on ${onBeat} from '+${seg}.fromX+', '+${seg}.fromY+' to '+${seg}.toX+', '+${seg}.toY);
+        console.log('${role} moving on ${onBeat} from '+${seg}.fromX+', '+${seg}.fromY+' to '+${seg}.toX+', '+${seg}.toY);
         ${pos}[3].
             animate({duration:${duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
             on('start', function(){${path}.show();}).

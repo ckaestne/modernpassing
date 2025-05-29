@@ -45,7 +45,7 @@ Deno.test('basics of abstract positions', () => {
     assert(pos.some(p => p.role === "M" && p.beat === 4 && p.between[0] === "A" && p.between[1] === "B"), "intercept")
     assert(pos.some(p => p.role === "M" && p.beat === 6 && p.between[0] === "B" && p.between[1] === "B"), "carry")
 
-    assert(mov.some(m => m.from === "M" && m.to==="B" && m.beat === 6.5), "first movement")
+    assert(mov.some(m => m.role === "M" && m.to==="B" && m.beat === 6.5), "first movement")
 
 })
 

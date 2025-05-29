@@ -19,8 +19,8 @@ export type ManipulatorPosition = {
 export type TakePosition = {
     beat: number,
     length: number, // how long the swap lasts
-    from: Role,
-    to: Role
+    role: Role,
+    to: Role // role of a base manipulator
 }
 
 
@@ -56,8 +56,15 @@ export function resolveManipulatorPositionAndRotation(layout: AnimationLayout, a
     // TODO maybe redo this to make it relative to a specific pass (i.e. handling crossing/straight,
     //  which indication of whether to stand left/right of the pass and early/middle/late/very late)
     // rather than specific numbers
-    const [fromX, fromY] = getLocation(layout, abstractPosition.beat, abstractPosition.between[0])
+
+
     const [toX, toY] = getLocation(layout, abstractPosition.beat, abstractPosition.between[1])
+    // TODO for positioning relative to a self, for now we assume that the manipulator is facing
+    // the manipulated from the middle of the space, as if they were manipulating a pass comming
+    // from the point mirror position of the space.
+    const [fromX, fromY] = abstractPosition.between[0]!== abstractPosition.between[1] ?
+        getLocation(layout, abstractPosition.beat, abstractPosition.between[0]) :
+        [1-toX, 1-toY] 
 
     const x = fromX + (toX - fromX) * (1 - abstractPosition.side)
     const y = fromY + (toY - fromY) * (1 - abstractPosition.side)
@@ -145,6 +152,7 @@ export function applyManipulatorAnimationLayout(pattern: Pattern, initialLayout:
                 priorX = x;
                 priorY = y;
                 priorRotation = rotation;
+                console.log(`const [${x}, ${y}, ${rotation}] = resolveManipulatorPositionAndRotation(newLayout, ${JSON.stringify(abstractPosition)})`)
                 newLayout.directMovements!.push({
                     onBeat: mod(abstractPosition.beat-1, pattern.getLength()),// TODO: this is dangerous, this might be a different role 1 beat earlier
                     mod: pattern.getLength(),
@@ -160,12 +168,13 @@ export function applyManipulatorAnimationLayout(pattern: Pattern, initialLayout:
 
     for (const abstractMovement of abstractMovements) {
         const [toX, toY] = getLocation(newLayout, abstractMovement.beat, abstractMovement.to)
+        // console.log(`const [${toX}, ${toY}] = getLocation(newLayout, ${abstractMovement.beat}, ${abstractMovement.to}`)
 
         // add a movement segment for the take
         newLayout.directMovements!.push({
             onBeat: mod(abstractMovement.beat, pattern.getLength()),
             mod: pattern.getLength(),
-            role: abstractMovement.from,
+            role: abstractMovement.role,
             x: toX,
             y: toY,
             duration: abstractMovement.length,
@@ -204,7 +213,7 @@ export function getAbstractPositionsFromPattern(pattern: Pattern): [ManipulatorP
                 beat: t.throwBeat,
                 role: manipulatorRole,
                 between: [marker.fromRole, marker.toRoleAtThrow],
-                side: 0.5, // TODO distinguish different substitutions
+                side: marker.fromRole != marker.toRoleAtThrow ? 0.5 : 0.4, // TODO distinguish different substitutions
                 offset: 0, // TODO distinguish different substitutions
                 direction: 90 // substitutions by facing outside toward the pass // TODO distinguish different substitutions
             });
@@ -224,12 +233,12 @@ export function getAbstractPositionsFromPattern(pattern: Pattern): [ManipulatorP
                 direction: 180 // face the origin of the pass
             });
             // once the pass lands, go to the position of the manipulated
-            const landingOffset = .25 * pattern.nrHands;
+            const landingOffset = pattern.nrHands;
             abstractMovement.push({
                 beat: t.throwBeat + t.throwLength - landingOffset,
-                length: landingOffset,
-                from: manipulatorRole,
-                to: marker.originalToRoleAtThrow
+                length: 1,
+                role: marker.originalToRoleAtThrow, // this is after the role swap
+                to: marker.originalToRoleAtThrow // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
             });
         }
 
@@ -238,11 +247,12 @@ export function getAbstractPositionsFromPattern(pattern: Pattern): [ManipulatorP
             const marker: CarryMarker = t.markers!.find(m => m.kind === "C") as CarryMarker;
             const manipulatorRole = pattern.getFromPasserRole(t);
 
+            // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
             abstractPositions.push({
                 beat: t.throwBeat,
                 role: manipulatorRole,
                 between: [marker.originalFromRole, marker.toRoleAtThrow],
-                side: 0.2, // stand in front of target
+                side: 0.4, // stand in front of target
                 offset: 0, // stand in the passing lane // TODO distinguish different carries
                 direction: 0 // face the receiver
             });
