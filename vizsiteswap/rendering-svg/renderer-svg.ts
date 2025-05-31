@@ -51,7 +51,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         showPasserRoles,
         passerRolesOffset,
         passerRolesTextSize,
-        } = cfg;
+    } = cfg;
 
 
 
@@ -80,7 +80,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
         return r
     }
 
-    const anyRelabel = p.mapRows.some((v,i) => v!==i)
+    const anyRelabel = p.mapRows.some((v, i) => v !== i)
     const relabelWidth = passerRolesOffset
     const width = xMargin * 2 + throwCircleSize / 2 +
         (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
@@ -98,7 +98,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     const ladderOffset = lineKind === "ladder" ? 4 : 0
     function causalLine(svg: Svg, t: RenderedThrow) {
         //no lines for 0s
-        if (t.throwLength===0) return
+        if (t.throwLength === 0) return
 
         const startTime = t.throwTime
         const endTime = lineKind === "ladder" ? t.rethrowTime : t.causeTime
@@ -183,14 +183,14 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg
     if (showPasserRoles) {
         // console.log(p.relabel)
         for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
-            svg.text("").plain(p.getRole(0,passerIdx) + ":").
+            svg.text("").plain(p.getRole(0, passerIdx) + ":").
                 addClass("passer-roles").
                 font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(xMargin + passerRolesOffset / 2)
             if (anyRelabel) {
                 const newLabel = p.getInitialRoles()[p.mapRows[passerIdx]]
                 if (newLabel) {
-                    svg.text("").plain("→ " + p.getRole(p.getLength(),passerIdx)).
+                    svg.text("").plain("→ " + p.getRole(p.getLength(), passerIdx)).
                         addClass("passer-roles-relabel").
                         font({ size: passerRolesTextSize, 'text-anchor': "end", fill: annotationTextColor, 'dominant-baseline': "central" }).
                         amove(0, yo(passerIdx, null)).cx(width - xMargin - relabelWidth / 2 - throwCircleSize / 2)
@@ -255,7 +255,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
             const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
             javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
-        } 
+        }
         // else
         //     renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })
@@ -419,11 +419,12 @@ export function renderAnimation(
     config: RenderLayoutConfig,
     patternLength: number,
     beatIndicator: Line | null = null, beatXOffsets: number[] | null = null): string {
-    let javascript = `    const data = {
-        positions: [],
-        segmentOffset: 0,
-        segments: []
-    }; const g = SVG('#${canvas.id()}'); `
+
+
+    const counter = canvas.text('_').cx(10).cy(10).fill("black")
+
+
+    let javascript = `const data = initialize('#${canvas.id()}', ${layout.speed}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -464,11 +465,11 @@ export function renderAnimation(
             movementSequence = layout.movementSequences[roleIdx]
         }
 
-        //[role, x, y, svgCircle, svgLabel]
-        javascript += `data.positions.push(['${pos.role}', ${x}, ${y}, SVG('#${g.id()}'), SVG('#${l.id()}'), ${JSON.stringify(movementSequence)}])\n`
+        // addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[])
+        javascript += `addPosition(data, '${pos.role}', ${x}, ${y}, '#${g.id()}', '#${l.id()}', ${JSON.stringify(movementSequence)});\n`
     }
 
-    javascript += `data.segments = ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))};\n`
+    javascript += `initializeSegments(data, ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))});\n`
 
     const timers: [number/*beat*/, number/*mod*/, string/*code*/][] = []
     function addJs(when: number, mod: number, js: string) {
@@ -479,84 +480,32 @@ export function renderAnimation(
         if (t >= 0) timers[t][2] += js
         else timers.push([beat, mod, js])
     }
-    function animateMovement(onBeat: number, mod: number, role: string, duration: number, createSegmentCode: string) {
-        const seg = genId()
-        const pos = genId()
-        const path = genId()
-        addJs(onBeat, mod, `//
-        const ${pos} = getPositionByRole(data, '${role}');
-        const ${seg} = ${createSegmentCode.replaceAll('$POS', pos)};
-        const ${path} = genPath(s, ${seg});
-        ${path}.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function(add){ add.path('M0,0 L5,2.5 L0,5').fill('lightgrey')}).fill('none').
-            after(${pos}[3]).back().hide();
-        console.log('${role} moving on ${onBeat} from '+${seg}.fromX+', '+${seg}.fromY+' to '+${seg}.toX+', '+${seg}.toY);
-        ${pos}[3].
-            animate({duration:${duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
-            on('start', function(){${path}.show();}).
-            during(function (pos) {
-                const p = ${path}.pointAt(pos * ${path}.length());
-                ${pos}[3].center(p.x, p.y);
-            }).
-            after(function(){updateLocation(${pos}, ${seg}.toX, ${seg}.toY);${path}.remove();});      `
-        )
-    }
-
 
     for (const passAnimation of layout.passAnimations) {
         const pass = passAnimation.pass
-
-        const v = genId()
-
-        addJs(passAnimation.onBeat, passAnimation.mod, `//
-        let ${v} = null;
-        s.animate({duration:${passAnimation.duration * 1000 / layout.speed},when:'now',delay:$DELAY}).
-           on('start',function(){${v}=renderPass(data, g,'${pass.fromRole}',${pass.fromHand},'${pass.toRole}',${pass.toHand},'${pass.label}')}).
-           after(function(){${v}.remove()});`)
+        // export function animatePass(data: Data, when: number, mod: number, fromRole: Role, fromHand: Hand, toRole: Role, toHand: Hand, label: string, duration: number): void {        
+        javascript += `animatePass(data, ${passAnimation.onBeat}, ${passAnimation.mod}, '${pass.fromRole}', ${pass.fromHand}, '${pass.toRole}', ${pass.toHand}, '${pass.label}', ${passAnimation.duration});\n`
     }
     for (const movementTrigger of layout.movementTriggers) {
-        animateMovement(movementTrigger.onBeat, movementTrigger.mod, movementTrigger.role, movementTrigger.duration, 
-            `nextMove(data, '${movementTrigger.role}')`
-        )       
+        //export function animateBaseMovement(data: Data, role: Role, onBeat: number, durationMS: number, delayMS: number): Runner {
+        javascript += `animateBaseMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration}, ${movementTrigger.onBeat}, ${movementTrigger.mod});\n`
     }
     for (const directMovement of layout.directMovements || []) {
-        animateMovement(directMovement.onBeat, directMovement.mod, directMovement.role, directMovement.duration, 
-            `{ fromX: $POS[1], fromY: $POS[2], path: [], toX: ${scale.scalex(directMovement.x)}, toY: ${scale.scaley(directMovement.y)} }`
-        )                
+        // javascript += `animateMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration}, ${movementTrigger.onBeat}, ${movementTrigger.mod});\n`
+        // animateMovement(directMovement.onBeat, directMovement.mod, directMovement.role, directMovement.duration,
+        //     `{ fromX: $POS[1], fromY: $POS[2], path: [], toX: ${scale.scalex(directMovement.x)}, toY: ${scale.scaley(directMovement.y)} }`
+        // )
     }
-    if (beatIndicator && beatXOffsets && beatXOffsets.length == patternLength + 1) {
-        beatIndicator.x(beatXOffsets[0])
-        beatIndicator.show()
-        javascript += `const beatoffsets = ${JSON.stringify(beatXOffsets)}; const beatIndicator = SVG('#${beatIndicator.id()}');`
-    } else javascript += `const beatIndicator = null;`
 
-    let relabelJs = ""
     for (const relabelTrigger of layout.relabeling) {
         checkRelabel(relabelTrigger.changes)
-        relabelJs += `if (time%${relabelTrigger.mod}==${relabelTrigger.onBeat}) 
-                        relabel(data, ${JSON.stringify(relabelTrigger.changes)});        `
-
+        // export function addRelabeling(data: Data, when: number, mod: number, changes: [Role, Role][]) {        
+        javascript += `addRelabeling(data, ${relabelTrigger.onBeat}, ${relabelTrigger.mod}, ${JSON.stringify(relabelTrigger.changes)});\n`
     }
 
-    const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
-    javascript += `const s = SVG('#${canvas.id()}');
-    const counter = SVG('#${counter.id()}');
-    timeline=s.timeline();
-    let time=-1;
-    let first = true
-    addTimer(()=>{
-        time++;
-        const beatIdx = time%${patternLength};
-        counter.text((beatIdx+1).toString());
-        if (!first) { ${relabelJs} } else first=false;
-        ${timers.map(([beat, mod, js]) => `if ((time%${mod})==${beat}) { ${js} }`).join("\n")}
-        if (beatIndicator) {            
-            beatIndicator.
-                animate({duration:1000/${layout.speed},when:'now',delay:0}).x(beatoffsets[(beatIdx+1)]).
-                after(()=>beatIndicator.x(beatoffsets[(beatIdx+1)%${patternLength}]));
-        }
-    }, ${layout.speed})
-    timeline.play();`
+    javascript += `startAnimation(data, ${patternLength});\n`
+    
 
     canvas.rect(width, height).fill('none').stroke("none")
 
@@ -574,10 +523,10 @@ function getXOffset(cfg: RendererConfig, time: number): number {
 
 
 function checkRelabel(changes: [string, string][]) {
-    const froms = changes.map(s=>s[0])
-    const tos = changes.map(s=>s[0])
+    const froms = changes.map(s => s[0])
+    const tos = changes.map(s => s[0])
 
     for (const f of froms)
         if (!tos.includes(f))
-          throw new Error(`Relabeling is inconsistent, loosing roles (${f} is relabeled, but nothing is relabeled to ${f}`);
+            throw new Error(`Relabeling is inconsistent, loosing roles (${f} is relabeled, but nothing is relabeled to ${f}`);
 }

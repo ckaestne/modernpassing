@@ -196,7 +196,7 @@ test("create basic group sync examples", async (t) => {
         content += `<h2>${p}</h2><p>${svg.svg()}</p><script>window.addEventListener("load",function(){${js}\n})\n</script><pre>${js}</pre>`
     }
 
-    content += "     <script src=\"../../runtime/animations.js\"></script>  <script src=\"../../runtime/svg.min.js\"></script></html>"
+    content += "     <script src=\"../../dist/animations.js\"></script>  <script src=\"../../dist/svg.min.js\"></script></html>"
     fs.writeFileSync("test/pattern_animation.html", content);
 
 

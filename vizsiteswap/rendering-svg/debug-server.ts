@@ -6,6 +6,8 @@ import { prettyPrintThrowsSvg } from "./debug-renderer-svg.ts";
 import { renderGroupPattern } from "./renderer-svg.ts";
 import { nextTick } from "node:process";
 import { applyManipulations, fillPatternGaps } from "../manipulation/manipulator-processing.ts";
+import { transpile } from "jsr:@deno/emit";
+import * as path from "jsr:@std/path";
 
 const app = new Application();
 
@@ -53,7 +55,7 @@ app.use(async (ctx, next) => {
     console.log(ctx.request.url.pathname)
     if (ctx.request.url.pathname === "/animations.js") {
         try {
-            const text = await Deno.readTextFile("../runtime/animations.js");
+            const text = await Deno.readTextFile("dist/animations.js");
             ctx.response.body = text;
             ctx.response.type = "application/javascript";
         } catch (e) {
@@ -107,6 +109,22 @@ app.use(async (ctx, next) => {
     }
     else next()
 });
+
+ 
+// console.log("Updating runtime.js")
+// const js_path = path.join("..","runtime");
+// const url = new URL("../runtime/animations.ts", import.meta.url);
+// const result = await transpile(url);
+// const code = await result.get(url.href);
+// await Deno.mkdir(js_path, { mode: 0o775, recursive: true });
+// Deno.writeTextFile("../dist/animations.js", "// GENERATED CODE. DO NOT MODIFY //\n" + code!);
+const url = new URL("../runtime/animations.ts", import.meta.url);
+const source = await Deno.readTextFile(url.pathname);
+const sourceWithoutImports = source.replace(/^import.*$/gm, '')//.replace(/^\s*$/gm, '').replace(/^\n+/g, '');
+const u = new URL(`data:text/typescript,${encodeURIComponent(sourceWithoutImports)}`)
+const result = await transpile(u);
+const code = await result.get(u.href)?.replaceAll("export","");
+Deno.writeTextFile("dist/animations.js", "// GENERATED CODE. DO NOT MODIFY //\n" + code!);
 
 // Define the port
 const port = 8000;

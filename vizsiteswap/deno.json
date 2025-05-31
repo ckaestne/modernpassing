@@ -1,5 +1,5 @@
 {
-    "workspace": ["./pattern", "./parsing", "./rendering-core", "./rendering-svg", "./rendering-tikz","./svg-utils","./manipulation"],
+    "workspace": ["./pattern", "./parsing", "./rendering-core", "./rendering-svg", "./rendering-tikz","./svg-utils","./manipulation","./runtime"],
     "compilerOptions": {
         "strict": true,
         "noImplicitAny": true,
@@ -9,5 +9,8 @@
         "strictPropertyInitialization": true,
         "noImplicitThis": true
     },
-    "nodeModulesDir": "none"
+    "nodeModulesDir": "none",
+    "imports": {
+        "@deno/emit": "jsr:@deno/emit@^0.46.0"
+    }
 }
