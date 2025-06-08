@@ -1,6 +1,6 @@
 
 import { SVG } from "@svgdotjs/svg.js";
-import { addPosition, addRelabeling, animateBaseMovement, animatePass, Data, getLocationByRoleInFugure, initialize, initializeSegments } from './animations.ts';
+import { addPosition, addRelabeling, animateBaseMovement, setPasses, Data, getLocationByRoleInFugure, initialize, initializeSegments } from './animations.ts';
 import { createSVG } from '@modernpassing/svg-utils';
 import assert from "node:assert";
 
@@ -116,24 +116,24 @@ function createV(): Data {
         "toX": 47,
         "toY": 121
     }]);
-    animatePass(data, 0, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 0, 18, 'B', 0, 'A', 1, '', 1);
-    animatePass(data, 2, 18, 'A', 0, 'C', 1, '', 1);
-    animatePass(data, 2, 18, 'C', 0, 'A', 1, '', 1);
-    animatePass(data, 4, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 4, 18, 'B', 0, 'A', 1, '', 1);
-    animatePass(data, 6, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 6, 18, 'B', 0, 'A', 1, '', 1);
-    animatePass(data, 8, 18, 'A', 0, 'C', 1, '', 1);
-    animatePass(data, 8, 18, 'C', 0, 'A', 1, '', 1);
-    animatePass(data, 10, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 10, 18, 'B', 0, 'A', 1, '', 1);
-    animatePass(data, 12, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 12, 18, 'B', 0, 'A', 1, '', 1);
-    animatePass(data, 14, 18, 'A', 0, 'C', 1, '', 1);
-    animatePass(data, 14, 18, 'C', 0, 'A', 1, '', 1);
-    animatePass(data, 16, 18, 'A', 0, 'B', 1, '', 1);
-    animatePass(data, 16, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 0, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 0, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 2, 18, 'A', 0, 'C', 1, '', 1);
+    setPasses(data, 2, 18, 'C', 0, 'A', 1, '', 1);
+    setPasses(data, 4, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 4, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 6, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 6, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 8, 18, 'A', 0, 'C', 1, '', 1);
+    setPasses(data, 8, 18, 'C', 0, 'A', 1, '', 1);
+    setPasses(data, 10, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 10, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 12, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 12, 18, 'B', 0, 'A', 1, '', 1);
+    setPasses(data, 14, 18, 'A', 0, 'C', 1, '', 1);
+    setPasses(data, 14, 18, 'C', 0, 'A', 1, '', 1);
+    setPasses(data, 16, 18, 'A', 0, 'B', 1, '', 1);
+    setPasses(data, 16, 18, 'B', 0, 'A', 1, '', 1);
     addRelabeling(data, 0, 6, [["A", "B"], ["B", "C"], ["C", "A"]]);
     return data
 }

@@ -6,7 +6,7 @@
  * with little computation in the frontend.
  */
 
-import { assert } from "node:console";
+import assert  from "node:assert";
 import { Hand, Role } from "../pattern/pattern.ts";
 import type { AnimationPlan, DirectMovementAnimation, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "./animation-plan.ts";
 import type { AnimationSpec, MovementTriggerSpec, PassSpec, RelabelSpec } from "./animation-spec.ts";
@@ -16,7 +16,7 @@ import { Path, Svg } from "@svgdotjs/svg.js";
 
 
 
-function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan {
+export function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan {
     // all roles, this is used to create ids
     const roles = animationSpec.initialPositions.map(pos => pos.role)
     function passerId(role: Role): number { return roles.indexOf(role) }
@@ -56,15 +56,16 @@ function convertPassAnimation(locationMgr: LocationMgr): (passSpec: PassSpec) =>
 
         const result: PassAnimation[] = []
         for (let time = passSpec.onBeat; time < locationMgr.mod; time += passSpec.mod) {
-            const [fromX, fromY] = locationMgr.getLocation(time, passSpec.pass.fromRole)
-            // get location for the "to" position, at the beat that the pass arrives
-            const [toX, toY] = locationMgr.getLocation((time + passSpec.duration) % locationMgr.mod, passSpec.pass.toRole)
+            const [fromX, fromY] = locationMgr.getLocationByRole(time, passSpec.pass.fromRole)
+            // get location for the "to" position, at the beat that the pass arrives (role may have changed, we use the role at the time the pass is thrown to identify the target passer)
+            const toPasserIdx = locationMgr.getPasserIdx(time, passSpec.pass.toRole);
+            const [toX, toY] = locationMgr.getLocation((time + passSpec.duration) % locationMgr.mod, toPasserIdx)
 
-            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand)
+            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand,0.22,0.01)
 
 
             result.push({
-                onBeat: passSpec.onBeat,
+                onBeat: time,
                 duration: passSpec.duration,
 
                 fromX: fromHandX,
@@ -86,7 +87,7 @@ function convertBaseMovement(locationMgr: LocationMgr, animationSpec: AnimationS
     const result: SegmentMovementAnimation[] = [];
     for (const m of locationMgr.movements) {
         result.push({
-            onBeat: m.onBeat,
+            onBeat: m.onBeat % locationMgr.mod, 
             passerId: m.passerIdx,//TODO this probably needs to change for animations
             duration: m.duration,
 
@@ -133,14 +134,23 @@ export class LocationMgr {
         this.roles = roles;
     }
 
+    getLocationByRole(time: number, role: Role): [number, number] {
+        const passerIdx = this.getPasserIdx(time, role);
+        return this.getLocation(time, passerIdx);
+    }
 
-    getLocation(time: number, role: Role): [number, number] {
+    getPasserIdx(time: number, role: Role): number {
         const rolesAtTime = this.roles.findLast(r => r[0] <= time % this.mod)![1]
         const passerIdx = rolesAtTime.indexOf(role);
+        assert(passerIdx !== -1, `Role ${role} not found at time ${time} in animation mod ${this.mod}.`);
+        return passerIdx;
+    }
+
+    getLocation(time: number, passerIdx: number): [number, number] {
         let lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx && m.onBeat <= time % this.mod)
         if (!lastMoveBeforeTime)
             lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx); // let's assume there are no conflicting/overlapping walking instructions, so we are just looking for the last pass before the move before the pattern wraps if there was no move yet
-        assert(lastMoveBeforeTime, `No movement found for role ${role} at time ${time} in animation mod ${this.mod}.`);
+        assert(lastMoveBeforeTime, `No movement found for passer ${passerIdx} at time ${time} in animation mod ${this.mod}.`);
 
         const segment = lastMoveBeforeTime!.segment;
         if ((lastMoveBeforeTime!.onBeat + lastMoveBeforeTime!.duration) % this.mod < time % this.mod) {
@@ -173,12 +183,12 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
     const overallMod = passMods.reduce((acc, mod) => lcm(acc, mod), movementMods.reduce((acc, mod) => lcm(acc, mod), 1));
 
 
-    const movements: LocationMgrMovement[] = []
+    let movements: LocationMgrMovement[] = []
 
     const currentSequences = animationSpec.baseMovementSequences.slice()
     const initialRoles = animationSpec.initialPositions.map(p => p.role);
     let currentRoles = initialRoles
-    const roles: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
+    let roles: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
     let time = 0
     while (true) {
         // relabeling
@@ -218,6 +228,8 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
 
+    roles = roles.filter(r => r[0] < time); 
+    movements = movements.filter(m => m.onBeat < time); 
 
     return new LocationMgr(
         animationSpec.initialPositions.map(p => [p.role, p.x, p.y]),
@@ -280,7 +292,7 @@ function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number
     labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
 
 
-    return [Math.round(x3), Math.round(y3), Math.round(x4), Math.round(y4), Math.round(labelX), Math.round(labelY)]
+    return [x3, y3, x4, y4, labelX, labelY]
 }
 
 

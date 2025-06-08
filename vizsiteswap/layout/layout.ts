@@ -42,8 +42,10 @@ type BackgroundPathLayout = {
 }
 
 
-export type { MovementSegmentSpec } from "./animation-spec.ts";
+export * from "./animation-spec.ts";
 export { createShapeLayout } from "./pattern-shapes.ts";
 export type { TLayout, TShape, TMovement, TMovementStep } from "./pattern-shapes.ts";
 export {  supportedMovement, supportedShapes } from "./pattern-shapes.ts";
 export { loadPathsFromSvg } from "./pattern-paths-loader.ts";
+export * from "./animation-plan.ts";
+export { createAnimationPlan } from "./create-animation-plan.ts";

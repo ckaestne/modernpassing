@@ -1,9 +1,10 @@
-import type { GroupPattern, AnimationLayout, BackgroundLayout } from "@modernpassing/layout";
+import type { GroupPattern, BackgroundLayout } from "@modernpassing/layout";
 import { Hand, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, defaultRendererConfig, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
+import { AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 
 
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
@@ -255,7 +256,8 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (gp.layout.animation) {
             const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
             const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
-            javascript += renderAnimation(gp.layout.animation!, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
+            const animationPlan = createAnimationPlan(gp.layout.animation!)
+            javascript += renderAnimation(animationPlan, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
         }
         // else
         //     renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
@@ -415,17 +417,19 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
 
 
 export function renderAnimation(
-    layout: AnimationLayout,
+    layout: AnimationPlan,
     width: number, height: number, canvas: Container,
     config: RenderLayoutConfig,
     patternLength: number,
-    beatIndicator: Line | null = null, beatXOffsets: number[] | null = null): string {
+    beatIndicator: Line | null = null, beatXOffsets: number[] | null = null,
+    speed: number = 1
+): string {
 
 
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
 
-    let javascript = `const data = initialize('#${canvas.id()}', ${layout.speed}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
+    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -452,7 +456,7 @@ export function renderAnimation(
         const g = canvas.group()
         const c = canvas.circle(config.positionCircle - strokeWidth).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
         c.center(x, y)
-        const l = canvas.text(pos.role).
+        const l = canvas.text(pos.initialRole).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "middle", 'font-weight': "bold" }).
             center(x, y)
         g.add(c).add(l)
@@ -461,50 +465,16 @@ export function renderAnimation(
 
         // positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
-        let movementSequence: number[] = []
-        if (layout.movementSequences && layout.movementSequences[roleIdx]) {
-            movementSequence = layout.movementSequences[roleIdx]
-        }
-
         // addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[])
-        javascript += `addPosition(data, '${pos.role}', ${x}, ${y}, '#${g.id()}', '#${l.id()}', ${JSON.stringify(movementSequence)});\n`
+        javascript += `addPosition(data, ${pos.passerId}, '${pos.initialRole}', ${x}, ${y}, '#${g.id()}', '#${l.id()}');\n`
     }
 
-    javascript += `initializeSegments(data, ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))});\n`
-
-    const timers: [number/*beat*/, number/*mod*/, string/*code*/][] = []
-    function addJs(when: number, mod: number, js: string) {
-        const beat = Math.floor(when % mod)
-        const delay = (when % mod) - beat
-        const t = timers.findIndex(([b, m, _]) => b === beat && m === mod)
-        js = js.replace(/\$DELAY/g, Math.round(delay * 1000 / layout.speed).toString())
-        if (t >= 0) timers[t][2] += js
-        else timers.push([beat, mod, js])
-    }
-
-    for (const passAnimation of layout.passAnimations) {
-        const pass = passAnimation.pass
-        // export function animatePass(data: Data, when: number, mod: number, fromRole: Role, fromHand: Hand, toRole: Role, toHand: Hand, label: string, duration: number): void {        
-        javascript += `animatePass(data, ${passAnimation.onBeat}, ${passAnimation.mod}, '${pass.fromRole}', ${pass.fromHand}, '${pass.toRole}', ${pass.toHand}, '${pass.label}', ${passAnimation.duration});\n`
-    }
-    for (const movementTrigger of layout.movementTriggers) {
-        //export function animateBaseMovement(data: Data, role: Role, onBeat: number, durationMS: number, delayMS: number): Runner {
-        javascript += `animateBaseMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration});\n`
-    }
-    for (const directMovement of layout.directMovements || []) {
-        // javascript += `animateMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration}, ${movementTrigger.onBeat}, ${movementTrigger.mod});\n`
-        // animateMovement(directMovement.onBeat, directMovement.mod, directMovement.role, directMovement.duration,
-        //     `{ fromX: $POS[1], fromY: $POS[2], path: [], toX: ${scale.scalex(directMovement.x)}, toY: ${scale.scaley(directMovement.y)} }`
-        // )
-    }
-
-    for (const relabelTrigger of layout.relabeling) {
-        checkRelabel(relabelTrigger.changes)
-        // export function addRelabeling(data: Data, when: number, mod: number, changes: [Role, Role][]) {        
-        javascript += `addRelabeling(data, ${relabelTrigger.onBeat}, ${relabelTrigger.mod}, ${JSON.stringify(relabelTrigger.changes)});\n`
-    }
-
-
+    // TODO: scale all coordinates
+    javascript += `setSegments(data, ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))});\n`
+    console.log(layout.passAnimations)
+    javascript += `setPasses(data, ${JSON.stringify(layout.passAnimations.map(scale.scalePass))});\n`
+    javascript += `setSegmentMovements(data, ${JSON.stringify(layout.segmentMovementAnimations)});\n`
+    javascript += `setRelabeling(data, ${JSON.stringify(layout.relabeling)});\n`
     javascript += `startAnimation(data, ${patternLength});\n`
     
 
@@ -522,12 +492,3 @@ function getXOffset(cfg: RendererConfig, time: number): number {
 
 
 
-
-function checkRelabel(changes: [string, string][]) {
-    const froms = changes.map(s => s[0])
-    const tos = changes.map(s => s[0])
-
-    for (const f of froms)
-        if (!tos.includes(f))
-            throw new Error(`Relabeling is inconsistent, loosing roles (${f} is relabeled, but nothing is relabeled to ${f}`);
-}

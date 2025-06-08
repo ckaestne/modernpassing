@@ -1,10 +1,11 @@
 // deno-lint-ignore-file no-explicit-any
 import fs from "node:fs";
 import test from "node:test";
-import type { AnimationLayout,  MovementSegment, PassAnimation, PassLayout } from "@modernpassing/layout";
+import type { AnimationSpec, MovementSegmentSpec, PassLayoutSpec, PassSpec } from "@modernpassing/layout";
 import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground, renderGroupPattern } from "./renderer-svg.ts";
 import { createGroupPattern } from "@modernpassing/parsing";
 import { Hand } from "../pattern/pattern.ts";
+import { createAnimationPlan } from "../layout/create-animation-plan.ts";
 
 test("render first animation (star with a hole)", async (t) => {
 
@@ -17,7 +18,7 @@ test("render first animation (star with a hole)", async (t) => {
         ["E", 0.024, 0.345],
     ]
 
-    function rpass(fromRole: string, toRole: string): PassLayout {
+    function rpass(fromRole: string, toRole: string): PassLayoutSpec {
         return {
             fromRole,
             fromHand: Hand.Right,
@@ -27,7 +28,7 @@ test("render first animation (star with a hole)", async (t) => {
         }
     }
 
-    function move(fromPosIdx: number, toPosIdx: number): MovementSegment {
+    function move(fromPosIdx: number, toPosIdx: number): MovementSegmentSpec {
         return {
             fromX: p[fromPosIdx][1],
             fromY: p[fromPosIdx][2],
@@ -37,9 +38,8 @@ test("render first animation (star with a hole)", async (t) => {
         }
     }
 
-    const animation: AnimationLayout = {
+    const animation: AnimationSpec = {
         initialPositions: p.slice(0, 4).map(([role, x, y], idx) => ({ passerIdx: idx, x, y, role })),
-        speed: 1,
         passAnimations: [
             {
                 pass: rpass("A", "D"),
@@ -60,8 +60,8 @@ test("render first animation (star with a hole)", async (t) => {
                 mod: 4
             },
         ],
-        movementSegments: [move(2, 4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],
-        movementTriggers: [
+        baseMovementSegments: [move(2, 4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],
+        baseMovementTriggers: [
             {
                 onBeat: 1,
                 mod: 4,
@@ -69,7 +69,8 @@ test("render first animation (star with a hole)", async (t) => {
                 duration: 2.9,
             }
         ],
-        movementSequences: [[0, 1, 2, 3, 4], [1, 2, 3, 4, 0], [2, 3, 4, 0, 1], [3, 4, 0, 1, 2], [4, 0, 1, 2, 3]],
+        baseMovementSequences: [[0, 1, 2, 3, 4], [1, 2, 3, 4, 0], [2, 3, 4, 0, 1], [3, 4, 0, 1, 2], [4, 0, 1, 2, 3]],
+        relativeMovements: [],
         relabeling: [
             {
                 onBeat: 0,
@@ -96,7 +97,8 @@ test("render first animation (star with a hole)", async (t) => {
             type: "circle", r: 0.5, x: 0.5, y: 0.5, fill: 'none',
             stroke: 'lightgrey', strokeWidth: 1
         }], 350, 350, svg, defaultRenderLayoutConfig)
-        const js = renderAnimation(p, 350, 350, svg, defaultRenderLayoutConfig, 4)
+        
+        const js = renderAnimation(createAnimationPlan(p), 350, 350, svg, defaultRenderLayoutConfig, 4)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>
         <script>${js}</script>

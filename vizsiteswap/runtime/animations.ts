@@ -2,32 +2,35 @@
  * runtime library for animations
  */
 
-import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner } from  "@svgdotjs/svg.js";
+import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner } from "@svgdotjs/svg.js";
+import type { MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
+import { assert } from "node:console";
+import { posix } from "node:path";
 
 type Role = string
-export type MovementSegment = {
-    fromX: number,
-    fromY: number,
-    path: (number | string)[], // path instructions using C or A for curves and arches in SVG path notation
-    toX: number,
-    toY: number,
-}
+// export type MovementSegmentSpec = {
+//     fromX: number,
+//     fromY: number,
+//     path: (number | string)[], // path instructions using C or A for curves and arches in SVG path notation
+//     toX: number,
+//     toY: number,
+// }
 export enum Hand {
     Right, Left
 }
 
 type Position = {
+    passerId: number, // should be same with index in data.positions
     role: Role,
     x: number, // absolute coordinates in the SVG
     y: number,
     svgCircle: G,
-    svgLabel: Text,
-    segmentSequence: number[]
+    svgLabel: Text
 }
 export type Data = {
+    mod: number,
     positions: Position[],
-    segments: MovementSegment[],
-    segmentOffset: number,
+    segments: MovementSegmentSpec[],
     canvas: Svg,
     timers: Timer[],
     speed: number,
@@ -37,25 +40,12 @@ export type Data = {
     },
     beatLabel?: Text, // optional label to indicate the current beat
     intervalId?: number // interval ID for the animation loop, when running
-
-    baseMovements: [number, number, Role, number][] // array of [when, mod, role, duration] for base movements
 }
 type Timer = {
     beat: number, // the beat on which the timer is scheduled
-    mod: number, // the modulo of the timer
     delay: number, // delay in fraction of a beat (e.g. 0.5 for half a beat)
     priority: number, // the priority of the timer (lower is earlier)
     fn: (delay: number) => void // the function to execute, delay is expressed as fraction of a beat
-}
-type RelativeMovementSpec = {
-    between: [Role, Role], // from/to of the base pass
-    side: number, // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
-    offset: number, // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
-    direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to 
-    futureOffset: number // locations of the roles are determined this many beats in the future, e.g. 0 for the current beat, 1 for the next beat
-} | {    
-    to: Role // take the position of a base manipulator
-    futureOffset: number // find position of `to` this many beats in the future
 }
 
 /**
@@ -68,9 +58,9 @@ type RelativeMovementSpec = {
  * @param beatLabelId Id of a text element that indicates the current beat of the pattern, optional
  * @returns 
  */
-export function initialize(svgId: string, speed: number = 1, beatIndicatorId?: string, beatIndicatorXOffsets?: number[], beatLabelId?: string): Data {
+export function initialize(svgId: string, mod: number, speed: number = 1, beatIndicatorId?: string, beatIndicatorXOffsets?: number[], beatLabelId?: string): Data {
     const beatIndicator = beatIndicatorId && beatIndicatorXOffsets ? {
-        indicator: SVG( beatIndicatorId) as Element,
+        indicator: SVG(beatIndicatorId) as Element,
         xoffsets: beatIndicatorXOffsets
     } : undefined;
     if (beatIndicator) {
@@ -79,15 +69,14 @@ export function initialize(svgId: string, speed: number = 1, beatIndicatorId?: s
     }
     const beatLabel = beatLabelId ? SVG(beatLabelId) as Text : undefined;
     return {
+        mod,
         positions: [],
-        segmentOffset: 0,
         segments: [],
         canvas: SVG(svgId) as Svg,
         timers: [],
         speed,
         beatIndicator,
         beatLabel,
-        baseMovements: [],
     }
 
 
@@ -105,8 +94,9 @@ export function initialize(svgId: string, speed: number = 1, beatIndicatorId?: s
  * @param svgLabelId 
  * @param segmentSequence 
  */
-export function addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[]) {
-    data.positions.push({ role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text, segmentSequence });
+export function addPosition(data: Data, passerId: number, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string) {
+    console.assert(data.positions.length === passerId, `addPosition: passerId must be equal to the current number of positions (${data.positions.length})`);
+    data.positions.push({ passerId, role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text });
 }
 
 /**
@@ -114,7 +104,7 @@ export function addPosition(data: Data, role: Role, x: number, y: number, svgCir
  * @param data mutable data object to store the segments in
  * @param segments 
  */
-export function initializeSegments(data: Data, segments: MovementSegment[]) {
+export function setSegments(data: Data, segments: MovementSegmentSpec[]) {
     data.segments = segments
 }
 
@@ -125,6 +115,7 @@ export function initializeSegments(data: Data, segments: MovementSegment[]) {
  */
 export function startAnimation(data: Data, patternLength: number) {
     const timeline = data.canvas.timeline();
+    data.timers.sort((a, b) => a.beat - b.beat || a.priority - b.priority); // sort by beat and priority
 
     let time = -1;
 
@@ -133,7 +124,7 @@ export function startAnimation(data: Data, patternLength: number) {
         const beatIdx = time % patternLength;
         data.beatLabel?.text((beatIdx + 1).toString());
 
-        const actions = data.timers.filter(t => (time % t.mod) === t.beat).sort((a, b) => a.priority - b.priority);
+        const actions = data.timers.filter(t => (time % data.mod) === t.beat)
         actions.forEach(action => action.fn(action.delay))
         if (data.beatIndicator) {
             data.beatIndicator.indicator.
@@ -152,34 +143,39 @@ export function startAnimation(data: Data, patternLength: number) {
 /**
  * sets up the default movement along the movement segments of the role.
  */
-export function animateBaseMovement(data: Data, when: number, mod: number, role: Role, duration: number): void {
-    animateMovement(data, when, mod, role, () => nextMove(data, role), duration);
-    data.baseMovements.push([when, mod, role, duration]);
-    console.log(data.baseMovements)
+export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAnimation[]): void {
+    for (const spec of movementSpecs) {
+        schedule(data, spec.onBeat, (delay: number) => {
+            const pos = data.positions[spec.passerId]
+            const seg = data.segments[spec.segmentIdx]
+            const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
+            const animatedCircle = pos.svgCircle
+            // gray arrow for the moving path in the background
+            path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
+                after(pos.svgCircle).back().hide();
+            console.log(`${spec.passerId} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
+            const animation: Runner = animatedCircle.animate(spec.duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
+            (animation as any).on('start', function () { path.show(); })
+            animation.during(function (relativeProgress: number) {
+                const p = path.pointAt(relativeProgress * path.length());
+                animatedCircle.center(p.x, p.y);
+            })
+            animation.after(function () { updateLocation(pos, seg.toX, seg.toY); path.remove(); });
+        })
+    }
 }
-// export function animateDirectMovement(data: Data, when: number, mod: number, role: Role, toX: number, toY: number, duration: number): void {
-//     return animateMovement(data, when, mod, role, (pos: Position)=>nextMove(data, role), duration);
-// }
 
 /**
  * sets up a pass between two roles at a given time.
- * @param data 
- * @param when 
- * @param mod 
- * @param fromRole 
- * @param fromHand 
- * @param toRole 
- * @param toHand 
- * @param label 
- * @param duration 
  */
-export function animatePass(data: Data, when: number, mod: number, fromRole: Role, fromHand: Hand, toRole: Role, toHand: Hand, label: string, duration: number): void {
-    schedule(data, when, mod, (delay: number) => {
-        let v: G | undefined = undefined;
-        const animation = data.canvas.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
-        (animation as any).on('start', function () { v = renderPass(data, fromRole, fromHand, toRole, toHand, label) })
-        animation.after(function () { v?.remove() });
-    })
+export function setPasses(data: Data, passes: PassAnimation[]): void {
+    for (const p of passes)
+        schedule(data, p.onBeat, (delay: number) => {
+            let v: G | undefined = undefined;
+            const animation = data.canvas.animate(p.duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
+            (animation as any).on('start', function () { v = renderPass(data, p) })
+            animation.after(function () { v?.remove() });
+        })
 }
 
 /**
@@ -189,113 +185,72 @@ export function animatePass(data: Data, when: number, mod: number, fromRole: Rol
  * @param mod 
  * @param changes 
  */
-export function addRelabeling(data: Data, when: number, mod: number, changes: [Role, Role][]) {
+export function setRelabeling(data: Data, relabelAnimations: RelabelAnimation[]) {
     let first = true
-    schedule(data, when, mod, (delay: number) => {
-        if (first) first = false;
-        else relabel(data, changes);
-    }, 0/*highest priority, should happen first*/)
+    for (const r of relabelAnimations) {
+        schedule(data, r.onBeat, (delay: number) => {
+            if (first) first = false;
+            else relabel(data, r.changes);
+        }, 0/*highest priority, should happen first*/)
+    }
 }
 
 
-/**
- * Schedules a movement relative to locations of the base passers
- * @param data 
- * @param when 
- * @param mod 
- * @param role 
- * @param targetSpec 
- * @param duration 
- */
-export function animateRelativeMovement(data: Data, when: number, mod: number, role: Role, targetSpec: RelativeMovementSpec, duration: number): void {
+// /**
+//  * Schedules a movement relative to locations of the base passers
+//  * @param data 
+//  * @param when 
+//  * @param mod 
+//  * @param role 
+//  * @param targetSpec 
+//  * @param duration 
+//  */
+// export function animateRelativeMovement(data: Data, when: number, mod: number, role: Role, targetSpec: RelativeMovementSpec, duration: number): void {
 
-}
+// }
 
 
 // ================== helper functions ==================
 
-/**
- * schedule a move of a role on any segment
- * 
- * role is the role on beat onBeat
- */
-function animateMovement(data: Data, when: number, mod: number, role: Role, getSeg: (p: Position) => MovementSegment, duration: number): void {
-    schedule(data, when, mod, (delay: number) => {
-        const pos = getPositionByRole(data, role);
-        const seg = getSeg(pos);
-        const path = genPath(data.canvas, seg);
-        const animatedCircle = pos.svgCircle
-        // gray arrow for the moving path in the background
-        path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
-            after(pos.svgCircle).back().hide();
-        console.log(`${role} moving on ${when} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY}`);
-        const animation: Runner = animatedCircle.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
-        (animation as any).on('start', function () { path.show(); })
-        animation.during(function (relativeProgress: number) {
-            const p = path.pointAt(relativeProgress * path.length());
-            animatedCircle.center(p.x, p.y);
-        })
-        animation.after(function () { updateLocation(pos, seg.toX, seg.toY); path.remove(); });
-    })
-}
 
-function getSegment(data: Data, idx: number): MovementSegment {
-    return data.segments[(idx + data.segmentOffset) % data.segments.length]
-}
 
-function getLocationByRole(data: Data, role: Role): [number, number] {
-    const r = getPositionByRole(data, role)
-    return [r.x, r.y]
-}
-function getPositionByRole(data: Data, role: Role): Position {
-    const r = data.positions.find(r => r.role === role)
-    if (!r)
-        throw Error(`role ${role} not found in data.positions`)
-    return r
-}
-function getCircleByRole(data: Data, role: Role): Element {
-    return getPositionByRole(data, role).svgCircle
-}
 
-//get the move and mark it as moved in the sequence
-function nextMove(data: Data, role: Role): MovementSegment {
-    const p = getPositionByRole(data, role)
-    // console.log(p)
-    const nextSegment = p.segmentSequence[0]
-    //shift the segment sequence
-    p.segmentSequence = p.segmentSequence.slice(1)
-    p.segmentSequence.push(nextSegment)
-    // console.log(nextSegment)
-    return data.segments[nextSegment]
-}
+// function getLocationByRole(data: Data, role: Role): [number, number] {
+//     const r = getPositionByRole(data, role)
+//     return [r.x, r.y]
+// }
+// function getPositionByRole(data: Data, role: Role): Position {
+//     const r = data.positions.find(r => r.role === role)
+//     if (!r)
+//         throw Error(`role ${role} not found in data.positions`)
+//     return r
+// }
+// function getCircleByRole(data: Data, role: Role): Element {
+//     return getPositionByRole(data, role).svgCircle
+// }
+
+
 function updateLocation(pos: Position, x: number, y: number) {
     pos.x = x
     pos.y = y
-}   
-  
-function relabel(data: Data, changes: [Role, Role][]) {
+}
+
+function relabel(data: Data, changes: [number, Role][]) {
     // console.log("relabel", changes, shiftSegment)
-    for (let idx = 0; idx < data.positions.length; idx++) {
-        const role = data.positions[idx].role
-        const change = changes.find(([from, _]) => from === role)
-        if (change) {
-            data.positions[idx].role = change[1]
-            data.positions[idx].svgLabel.text(change[1])
-        }
+    for (const change of changes) {
+        data.positions[change[0]].role = change[1]
+        data.positions[change[0]].svgLabel.text(change[1])
     }
 }
 
-function renderPass(data: Data, fromRole: Role, fromHand: Hand, toRole: Role, toHand: Hand, label: string): G {
-    console.log(`renderPass from ${fromRole} to ${toRole} with label ${label}`)
-    const [x1, y1] = getLocationByRole(data, fromRole)
-    const [x2, y2] = getLocationByRole(data, toRole)
-    const [fromX, fromY, toX, toY, labelX, labelY] = computePass(x1, y1, fromHand, x2, y2, toHand)
+function renderPass(data: Data, pass: PassAnimation): G {
+    // console.log(`renderPass from ${fromRole} to ${toRole} with label ${label}`)
     const canvas = data.canvas
     const g = canvas.group()
-    const a = arrow(canvas, fromX, fromY, toX, toY, "black")
+    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, "black")
     g.add(a)
-    if (label)
-        g.add(canvas.text(label).font({ size: 8 }).cx(labelX).cy(labelY).fill("black"))
+    if (pass.label)
+        g.add(canvas.text(pass.label).font({ size: 8 }).cx(pass.labelX).cy(pass.labelY).fill("black"))
     return g
 }
 
@@ -305,49 +260,49 @@ function arrow(canvas: Svg, x1: number, y1: number, x2: number, y2: number, colo
     return line
 }
 
-function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
-    //angle between the two points
-    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
-    //move 20 pixel 45 degree from that angle from the first point
-    const armAngle = 40 //todo make this configurable
-    const throwOutside = 1
+// function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
+//     //angle between the two points
+//     const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
+//     //move 20 pixel 45 degree from that angle from the first point
+//     const armAngle = 40 //todo make this configurable
+//     const throwOutside = 1
 
-    const direction1 = hand1 === 0 ? armAngle : -armAngle
-    const x3 = x1 + armLength * Math.cos((angle + direction1) * Math.PI / 180)
-    const y3 = y1 + armLength * Math.sin((angle + direction1) * Math.PI / 180)
+//     const direction1 = hand1 === 0 ? armAngle : -armAngle
+//     const x3 = x1 + armLength * Math.cos((angle + direction1) * Math.PI / 180)
+//     const y3 = y1 + armLength * Math.sin((angle + direction1) * Math.PI / 180)
 
-    const direction2 = hand2 === 0 ? armAngle * throwOutside : -armAngle * throwOutside
-    const x4 = x2 + armLength * Math.cos((180 + angle + direction2) * Math.PI / 180)
-    const y4 = y2 + armLength * Math.sin((180 + angle + direction2) * Math.PI / 180)
+//     const direction2 = hand2 === 0 ? armAngle * throwOutside : -armAngle * throwOutside
+//     const x4 = x2 + armLength * Math.cos((180 + angle + direction2) * Math.PI / 180)
+//     const y4 = y2 + armLength * Math.sin((180 + angle + direction2) * Math.PI / 180)
 
-    const length = Math.sqrt((x3 - x4) ** 2 + (y3 - y4) ** 2)
+//     const length = Math.sqrt((x3 - x4) ** 2 + (y3 - y4) ** 2)
 
-    let labelX = (x3 + x4) / 2
-    let labelY = (y3 + y4) / 2
+//     let labelX = (x3 + x4) / 2
+//     let labelY = (y3 + y4) / 2
 
-    const passAngle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI
+//     const passAngle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI
 
-    const labelAngle =
-        hand1 === 0 && hand2 === 1 ? 90 : // right hand pass to the right
-            hand1 === 1 && hand2 === 0 ? 90 : // left hand pass to the left
-                hand1 === 0 && hand2 === 0 ? -90 :
-                    90 // crossing pass toward the target
+//     const labelAngle =
+//         hand1 === 0 && hand2 === 1 ? 90 : // right hand pass to the right
+//             hand1 === 1 && hand2 === 0 ? 90 : // left hand pass to the left
+//                 hand1 === 0 && hand2 === 0 ? -90 :
+//                     90 // crossing pass toward the target
 
-    //sideways adjustment for label
-    // if (labelAngle !== 0) {
-    labelX += labelDistance * Math.cos((angle + labelAngle) * Math.PI / 180)
-    labelY += labelDistance * Math.sin((angle + labelAngle) * Math.PI / 180)
-    // }
-    //forward adjustment for label
-    labelX += length / 4 * Math.cos(passAngle * Math.PI / 180)
-    labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
-
-
-    return [Math.round(x3), Math.round(y3), Math.round(x4), Math.round(y4), Math.round(labelX), Math.round(labelY)]
-}
+//     //sideways adjustment for label
+//     // if (labelAngle !== 0) {
+//     labelX += labelDistance * Math.cos((angle + labelAngle) * Math.PI / 180)
+//     labelY += labelDistance * Math.sin((angle + labelAngle) * Math.PI / 180)
+//     // }
+//     //forward adjustment for label
+//     labelX += length / 4 * Math.cos(passAngle * Math.PI / 180)
+//     labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
 
 
-function genPath(canvas: Svg, segment: MovementSegment): Path {
+//     return [Math.round(x3), Math.round(y3), Math.round(x4), Math.round(y4), Math.round(labelX), Math.round(labelY)]
+// }
+
+
+function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
     // console.log(segment)
     let p = []
     if (segment.path.length === 0) p = ['M', segment.fromX, segment.fromY, 'L', segment.toX, segment.toY]
@@ -366,50 +321,10 @@ function genPath(canvas: Svg, segment: MovementSegment): Path {
 //         }, 1000 / speed)
 // }
 
-function schedule(data: Data, when: number, mod: number, fn: (delay: number) => void, priority: number = 1) {
-    const beat = Math.floor(when % mod)
-    const delay = (when % mod) - beat
-    data.timers.push({ beat, mod, delay, priority, fn })
+function schedule(data: Data, when: number, fn: (delay: number) => void, priority: number = 1) {
+    console.assert(when >= 0 && when < data.mod, `schedule: when must be in range [0, ${data.mod}), was ${when}`);
+    const beat = Math.floor(when)
+    const delay = when - beat
+    data.timers.push({ beat, delay, priority, fn })
 }
 
-
-/**
- * This is tricky: Figure out where a given role will be `futureOffset` beats from now.
- * 
- * First we need to figure out which rowIdx/current role is going to have the expected `roleInFuture`
- * in `futureOffset` beats.
- * 
- * Then we need to figure out the movements of that passer for those `futureOffset` beats.
- * The passer could be in the middle of a movement segment at that point.
- * 
- * @param data 
- * @param currentTime the current time from where we are looking (needed to compute what happens in the future relative to now; time rather than beats because of different `mod`s)
- * @param futureOffset beats in the future where the location should be computed. Cannot be negative, but supports partial beats (e.g. 1.3)
- * @param roleInFuture the role of the passer of interest at the target time in the future
- * @returns 
- */
-export function getLocationByRoleInFugure(data: Data, currentTime: number, futureOffset: number, roleInFuture: Role): [number, number] {
-    if (futureOffset < 0) throw Error("cannot compute location in the past")
-    const current = getLocationByRole(data, roleInFuture);
-    if (futureOffset === 0) current
-    console.log(`getLocationByRoleInFugure at ${currentTime} for ${roleInFuture} in ${futureOffset} beats`)
-
-    let offset = 0
-    do {
-        const baseMovement = data.baseMovements.filter(([when, mod, role, _]) => role === roleInFuture && Math.floor(when) === (Math.floor(currentTime+offset))%mod && when < (currentTime+futureOffset)%mod)
-        console.log(`base movement for ${roleInFuture} at ${(currentTime+offset)}`, baseMovement)
-
-        // apply the movements
-        for (const [when, mod, role, duration] of baseMovement) {
-            
-        }
-        
-        offset += 1;
-    } while (offset < futureOffset) 
-
-   
-return current
-    // const r = getPositionByRole(data, role)
-    // return [r.x, r.y]
-    // throw new Error("getLocationByRoleInFugure not implemented yet")
-}
