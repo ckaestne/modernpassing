@@ -18,20 +18,20 @@ Deno.test("compute animation plan length"   , () => {
     // check basic internal structures
     assert.equal( baseAnimations.mod , 72);
 
-    assert.equal(baseAnimations.movements[0][0], 1); // B in the first iteration
-    assert.equal(Math.round(10*baseAnimations.movements[0][1]), 39); 
+    assert.equal(baseAnimations.movements[0].passerIdx, 1); // B in the first iteration
+    assert.equal(Math.round(10*baseAnimations.movements[0].onBeat), 39); 
     assert.deepEqual(baseAnimations.roles.find(r=> r[0] === 0)![1], ['A','B','C']); 
 
-    assert.equal(baseAnimations.movements[1][0], 0); // B after relabeling, which was A at the beginning
-    assert.equal(Math.round(10*baseAnimations.movements[1][1]), 60+39); 
+    assert.equal(baseAnimations.movements[1].passerIdx, 0); // B after relabeling, which was A at the beginning
+    assert.equal(Math.round(10*baseAnimations.movements[1].onBeat), 60+39); 
     assert.deepEqual(baseAnimations.roles.find(r=> r[0] === 6)![1], ['B','C','A']); 
 
-    assert.equal(baseAnimations.movements[2][0], 2);
-    assert.equal(Math.round(10*baseAnimations.movements[2][1]), 2*60+39); 
+    assert.equal(baseAnimations.movements[2].passerIdx, 2);
+    assert.equal(Math.round(10*baseAnimations.movements[2].onBeat), 2*60+39); 
     assert.deepEqual(baseAnimations.roles.find(r=> r[0] === 12)![1], ['C','A','B']); 
 
-    assert.equal(baseAnimations.movements[3][0], 1);
-    assert.equal(Math.round(10*baseAnimations.movements[3][1]), 3*60+39); 
+    assert.equal(baseAnimations.movements[3].passerIdx, 1);
+    assert.equal(Math.round(10*baseAnimations.movements[3].onBeat), 3*60+39); 
     assert.deepEqual(baseAnimations.roles.find(r=> r[0] === 18)![1], ['A','B','C']); 
 
     // now let's try locations

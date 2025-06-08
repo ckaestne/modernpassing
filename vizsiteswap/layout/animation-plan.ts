@@ -18,6 +18,7 @@ import type { Role } from "@modernpassing/pattern";
 import type { MovementSegmentSpec } from "./animation-spec.ts";
 
 export type AnimationPlan = {
+    mod: number, // the length of the animation in beats 
     initialPositions: InitialPosition[],
     passAnimations: PassAnimation[],
     movementSegments: MovementSegmentSpec[],
@@ -37,21 +38,21 @@ export type InitialPosition = {
 
 
 export type PassAnimation = {
-    onBeat: number,
-    mod: number, 
+    onBeat: number, // the entire animation has a length (mod), this is relative to that
     duration: number,
 
     fromX: number,
     toX: number,
     fromY: number,
     toY: number,
+    labelX: number,
+    labelY: number,
     label: string
 }
 
 
 export type SegmentMovementAnimation = {
-    onBeat: number,
-    mod: number,
+    onBeat: number, // the entire animation has a length (mod), this is relative to that
     passerId: number,
     duration: number,
 
@@ -60,8 +61,7 @@ export type SegmentMovementAnimation = {
 }
 
 export type DirectMovementAnimation = {
-    onBeat: number,
-    mod: number,
+    onBeat: number, // the entire animation has a length (mod), this is relative to that
     passerId: number,
     duration: number,
 
@@ -71,8 +71,7 @@ export type DirectMovementAnimation = {
 
 
 export type RelabelAnimation = {
-    onBeat: number,
-    mod: number,
+    onBeat: number, // the entire animation has a length (mod), this is relative to that
 
     changes: [number, Role][] // passerId, newRole
 }

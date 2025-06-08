@@ -1,0 +1,7 @@
+{
+    "version": "0.1.0",
+    "imports": {
+      "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
+      "bun": "npm:bun@^1.2.15"
+    }
+  }
