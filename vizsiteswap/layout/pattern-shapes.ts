@@ -1,7 +1,9 @@
 import assert from "node:assert";
-import { BackgroundLayout, MovementSegment, MovementSequence, PositionLayout, Role } from "../pattern/pattern.ts";
 import { loadPathsFromSvg } from "./pattern-paths-loader.ts";
-import { PatternPath, PatternPaths } from "./pattern-paths.ts";
+import { type PatternPath, PatternPaths } from "./pattern-paths.ts";
+import type { Role } from "../pattern/pattern.ts";
+import type { MovementSegmentSpec, MovementSequenceSpec, PositionSpec } from "./animation-spec.ts";
+import type { BackgroundLayout } from "./layout.ts";
 
 
 
@@ -9,7 +11,7 @@ import { PatternPath, PatternPaths } from "./pattern-paths.ts";
 export type TLayout =
     { type: "standard", shape: TShape, roles: Role[] } |
     { type: "free", pos: [Role, number, number][] } |
-    { type: "svg", segments: MovementSegment[], roles: [Role, number][] }
+    { type: "svg", segments: MovementSegmentSpec[], roles: [Role, number][] }
 export type TShape = string
 //     'Trapezoid' |
 //     'V' |
@@ -30,101 +32,6 @@ export type TMovementType = string; //'Vmove' | 'Bmove' | 'Cmove'
 export function defaultLayoutForTwo(roles: Role[]): TLayout {
     assert(roles.length===2, "default layout for two only works for 2 roles")
     return { type: 'standard', shape: 'Pair', roles }
-}
-
-export function parseLayout(input: string): TLayout {
-    // simple parser
-    // assert single pair of parentheses
-    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), "expecting a single pair of parentheses")
-    //remove whitespace
-    input = input.replace(/\s/g, "")
-
-    //split at commas and parentheses
-    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
-
-    assert(supportedShapes.includes(parts[0]), `shape ${parts[0]} not currently supported`)
-
-    if (parts[0] === 'Free') {
-        //free layout
-        const pos = parts.slice(1)
-        assert(pos.length % 3 === 0, "free layout must have 3 entries per role (role, x, y)")
-        const r: [Role, number, number][] = []
-        for (let i = 0; i < pos.length; i += 3) {
-            const x = Number(pos[i + 1]);
-            const y = Number(pos[i + 2]);
-            const role = pos[i]
-            assert(!isNaN(x) && x >= 0 && x <= 1, "x coordinate must be a number between 0 and 1");
-            assert(!isNaN(y) && y >= 0 && y <= 1, "y coordinate must be a number between 0 and 1");
-            assert(/^[A-Z]$/.test(role), "role names must be single uppercase letters")
-            r.push([role, x, y]);
-        }
-
-        return { type: 'free', pos: r }
-    } else if (parts[0] === 'Svg') {
-        const svgFile = 'src/'+parts[1]
-        assert(svgFile.endsWith('.svg'), "svg file must end with .svg")
-        assert(Deno.statSync(svgFile).isFile, `svg file ${svgFile} not found in src/`)
-        assert((parts.length % 2 === 0) && (parts.length >= 4), "svg must have pairs of role name and path index for each role")
-
-        const segments = loadPathsFromSvg(svgFile)
-        const roles: [Role, number][] = []
-        for (let i = 2; i < parts.length; i += 2) {
-            const role = parts[i]
-            const idx = Number(parts[i + 1])
-            assert(!isNaN(idx) && idx >= 0 && idx < segments.length, `path index must be a number between 0 and number of path segments (${segments.length}), but found ${idx}`)
-            assert(/^[A-Z]$/.test(role), `role names must be single uppercase letters, but found ${role}`)
-            roles.push([role, idx])
-        }
-
-        return {
-            type: 'svg', segments, roles
-        }
-
-    } else {
-        //standard layout
-        const shape = parts[0] as TShape
-        const roles = parts.slice(1)
-        roles.map(r => assert(/^[A-Z_]$/.test(r), "role names must be single uppercase letters"))
-        return { type: 'standard', shape, roles }
-    }
-
-}
-
-export function parseMovements(input: string[], roles: Role[]): TMovement {
-    if (input.length === 0) return []
-    const allInputs = input.join('')
-    //split after closing parenthesis
-    const parts = allInputs.split(')').filter(p => p.trim().length > 0).map(s => s + ')')
-    return parts.map((p)=>parseMovement(p, roles)).flat()
-}
-
-function parseMovement(input: string, roles: Role[]): TMovementStep[] {
-    // simple parser
-    // assert single pair of parentheses
-    assert(input.indexOf('(') >= 0 && input.indexOf(')') > input.indexOf('('), `expecting a single pair of parentheses in ${input}`)
-    //remove whitespace
-    input = input.replace(/\s/g, "")
-
-    //split at commas and parentheses
-    const parts = input.split(/[\(\),]/).filter(p => p.length > 0)
-
-    assert(supportedMovement.includes(parts[0]), `movement ${parts[0]} not currently supported`)
-
-    //standard layout
-    const type = parts[0]
-    const role = parts[1]
-    const when = Number(parts[2])
-    const duration = Number(parts[3])
-    assert(/^[A-Z\*]$/.test(role), "role names must be single uppercase letters or the wildcard * for all roles")
-    assert(!isNaN(when), "when must be a number")
-    assert(!isNaN(duration), "duration must be a number")
-    assert(parts.slice(4).every(p => !isNaN(Number(p))), "extra parameters must be numbers")
-
-    const extraParam = parts.slice(4).map(p => Number(p))
-    // * gets replaced by all roles
-    if (role === '*') 
-        return roles.map(r => ({ type, role: r, when, duration, extraParam })) 
-    return [{ type, role, when, duration, extraParam }]
 }
 
 
@@ -150,7 +57,7 @@ export type PatternShapeFactory = {
     supportedMovement: TMovementType[],
     matches(parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement): boolean,
     createLayout(roles: Role[], parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement):
-        [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]]
+        [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]]
 }
 
 const factories: PatternShapeFactory[] = []
@@ -165,7 +72,7 @@ factories.push({
     matches: function (parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement): boolean {
         return parsedLayoutInstructions.type === 'free' && (parsedMovementInstructions === undefined || parsedMovementInstructions?.length === 0)
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, parsedMovementInstructions: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
+    createLayout: function (patternRoles: Role[], layout: TLayout, parsedMovementInstructions: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
         const positions = []
         if (layout.type === "free") {
             for (let i = 0; i < layout.pos.length; i += 1) {
@@ -191,8 +98,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Circle' && allMovement(movement, 'Cmove')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         assert(layout.type === 'standard')
@@ -210,7 +117,7 @@ factories.push({
         }
         background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
 
-        let a_segments: MovementSegment[] = []
+        let a_segments: MovementSegmentSpec[] = []
         const sequences: number[][] = []
         if (movement.length === 1 && allMovement(movement, 'Cmove')) {
             const namedRoles = layout.roles.filter(p => /^[A-Z]$/.test(p))
@@ -269,8 +176,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement(movement, 'Vmove')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         assert(layout.type === 'standard')
@@ -288,8 +195,8 @@ factories.push({
 
 
         //     if (layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement('Vmove')) {
-        const segments: MovementSegment[] = []
-        const sequences: MovementSequence[] = []
+        const segments: MovementSegmentSpec[] = []
+        const sequences: MovementSequenceSpec[] = []
         if (movement.length > 0) {
             assert(patternRoles.length === layout.roles.length, `number of passer roles must match layout roles ${patternRoles} ${layout.roles}`)
             // get the movement path of each initial position, moving by 90 degree each
@@ -297,7 +204,7 @@ factories.push({
 
             let segmentIdx = 0
             for (let passerIdx = 0; passerIdx < patternRoles.length; passerIdx++) {
-                const sequence: MovementSequence = []
+                const sequence: MovementSequenceSpec = []
                 const initialAngle = initialAngles[passerIdx]
                 for (let walkIdx = 0; walkIdx < 4; walkIdx++) {
                     const fromAngle = initialAngle - walkIdx * 90
@@ -332,8 +239,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Trapezoid' && [5].includes(layout.roles.length) && movement.length === 0
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         assert(layout.type === 'standard')
@@ -359,8 +266,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Box' && [4].includes(layout.roles.length) && movement.length === 0
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         assert(layout.type === 'standard')
@@ -385,8 +292,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Brunos' && [3, 4].includes(layout.roles.length) && allMovement(movement, 'Bmove')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         assert(layout.type === 'standard')
@@ -411,8 +318,8 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 8), toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequence[] = PatternPaths.brunos.movementSequences
+        const segments: MovementSegmentSpec[] = PatternPaths.brunos.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 8), toX: s.toX, toY: s.toY } })
+        const sequences: MovementSequenceSpec[] = PatternPaths.brunos.movementSequences
 
 
 
@@ -429,8 +336,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Y' && [4].includes(layout.roles.length) && allMovement(movement, 'move')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
         background.push({ type: 'circle', x: 0.2, y: 0.5, r: 0.2, fill: 'none', stroke: 'lightgrey', strokeWidth: 1 })
@@ -450,8 +357,8 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.y.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 9), toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequence[] = PatternPaths.y.movementSequences
+        const segments: MovementSegmentSpec[] = PatternPaths.y.movementSegments.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path.slice(3, 9), toX: s.toX, toY: s.toY } })
+        const sequences: MovementSequenceSpec[] = PatternPaths.y.movementSequences
 
 
 
@@ -468,8 +375,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Weave' && [4].includes(layout.roles.length) && allMovement(movement, 'move')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
 
@@ -503,8 +410,8 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegment[] = PatternPaths.weave.movementSegments//.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path, toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequence[] = PatternPaths.weave.movementSequences
+        const segments: MovementSegmentSpec[] = PatternPaths.weave.movementSegments//.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path, toX: s.toX, toY: s.toY } })
+        const sequences: MovementSequenceSpec[] = PatternPaths.weave.movementSequences
 
 
 
@@ -521,8 +428,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'svg' && allMovement(movement, 'move')
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
         const background: BackgroundLayout[] = []
 
 
@@ -545,10 +452,10 @@ factories.push({
 
         assert(patternRoles.length === layout.roles.length, "number of passer roles must match layout roles")
 
-        const segments: MovementSegment[] = layout.segments
+        const segments: MovementSegmentSpec[] = layout.segments
 
         const sequence = layout.segments.map((_, i) => i)
-        const sequences: MovementSequence[] = layout.roles.map((r) => sequence.slice(r[1]).concat(sequence.slice(0, r[1])))
+        const sequences: MovementSequenceSpec[] = layout.roles.map((r) => sequence.slice(r[1]).concat(sequence.slice(0, r[1])))
        
         return [positions, segments, sequences, background]
     }
@@ -569,8 +476,8 @@ factories.push({
     matches: function (layout: TLayout, movement: TMovement): boolean {
         return layout.type === 'standard' && layout.shape === 'Line' && [2].includes(layout.roles.length) && movement.length === 0
     },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-        const positions: PositionLayout[] = []
+    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+        const positions: PositionSpec[] = []
 
         assert(layout.type === 'standard')
         const roles = layout.roles
@@ -594,8 +501,8 @@ function fromPath(name: string, path: PatternPath): PatternShapeFactory {
         matches: function (layout: TLayout, movement: TMovement): boolean {
             return layout.type === 'standard' && layout.shape === name && layout.roles.length === path.initialPositions.length && allMovement(movement, 'move')
         },
-        createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
-            const positions: PositionLayout[] = []
+        createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+            const positions: PositionSpec[] = []
             const background: BackgroundLayout[] = []
 
 
@@ -630,10 +537,10 @@ function fromPath(name: string, path: PatternPath): PatternShapeFactory {
 
 
 
-const supportedShapes = factories.map(f => f.supportedShapes).flat()
-const supportedMovement = factories.map(f => f.supportedMovement).flat()
+export const supportedShapes = factories.map(f => f.supportedShapes).flat()
+export const supportedMovement = factories.map(f => f.supportedMovement).flat()
 
-export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement | undefined): [PositionLayout[], MovementSegment[], MovementSequence[], BackgroundLayout[]] {
+export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement | undefined): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
     for (const f of factories)
         if (f.matches(parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : []))
             return f.createLayout(roles, parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : [])

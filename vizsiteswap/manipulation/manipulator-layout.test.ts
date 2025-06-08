@@ -1,9 +1,6 @@
 
+import type { AnimationLayout } from "@modernpassing/layout";
 import assert from "node:assert";
-import test from "node:test";
-import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { AnimationLayout, Hand, Pattern, Throw, type ThrowMarker } from "@modernpassing/pattern";
-import { createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 import { createGroupPattern } from "../parsing/parsing.ts";
 import { applyManipulatorAnimationLayout, getAbstractPositionsFromPattern, resolveManipulatorPositionAndRotation } from "./manipulator-layout.ts";
 

@@ -6,9 +6,10 @@
 import { Circle, Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
 import * as fs from 'node:fs';
-import { scaler } from "../renderer-svg.ts";
-import { MovementSegment, PositionLayout } from "../pattern-structure.ts";
-import { MovementSequence } from "../pattern-structure.ts";
+import { scaler } from "@modernpassing/svg-utils";
+import type { MovementSegment, MovementSequence, PositionLayout } from "@modernpassing/layout";
+
+
 
 
 type Result = {initialPositions:PositionLayout[],paths:MovementSegment[],sequence:MovementSequence[]}

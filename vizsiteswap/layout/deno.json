@@ -1,0 +1,5 @@
+{
+  "name": "@modernpassing/layout",
+  "version": "0.1.0",
+  "exports": "./layout.ts"
+}

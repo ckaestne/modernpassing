@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { createPattern, Hand, Pattern, Throw, ThrowType } from "./pattern.ts";
+import { createPattern, Hand, Pattern, Throw } from "./pattern.ts";
 import { PatternImpl } from "./pattern-impl.ts";
 
 

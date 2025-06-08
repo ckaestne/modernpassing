@@ -1,7 +1,7 @@
-import type { MovementSegment } from "@modernpassing/pattern";
 import { createSVG, scaledown } from "@modernpassing/svg-utils";
 import assert from "node:assert";
 import type { PatternPath } from "./pattern-paths.ts";
+import { MovementSegmentSpec } from "./animation-spec.ts";
 
 /**
  * loading movement paths from an SVG file
@@ -14,7 +14,7 @@ import type { PatternPath } from "./pattern-paths.ts";
  * @param filename svg file to load
  * @returns 
  */
-export function loadPathsFromSvg(filename: string): MovementSegment[] {
+export function loadPathsFromSvg(filename: string): MovementSegmentSpec[] {
 
     const svgContent = Deno.readTextFileSync(filename);
     const svg = createSVG().svg(svgContent);
@@ -36,7 +36,7 @@ export function loadPathsFromSvg(filename: string): MovementSegment[] {
     const scaler = scaledown(w, w);
 
 
-    const result :MovementSegment[]= []
+    const result :MovementSegmentSpec[]= []
     svgPaths.forEach((path) => {
 
         const d = path.attr('d').split(/[, ]/)

@@ -1,82 +1,16 @@
-import { createPattern, type GroupPatternLayout, type MovementTrigger, type PassAnimation, type PassLayout, type Pattern, type RelabelAnimation, type Role } from "@modernpassing/pattern";
-import { createShapeLayout, parseLayout, type TLayout, type TMovement } from "./pattern-shapes.ts";
-
-
-
-
-/**
- * generates a layout from notation and some information about the passing sequence
- * 
- * as a issue, we need the full passing sequence with both left and right hands, so for
- * odd period patterns, we consider a longer sequence that loops all the way around.
- * hence, we have both the patternLength and the completePatternLength
- * @param layout 
- * @param movement 
- * @param adjustedThrows 
- * @returns 
- */
-export function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pattern): GroupPatternLayout {
-
-    const [positions, movementSegments, movementSequences, background] = createShapeLayout(pattern.getInitialRoles(), layout, movement)
-
-
-    // function findPosition(passerIdx: number): PositionLayout {
-    //     const p = positions.find(p => p.passerIdx === passerIdx)
-    //     if (!p) throw new Error(`position for passer ${passerIdx} not found`)
-    //     return p
-    // }
-
-    // function pass(t: Throw, iteration: number): PassLayout {
-    //     return {
-    //         fromRole: findPosition(t.fromPasserIdx).role,
-    //         fromHand: pattern.getThrowHand(t, iteration),
-    //         toRole: findPosition(pattern.getToPasserIdxAtThrow(t)).role,
-    //         toHand: pattern.getTargetHand(t, iteration),
-    //         label: (t.throwBeat + 1).toString()
-    //     }
-    // }
-
-
-
-
-    // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
-    const movementTriggers: MovementTrigger[] = movement ? movement.map(m => ({
-        onBeat: m.when,
-        mod: pattern.getLength(),
-        role: m.role,
-        duration: m.duration
-    })) : []
-
-
-    return {
-        // static: { positions: positions, passes: passesToRender.values().toArray() },
-        // frames: passesPerBeat.keys().map(k => {
-        //     return {
-        //         label: (k + 1).toString(),
-        //         static: { positions, passes: passesPerBeat.get(k)! }
-        //     }
-        // }).toArray(),
-        animation: {
-            initialPositions: positions,
-            passAnimations: [],
-            movementSegments,
-            movementSequences,
-            movementTriggers,
-            relabeling: [],
-            speed: pattern.nrHands === 4 ? 2 : 1
-        },
-        background
-    }
-}
+import { type Pattern, type Role } from "@modernpassing/pattern";
+import { PassSpec, RelabelSpec } from "./animation-spec.ts";
+import type { GroupPatternLayoutSpec } from "./layout.ts";
 
 
 
 
 
 
-export function setLayoutRelabeling(layout: GroupPatternLayout, pattern: Pattern): GroupPatternLayout {
+
+export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
     //TODO extend for manipulator actions
-    const layoutRelabel: RelabelAnimation[] = []
+    const layoutRelabel: RelabelSpec[] = []
 
     let lastLabels: Role[] = []
     for (const [beat, labels] of pattern.roles) {
@@ -122,12 +56,12 @@ export function setLayoutRelabeling(layout: GroupPatternLayout, pattern: Pattern
         }
     }
 }
-
-export function addPassAnimations(layout: GroupPatternLayout, pattern: Pattern): GroupPatternLayout {
+  
+export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
     // console.log(throws)
-    const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassLayout> = new Map()
-    const passesPerBeat: Map<number, PassLayout[]> = new Map()
-    const passAnimations: PassAnimation[] = []
+    const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassSpec> = new Map()
+    const passesPerBeat: Map<number, PassSpec[]> = new Map()
+    const passAnimations: PassSpec[] = []
     const nrIterations = pattern.iterationsUntilRepeat()
     const completePatternLength = pattern.getLength() * nrIterations
     // for every iteration of a complete cycle
@@ -179,7 +113,3 @@ export function addPassAnimations(layout: GroupPatternLayout, pattern: Pattern):
 }
 
 
-
-export function createLayout(input: string, patternLength: number = 0): GroupPatternLayout {
-    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ['A', 'B', 'C', 'D', 'E']))
-}

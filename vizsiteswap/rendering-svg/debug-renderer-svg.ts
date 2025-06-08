@@ -2,7 +2,7 @@
  * crude, not-customizable rendering similar to pattern.prettyPrintThrows
  */
 
-import { Hand, Pattern, Throw, ThrowType } from "@modernpassing/pattern"
+import { Hand, Pattern, Throw } from "@modernpassing/pattern"
 import { createSVG } from "@modernpassing/svg-utils";
 import { G, Svg } from "@svgdotjs/svg.js";
 import { PatternImpl } from "../pattern/pattern-impl.ts";

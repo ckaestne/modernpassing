@@ -1,4 +1,5 @@
-import { AnimationLayout, type BackgroundLayout, GroupPattern, Hand, Pattern } from "@modernpassing/pattern";
+import type { GroupPattern, AnimationLayout, BackgroundLayout } from "@modernpassing/layout";
+import { Hand, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, defaultRendererConfig, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
@@ -488,7 +489,7 @@ export function renderAnimation(
     }
     for (const movementTrigger of layout.movementTriggers) {
         //export function animateBaseMovement(data: Data, role: Role, onBeat: number, durationMS: number, delayMS: number): Runner {
-        javascript += `animateBaseMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration}, ${movementTrigger.onBeat}, ${movementTrigger.mod});\n`
+        javascript += `animateBaseMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration});\n`
     }
     for (const directMovement of layout.directMovements || []) {
         // javascript += `animateMovement(data, ${movementTrigger.onBeat}, ${movementTrigger.mod}, '${movementTrigger.role}', ${movementTrigger.duration}, ${movementTrigger.onBeat}, ${movementTrigger.mod});\n`

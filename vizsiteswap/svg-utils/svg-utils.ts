@@ -1,6 +1,6 @@
-import type { MovementSegment } from "@modernpassing/pattern";
 import { registerWindow, type Svg, SVG } from "@svgdotjs/svg.js";
 import { createSVGWindow } from "svgdom";
+import { MovementSegmentSpec } from "@modernpassing/layout";
 
 export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow();
@@ -19,7 +19,7 @@ type Scaler = {
     scalep(p: [number, number]): [number, number],
     scalex(x: number): number,
     scaley(y: number): number,
-    scaleSegment(seg: MovementSegment): MovementSegment
+    scaleSegment(seg: MovementSegmentSpec): MovementSegmentSpec
     scalePath(path: (number | string)[]): (number | string)[]
 }
 
@@ -54,7 +54,7 @@ export function scaler(scalex: (x:number)=>number,scaley: (y:number)=>number, sc
         },
         scalex,
         scaley,
-        scaleSegment(seg: MovementSegment): MovementSegment {
+        scaleSegment(seg: MovementSegmentSpec): MovementSegmentSpec {
             const fromX = scalex(seg.fromX)
             const fromY = scaley(seg.fromY)
             const p = o.scalePath([...seg.path, seg.toX, seg.toY])

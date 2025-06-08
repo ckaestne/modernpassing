@@ -1,9 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 import fs from "node:fs";
 import test from "node:test";
-import { AnimationLayout, Hand, MovementSegment, PassAnimation, PassLayout } from "@modernpassing/pattern";
+import type { AnimationLayout,  MovementSegment, PassAnimation, PassLayout } from "@modernpassing/layout";
 import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground, renderGroupPattern } from "./renderer-svg.ts";
 import { createGroupPattern } from "@modernpassing/parsing";
+import { Hand } from "../pattern/pattern.ts";
 
 test("render first animation (star with a hole)", async (t) => {
 

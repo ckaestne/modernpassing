@@ -24,7 +24,7 @@ type Position = {
     svgLabel: Text,
     segmentSequence: number[]
 }
-type Data = {
+export type Data = {
     positions: Position[],
     segments: MovementSegment[],
     segmentOffset: number,
@@ -37,6 +37,8 @@ type Data = {
     },
     beatLabel?: Text, // optional label to indicate the current beat
     intervalId?: number // interval ID for the animation loop, when running
+
+    baseMovements: [number, number, Role, number][] // array of [when, mod, role, duration] for base movements
 }
 type Timer = {
     beat: number, // the beat on which the timer is scheduled
@@ -45,9 +47,27 @@ type Timer = {
     priority: number, // the priority of the timer (lower is earlier)
     fn: (delay: number) => void // the function to execute, delay is expressed as fraction of a beat
 }
+type RelativeMovementSpec = {
+    between: [Role, Role], // from/to of the base pass
+    side: number, // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
+    offset: number, // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
+    direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to 
+    futureOffset: number // locations of the roles are determined this many beats in the future, e.g. 0 for the current beat, 1 for the next beat
+} | {    
+    to: Role // take the position of a base manipulator
+    futureOffset: number // find position of `to` this many beats in the future
+}
 
-
-
+/**
+ * initialize the runtime code for a given SVG image. all relevant
+ * data is stored in the returned object.
+ * @param svgId Id of the SVG canvas element (starting with `#`)
+ * @param speed Relative speed of the animation, 1 by default
+ * @param beatIndicatorId Id of the vertical line in the pattern description that can be moved during the animation, optional
+ * @param beatIndicatorXOffsets x Coordinates of where the indicator line should be placed for each beat of the pattern, e.g. [0, 50, 100] for a pattern with 3 beats
+ * @param beatLabelId Id of a text element that indicates the current beat of the pattern, optional
+ * @returns 
+ */
 export function initialize(svgId: string, speed: number = 1, beatIndicatorId?: string, beatIndicatorXOffsets?: number[], beatLabelId?: string): Data {
     const beatIndicator = beatIndicatorId && beatIndicatorXOffsets ? {
         indicator: SVG( beatIndicatorId) as Element,
@@ -66,18 +86,43 @@ export function initialize(svgId: string, speed: number = 1, beatIndicatorId?: s
         timers: [],
         speed,
         beatIndicator,
-        beatLabel
+        beatLabel,
+        baseMovements: [],
     }
 
 
 }
+
+/**
+ * Initialize the data for a passer -- role, location, id of circle and label elements, and the sequence of segments to move on.
+ * 
+ * Manipulates the `data` object 
+ * @param data 
+ * @param role 
+ * @param x 
+ * @param y 
+ * @param svgCircleId 
+ * @param svgLabelId 
+ * @param segmentSequence 
+ */
 export function addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[]) {
     data.positions.push({ role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text, segmentSequence });
 }
+
+/**
+ * sets the movement segments for the animation.
+ * @param data mutable data object to store the segments in
+ * @param segments 
+ */
 export function initializeSegments(data: Data, segments: MovementSegment[]) {
     data.segments = segments
 }
 
+/**
+ * starting the animation loop after all setup
+ * @param data 
+ * @param patternLength 
+ */
 export function startAnimation(data: Data, patternLength: number) {
     const timeline = data.canvas.timeline();
 
@@ -105,15 +150,29 @@ export function startAnimation(data: Data, patternLength: number) {
 
 
 /**
- * simply move the next segment
+ * sets up the default movement along the movement segments of the role.
  */
 export function animateBaseMovement(data: Data, when: number, mod: number, role: Role, duration: number): void {
-    return animateMovement(data, when, mod, role, () => nextMove(data, role), duration);
+    animateMovement(data, when, mod, role, () => nextMove(data, role), duration);
+    data.baseMovements.push([when, mod, role, duration]);
+    console.log(data.baseMovements)
 }
 // export function animateDirectMovement(data: Data, when: number, mod: number, role: Role, toX: number, toY: number, duration: number): void {
 //     return animateMovement(data, when, mod, role, (pos: Position)=>nextMove(data, role), duration);
 // }
 
+/**
+ * sets up a pass between two roles at a given time.
+ * @param data 
+ * @param when 
+ * @param mod 
+ * @param fromRole 
+ * @param fromHand 
+ * @param toRole 
+ * @param toHand 
+ * @param label 
+ * @param duration 
+ */
 export function animatePass(data: Data, when: number, mod: number, fromRole: Role, fromHand: Hand, toRole: Role, toHand: Hand, label: string, duration: number): void {
     schedule(data, when, mod, (delay: number) => {
         let v: G | undefined = undefined;
@@ -123,6 +182,13 @@ export function animatePass(data: Data, when: number, mod: number, fromRole: Rol
     })
 }
 
+/**
+ * sets up a relabeling of roles at a given time.
+ * @param data 
+ * @param when 
+ * @param mod 
+ * @param changes 
+ */
 export function addRelabeling(data: Data, when: number, mod: number, changes: [Role, Role][]) {
     let first = true
     schedule(data, when, mod, (delay: number) => {
@@ -130,6 +196,21 @@ export function addRelabeling(data: Data, when: number, mod: number, changes: [R
         else relabel(data, changes);
     }, 0/*highest priority, should happen first*/)
 }
+
+
+/**
+ * Schedules a movement relative to locations of the base passers
+ * @param data 
+ * @param when 
+ * @param mod 
+ * @param role 
+ * @param targetSpec 
+ * @param duration 
+ */
+export function animateRelativeMovement(data: Data, when: number, mod: number, role: Role, targetSpec: RelativeMovementSpec, duration: number): void {
+
+}
+
 
 // ================== helper functions ==================
 
@@ -289,4 +370,46 @@ function schedule(data: Data, when: number, mod: number, fn: (delay: number) => 
     const beat = Math.floor(when % mod)
     const delay = (when % mod) - beat
     data.timers.push({ beat, mod, delay, priority, fn })
+}
+
+
+/**
+ * This is tricky: Figure out where a given role will be `futureOffset` beats from now.
+ * 
+ * First we need to figure out which rowIdx/current role is going to have the expected `roleInFuture`
+ * in `futureOffset` beats.
+ * 
+ * Then we need to figure out the movements of that passer for those `futureOffset` beats.
+ * The passer could be in the middle of a movement segment at that point.
+ * 
+ * @param data 
+ * @param currentTime the current time from where we are looking (needed to compute what happens in the future relative to now; time rather than beats because of different `mod`s)
+ * @param futureOffset beats in the future where the location should be computed. Cannot be negative, but supports partial beats (e.g. 1.3)
+ * @param roleInFuture the role of the passer of interest at the target time in the future
+ * @returns 
+ */
+export function getLocationByRoleInFugure(data: Data, currentTime: number, futureOffset: number, roleInFuture: Role): [number, number] {
+    if (futureOffset < 0) throw Error("cannot compute location in the past")
+    const current = getLocationByRole(data, roleInFuture);
+    if (futureOffset === 0) current
+    console.log(`getLocationByRoleInFugure at ${currentTime} for ${roleInFuture} in ${futureOffset} beats`)
+
+    let offset = 0
+    do {
+        const baseMovement = data.baseMovements.filter(([when, mod, role, _]) => role === roleInFuture && Math.floor(when) === (Math.floor(currentTime+offset))%mod && when < (currentTime+futureOffset)%mod)
+        console.log(`base movement for ${roleInFuture} at ${(currentTime+offset)}`, baseMovement)
+
+        // apply the movements
+        for (const [when, mod, role, duration] of baseMovement) {
+            
+        }
+        
+        offset += 1;
+    } while (offset < futureOffset) 
+
+   
+return current
+    // const r = getPositionByRole(data, role)
+    // return [r.x, r.y]
+    // throw new Error("getLocationByRoleInFugure not implemented yet")
 }

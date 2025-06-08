@@ -1,7 +1,8 @@
+import { Role } from "@modernpassing/pattern";
 import assert from "node:assert";
-import { alt, alt_sc, amb, apply, betterError, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, ParseError, Parser, ParserOutput, rep, resultOrError, rule, seq, str, tok, Token } from "npm:typescript-parsec";
-import { createPattern, GroupPatternLayout, Role } from "@modernpassing/pattern"
-import { defaultLayoutForTwo, parseLayout, parseMovements, TLayout, TMovement } from "./pattern-shapes.ts";
+import { alt, alt_sc, amb, apply, buildLexer, expectEOF, expectSingleResult, kleft, kright, opt, Parser, rep, rule, seq, str, tok } from "npm:typescript-parsec";
+import { type TLayout, type TMovement } from "@modernpassing/layout";
+import { parseLayout, parseMovements } from "./parse-layout.ts";
 
 /**
  * parsec parser (and some simpler hacky things)

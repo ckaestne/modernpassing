@@ -1,12 +1,12 @@
-import { MovementSegment, MovementSequence } from "../pattern/pattern.ts";
+import type { MovementSegmentSpec, MovementSequenceSpec } from "./animation-spec.ts";
 
 
 
 
 export type PatternPath = {
     initialPositions: number[],//index of the segment where each juggler starts
-    movementSegments: MovementSegment[],
-    movementSequences: MovementSequence[], // segment indices for each jugger (not role), by the order of initial roles
+    movementSegments: MovementSegmentSpec[],
+    movementSequences: MovementSequenceSpec[], // segment indices for each jugger (not role), by the order of initial roles
 }  
 
 

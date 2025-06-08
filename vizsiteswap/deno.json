@@ -1,5 +1,5 @@
 {
-    "workspace": ["./pattern", "./parsing", "./rendering-core", "./rendering-svg", "./rendering-tikz","./svg-utils","./manipulation","./runtime"],
+    "workspace": ["./pattern", "./parsing", "./rendering-core", "./rendering-svg", "./rendering-tikz","./svg-utils","./manipulation","./runtime","./layout"],
     "compilerOptions": {
         "strict": true,
         "noImplicitAny": true,

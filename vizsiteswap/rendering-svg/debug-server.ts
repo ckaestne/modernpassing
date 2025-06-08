@@ -1,6 +1,6 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
 import { err } from "npm:typescript-parsec@~0.3.4";
-import { GroupPattern } from "@modernpassing/pattern";
+import type { GroupPattern } from "@modernpassing/layout";
 import { createGroupPattern } from "@modernpassing/parsing";
 import { prettyPrintThrowsSvg } from "./debug-renderer-svg.ts";
 import { renderGroupPattern } from "./renderer-svg.ts";
