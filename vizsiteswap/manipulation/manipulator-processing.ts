@@ -145,6 +145,19 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     const manipulatedRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, manipulatedRoleOnIBeat)
 
 
+    // swap labels on the iBeat and relabeling at the end of the pattern
+    pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
+
+    // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
+    // the same hand sequences 
+    const initialPattern = pattern
+    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
+
+
+
+    const manipulatorRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatorRowIdxAfterIBeat)
+    const manipulatedRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatedRowIdxAfterIBeat)
+
 
 
     // let's find the carry and all throws that are skipped in the original pattern if there is a delay
@@ -165,20 +178,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
-    const carryMarker: CarryMarker = {kind:'C', toRoleAtThrow: pattern.getToPasserRole(carriedThrow!), originalFromRole: pattern.getFromPasserRole(carriedThrow!)}
+    const carryMarker: CarryMarker|undefined = carriedThrow ? {kind:'C', toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), originalFromRole: initialPattern.getFromPasserRole(carriedThrow!)}: undefined
                 
-
-    // swap labels on the iBeat and relabeling at the end of the pattern
-    pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
-
-    // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
-    // the same hand sequences 
-    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
-
-
-
-    const manipulatorRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatorRowIdxAfterIBeat)
-    const manipulatedRowIdxAfterWrap = pattern.adjustRowIdxByTime(patternLength, manipulatedRowIdxAfterIBeat)
 
     // console.log(pattern.prettyPrintThrows())
 
@@ -237,7 +238,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 markers = [...markers, newMarker]
             }
             if (isCarry) {
-                markers = [...markers, carryMarker]
+                markers = [...markers, carryMarker!]
             }
             if (isSkippedCarry) {
                 markers = [...markers,filledMarker]
