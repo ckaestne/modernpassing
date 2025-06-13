@@ -253,13 +253,12 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const g = svg.group()
         if (gp.layout.background)
             renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
-        if (gp.layout.animation) {
-            const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
-            const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
-            const animationPlan = createAnimationPlan(gp.layout.animation!)
-            javascript += renderAnimation(animationPlan, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
-        }
-        // else
+        const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+        const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
+        const animationPlan = createAnimationPlan(gp.layout.animation)
+        javascript += renderAnimation(animationPlan, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
+
+            // else
         //     renderLayout(gp.layout.static, height, height, g, { ...defaultRenderLayoutConfig, ...config })
         g.transform({ translate: [width, 0] })
         // g.move(width, 0)

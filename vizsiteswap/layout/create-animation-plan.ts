@@ -150,8 +150,11 @@ export class LocationMgr {
         let lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx && m.onBeat <= time % this.mod)
         if (!lastMoveBeforeTime)
             lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx); // let's assume there are no conflicting/overlapping walking instructions, so we are just looking for the last pass before the move before the pattern wraps if there was no move yet
-        assert(lastMoveBeforeTime, `No movement found for passer ${passerIdx} at time ${time} in animation mod ${this.mod}.`);
+        // finally if this passer never moves, return the initial position
+        if (!lastMoveBeforeTime)
+            return this.initialPositions[passerIdx].slice(1) as [number, number];
 
+        
         const segment = lastMoveBeforeTime!.segment;
         if ((lastMoveBeforeTime!.onBeat + lastMoveBeforeTime!.duration) % this.mod < time % this.mod) {
             // the last move has completed, so we know where we are
@@ -170,7 +173,7 @@ export class LocationMgr {
 
 
 export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr {
-    assert(animationSpec.passAnimations.length > 0 || animationSpec.baseMovementTriggers.length > 0, "Animation must have at least one pass or movement trigger.");
+    // assert(animationSpec.passAnimations.length > 0 || animationSpec.baseMovementTriggers.length > 0, "Animation must have at least one pass or movement trigger.");
 
     const passMods = animationSpec.passAnimations.map(p => p.mod)
     const movementMods = animationSpec.baseMovementTriggers.map(m => m.mod);
@@ -202,6 +205,10 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
             }
         }
 
+        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles))
+            break
+
+
         for (const movementTrigger of animationSpec.baseMovementTriggers) {
             if (time % movementTrigger.mod === Math.floor(movementTrigger.onBeat)) {
                 const passerIdx = currentRoles.indexOf(movementTrigger.role);
@@ -220,8 +227,6 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
 
 
 
-        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles))
-            break
 
         time++;
 

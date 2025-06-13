@@ -4,7 +4,8 @@ import { expectEOF, expectSingleResult } from "npm:typescript-parsec";
 import { createGroupPattern, createSyncGroupPattern } from "./pattern-fromgroup.ts";
 import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
 import { createSiteswapPattern } from "./pattern-fromsiteswap.ts";
-import { GroupPattern, Hand, Pattern, Throw } from "@modernpassing/pattern";
+import { Hand, Pattern, Throw } from "@modernpassing/pattern";
+import { GroupPattern } from "@modernpassing/layout";
 
 const R = Hand.Right
 const L = Hand.Left
