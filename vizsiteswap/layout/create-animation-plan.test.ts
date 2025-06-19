@@ -93,6 +93,16 @@ move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,
 })
 
 
+Deno.test.only("first attempt at manipulator animation", ()=>{
+    const roundabout = `A: 3pB3 33   3pB3 33 -- B
+         B: 3pA3 33   3pA3 33  -- A
+         M: SB z SB z  IB . CB z
+positions: Line(A,B)`
+    const gp: GroupPattern = createSyncGroupPattern(roundabout)
+    const plan = createAnimationPlan(gp.layout!.animation);
+    console.log(plan)
+    
+})
 
 
 

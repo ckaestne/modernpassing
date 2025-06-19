@@ -6,10 +6,10 @@
  * with little computation in the frontend.
  */
 
-import assert  from "node:assert";
+import assert from "node:assert";
 import { Hand, Role } from "../pattern/pattern.ts";
 import type { AnimationPlan, DirectMovementAnimation, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "./animation-plan.ts";
-import type { AnimationSpec, MovementTriggerSpec, PassSpec, RelabelSpec } from "./animation-spec.ts";
+import type { AnimationSpec, BetweenPositionSpec, MovementTriggerSpec, PassSpec, RelabelSpec, RelativeMovementSpec } from "./animation-spec.ts";
 import { MovementSegmentSpec } from "./layout.ts";
 import { createSVG } from "../svg-utils/svg-utils.ts";
 import { Path, Svg } from "@svgdotjs/svg.js";
@@ -31,12 +31,14 @@ export function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan
         y: i.y,
         initialRole: i.role
     }))
-    const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(locationMgr))
     const movementSegments = animationSpec.baseMovementSegments
     // segments are already computed as a side effect of indexing locations in the locationMgr
     const segmentMovementAnimations: SegmentMovementAnimation[] = convertBaseMovement(locationMgr, animationSpec)
 
-    const directMovementAnimations: DirectMovementAnimation[] = []
+    // relative movements add manipulator movements; creating animations and also adding computed manipulator positions to the location manager
+    const [directMovementAnimations, updateLocationMgr]: [DirectMovementAnimation[], LocationMgr] = computeRelativeMovements(animationSpec.relativeMovements, locationMgr)
+
+    const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(updateLocationMgr))
     const relabeling: RelabelAnimation[] = convertRelabeling(locationMgr, animationSpec.relabeling)
 
     return {
@@ -61,7 +63,7 @@ function convertPassAnimation(locationMgr: LocationMgr): (passSpec: PassSpec) =>
             const toPasserIdx = locationMgr.getPasserIdx(time, passSpec.pass.toRole);
             const [toX, toY] = locationMgr.getLocation((time + passSpec.duration) % locationMgr.mod, toPasserIdx)
 
-            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand,0.22,0.01)
+            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, 0.22, 0.01)
 
 
             result.push({
@@ -87,7 +89,7 @@ function convertBaseMovement(locationMgr: LocationMgr, animationSpec: AnimationS
     const result: SegmentMovementAnimation[] = [];
     for (const m of locationMgr.movements) {
         result.push({
-            onBeat: m.onBeat % locationMgr.mod, 
+            onBeat: m.onBeat % locationMgr.mod,
             passerId: m.passerIdx,//TODO this probably needs to change for animations
             duration: m.duration,
 
@@ -154,7 +156,7 @@ export class LocationMgr {
         if (!lastMoveBeforeTime)
             return this.initialPositions[passerIdx].slice(1) as [number, number];
 
-        
+
         const segment = lastMoveBeforeTime!.segment;
         if ((lastMoveBeforeTime!.onBeat + lastMoveBeforeTime!.duration) % this.mod < time % this.mod) {
             // the last move has completed, so we know where we are
@@ -177,13 +179,14 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
 
     const passMods = animationSpec.passAnimations.map(p => p.mod)
     const movementMods = animationSpec.baseMovementTriggers.map(m => m.mod);
+    const directMovementMods = animationSpec.baseMovementTriggers.map(m => m.mod);
 
     // find the least common multiple of all mods
     const lcm = (a: number, b: number): number => {
         const gcd = (x: number, y: number): number => (y === 0 ? x : gcd(y, x % y));
         return (a * b) / gcd(a, b);
     }
-    const overallMod = passMods.reduce((acc, mod) => lcm(acc, mod), movementMods.reduce((acc, mod) => lcm(acc, mod), 1));
+    const overallMod = passMods.reduce((acc, mod) => lcm(acc, mod), movementMods.reduce((acc, mod) => lcm(acc, mod), directMovementMods.reduce((acc, mod) => lcm(acc, mod), 1)));
 
 
     let movements: LocationMgrMovement[] = []
@@ -233,8 +236,8 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
 
-    roles = roles.filter(r => r[0] < time); 
-    movements = movements.filter(m => m.onBeat < time); 
+    roles = roles.filter(r => r[0] < time);
+    movements = movements.filter(m => m.onBeat < time);
 
     return new LocationMgr(
         animationSpec.initialPositions.map(p => [p.role, p.x, p.y]),
@@ -330,3 +333,123 @@ function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
     return canvas.path(p.join(' '))
 }
 
+
+function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], locationMgr: LocationMgr): [DirectMovementAnimation[], LocationMgr] {
+
+    const directMovementAnimations: DirectMovementAnimation[] = [];
+    for (let time = 0; time < locationMgr.mod; time++) {
+        for (const relativeMovementSpec of relativeMovements) {
+            if (time % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
+                // we need to compute the position of the manipulator at this time
+                const baseRole = relativeMovementSpec.positionSpec.type === "take" ? relativeMovementSpec.positionSpec.toRole : relativeMovementSpec.positionSpec.type === "infront" ? relativeMovementSpec.positionSpec.toRole : relativeMovementSpec.positionSpec.between[1];
+                const basePasserIdx = locationMgr.getPasserIdx(time, baseRole);
+                const [baseX, baseY] = locationMgr.getLocation(time, basePasserIdx);
+
+                let toX: number, toY: number;
+                const locationTime = (relativeMovementSpec.onBeat + relativeMovementSpec.duration) % locationMgr.mod;
+
+                if (relativeMovementSpec.positionSpec.type === "take") {
+                    [toX, toY] = locationMgr.getLocationByRole(locationTime, relativeMovementSpec.positionSpec.toRole)
+                } else if (relativeMovementSpec.positionSpec.type === "between") {
+                    [toX, toY ] = computePositionBetween(locationMgr, locationTime, relativeMovementSpec.positionSpec)
+                } else if (relativeMovementSpec.positionSpec.type === "infront") {
+                    [toX, toY] = computePositionInFrontOf(locationMgr, locationTime, relativeMovementSpec.positionSpec.toRole)
+                } else { throw new Error(`Unknown position spec type: ${relativeMovementSpec.positionSpec}`); }
+
+                directMovementAnimations.push({
+                    onBeat: time + relativeMovementSpec.onBeat % 1, // onBeat
+                    passerId: locationMgr.getPasserIdx(time, relativeMovementSpec.role),
+                    duration: relativeMovementSpec.duration,
+                    toX,
+                    toY
+                })
+            }
+        }
+    }
+
+
+    // export type RelativeMovementSpec = {
+    //     onBeat: number,
+    //     mod: number,
+    //     role: Role, // the manipulator role that is moving
+    //     duration: number, // length of the movement
+    //     positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole would be be at the end of the movement
+    //     //TODO: we could consider handling dependencies among relative movements, where position of M must be computed before the position of N because it is relative to M, as long as there are no circular dependencies
+    // }
+
+    // export type TakePositionSpec = {
+    //     type: "take",
+    //     toRole: Role, // base role who's position to take
+    // }
+    // export type BetweenPositionSpec = {
+    //     type: "between",
+    //     between: [Role, Role], // from/to of the base roles at a given time (possibly in the future)
+    //     side: number, // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
+    //     offset: number, // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
+    //     direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to 
+    // }
+    // export type InFrontOfPositionSpec = {
+    //     type: "infront",
+    //     toRole: Role, // position in front of this role (possibly in the future), where front is between the role and the center of the pattern
+    // }
+
+
+
+
+    // initial position is the end position of the last movement that starts in the previous iteration
+
+    throw new Error("Function not implemented.");
+}
+
+
+export function computePositionInFrontOf(locationMgr: LocationMgr, time: number, role: Role): [number, number, number] {
+    return computePositionBetween(locationMgr, time, {
+        type: "between",
+        between: [role, role],
+        side: 0.5,
+        offset: 0,
+        direction: 0
+    })
+}
+
+/** returns [x, y, absoluteRotationInDegree] (where rotation 0 = facing right) */
+/**
+ * resolves the location of a manipulator for a given action that is 
+ * abstracted as an AbstractPosition object that indicates the location
+ * relative to other roles.
+ * 
+ * @param layout known positions/animations so far
+ * @param abstractPosition specification of where to position the manipulator (relative)
+ * @returns [x, y, absoluteRotationInDegree]
+ */
+export function computePositionBetween(locationMgr: LocationMgr, time: number, betweenSpec: BetweenPositionSpec): [number, number, number] {
+
+
+    // TODO maybe redo this to make it relative to a specific pass (i.e. handling crossing/straight,
+    //  which indication of whether to stand left/right of the pass and early/middle/late/very late)
+    // rather than specific numbers
+
+
+    const [toX, toY] = locationMgr.getLocationByRole(time, betweenSpec.between[1])
+    // TODO for positioning relative to a self, for now we assume that the manipulator is facing
+    // the manipulated from the middle of the space, as if they were manipulating a pass comming
+    // from the point mirror position of the space.
+    const [fromX, fromY] = betweenSpec.between[0] !== betweenSpec.between[1] ?
+        locationMgr.getLocationByRole(time, betweenSpec.between[0]) :
+        [1 - toX, 1 - toY]
+
+    const x = fromX + (toX - fromX) * (1 - betweenSpec.side)
+    const y = fromY + (toY - fromY) * (1 - betweenSpec.side)
+
+    const angle = Math.atan2(toY - fromY, toX - fromX)
+    const angleDegrees = angle * (180 / Math.PI)
+    const absoluteRotation = (angleDegrees + betweenSpec.direction) % 360
+
+    //  Compute perpendicular direction for the offset
+    const perpendicularAngle = angleDegrees + 90
+    const perpendicularRad = perpendicularAngle * (Math.PI / 180)
+    const offsetX = betweenSpec.offset * Math.cos(perpendicularRad)
+    const offsetY = betweenSpec.offset * Math.sin(perpendicularRad)
+
+    return [x + offsetX, y + offsetY, absoluteRotation]
+}

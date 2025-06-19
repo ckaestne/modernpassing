@@ -131,8 +131,9 @@ export type RelativeMovementSpec = {
     onBeat: number,
     mod: number,
     role: Role, // the manipulator role that is moving
-    relativeTime: number, // positions are computed relative to where fromRole and toRole will be `relativeTime` beats later
-    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec
+    duration: number, // length of the movement
+    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole would be be at the end of the movement
+    //TODO: we could consider handling dependencies among relative movements, where position of M must be computed before the position of N because it is relative to M, as long as there are no circular dependencies
 }
 
 export type TakePositionSpec = {
