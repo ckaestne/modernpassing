@@ -161,7 +161,7 @@ export interface Pattern {
 
 
 
-    prettyPrintThrows(withColor?:boolean): string
+    prettyPrintThrows(withColor?: boolean): string
 
     /**
      * returns the period length of the pattern
@@ -208,10 +208,10 @@ export interface Pattern {
     getRowIdxByRole(time: Time, role: string): number
 
 
-    getToPasserIdxOnCausal(t: Throw): number 
+    getToPasserIdxOnCausal(t: Throw): number
 
-    getToPasserIdxAtThrow(t: Throw): number 
-    
+    getToPasserIdxAtThrow(t: Throw): number
+
     getFromPasserRole/*atThrow*/(t: Throw): Role
     getToPasserRole/*atThrow*/(t: Throw): Role
 
@@ -276,8 +276,8 @@ export interface Pattern {
 
     getTargetHandFirstIteration(t: Throw): Hand
 
-    isCrossingPass(t: Throw, iteration: number): boolean 
-    isSelfThrow(t: Throw): boolean 
+    isCrossingPass(t: Throw, iteration: number): boolean
+    isSelfThrow(t: Throw): boolean
 
     /** 
      * computes the number of iterations needed for the pattern to repeat.
@@ -339,7 +339,7 @@ export interface Throw {
      * or `pattern.getToPasserRole`
      */
     readonly toPasserIdxAtCausal: number
-    
+
 
 
     /**
@@ -362,11 +362,11 @@ export interface Throw {
 export interface ThrowMarker {
     kind: string
 }
-export const baseMarker: ThrowMarker = { kind: 'B'}
-export const baseManipulatorMarker: ThrowMarker = { kind: 'M'}
-export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P'|'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role} // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
-export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role} // actually to manipulator
-export interface CarryMarker extends ThrowMarker { kind: 'C', originalFromRole: Role, toRoleAtThrow: Role} // actually from manipulator
+export const baseMarker: ThrowMarker = { kind: 'B' }
+export const baseManipulatorMarker: ThrowMarker = { kind: 'M' }
+export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P' | 'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role, modifiers: string } // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
+export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role, originalThrowLength: number, modifiers: string } // actually to manipulator
+export interface CarryMarker extends ThrowMarker { kind: 'C', originalFromRole: Role, toRoleAtThrow: Role } // actually from manipulator
 export const filledMarker: ThrowMarker = { kind: 'F' } // automatically filled non-actions or automated actions (hold or empty hand or zip)
 
 

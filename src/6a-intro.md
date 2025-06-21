@@ -1,5 +1,12 @@
 # Starting Manipulator Patterns: Concepts and Nicki's 3-Count Roundabout
 
+<sync-group>
+A: 3pB 3 3 3 -- B
+B: 3pA 3 3 3 -- A
+M: SAB
+positions: Line(A,B)
+</sync-group>
+
 
 *Manipulator patterns*, also known as *walking and takeout patterns*, are passing patterns where one or more jugglers *steal* and *place* clubs in a passing pattern, usually also swapping roles with one of the regular passers -- similar to the role changes in [moving patterns](5d-moving.md). This is easier to see in a video than explain with words, here with the popular [Roundabout](./6c-roundabout.md) pattern on a four-count base pattern:
 

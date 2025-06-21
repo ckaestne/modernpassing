@@ -452,7 +452,7 @@ export function computePositionInFrontOf(locationMgr: LocationMgr,locationTime: 
     return computePositionBetween(locationMgr, locationTime, roleTime, {
         type: "between",
         between: [role, role],
-        side: 0.5,
+        side: 0.4,
         offset: 0,
         direction: 0
     })

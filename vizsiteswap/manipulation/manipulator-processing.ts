@@ -178,8 +178,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
-    const carryMarker: CarryMarker|undefined = carriedThrow ? {kind:'C', toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), originalFromRole: initialPattern.getFromPasserRole(carriedThrow!)}: undefined
-                
+    const carryMarker: CarryMarker | undefined = carriedThrow ? { kind: 'C', toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), originalFromRole: initialPattern.getFromPasserRole(carriedThrow!) } : undefined
+
 
     // console.log(pattern.prettyPrintThrows())
 
@@ -234,14 +234,14 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let isCrossing = t.isCrossing
             let throwLength = t.throwLength
             if (isInterceptThrow) {
-                const newMarker: InterceptMarker = {kind:'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole } 
+                const newMarker: InterceptMarker = { kind: 'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
             }
             if (isCarry) {
                 markers = [...markers, carryMarker!]
             }
             if (isSkippedCarry) {
-                markers = [...markers,filledMarker]
+                markers = [...markers, filledMarker]
                 isCrossing = false
                 throwLength = pattern.nrHands
             }
@@ -341,7 +341,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     }
 
     // adding the throw (pelf) to be stolen
-    const newMarkerP: SubstitutionMarker = {kind:'S', throw:'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole} 
+    const newMarkerP: SubstitutionMarker = { kind: 'S', throw: 'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
     pattern = pattern.addThrow({
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
@@ -358,16 +358,16 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     let handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
     // in the unusual case that we cross the pattern boundary, we need to check whether we need to map hands -- this is a bit hacky
     const handinCrossesPatternBoundary = Math.floor((substitutedThrow.throwBeat + placementDelay) / pattern.getLength())
-    assert(handinThrowHand<=1, "cannot handle delay that wraps around the pattern multiple times")
-    if (handinCrossesPatternBoundary>0)
-        handinThrowHand = pattern.mapHands[substitutedThrow.fromPasserIdx][0] ? 1-handinThrowHand : handinThrowHand
+    assert(handinThrowHand <= 1, "cannot handle delay that wraps around the pattern multiple times")
+    if (handinCrossesPatternBoundary > 0)
+        handinThrowHand = pattern.mapHands[substitutedThrow.fromPasserIdx][0] ? 1 - handinThrowHand : handinThrowHand
     const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
     // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
     // however, the row may have changed if the pattern wraps around
     const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
 
     // putting in another club to replace the stolen one
-    const newMarkerS: SubstitutionMarker = {kind:'S', throw:'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole}
+    const newMarkerS: SubstitutionMarker = { kind: 'S', throw: 'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
     pattern = pattern.addThrow({
         ...substitutedThrow,
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,

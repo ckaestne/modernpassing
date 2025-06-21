@@ -283,7 +283,7 @@ function tryHandMapping(pattern: Pattern): Pattern {
 
 function checkModifiers(actionKind: 'I' | 'S', modifiers: string) {
     assert(actionKind !== 'I' || !modifiers.includes('d'), `cannot use 'd' modifier for ${actionKind} action`)
-    const mutuallyExclusive = ['e', 'l', 'v', 'c']
+    const mutuallyExclusive = ['e', 'l', 'v', 'c', 'b']
     for (const a of mutuallyExclusive)
         for (const b of mutuallyExclusive)
             if (a !== b && modifiers.includes(a) && modifiers.includes(b))

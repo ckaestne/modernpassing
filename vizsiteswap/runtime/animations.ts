@@ -123,6 +123,7 @@ export function startAnimation(data: Data, patternLength: number) {
         data.beatLabel?.text((beatIdx + 1).toString());
 
         const actions = data.timers.filter(t => (time % data.mod) === t.beat)
+        console.log(`step ${time}, beat ${beatIdx + 1}, actions:`, actions.map(a => a.fn.name || 'anonymous'), `(${actions.length})`);
         actions.forEach(action => action.fn(action.delay))
         if (data.beatIndicator) {
             data.beatIndicator.indicator.
@@ -257,7 +258,7 @@ function updateLocation(pos: Position, x: number, y: number) {
 }
 
 function relabel(data: Data, changes: [Role, Role][]) {
-    // console.log("relabel", changes, shiftSegment)
+    console.log("relabel", changes)
     const idxs = changes.map(c => [data.positions.findIndex(p => p.role === c[0]), c[1]] as [number, Role]);
     for (const change of idxs) {
         data.positions[change[0]].role = change[1]
