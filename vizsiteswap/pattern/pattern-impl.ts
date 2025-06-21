@@ -168,8 +168,8 @@ export class PatternImpl implements Pattern {
     }
 
 
-    prettyPrintThrows(withColor:boolean = true): string {
-        setColorEnabled(withColor)
+    prettyPrintThrows(withColor?:boolean): string {
+        setColorEnabled(withColor!==false)
 
         let result = ""
 

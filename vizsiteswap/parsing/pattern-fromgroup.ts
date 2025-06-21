@@ -40,7 +40,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
     const patternLayout = !layout ? undefined : 
-        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), rewritten)
+        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), pattern, rewritten)
 
     
 
@@ -528,6 +528,7 @@ export function genLayout(layout: TLayout, movement: TMovement | undefined, patt
             baseMovementSequences,
             baseMovementTriggers,
             relativeMovements: [],
+            basePatternRelabeling: [],
             relabeling: [],
             // speed: pattern.nrHands === 4 ? 2 : 1
         },

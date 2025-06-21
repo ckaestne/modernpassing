@@ -1,16 +1,13 @@
 import { type Pattern, type Role } from "@modernpassing/pattern";
 import { PassSpec, RelabelSpec } from "./animation-spec.ts";
 import type { GroupPatternLayoutSpec } from "./layout.ts";
+import { get } from "node:http";
 
 
 
 
-
-
-
-export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
-    //TODO extend for manipulator actions
-    const layoutRelabel: RelabelSpec[] = []
+function getRelabelSpec(pattern: Pattern): RelabelSpec[] {
+     const layoutRelabel: RelabelSpec[] = []
 
     let lastLabels: Role[] = []
     for (const [beat, labels] of pattern.roles) {
@@ -47,12 +44,20 @@ export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, pattern: Pat
             changes: finalLabelChanges,
         })
     }
+    return layoutRelabel
+}
 
+
+
+export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, basePattern: Pattern, manipulatorPattern: Pattern): GroupPatternLayoutSpec {
+    //TODO extend for manipulator actions
+   
     return {
         ...layout,
         animation: {
             ...layout.animation,
-            relabeling: layoutRelabel,
+            basePatternRelabeling: getRelabelSpec(basePattern),
+            relabeling: getRelabelSpec(manipulatorPattern),
         }
     }
 }

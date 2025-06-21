@@ -3,7 +3,7 @@
  */
 
 import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner } from "@svgdotjs/svg.js";
-import type { MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
+import type { DirectMovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
 import { assert } from "node:console";
 import { posix } from "node:path";
 
@@ -20,7 +20,6 @@ export enum Hand {
 }
 
 type Position = {
-    passerId: number, // should be same with index in data.positions
     role: Role,
     x: number, // absolute coordinates in the SVG
     y: number,
@@ -94,9 +93,8 @@ export function initialize(svgId: string, mod: number, speed: number = 1, beatIn
  * @param svgLabelId 
  * @param segmentSequence 
  */
-export function addPosition(data: Data, passerId: number, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string) {
-    console.assert(data.positions.length === passerId, `addPosition: passerId must be equal to the current number of positions (${data.positions.length})`);
-    data.positions.push({ passerId, role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text });
+export function addPosition(data: Data, _: number, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string) {
+    data.positions.push({ role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text });
 }
 
 /**
@@ -139,6 +137,13 @@ export function startAnimation(data: Data, patternLength: number) {
     timeline.play();
 }
 
+function getPositionByRole(data: Data, role: Role): Position {
+    const pos = data.positions.find(p => p.role === role);
+    if (!pos) {
+        throw Error(`Role ${role} not found in data.positions`);
+    }
+    return pos;
+}
 
 /**
  * sets up the default movement along the movement segments of the role.
@@ -146,23 +151,39 @@ export function startAnimation(data: Data, patternLength: number) {
 export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAnimation[]): void {
     for (const spec of movementSpecs) {
         schedule(data, spec.onBeat, (delay: number) => {
-            const pos = data.positions[spec.passerId]
+            const pos = getPositionByRole(data, spec.role)
             const seg = data.segments[spec.segmentIdx]
             const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
-            const animatedCircle = pos.svgCircle
-            // gray arrow for the moving path in the background
+            console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
+            animateMoveOnPath(data, pos, path, delay, spec.duration);
+            
+        })
+    }
+}
+
+export function setDirectMovements(data: Data, directMovementAnimations: DirectMovementAnimation[]): void {
+    for (const spec of directMovementAnimations) {
+        schedule(data, spec.onBeat, (delay: number) => {
+            const pos = getPositionByRole(data, spec.role)
+            const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY);
+            console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
+            animateMoveOnPath(data, pos, path, delay, spec.duration);
+        })
+    }
+}
+
+function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number): void { 
+    // gray arrow for the moving path in the background
             path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
                 after(pos.svgCircle).back().hide();
-            console.log(`${spec.passerId} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
-            const animation: Runner = animatedCircle.animate(spec.duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
+            const animation: Runner = pos.svgCircle.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
             (animation as any).on('start', function () { path.show(); })
             animation.during(function (relativeProgress: number) {
                 const p = path.pointAt(relativeProgress * path.length());
-                animatedCircle.center(p.x, p.y);
+                pos.svgCircle.center(p.x, p.y);
             })
-            animation.after(function () { updateLocation(pos, seg.toX, seg.toY); path.remove(); });
-        })
-    }
+            const endPosition = path.pointAt(path.length())
+            animation.after(function () { updateLocation(pos, endPosition.x, endPosition.y); path.remove(); });
 }
 
 /**
@@ -235,9 +256,10 @@ function updateLocation(pos: Position, x: number, y: number) {
     pos.y = y
 }
 
-function relabel(data: Data, changes: [number, Role][]) {
+function relabel(data: Data, changes: [Role, Role][]) {
     // console.log("relabel", changes, shiftSegment)
-    for (const change of changes) {
+    const idxs = changes.map(c => [data.positions.findIndex(p => p.role === c[0]), c[1]] as [number, Role]);
+    for (const change of idxs) {
         data.positions[change[0]].role = change[1]
         data.positions[change[0]].svgLabel.text(change[1])
     }
@@ -309,6 +331,11 @@ function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
     else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]
     return canvas.path(p.join(' '))
 }
+
+function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number): Path {
+    return canvas.path(`M${x1},${y1} L${x2},${y2}`)
+}
+
 
 // const timers: { [speed: number]: (() => void)[] } = {};
 // function addTimer(f: () => void, speed: number) {

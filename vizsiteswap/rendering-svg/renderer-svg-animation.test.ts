@@ -71,6 +71,13 @@ test("render first animation (star with a hole)", async (t) => {
         ],
         baseMovementSequences: [[0, 1, 2, 3, 4], [1, 2, 3, 4, 0], [2, 3, 4, 0, 1], [3, 4, 0, 1, 2], [4, 0, 1, 2, 3]],
         relativeMovements: [],
+        basePatternRelabeling:[
+            {
+                onBeat: 0,
+                mod: 4,
+                changes: [['A', 'C'], ['B', 'D'], ['C', 'B'], ['D', 'A']],
+            },
+        ],
         relabeling: [
             {
                 onBeat: 0,

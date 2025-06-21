@@ -144,13 +144,13 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     const manipulatorRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, intercept.manipulatorRole)
     const manipulatedRowIdxAfterIBeat = pattern.getRowIdxByRole(iBeat, manipulatedRoleOnIBeat)
 
+    const initialPattern = pattern
 
     // swap labels on the iBeat and relabeling at the end of the pattern
     pattern = pattern.swapRoles(iBeat, manipulatedRoleOnIBeat, intercept.manipulatorRole, false)
 
     // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
     // the same hand sequences 
-    const initialPattern = pattern
     pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
 
 

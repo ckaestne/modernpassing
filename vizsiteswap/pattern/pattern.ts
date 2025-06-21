@@ -161,7 +161,7 @@ export interface Pattern {
 
 
 
-    prettyPrintThrows(): string
+    prettyPrintThrows(withColor?:boolean): string
 
     /**
      * returns the period length of the pattern

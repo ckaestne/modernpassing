@@ -48,6 +48,7 @@ export type AnimationSpec = {
     baseMovementSequences: MovementSequenceSpec[], // segment indices for each jugger (not role), by the order of initial roles
     baseMovementTriggers: MovementTriggerSpec[],
     relativeMovements: RelativeMovementSpec[], // for manipulators, relative to other roles
+    basePatternRelabeling: RelabelSpec[], // relabeling of base roles, ignoring manipulators -- this is needed to determine the proper movement of the base roles
     relabeling: RelabelSpec[],
 }
 
@@ -130,15 +131,16 @@ export type MovementTriggerSpec = {
 export type RelativeMovementSpec = {
     onBeat: number,
     mod: number,
-    role: Role, // the manipulator role that is moving
+    role: Role, // the manipulator role that is moving, identified on beat onBeat (not arrival beat)
     duration: number, // length of the movement
-    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole would be be at the end of the movement
+    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
+    targetRoleTime: "onBeat" | "arrival" // whether a passer is identified by their roles given RelativeMovementSpec is identified at the start of the movement (onBeat) or at the end of the movement (onBeat + duration)
     //TODO: we could consider handling dependencies among relative movements, where position of M must be computed before the position of N because it is relative to M, as long as there are no circular dependencies
 }
 
 export type TakePositionSpec = {
     type: "take",
-    toRole: Role, // base role who's position to take
+    toRole: Role, // base role who's position to take 
 }
 export type BetweenPositionSpec = {
     type: "between",

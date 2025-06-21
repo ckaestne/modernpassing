@@ -470,9 +470,9 @@ export function renderAnimation(
 
     // TODO: scale all coordinates
     javascript += `setSegments(data, ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))});\n`
-    console.log(layout.passAnimations)
     javascript += `setPasses(data, ${JSON.stringify(layout.passAnimations.map(scale.scalePass))});\n`
     javascript += `setSegmentMovements(data, ${JSON.stringify(layout.segmentMovementAnimations)});\n`
+    javascript += `setDirectMovements(data, ${JSON.stringify(layout.directMovementAnimations.map(scale.scaleDirectMovement))});\n`
     javascript += `setRelabeling(data, ${JSON.stringify(layout.relabeling)});\n`
     javascript += `startAnimation(data, ${patternLength});\n`
     

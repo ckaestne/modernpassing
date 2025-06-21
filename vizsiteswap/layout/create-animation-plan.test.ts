@@ -4,7 +4,7 @@ import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 
 
-Deno.test("compute animation plan length", () => {
+Deno.test("locationMgr for moving feed (V)", () => {
 
     const pattern = `A: 3pB3  3pC3  3pB3  -- B
     B: 3pA3  3  3  3pA3 -- C
@@ -93,20 +93,139 @@ move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,
 })
 
 
-Deno.test.only("first attempt at manipulator animation", ()=>{
+Deno.test("first attempt at manipulator animation", () => {
+    const unscambledB = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: IB.CB.SA.
+positions: V(A,B,C)`
+    const scambledV = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: CB.SB.IC
+positions: V(A,B,C)`
     const roundabout = `A: 3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33  -- A
          M: SB z SB z  IB . CB z
 positions: Line(A,B)`
-    const gp: GroupPattern = createSyncGroupPattern(roundabout)
+    const gp: GroupPattern = createSyncGroupPattern(scambledV)
     const plan = createAnimationPlan(gp.layout!.animation);
     console.log(plan)
-    
+
 })
 
 
 
+Deno.test.only("check positions in scrambled V animations", () => {
+    const scambledV = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: CB.SB.IC
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    const gp: GroupPattern = createSyncGroupPattern(scambledV)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+
+    const locationMgr = computeBaseAnimations(gp.layout!.animation)
+    const startLocationA: [number, number] = [0.5, 0] // A then B
+    const startLocationB: [number, number] = [0.75, 0.933] // B before move
+    const startLocationC: [number, number] = [0.25, 0.933] // C then A
+    const moveLocationB: [number, number] = [.933, .25] // B after move, now C
+    const centerLocation: [number, number] = [0.5, 0.5]
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'C')!), startLocationC, "C at start");
+
+    // M should be between A and B
+    // assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationA, startLocationB, "M at start");
+
+    // on beat 1 M moves toward B for substitution on beat 2
+    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
+    assert(m1, "M movement on beat 1 exists")
+    assertLocationBetween(xy(m1), startLocationB, centerLocation, "M in front of B on beat 2");
+
+    // on beat 3 or 4 M moves near C to intercept a throw form C
+    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && (m.onBeat === 3 || m.onBeat === 4))
+    assert(m2, "M movement on beat 3 or 4 exists")
+    assertNearbyLocation(xy(m2), startLocationC, "M near C on beat 3 or 4");
+
+    // beat 5 is the iBeat (when the intercept lands and the roles swap)
+    // now we expect the previous M, now C, to move to C's original position
+    const m3 = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 5)
+    assert(m3, "C movement on beat 5 exists")
+    assertEqualLocation(xy(m3), startLocationC, "C at original position on beat 5");
+    // at the same time, M, the previous C, should start moving toward A for the carry
+    const m4 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 5)
+    assert(m4, "M movement on beat 5 exists")
+    assertLocationBetween(xy(m4), startLocationC, startLocationA, "M moving toward A on beat 5");
+
+    // next round, M arrived for the carry
+    // B should be walking
+    const b1 = plan.segmentMovementAnimations.find(m => m.role === 'B' && m.onBeat === 4.9)
+    assert(b1, "B segment movement on beat 4.9 exists")
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'C'), moveLocationB, "B, now C, should be in the right place after walking");
+    // after relabeling all positions should be as expected
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), startLocationA, "A is now B");
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), startLocationC, "C is now A");
+
+    // on beat 1 M now moves to substitute the new B in originalA position
+    const m5 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 7)
+    assert(m5, "M movement on beat 7 exists")
+    assertLocationBetween(xy(m5), startLocationA, centerLocation, "M moving toward B (former A) on beat 7");
+
+    // now we are moving to intercept again on beat 3 or 4
+    const m6 = plan.directMovementAnimations.find(m => m.role === 'M' && (m.onBeat === 9 || m.onBeat === 10))
+    assert(m6, "M movement on beat 9 or 10 exists")
+    assertNearbyLocation(xy(m6), moveLocationB, "M near B on beat 9 or 10");
+
+    // then M moves to C's original position on beat 11 (where B moved to)
+    const m7 = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 11)
+    assert(m7, "M movement on beat 11 exists")
+    assertEqualLocation(xy(m7), moveLocationB, "M at C's original position on beat 11");
+
+    // and the new M moves to carry to A 
+    const m8 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
+    assert(m8, "third M's movement on beat 11 exists")
+    assertLocationBetween(xy(m8), moveLocationB, startLocationC, "M moving toward A on beat 11");
+
+    // console.log(plan)
+
+})
+
+
+function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
+    if ('toX' in pos) {
+        return [pos.toX, pos.toY]
+    }
+    return [pos.x, pos.y]
+}
+
 function assertEqualLocation(actual: [number, number], expected: [number, number], label?: string) {
-    assert(Math.round(100 * actual[0]) / 100 === Math.round(100 * expected[0]) / 100, `${label ?? ''} X location mismatch: expected ${expected} but got ${actual}`);
-    assert(Math.round(100 * actual[1]) / 100 === Math.round(100 * expected[1]) / 100, `${label ?? ''} Y location mismatch: expected ${expected} but got ${actual}`);
+    assert(Math.round(100 * actual[0]) / 100 === Math.round(100 * expected[0]) / 100, `${label ?? 'assertEqualLocation'}: X location mismatch: expected ${expected} but got ${actual}`);
+    assert(Math.round(100 * actual[1]) / 100 === Math.round(100 * expected[1]) / 100, `${label ?? 'assertEqualLocation'}: Y location mismatch: expected ${expected} but got ${actual}`);
+}
+
+// check that the location is anywhere between the two expected locations
+function assertLocationBetween(actual: [number, number], expectedA: [number, number], expectedB: [number, number], label?: string) {
+    assert(actual[0] >= Math.min(expectedA[0], expectedB[0]) && actual[0] <= Math.max(expectedA[0], expectedB[0]), `${label ?? 'assertLocationBetween'}: X location ${actual[0]} not between ${expectedA[0]} and ${expectedB[0]}`);
+    assert(actual[1] >= Math.min(expectedA[1], expectedB[1]) && actual[1] <= Math.max(expectedA[1], expectedB[1]), `${label ?? 'assertLocationBetween'}: Y location ${actual[1]} not between ${expectedA[1]} and ${expectedB[1]}`);
+    // Interpolate y based on x position along the line
+    if ((expectedB[0] - expectedA[0]) !== 0) {
+        const xRatio = (actual[0] - expectedA[0]) / (expectedB[0] - expectedA[0]);
+        const expectedY = expectedA[1] + xRatio * (expectedB[1] - expectedA[1]);
+        assert(Math.abs(actual[1] - expectedY) < 0.01, `${label ?? 'assertLocationBetween'}: Y location ${actual[1]} not on line between points, expected ${expectedY}`);
+    }
+}
+
+// somewhat fuzzy: not the same location, but near it (usually for intercept next to or in front of)
+function assertNearbyLocation(actual: [number, number], expected: [number, number], label?: string) {
+    assert((Math.round(100 * actual[0]) / 100 !== Math.round(100 * expected[0]) / 100)
+        || (Math.round(100 * actual[1]) / 100 === Math.round(100 * expected[1]) / 100), `${label ?? 'assertEqualLocation'}: locations expected to be different but found the same: expected not ${expected}, but got ${actual}`);
+
+    const acceptedDistance = 0.2; // acceptable distance for "nearby"
+    assert(Math.abs(actual[0] - expected[0]) < acceptedDistance && Math.abs(actual[1] - expected[1]) < acceptedDistance, `${label ?? 'assertNearbyLocation'}: location ${actual} not near expected ${expected}`);
+
 }

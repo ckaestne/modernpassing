@@ -6,7 +6,10 @@
  * 
  * An animation repeats all the way back to the original positions.
  * 
- * Animations are expressed for individual passers, not roles.
+ * Animations are expressed for roles, always referring to the role at the
+ * start of an animation (onBeat). Relabeling always happens before animations,
+ * an animation for role X on beat Y is always for the passer who has role X
+ * after relabeling on beat Y (if any).
  * 
  * 
  */
@@ -53,7 +56,7 @@ export type PassAnimation = {
 
 export type SegmentMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
-    passerId: number,
+    role: Role,
     duration: number,
 
     segmentIdx: number,
@@ -62,7 +65,7 @@ export type SegmentMovementAnimation = {
 
 export type DirectMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
-    passerId: number,
+    role: Role,
     duration: number,
 
     toX: number,
@@ -73,5 +76,5 @@ export type DirectMovementAnimation = {
 export type RelabelAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
 
-    changes: [number, Role][] // passerId, newRole
+    changes: [Role, Role][] // previous role, new role
 }
