@@ -240,7 +240,7 @@ positions: Line(A,B)`
 Deno.test.only("check positions in nicki's three count roundabout", () => {
     const roundabout = `A: 3pB333pB33
 B: 3pA333pA33
-M: SB.IBe C..
+M: SB.IBe C↻..
 positions: Line(A,B)`
     const gp: GroupPattern = createSyncGroupPattern(roundabout)
     const spec = gp.layout!.animation

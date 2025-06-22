@@ -106,6 +106,7 @@ export function scaler(scalex: (x: number) => number, scaley: (y: number) => num
                 duration: spec.duration,
                 toX: scalex(spec.toX),
                 toY: scaley(spec.toY),
+                bend: spec.bend
             }
         }
 

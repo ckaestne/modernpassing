@@ -39,10 +39,10 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
-    const patternLayout = !layout ? undefined : 
+    const patternLayout = !layout ? undefined :
         setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), pattern, rewritten)
 
-    
+
 
     return {
         pattern: rewritten,
@@ -179,12 +179,18 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 modifiers
             }
         } else if (throwStr[0] === 'C') {
-            const toPasserRole = throwStr[1] && throwStr[1].match(/[A-Z]/) ? throwStr[1] : undefined
+            let modifiers = throwStr.slice(1)
+            let toPasserRole: string | undefined = undefined
+            if (throwStr[1] && throwStr[1].match(/[A-Z]/)) {
+                toPasserRole = throwStr[1]
+                modifiers = modifiers.slice(1)
+            }
             return {
                 kind: 'C',
                 toPasserRole,
                 beat: when,
                 manipulatorRole: who,
+                modifiers
             }
         } else {
             const t = convert(throwStr, whoIdx, undefined, when)

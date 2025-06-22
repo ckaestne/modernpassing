@@ -165,7 +165,7 @@ export function setDirectMovements(data: Data, directMovementAnimations: DirectM
     for (const spec of directMovementAnimations) {
         schedule(data, spec.onBeat, (delay: number) => {
             const pos = getPositionByRole(data, spec.role)
-            const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY);
+            const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY, spec.bend);
             // console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
             animateMoveOnPath(data, pos, path, delay, spec.duration);
         })
@@ -332,8 +332,13 @@ function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
     return canvas.path(p.join(' '))
 }
 
-function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number): Path {
-    return canvas.path(`M${x1},${y1} L${x2},${y2}`)
+function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number, bend?: "↻"|"↺"): Path {
+    console.log(`directPath from (${x1}, ${y1}) to (${x2}, ${y2}) with bend ${bend}`)
+    if (!bend)
+        return canvas.path(`M${x1},${y1} L${x2},${y2}`)
+    const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    const r = distance * 1
+    return canvas.path(`M${x1},${y1} A${r},${r} 0 0,${bend === "↻" ? 1 : 0} ${x2},${y2}`) // bend is clockwise for ↻ and counter-clockwise for ↺
 }
 
 

@@ -135,6 +135,7 @@ export type RelativeMovementSpec = {
     duration: number, // length of the movement
     positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
     targetRoleTime: "onBeat" | "arrival" // whether a passer is identified by their roles given RelativeMovementSpec is identified at the start of the movement (onBeat) or at the end of the movement (onBeat + duration)
+    bend?: "↻"|"↺"
     //TODO: we could consider handling dependencies among relative movements, where position of M must be computed before the position of N because it is relative to M, as long as there are no circular dependencies
 }
 

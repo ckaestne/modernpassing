@@ -413,7 +413,8 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
                     role: relativeMovementSpec.role,
                     duration: relativeMovementSpec.duration,
                     toX,
-                    toY
+                    toY,
+                    bend: relativeMovementSpec.bend
                 })
             }
         }

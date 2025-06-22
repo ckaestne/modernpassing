@@ -67,6 +67,7 @@ export type DirectMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
     role: Role,
     duration: number,
+    bend?: "↻"|"↺"
 
     toX: number,
     toY: number,

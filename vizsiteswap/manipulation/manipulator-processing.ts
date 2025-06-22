@@ -85,7 +85,7 @@ export function applyInterceptCarrys(pattern: Pattern, actions: ManipulatorActio
             const nextCarryableThrow: Throw | undefined = pattern.findThrow(pattern.getThrowCauseBeat(interceptedThrow), interceptedThrow.toPasserIdxAtCausal)
             const [carryDelay, carryAction] = findCarryDelay(0, 0, nextCarryableThrow, intercept)
 
-            pattern = applyInterceptCarryByDelay(pattern, intercept, carryDelay, carryAction?.toPasserRole)
+            pattern = applyInterceptCarryByDelay(pattern, intercept, carryDelay, carryAction)
         }
     }
     return pattern
@@ -120,7 +120,7 @@ function findManipulatedThrow(pattern: Pattern, action: InterceptAction | Substi
  * @param carryDelay the number of throws skipped after the iTime -- typically 0 or 1; this can be unintuitive for throws != 3; delays that are so long that the carry would happen after the next period's intercept lands are rejected
  * @param carryTargetRole the role that the carry is redirected to; not used for any computation since the carry is determined by the intercept + delay; can be optionally provided to check the validity of the notation
  */
-export function applyInterceptCarryByDelay(pattern: Pattern, intercept: InterceptAction, carryDelay?: number, carryTargetRole?: Role): Pattern {
+export function applyInterceptCarryByDelay(pattern: Pattern, intercept: InterceptAction, carryDelay?: number, carryAction?: CarryAction): Pattern {
     // console.log(`applyInterceptCarryByDelay(I ${intercept.beat} ${intercept.fromPasserRole} ${intercept.toPasserRole} by ${intercept.manipulatorRole} delay ${carryDelay})`)
     // if the pattern does not already have the manipulator role's row -- add it
     if (!pattern.hasRole(intercept.manipulatorRole))
@@ -182,7 +182,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
         kind: 'C', 
         toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), 
         originalFromRole: initialPattern.getFromPasserRole(carriedThrow!),
-        carryDelay: carryDelay!
+        carryDelay: carryDelay!,
+        modifiers: carryAction!.modifiers
     } : undefined
 
 
