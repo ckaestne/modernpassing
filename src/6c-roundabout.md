@@ -17,6 +17,7 @@ It recently has even made it into juggling games the the IJA and ECJ festivals.
 A: 3pB333 3pB333 -- B
 B: 3pA333 3pA333 -- A
 M: SBezSBlz IBvo.CBz
+positions: Line(A,B)
 </todo-sync-group>
 
 

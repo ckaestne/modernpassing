@@ -28,8 +28,10 @@ Modifiers for `S`, `I` and `C` relevant for movement and understanding the orien
 `dN` -- substitution with **d**elayed placement; placement is delayed by N beats (default N=1) and consequently reduced in height (the German turn could be modeled as d2 with a delayed 1p placement, ambled 3 is d1 with a delayed 3p placement)
 
 `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
-`x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+`x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to `o`). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
 `b` -- intercept very late from **b**ehind the target's location
+
+`↻` or `↺` -- move clockwise or counter-clockwise in an arc to the target position after the intercept or for the carry (currently no effect on movement *to*  substitutions and *to* intercepts); default is direct movement
 
 `f` -- zip with **f**lipping the club (`zf`) / flip only the active club on the carry (`CBf`), by default carry implies flipping both clubs
 

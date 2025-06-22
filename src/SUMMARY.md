@@ -35,7 +35,7 @@
 # Minis and Prechac
 
 <!-- - [](./3-minis.md) -->
-- [TODO](./introduction.md)
+<!-- - [TODO](./introduction.md) -->
 
 # Group Patterns
 

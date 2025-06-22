@@ -17,7 +17,7 @@ command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
 
 [output.html]
 additional-css = [".mdbook/svgstyle.css"]
-additional-js = ["vizsiteswap/runtime/animations.js","vizsiteswap/runtime/svg.min.js"]
+additional-js = ["vizsiteswap/dist/animations.js","vizsiteswap/dist/svg.min.js"]
 smart-punctuation = true
 git-repository-url = "https://github.com/ckaestne/modernpassing"
 git-repository-icon = "fa-github"
