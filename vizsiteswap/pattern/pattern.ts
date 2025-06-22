@@ -366,7 +366,7 @@ export const baseMarker: ThrowMarker = { kind: 'B' }
 export const baseManipulatorMarker: ThrowMarker = { kind: 'M' }
 export interface SubstitutionMarker extends ThrowMarker { kind: 'S', throw: 'P' | 'S'/*pelf or substituted*/, fromRole: Role, toRoleAtThrow: Role, modifiers: string } // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
 export interface InterceptMarker extends ThrowMarker { kind: 'I', fromRole: Role, originalToRoleAtThrow: Role, originalThrowLength: number, modifiers: string } // actually to manipulator
-export interface CarryMarker extends ThrowMarker { kind: 'C', originalFromRole: Role, toRoleAtThrow: Role } // actually from manipulator
+export interface CarryMarker extends ThrowMarker { kind: 'C', originalFromRole: Role, toRoleAtThrow: Role, carryDelay /* how many beats after the IBeat */: number } // actually from manipulator
 export const filledMarker: ThrowMarker = { kind: 'F' } // automatically filled non-actions or automated actions (hold or empty hand or zip)
 
 

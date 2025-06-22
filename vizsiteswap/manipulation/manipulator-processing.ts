@@ -178,7 +178,12 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
-    const carryMarker: CarryMarker | undefined = carriedThrow ? { kind: 'C', toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), originalFromRole: initialPattern.getFromPasserRole(carriedThrow!) } : undefined
+    const carryMarker: CarryMarker | undefined = carriedThrow ? { 
+        kind: 'C', 
+        toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), 
+        originalFromRole: initialPattern.getFromPasserRole(carriedThrow!),
+        carryDelay: carryDelay!
+    } : undefined
 
 
     // console.log(pattern.prettyPrintThrows())

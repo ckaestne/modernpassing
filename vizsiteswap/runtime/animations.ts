@@ -123,7 +123,6 @@ export function startAnimation(data: Data, patternLength: number) {
         data.beatLabel?.text((beatIdx + 1).toString());
 
         const actions = data.timers.filter(t => (time % data.mod) === t.beat)
-        console.log(`step ${time}, beat ${beatIdx + 1}, actions:`, actions.map(a => a.fn.name || 'anonymous'), `(${actions.length})`);
         actions.forEach(action => action.fn(action.delay))
         if (data.beatIndicator) {
             data.beatIndicator.indicator.
@@ -155,7 +154,7 @@ export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAn
             const pos = getPositionByRole(data, spec.role)
             const seg = data.segments[spec.segmentIdx]
             const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
-            console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
+            // console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
             animateMoveOnPath(data, pos, path, delay, spec.duration);
             
         })
@@ -167,7 +166,7 @@ export function setDirectMovements(data: Data, directMovementAnimations: DirectM
         schedule(data, spec.onBeat, (delay: number) => {
             const pos = getPositionByRole(data, spec.role)
             const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY);
-            console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
+            // console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
             animateMoveOnPath(data, pos, path, delay, spec.duration);
         })
     }
@@ -258,7 +257,7 @@ function updateLocation(pos: Position, x: number, y: number) {
 }
 
 function relabel(data: Data, changes: [Role, Role][]) {
-    console.log("relabel", changes)
+    // console.log("relabel", changes)
     const idxs = changes.map(c => [data.positions.findIndex(p => p.role === c[0]), c[1]] as [number, Role]);
     for (const change of idxs) {
         data.positions[change[0]].role = change[1]

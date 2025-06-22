@@ -198,7 +198,7 @@ move: Vmove(B,4.9,3)`
 
 
 
-Deno.test.only("check positions in scrambled V animations", () => {
+Deno.test("check positions roundabout", () => {
     const roundabout = `A: 3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33  -- A
          M: SB z SB z  IBe . CB z
@@ -232,6 +232,55 @@ positions: Line(A,B)`
     const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 5)
     assert(m3, "B movement on beat 5 exists")
     assertEqualLocation(xy(m3), startLocationB, "B at original position on beat 5");
+
+})
+
+
+
+Deno.test.only("check positions in nicki's three count roundabout", () => {
+    const roundabout = `A: 3pB333pB33
+B: 3pA333pA33
+M: SB.IBe C..
+positions: Line(A,B)`
+    const gp: GroupPattern = createSyncGroupPattern(roundabout)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+
+    const locationMgr = computeBaseAnimations(gp.layout!.animation)
+    const startLocationA: [number, number] = [0, 0.5] // A then B
+    const startLocationB: [number, number] = [1, .5] // B before move
+    const centerLocation: [number, number] = [0.5, 0.5]
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    // M should be in the middle for the pass substitution
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), centerLocation, "M at start");
+ 
+    // on beat 1 M moves toward B for the intercept in front of B on beat 2
+    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
+    assert(m1, "M movement on beat 1 exists")
+    assertLocationBetween(xy(m1), centerLocation, startLocationB, "M in front of B on beat 2");
+
+    // on beat 3, M is now B and go to B's original position
+    const m2 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 3)
+    assert(m2, "B movement on beat 3 exists")
+    assertEqualLocation(xy(m2), startLocationB, "B at original position on beat 3");
+
+    // new new manipulator may need to move somewhat early to do the carry on beat 3, so leaving on beat 2, when they are still B
+    const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 2)
+    assert(m3, "B movement on beat 2 exists")
+    assertLocationBetween(xy(m3), startLocationA, centerLocation, "B moving toward A on beat 2");
+
+    // // on beat 3 M moves near A to intercept the pass early
+    // const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    // assert(m2, "M movement on beat 3 or 4 exists")
+    // assertLocationBetween(xy(m2), startLocationA, centerLocation, "M near C on beat 3 or 4");
+
+    // // after the intercept on beat 5, M is now B and should go to B's original position
+    // const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 5)
+    // assert(m3, "B movement on beat 5 exists")
+    // assertEqualLocation(xy(m3), startLocationB, "B at original position on beat 5");
 
 })
 

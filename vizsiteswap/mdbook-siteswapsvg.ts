@@ -19,7 +19,7 @@ if (process.argv[2] === "supports") {
 
 const file = fs.readFileSync(0, 'utf-8');
 
-// fs.writeFileSync("tmp_mdbook.json", file);
+fs.writeFileSync("tmp_mdbook.json", file);
 
 
 const [_, book] = JSON.parse(file);
@@ -102,8 +102,6 @@ function handleGroupPattern(p: string, nrHands: number, config: any): string {
 const endTime = Date.now();
 const elapsedTime = endTime - startTime;
 console.error(`mdbook-siteswapsvg processed ${nrPatterns[1]} sync, ${nrPatterns[0]} siteswap, and ${nrPatterns[2]} group patterns in ${elapsedTime} milliseconds`);
-
-
 
 console.log(JSON.stringify(book));
 
