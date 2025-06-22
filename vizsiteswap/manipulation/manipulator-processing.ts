@@ -166,7 +166,8 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     let lastAnalyzedThrow = interceptedThrow
     let cTimeOffset = 0 // offset relative to iBeat
     let carryThrowTime = iBeat
-    while (carryDelay !== undefined && carryDelay >= 0) {
+    let remainingCarryDelay = carryDelay    
+    while (remainingCarryDelay !== undefined && remainingCarryDelay >= 0) {
         if (carriedThrow)
             skippedThrows.push(carriedThrow)
         // find the throw caused by the intercept (or the previously skipped carry)
@@ -174,7 +175,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
         carryThrowTime = iBeat + cTimeOffset
         cTimeOffset = pattern.getThrowCauseTime_(cTimeOffset, carriedThrow.throwLength)
         lastAnalyzedThrow = carriedThrow
-        carryDelay--
+        remainingCarryDelay--
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)

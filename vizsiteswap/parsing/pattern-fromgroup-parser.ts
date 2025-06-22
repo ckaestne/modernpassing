@@ -60,7 +60,7 @@ export enum TokenKind {
 export const tokenizer = buildLexer<TokenKind>([
     [true, /^([0-9a-y](p)?[A-Z]?(x)?)/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, TokenKind.Role],
-    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e[ox\[\]]|e|l[ox\[\]]|l|b|v[ox\[\]]|v|c)?[↻|↺]?|C[A-Z]{0,2}f?[↻|↺]?|zf?)/g, TokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e[ox\[\]]|e|l[ox\[\]]|l|v[oxb\[\]]|v|c)?[↻|↺]?|C[A-Z]{0,2}f?[↻|↺]?|zf?)/g, TokenKind.ManipulatorAction],
     [true, /^[\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.HalfEmpty],
     [true, /^:/g, TokenKind.Colon],

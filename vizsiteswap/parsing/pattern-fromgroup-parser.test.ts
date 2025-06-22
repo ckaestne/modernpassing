@@ -59,9 +59,9 @@ M: SBcz SAlz SAcz SAlz IAv]. CA`
 test('manipulator pattern parsing of opernball', async (t) => {
     const opernball = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
-M: SBloz   zf  SBloz   .   IBvbCA  . 
-N: SAloz   .   IAvbCB  .   SBloz   zf  
-O: IBvbCA  .   SAloz   zf  SAloz   .   `
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAloz   zf  SAloz   .   `
     const p = parseGroupPattern(opernball)
     // console.log(p)
 

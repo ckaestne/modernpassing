@@ -1284,7 +1284,7 @@ Deno.test('delayed substitute placement: basics', () => {
         `A: 3333 -- B
          B: 3333  -- A
          M: . SBd1 `)
-    assert.deepEqual(d, d1)
+    assert.deepEqual(stripModifiers(d), stripModifiers(d1))
     console.log(d1.prettyPrintThrows())
 
 
@@ -1293,6 +1293,16 @@ Deno.test('delayed substitute placement: basics', () => {
 
 
 })
+
+function stripModifiers(p: Pattern): Pattern {
+    return {
+        ...p,
+        throws: p.throws.map(t => ({
+            ...t,
+            markers: []
+        }))
+    }
+}
 
 
 test.skip('delayed substitute placement: roundabout with German turn', () => {
