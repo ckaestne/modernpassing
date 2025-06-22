@@ -71,6 +71,8 @@ export type DirectMovementAnimation = {
 
     toX: number,
     toY: number,
+
+    takeRelativeMovementFrom: [number, Role] | undefined // if defined, continue on an animation path from another passer (identified by beat and role at the start of the animation) after arriving
 }
 
 

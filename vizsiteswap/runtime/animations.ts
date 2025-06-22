@@ -19,12 +19,14 @@ export enum Hand {
     Right, Left
 }
 
+/** position relates to a physical passer, with possibly changing roles */
 type Position = {
     role: Role,
     x: number, // absolute coordinates in the SVG
     y: number,
     svgCircle: G,
-    svgLabel: Text
+    svgLabel: Text,
+    currentAnimation?: CustomMovementRunner // current animation for this passer, if any
 }
 export type Data = {
     mod: number,
@@ -38,7 +40,8 @@ export type Data = {
         xoffsets: number[] // x offsets for the beat indicators for each beat of the pattern
     },
     beatLabel?: Text, // optional label to indicate the current beat
-    intervalId?: number // interval ID for the animation loop, when running
+    intervalId?: number, // interval ID for the animation loop, when running
+    animationRunners: Map<string, CustomMovementRunner> // map of animation runners for each role at each beat, used to take over animations
 }
 type Timer = {
     beat: number, // the beat on which the timer is scheduled
@@ -76,6 +79,7 @@ export function initialize(svgId: string, mod: number, speed: number = 1, beatIn
         speed,
         beatIndicator,
         beatLabel,
+        animationRunners: new Map()
     }
 
 
@@ -155,8 +159,8 @@ export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAn
             const seg = data.segments[spec.segmentIdx]
             const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
             // console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
-            animateMoveOnPath(data, pos, path, delay, spec.duration);
-            
+            const animation = animateMoveOnPath(data, pos, path, delay, spec.duration);
+            data.animationRunners.set(spec.onBeat+spec.role, animation)
         })
     }
 }
@@ -167,23 +171,41 @@ export function setDirectMovements(data: Data, directMovementAnimations: DirectM
             const pos = getPositionByRole(data, spec.role)
             const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY, spec.bend);
             // console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
-            animateMoveOnPath(data, pos, path, delay, spec.duration);
+            const directMoveAnimation = animateMoveOnPath(data, pos, path, delay, spec.duration);
+
+            if (spec.takeRelativeMovementFrom) {
+                const id = spec.takeRelativeMovementFrom[0] + spec.takeRelativeMovementFrom[1]
+                if (!data.animationRunners.has(id)) {
+                    console.warn(`No animation runner found for ${spec.takeRelativeMovementFrom[1]} at beat ${spec.takeRelativeMovementFrom[0]}, cannot take relative movement from it.`);
+                    return;
+                }
+                directMoveAnimation.runner.after(() => {
+                    data.animationRunners.get(id)?.takeover(pos)
+                })
+            }
         })
     }
 }
 
-function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number): void { 
+
+function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number): CustomMovementRunner {
     // gray arrow for the moving path in the background
-            path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
-                after(pos.svgCircle).back().hide();
-            const animation: Runner = pos.svgCircle.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
-            (animation as any).on('start', function () { path.show(); })
-            animation.during(function (relativeProgress: number) {
-                const p = path.pointAt(relativeProgress * path.length());
-                pos.svgCircle.center(p.x, p.y);
-            })
-            const endPosition = path.pointAt(path.length())
-            animation.after(function () { updateLocation(pos, endPosition.x, endPosition.y); path.remove(); });
+    path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
+        after(pos.svgCircle).back().hide();
+
+    // if already animating, stop the previous animation
+    pos.currentAnimation?.abort()
+
+    const animation: Runner = pos.svgCircle.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
+    (animation as any).on('start', (function () { path.show(); }))
+
+    // this is what moves the circle along the path, can be aborted and taken over
+    const moveAnimation = new CustomMovementRunner(animation, path, pos)
+    animation.after(function () {
+        path.remove();
+    })
+    pos.currentAnimation = moveAnimation
+    return moveAnimation
 }
 
 /**
@@ -332,8 +354,8 @@ function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
     return canvas.path(p.join(' '))
 }
 
-function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number, bend?: "↻"|"↺"): Path {
-    console.log(`directPath from (${x1}, ${y1}) to (${x2}, ${y2}) with bend ${bend}`)
+function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number, bend?: "↻" | "↺"): Path {
+    // console.log(`directPath from (${x1}, ${y1}) to (${x2}, ${y2}) with bend ${bend}`)
     if (!bend)
         return canvas.path(`M${x1},${y1} L${x2},${y2}`)
     const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
@@ -360,3 +382,45 @@ function schedule(data: Data, when: number, fn: (delay: number) => void, priorit
     data.timers.push({ beat, delay, priority, fn })
 }
 
+
+
+/**
+ * animation that can be aborted.
+ * 
+ * when aborted, the during callback will not be called anymore.
+ * 
+ * the finished callback will be called with a parameter indicating whether the animation was aborted or not.
+ */
+class CustomMovementRunner {
+    private aborted: boolean = false;
+    readonly runner: Runner
+    private readonly pos: Position
+    private readonly path: Path
+    constructor(animation: Runner, path: Path, pos: Position) {
+        this.runner = animation;
+        this.pos = pos
+        this.path = path
+
+
+        animation.during((relativeProgress: number) => {
+            if (this.aborted) return
+            const p = path.pointAt(relativeProgress * path.length());
+            pos.svgCircle.center(p.x, p.y);
+        })
+
+        animation.after(() => {
+            if (this.aborted) return
+            const endPosition = path.pointAt(path.length())
+            updateLocation(pos, endPosition.x, endPosition.y);
+        })
+    }
+
+    abort() {
+        this.aborted = true; // mark the animation as aborted
+    }
+    takeover(pos: Position): CustomMovementRunner {
+        this.abort()
+        return new CustomMovementRunner(this.runner, this.path, pos);
+    }
+
+}

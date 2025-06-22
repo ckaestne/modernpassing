@@ -12,7 +12,7 @@
 <sync-group>
 A: 3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33  -- A
-M: SB z SB z  IB . CB z
+M: SB z SB z  IB . CB↺ z
 positions: Line(A,B)
 </sync-group>
 
@@ -66,7 +66,7 @@ In a nutshell, the manipulator flips both clubs and carries the left club as a p
 <sync-group style='{"animationOnly": true}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
-M: SB.IBe C..
+M: SB.IB↻   C↻..
 positions: Line(A,B)
 </sync-group>
 

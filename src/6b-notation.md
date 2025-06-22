@@ -10,23 +10,27 @@ We then simply write the manipulator's actions as a sequence of carries, substit
 
 In this notation, *Nicki's three-count roundabout* can be written as:
 
-<TODO-manipulator-sync style='{"aidanOnly": true}'>
-A: 3pB333pB33 -> B
-B: 3pA333pA33 -> A
-M: SB.IBCA..
-</TODO-manipulator-sync>
+<sync-group style='{"aidanOnly": true}'>
+A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SB.IB↻   C↻..
+positions: Line(A,B)
+</sync-group>
+
 
 That is, on the first beat, the manipulator substitutes the throw to B, which is A's right-handed pass to B. On the third beat, a throw to B is intercepted which is B's self. On the fourth beat, the manipulator carries the throw to A, which would have been a left-handed pass from B.
 
 The scheme generalizes to patterns with more passers and more manipulators. For example, this is the notation for the five-person pattern [Scrambled 3-V](6f-aidan-patterns.md), with two manipulators M and N based on a [rotating two-count vs. four-count feed](5d-moving.md):
 
-<TODO-manipulator-sync style='{"aidanOnly": true}'>
-A: 3pB3  3pC3  3pB3  -> B
-B: 3pA3  3  3  3pA3  -> C
-C: 3 3   3pA3  3  3  -> A
-M: CBz   SBz   IC.   -> M
-N: CCz   SAz   IB.   -> N
-</TODO-manipulator-sync>
+<sync-group style='{"aidanOnly": true}'>
+A: 3pB3  3pC3  3pB3  -- B
+B: 3pA3  3  3  3pA3  -- C
+C: 3 3   3pA3  3  3  -- A
+M: CBz   SBz   IC.   -- M
+N: CCz   SAz   IBe.   -- N
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)
+</sync-group>
 
 For common base patterns, especially for the [rotating two-count vs. four-count feed](5d-moving.md), it is also common to describe a manipulator pattern just in terms of the manipulator's actions -- for example, describing [Scrambled V](6f-aidan-patterns.md) as C<sub>B</sub>S<sub>B</sub>I<sub>C</sub>.
 
@@ -50,13 +54,18 @@ The Aidan notation is compact and sufficient to describe even complicated patter
 
 An alternative notation, that we prefer here, is to show the actions of all jugglers, where a steal is shown as a throw from a passer to the manipulator and a place as a throw from the manipulator to a passer. We use causal arrows, introduced in the context of [siteswap theory](4l-4hsw-theory.md), to show how clubs move (roughly, an arrow points to the hand that needs to be emptied to catch the throw). With this, *Nicki's three-count roundabout* looks like this:
 
-<TODO-manipulator-sync style='{"localOnly": true}'>
-A: 3pB333pB33 -> B
-B: 3pA333pA33 -> A
-M: SB.IBCA..
-</TODO-manipulator-sync>
+<sync-group style='{"localOnly": true}'>
+A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SB.IB↻   C↻..
+positions: Line(A,B)
+</sync-group>
 
 Now the pattern can be read like a walking pattern, seeing what each juggler does and where the clubs actually go, with relabeling only at the end of the sequence. However, actions like substitutions are now shown with two arrows crossing lines, not by a single letter below the pattern. We use colors to indicate which juggler is acting as the manipulator (here, first role C then role B).
+
+The notation also highlights gaps in actions that can be filled: Notice how the passer in the second row has two beats pauses after starting the manipulation with the carry -- here the remaining club can be zipped twice or flipped; similarly the passer in the third row has two beats pause after intercepting the self -- time they usually use for turning but where they also could flip both clubs in their hands.
+
+(TODO: *Nicki's three-count roundabout* is a good pattern to learn first, but it is not ideal to illustrate the local notation. The local notation suggests a zip before the intercept to catch the intercept with the left hand. This fits the normal juggling beats and alternating hands better, but is harder to learn and hence skipped in *Nicki's three-count roundabout* -- this little cheating makes the pattern a good first pattern.)
 
 
 

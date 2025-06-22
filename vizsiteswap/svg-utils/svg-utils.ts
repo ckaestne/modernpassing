@@ -87,26 +87,20 @@ export function scaler(scalex: (x: number) => number, scaley: (y: number) => num
         },
         scalePass(pass: PassAnimation): PassAnimation {
             return {
-                onBeat: pass.onBeat,
-                duration: pass.duration,
-
+                ...pass,
                 fromX: scalex(pass.fromX),
                 toX: scalex(pass.toX),
                 fromY: scaley(pass.fromY),
                 toY: scaley(pass.toY),
                 labelX: scalex(pass.labelX),
                 labelY: scaley(pass.labelY),
-                label: pass.label
             }
         },
         scaleDirectMovement(spec: DirectMovementAnimation): DirectMovementAnimation {
             return {
-                onBeat: spec.onBeat,
-                role: spec.role,
-                duration: spec.duration,
+                ...spec,
                 toX: scalex(spec.toX),
                 toY: scaley(spec.toY),
-                bend: spec.bend
             }
         }
 

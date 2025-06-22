@@ -123,7 +123,7 @@ function convertRelabeling(locationMgr: LocationMgr, relabelingSpecs: RelabelSpe
 
 type LocationMgrMovement = {
     passerIdx: number,
-    role: Role,
+    role: Role, // role at the start of the movement
     onBeat: number,
     duration: number,
     segment: MovementSegmentSpec
@@ -177,6 +177,16 @@ export class LocationMgr {
         return this.getBaseLocation(time, passerIdx);
     }
 
+    findOngoingAnimationByRole(time: number, role: Role): [number, Role] | undefined {
+        if (this.manipulatorPositions.has(role)) 
+            throw new Error(`findOngoingAnimationByRole cannot be called on manipulator roles (got ${time}, ${role})`);
+
+        const passerIdx = this.getBasePasserIdx(time, role);
+        return this.findOngoingAnimation(time, passerIdx);
+    }
+
+
+
     private getManipulatorLocation(time: number, role: Role): [number, number] {
         const locations = this.manipulatorPositions.get(role)
         if (!locations) {
@@ -220,6 +230,20 @@ export class LocationMgr {
             const path = genPath(helperSvg, segment); // create the path in the helper SVG to get the length
             const p = path.pointAt(progress * path.length());
             return [p.x, p.y]
+        }
+    }
+
+        private findOngoingAnimation(time: number, passerIdx: number): [number, Role] | undefined {
+        // find the last movement before the time
+        const lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx && m.onBeat <= time % this.mod);
+        if (!lastMoveBeforeTime) return undefined; // no ongoing animation
+
+        // if the last move has completed, no ongoing animation
+        if ((lastMoveBeforeTime.onBeat + lastMoveBeforeTime.duration) % this.mod < time % this.mod) {
+            return undefined
+        } else {
+            // we are currently moving, identifying the movement by beat and role at the start of the movement
+            return [lastMoveBeforeTime.onBeat, lastMoveBeforeTime.role];
         }
     }
 
@@ -390,31 +414,35 @@ function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
 function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], locationMgr: LocationMgr, passSpecs: PassSpec[]): [DirectMovementAnimation[], LocationMgr] {
 
     const directMovementAnimations: DirectMovementAnimation[] = [];
-    for (let time = 0; time < locationMgr.mod; time++) {
+    for (let startTime = 0; startTime < locationMgr.mod; startTime++) {
         for (const relativeMovementSpec of relativeMovements) {
-            if (time % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
+            if (startTime % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
                 // we need to compute the position of the manipulator at this time
                 let toX: number, toY: number;
-                const locationTime = (time + relativeMovementSpec.duration) % locationMgr.mod;
-                const roleTime =  relativeMovementSpec.targetRoleTime==="onBeat" ? time : locationTime
+                const arrivalTime = (startTime + relativeMovementSpec.duration) % locationMgr.mod;
+                const roleTime =  relativeMovementSpec.targetRoleTime==="onBeat" ? startTime : arrivalTime
 
                 // console.log("computeRelativeMovement", time, locationTime, relativeMovementSpec)
+                let takeRelativeMovementFrom: [number,Role] | undefined = undefined
                 locationMgr.getLocationByRole
                 if (relativeMovementSpec.positionSpec.type === "take") {
-                    [toX, toY] = locationMgr.getFutureLocationByRole(locationTime, roleTime, relativeMovementSpec.positionSpec.toRole)
+                    [toX, toY] = locationMgr.getFutureLocationByRole(arrivalTime, roleTime, relativeMovementSpec.positionSpec.toRole)
+                    // after we "take" a position, we continue that animation if it is moving on an animation -- we record the role+beat of that animation to find it in the frontend
+                    takeRelativeMovementFrom=locationMgr.findOngoingAnimationByRole(roleTime, relativeMovementSpec.positionSpec.toRole)
                 } else if (relativeMovementSpec.positionSpec.type === "between") {
-                    [toX, toY] = computePositionBetween(locationMgr, locationTime, roleTime, relativeMovementSpec.positionSpec)
+                    [toX, toY] = computePositionBetween(locationMgr, arrivalTime, roleTime, relativeMovementSpec.positionSpec)
                 } else if (relativeMovementSpec.positionSpec.type === "infront") {
-                    [toX, toY] = computePositionInFrontOf(locationMgr, locationTime, roleTime, relativeMovementSpec.positionSpec.toRole)
+                    [toX, toY] = computePositionInFrontOf(locationMgr, arrivalTime, roleTime, relativeMovementSpec.positionSpec.toRole)
                 } else { throw new Error(`Unknown position spec type: ${relativeMovementSpec.positionSpec}`); }
 
                 directMovementAnimations.push({
-                    onBeat: time + relativeMovementSpec.onBeat % 1, // onBeat
+                    onBeat: startTime + relativeMovementSpec.onBeat % 1, // onBeat
                     role: relativeMovementSpec.role,
                     duration: relativeMovementSpec.duration,
                     toX,
                     toY,
-                    bend: relativeMovementSpec.bend
+                    bend: relativeMovementSpec.bend,
+                    takeRelativeMovementFrom 
                 })
             }
         }
