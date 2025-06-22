@@ -1,0 +1,347 @@
+// /**
+//  * functions to compute layout/animations for manipulator patterns
+//  * 
+//  * generally takes a base pattern with a layout and adjusts it for the manipulators
+//  */
+
+import type { Pattern, Role, CarryMarker, InterceptMarker, SubstitutionMarker } from "@modernpassing/pattern";
+import assert from "node:assert";
+import type { GroupPatternLayoutSpec, PositionSpec, RelativeMovementSpec } from "@modernpassing/layout";
+import { AnimationSpec } from "../layout/animation-spec.ts";
+import { A } from "@svgdotjs/svg.js";
+import { setMaxIdleHTTPParsers } from "node:http";
+
+
+
+
+// /**
+//  * Computes the location of a passer (identified by a role) at a given beat
+//  * 
+//  * In a walking pattern that may require finding the location on a path
+//  * 
+//  * For manipulations between manipulators, locations may depend on each other, so the
+//  * order matters. We assume that intercept locations are computed before 
+//  * substitution actions.
+//  */
+// function getLocation(layout: AnimationSpec, beat: number, role: Role): [number, number] {
+//     assert(beat === 0 || layout.movementSegments.length===0, "TODO")
+//     const initialPosition = layout.initialPositions.find(p => p.role === role)
+//     if (!initialPosition) {
+//         throw new Error(`No position for role ${role}`)
+//     }
+//     return [initialPosition.x, initialPosition.y]
+// }
+
+
+
+export function applyManipulatorLayout(initialLayout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
+    if (initialLayout.animation) {
+        return {
+            ...initialLayout,
+            animation: applyManipulatorAnimationLayout(pattern, initialLayout.animation)
+        }
+    }
+    return initialLayout
+}
+
+/**
+ * takes a layout of a base pattern (with positions and movement resolved) and a pattern
+ * that already includes the manipulator actions (i.e. local notation; relying on
+ * markers on throws).
+ * 
+ * It now adds the manipulator positions to the layout
+ * 
+ * This works by first finding all the manipulator actions in the pattern, then creating
+ * abstract locations for them (relative to other actions), and finally resolving
+ * these locations to absolute positions in the layout.
+ * 
+ * @param pattern pattern with manipulator actions included (i.e. with manipulator markers)
+ * @param initialLayout initial layout of the base pattern, with positions and movement, but without manipulators
+ * @returns updated layout with manipulator positions/movement added
+ */
+export function applyManipulatorAnimationLayout(pattern: Pattern, initialLayout: AnimationSpec): AnimationSpec {
+
+    const relativeMovements = getRelativeMovementsFromPatter(pattern);
+
+    const manipulatorRoles: Role[] = [];
+    for (const t of pattern.throws)
+        if (t.markers?.some(m => m.kind === "I")) {
+            const to = pattern.getToPasserRole(t)
+            if (!manipulatorRoles.includes(to))
+                manipulatorRoles.push(to)
+
+        }
+    manipulatorRoles.sort()
+    // Group positions by manipulator role
+    const initialManipulatorPositions: PositionSpec[] = []
+    const firstMovementPerManipulator: Record<Role, RelativeMovementSpec[]> = manipulatorRoles.reduce((acc, role) => {
+        acc[role] = relativeMovements
+            .filter(position => position.role === role)
+            .sort((a, b) => ((a.onBeat + a.duration) % a.mod) - (b.onBeat + b.duration) % b.mod);
+        return acc;
+    }, {} as Record<Role, RelativeMovementSpec[]>);
+
+
+    const newLayout: AnimationSpec = {
+        ...initialLayout,
+        initialPositions: [...initialLayout.initialPositions],
+        relativeMovements: [...initialLayout.relativeMovements, ...relativeMovements],
+    };
+
+    // // first position for each manipulator will be the initial position
+    // for (const role of manipulatorRoles) {
+    //     const firstPosition = firstMovementPerManipulator[role][0];
+    //     if (firstPosition) {
+    //         const [x, y, rotation] = resolveManipulatorPositionAndRotation(initialLayout, firstPosition);
+    //         newLayout.initialPositions.push({
+    //             role: role,
+    //             x: x,
+    //             y: y,
+    //             direction: rotation
+    //         });
+    //     }
+    //     let priorX = -1, priorY = -1, priorRotation = -1;
+    //     for (const abstractPosition of firstMovementPerManipulator[role]) {
+    //         const [x, y, rotation] = resolveManipulatorPositionAndRotation(newLayout, abstractPosition);
+    //         if (x !== priorX || y !== priorY || rotation !== priorRotation) {
+    //             priorX = x;
+    //             priorY = y;
+    //             priorRotation = rotation;
+    //             console.log(`const [${x}, ${y}, ${rotation}] = resolveManipulatorPositionAndRotation(newLayout, ${JSON.stringify(abstractPosition)})`)
+    //             newLayout.directMovements!.push({
+    //                 onBeat: mod(abstractPosition.beat - 1, pattern.getLength()),// TODO: this is dangerous, this might be a different role 1 beat earlier
+    //                 mod: pattern.getLength(),
+    //                 role: abstractPosition.role,
+    //                 x: x,
+    //                 y: y,
+    //                 direction: rotation,
+    //                 duration: 1, // TODO: maybe make movement duration dependent on the distance to the next movement?
+    //             });
+    //         }
+    //     }
+    // }
+
+    // for (const abstractMovement of abstractMovements) {
+    //     const [toX, toY] = getLocation(newLayout, abstractMovement.beat, abstractMovement.to)
+    //     // console.log(`const [${toX}, ${toY}] = getLocation(newLayout, ${abstractMovement.beat}, ${abstractMovement.to}`)
+
+    //     // add a movement segment for the take
+    //     newLayout.directMovements!.push({
+    //         onBeat: mod(abstractMovement.beat, pattern.getLength()),
+    //         mod: pattern.getLength(),
+    //         role: abstractMovement.role,
+    //         x: toX,
+    //         y: toY,
+    //         duration: abstractMovement.length,
+    //         direction: 0 // TODO: maybe make this dependent on the direction of the pass
+    //     });
+    // }
+
+
+
+    return newLayout
+}
+
+
+function mod(va: number, len: number): number {
+    let v = va;
+    while (v < 0) {
+        v += len;
+    }
+    return v % len;
+}
+
+export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMovementSpec[] {
+    const relativeMovements: RelativeMovementSpec[] = [];
+
+    for (const t of pattern.throws) {
+        for (const kind of ["S", "P", "I", "C"])
+            assert(t.markers ? t.markers.filter(m => m.kind === kind).length <= 1 : true, `There should be at most one marker of kind ${kind} per throw`);
+
+        // substitutions (only handling the pelf for now, assuming the substituted hand-in happens from the same location, even if later)
+        if (t.markers?.some(m => m.kind === "S" && (m as SubstitutionMarker).throw === 'P')) {
+            const marker: SubstitutionMarker = t.markers!.find(m => m.kind === "S") as SubstitutionMarker;
+            const manipulatorRole = pattern.getToPasserRole(t);
+
+            //for a substitution, I want to be there on the substitution beat, so let's move one beat earlier
+            //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
+            const duration = 1
+
+
+            // handling slightly different positions
+             let positionSpec: RelativeMovementSpec["positionSpec"]
+            if (marker.fromRole === marker.toRoleAtThrow) {
+                // intercepting a self from in front of the passer
+                positionSpec = {
+                    type: "infront",
+                    toRole: marker.toRoleAtThrow
+                }
+            } else {
+                // intercepting a pass, processing several possible modifiers
+                // default is late intercept, so exactly in the middle, facing outside
+                let side = .5 
+                let offset = 0 
+                let direction = 90 
+
+                if (marker.modifiers.includes("e")) {
+                    // early intercept, standing a bit closer to the passer throwing the pelf
+                    side = 0.6
+                }
+                if (marker.modifiers.includes("v")) {
+                    // very late subsitution from next to the receiver, facing the incoming pass
+                    side = 1
+                    offset = .2
+                    direction = 180 
+                }
+                // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+                if (marker.modifiers.includes("o") || marker.modifiers.includes("]")) {
+                    offset = 0.2
+                    direction = 270 // facing inside
+                }
+                // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+                if (marker.modifiers.includes("x") || marker.modifiers.includes("[")) {
+                    // ??
+                }
+                positionSpec = {
+                    type: "between",
+                    between: [marker.fromRole, marker.toRoleAtThrow],
+                    side,
+                    offset,
+                    direction,
+                }
+            }
+
+
+            relativeMovements.push({
+                onBeat: (t.throwBeat - duration + pattern.getLength()) % pattern.getLength(),
+                mod: pattern.getLength(),
+                role: manipulatorRole,
+                duration: duration,
+                targetRoleTime: "arrival",
+                positionSpec
+            });
+        }
+
+        // intercepts
+        if (t.markers?.some(m => m.kind === "I")) {
+            const marker: InterceptMarker = t.markers!.find(m => m.kind === "I") as InterceptMarker;
+            const manipulatorRole = pattern.getToPasserRole(t);
+
+            // // for an intercept it is sufficient to be there on the causal beat of the intercept
+            // // so typically, we can move on the intercept beat, unless we are intercepting something really short?
+            // assert(pattern.getThrowCauseLength(t) >= 1, "TODO: need to rethink how to handle movements before intercepts with very short throws");
+            // const moveToInterceptDuration = pattern.getThrowCauseLength(t)-.01 // let's arrive a tiny moment before the actual intercept so that we don't change roles yet
+
+            // TODO for now let's just assume standard 2-beat patterns, where we can move 1 beat before the intercept beat to arrive on the intercept beat (not when the intercept arrives), even though we could move a beat later
+            const moveToInterceptDuration = 1 // let's just assume a short movement for now
+            const leavingTime = (t.throwBeat - moveToInterceptDuration + pattern.getLength()) % pattern.getLength()
+
+            let positionSpec: RelativeMovementSpec["positionSpec"]
+            if (marker.fromRole === marker.originalToRoleAtThrow) {
+                // intercepting a self from in front of the passer
+                positionSpec = {
+                    type: "infront",
+                    toRole: marker.originalToRoleAtThrow
+                }
+            } else {
+                // intercepting a pass, processing several possible modifiers
+                let side = 0 // default is very late intercept, so next to the receiver
+                let offset = .2 // default is very late intercept, standing left of the receiver
+                let direction = 180 // face the origin of the pass
+
+                if (marker.modifiers.includes("e")) {
+                    // early intercept
+                    side = 0.6
+                    offset = 0 // stand in the passing lane
+                }
+                if (marker.modifiers.includes("l") || marker.modifiers.includes("c")) {
+                    // late intercept (i.e., half way through the pass); also for chop (which doesn't really matter for movement)
+                    side = 0.5
+                    offset = 0 // stand in the passing lane
+                }
+                // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+                if (marker.modifiers.includes("o") || marker.modifiers.includes("]")) {
+                    offset = 0.2
+                }
+                // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+                if (marker.modifiers.includes("x") || marker.modifiers.includes("[")) {
+                    offset = -0.2
+                }
+                // `b` -- intercept very late from **b**ehind the target's location
+                if (marker.modifiers.includes("b")) {
+                    side = -.2
+                    offset = 0 // stand in the passing lane
+                }
+                positionSpec = {
+                    type: "between",
+                    between: [marker.fromRole, marker.originalToRoleAtThrow],
+                    side,
+                    offset,
+                    direction,
+                }
+            }
+
+
+            // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
+            relativeMovements.push({
+                onBeat: leavingTime,
+                mod: pattern.getLength(),
+                role: manipulatorRole,
+                duration: moveToInterceptDuration,
+                targetRoleTime: "arrival",
+                positionSpec
+            });
+            // once the pass lands, the prior manipulator (now in its new role) will go to the position of the manipulated
+            const landingOffset = pattern.nrHands;
+            const moveAfterInterceptDuration = 1 // let's just assume a short movement to the position
+            const when = (t.throwBeat + marker.originalThrowLength - landingOffset + pattern.getLength()) % pattern.getLength()
+            // console.log(`After intercept on ${t.throwBeat} by ${manipulatorRole}, is now ${marker.originalToRoleAtThrow} moving on ${when} to ${marker.originalToRoleAtThrow}'s position`);
+            relativeMovements.push({
+                onBeat: when,
+                mod: pattern.getLength(),
+                duration: moveAfterInterceptDuration,
+                role: marker.originalToRoleAtThrow, // this is after the role swap
+                targetRoleTime: "onBeat",
+                positionSpec: {
+                    type: "take",
+                    toRole: marker.originalToRoleAtThrow // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
+                },
+                bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
+            });
+        }
+
+        // carry
+        if (t.markers?.some(m => m.kind === "C")) {
+            const marker: CarryMarker = t.markers!.find(m => m.kind === "C") as CarryMarker;
+            const manipulatorRole = pattern.getFromPasserRole(t)
+            const duration = 1 // let's just assume a quick movement for now
+            //TODO this should probably be timed relative to the intercept, not the carry pass, but for now, let's just move the beat before the carry
+            const onBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
+            // the manipulator changes on the iBeat, which is the earliest possible carry. However if we want to leave 1 beat before the carry, it may still be the original role
+            const role = marker.carryDelay < 1 ? marker.originalFromRole : manipulatorRole
+
+            // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
+            relativeMovements.push({
+                onBeat, role, duration,
+                mod: pattern.getLength(),
+                targetRoleTime: "arrival",
+                positionSpec: {
+                    type: "between",
+                    between: [marker.originalFromRole, marker.toRoleAtThrow],
+                    side: 0.4, // stand in front of target
+                    offset: 0, // stand in the passing lane // TODO distinguish different carries
+                    direction: 0 // face the receiver
+                },
+                bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
+            });
+        }
+
+
+    }
+    return relativeMovements
+}
+
+// type BasePasserLocationRecord = [number/*beat*/, Role, number/*x*/, number/*y*/]
+// function getBasePasserPositions(layout: AnimationLayout): [BasePasserLocationRecord[], number/*mod*/] {
+
+// }
