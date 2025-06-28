@@ -7,8 +7,63 @@ import { createSVGWindow } from 'svgdom';
 import { AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 
 
+
+export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
+
+    let javascript = ""
+    const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
+    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+
+    // there are three parts that we may render: the pattern, the aiden notation, and the layout
+    // not every pattern has aiden notation, and not every group pattern has a layout
+    // in addition, the configuration could specify only to render a subset of these
+    const [width, height] = getRenderPatternSize(gp.pattern, renderConfig)
+    const withPattern = renderConfig.components.includes("pattern")
+    const withAiden = renderConfig.components.includes("aiden") && gp.aidenNotation
+    const withTabs = withPattern && withAiden
+    const tabHeight = withTabs ? TAB_HEIGHT+TAB_BORDER_WIDTH : 0 
+    const withLayout = renderConfig.components.includes("layout") && gp.layout
+    const layoutSize = withLayout ? renderConfig.layoutSize || height : 0
+
+    const svg = createSVG(width + layoutSize, Math.max(height + tabHeight, layoutSize))
+    let patternCanvas: G | undefined = undefined, aidenCanvas: G | undefined = undefined, layoutCanvas: G | undefined = undefined
+    if (withTabs) {
+        let tabJs
+        [patternCanvas, aidenCanvas, tabJs] = createTabs(svg, width, height, renderConfig.components.indexOf("aiden")<renderConfig.components.indexOf("pattern"))
+        javascript += tabJs
+    }
+    if (withPattern && !patternCanvas){
+        patternCanvas = svg.group()
+        // javascript += renderPattern(patternCanvas, gp.pattern, renderConfig)
+    }
+    if (withAiden && !aidenCanvas) {
+        aidenCanvas = svg.group()
+        // javascript += renderAiden(patternCanvas, gp.pattern, gp.aidenNotation!, renderConfig)
+    }
+    if (withLayout){
+        layoutCanvas = svg.group()
+        if (gp.layout!.background)
+            renderBackground(gp.layout!.background, height, height, layoutCanvas, defaultRenderLayoutConfig)
+        const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+        const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
+        const animationPlan = createAnimationPlan(gp.layout!.animation)
+        javascript += renderAnimation(animationPlan, height, height, layoutCanvas, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
+        layoutCanvas.transform({ translate: [width, 0] })
+}
+
+    return [svg, javascript]
+
+}
+
+
+
+
+
+
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
 //TODO: compute starting hands for walking patterns
+
+
 
 
 export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
@@ -238,13 +293,21 @@ export function createSVG(width?: number, height?: number): Svg {
     return svg;
 }
 
-export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
+export function renderGroupPattern_(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
     let javascript = ""
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
     const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
-    const svg = !renderConfig.renderLayoutOnly ?
-        renderPattern(gp.pattern, renderConfig) : createSVG(1, renderConfig.renderLayoutOnly)
+    // there are three parts that we may render: the pattern, the aiden notation, and the layout
+    // not every pattern has aiden notation, and not every group pattern has a layout
+    // in addition, the configuration could specify only to render a subset of these
+
+    // let svg: Svg
+    // if (renderConfig.components.includes("pattern") && renderConfig.components.includes("aiden") && gp.aidenNotation) 
+    //     svg = createTabs(renderPattern(gp.aidenNotation, renderConfig), gp.renderPattern(gp.pattern, renderConfig), renderConfig)
+
+    const svg = !renderConfig.layoutSize ?
+        renderPattern(gp.pattern, renderConfig) : createSVG(1, renderConfig.layoutSize)
     if (gp.layout) {
         const height: number = Number(svg.height())
         const width: number = Number(svg.width())
@@ -253,7 +316,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const g = svg.group()
         if (gp.layout.background)
             renderBackground(gp.layout.background, height, height, g, defaultRenderLayoutConfig)
-        const beatIndicator = renderConfig.renderLayoutOnly ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+        const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
         const animationPlan = createAnimationPlan(gp.layout.animation)
         javascript += renderAnimation(animationPlan, height, height, g, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
@@ -492,3 +555,71 @@ function getXOffset(cfg: RendererConfig, time: number): number {
 
 
 
+const TAB_WIDTH = 60
+const TAB_HEIGHT = 20
+const TAB_BORDER_WIDTH = 2
+
+function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G, G, string] {
+            // <g id="fig1">
+            //     <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
+            //     <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Aidan content</text>
+            // </g>
+            // <g id="fig2" style="display: none">
+            //     <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
+            //     <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Local content</text>
+            // </g>
+            // <g id="tab1" class="tab tab-active">
+            //     <rect x="1" y="1" width="60" height="20" />
+            //     <text x="30" y="12" text-anchor="middle" dominant-baseline="central">Aidan</text>
+            //     <line x1="0" y1="22" x2="62" y2="22" stroke-width="3" />
+            // </g>
+            // <g id="tab2" class="tab">
+            //     <rect x="62" y="1" width="60" height="20" />
+            //     <text x="90" y="12" text-anchor="middle" dominant-baseline="central">Local</text>
+            //     <line x1="61" y1="22" x2="123" y2="22" stroke-width="3" />
+            // </g>
+    const patternCanvas = svg.group()
+    patternCanvas.rect(width, height).y(TAB_HEIGHT+TAB_BORDER_WIDTH).fill("blue")
+    const aidenCanvas = svg.group()
+    aidenCanvas.rect(width, height).y(TAB_HEIGHT+TAB_BORDER_WIDTH).fill("green")
+    if (aidenFirst) patternCanvas.hide(); else aidenCanvas.hide();
+    
+    const tab1 = svg.group().addClass("tab tab-active")
+    tab1.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_BORDER_WIDTH/2, TAB_BORDER_WIDTH/2)
+    tab1.text(aidenFirst? "Aidan" : "Local").amove(TAB_WIDTH/2+TAB_BORDER_WIDTH/2,TAB_HEIGHT / 2+TAB_BORDER_WIDTH)
+    tab1.line(0, TAB_HEIGHT + TAB_BORDER_WIDTH, TAB_WIDTH+TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH)
+    console.error(TAB_HEIGHT / 2+TAB_BORDER_WIDTH)
+
+    const tab2 = svg.group().addClass("tab")
+    tab2.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_BORDER_WIDTH/2)
+    tab2.text(aidenFirst? "Local" : "Aidan").amove(TAB_WIDTH*1.5 + TAB_BORDER_WIDTH*1.5,TAB_HEIGHT / 2+TAB_BORDER_WIDTH)
+    tab2.line(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH/2, TAB_WIDTH * 2 + TAB_BORDER_WIDTH*1.5, TAB_HEIGHT + TAB_BORDER_WIDTH)
+
+    const js = `
+        const tabs = [SVG('#${tab1.id()}'), SVG('#${tab2.id()}')];
+        const panels = [SVG('#${aidenFirst?aidenCanvas.id():patternCanvas.id()}'), SVG('#${aidenFirst?patternCanvas.id():aidenCanvas.id()}')];
+        tabs.forEach((tab, i) => {
+            tab.on('click', () => {
+                tabs.forEach(t => t.removeClass('tab-active'));
+                tab.addClass('tab-active');
+                panels.forEach((p, j) => j === i ? p.show() : p.hide());
+            });
+        });`
+
+
+  return [patternCanvas, aidenCanvas, js]
+}
+
+function getRenderPatternSize(p: Pattern, config: RendererConfig): [number, number] {
+    const hasAnnotation = config.showStraightCross || config.showLeftRight;
+    const annotationMargin = hasAnnotation ? config.annotationTextSize : 0;
+    const anyRelabel = p.mapRows.some((v, i) => v !== i)
+    const relabelWidth = config.passerRolesOffset
+    const width = config.xMargin * 2 + config.throwCircleSize / 2 +
+        (config.showStartingHands ? config.startingHandsOffset : 0) + (config.showPasserRoles ? config.passerRolesOffset : 0) +
+        (p.getPrefixLength() + p.getLength() * config.iterations) * config.xDist +
+        (anyRelabel && config.showPasserRoles ? relabelWidth : 0)
+    const height = config.yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + config.throwCircleSize + config.yDist * (p.nrRows - 1)
+        + (config.separateleftRightRows ? config.yHandDist * 2 : 0)
+    return[ width, height]
+}

@@ -8,7 +8,7 @@ on socks, exchanging clubs, north wall 4 people, mini and micro patterns, civil 
 test
  
 
-<nav class="tabs">
+<!-- <nav class="tabs">
   <a>Tab 1</a>
   <a>Tab 2</a>
   <a class="active">Tab 3</a>
@@ -36,7 +36,6 @@ text
 })()})
 </script>
 
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
    version="1.1"
    width="468"
@@ -91,4 +90,42 @@ text
      height="138"
      x="0"
      y="11" stroke-width=0 />
-  </svg>
+  </svg> -->
+
+<script>window.addEventListener("load",function(){(function(){    
+        const tabs = [SVG('#tab1'), SVG('#tab2')];
+        const panels = [SVG('#fig1'), SVG('#fig2')];
+        console.log(tabs)
+        tabs.forEach((tab, i) => {
+            tab.on('click', () => {
+                tabs.forEach(t => t.removeClass('tab-active'));
+                tab.addClass('tab-active');
+                panels.forEach((p, j) => j === i ? p.show() : p.hide());
+            });
+        });
+})()})
+    </script>
+
+<div class="container">
+        <svg viewBox="0 0 600 400">
+            <g id="fig1">
+                <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
+                <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Aidan content</text>
+            </g>
+            <g id="fig2" style="display: none">
+                <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
+                <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Local content</text>
+            </g>
+            <g id="tab1" class="tab tab-active">
+                <rect x="1" y="1" width="60" height="20" />
+                <text x="30" y="12" text-anchor="middle" dominant-baseline="central">Aidan</text>
+                <line x1="0" y1="22" x2="62" y2="22" stroke-width="3" />
+            </g>
+            <g id="tab2" class="tab">
+                <rect x="62" y="1" width="60" height="20" />
+                <text x="90" y="12" text-anchor="middle" dominant-baseline="central">Local</text>
+                <line x1="61" y1="22" x2="123" y2="22" stroke-width="3" />
+            </g>
+        </svg>
+    </div>
+

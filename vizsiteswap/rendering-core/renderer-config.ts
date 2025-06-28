@@ -56,12 +56,14 @@ export interface RendererConfig {
     passerRolesTextSize: number,    
 
     //layout and animation options
-    renderLayoutOnly?: number; // default undefined/0; any other number (width/height of the layout) surpresses output of the actual pattern
+    components: RenderComponents[],
+    layoutSize?: number; // undefined/0 picks a default size; any other number is taken as width and height of the layout
 
     gallop: boolean, // right hand is 0.1 earlier and left hand 0.1 later
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
     labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
+export type RenderComponents = "aiden" | "pattern" | "layout";
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
@@ -99,7 +101,9 @@ export const defaultRendererConfig: RendererConfig = {
     showPasserRoles: false,
     passerRolesOffset: 36,
     passerRolesTextSize: 28,
-    renderLayoutOnly: undefined,
+    
+    components: ["aiden", "pattern", "layout"],
+    layoutSize: undefined, //default
 
     gallop: false, 
     labelThrows: "classic",
