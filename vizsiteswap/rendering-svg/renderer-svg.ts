@@ -66,7 +66,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
 
 
 
-export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThrow[], config: RendererConfig): String {
+export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThrow[], config: RendererConfig): string {
     if (!p.isValid())
         throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
 
