@@ -52,8 +52,10 @@ export interface RendererConfig {
 
     //passer roles
     showPasserRoles: boolean
-    passerRolesOffset: number;
-    passerRolesTextSize: number,    
+    passerRolesOffset: number,
+    passerRolesTextSize: number,
+    roleColors?: string[],    
+    roleColorBackground: boolean, // if true, show a background color indicating manipulators and manipulator changes
 
     //layout and animation options
     components: RenderComponents[],
@@ -104,6 +106,8 @@ export const defaultRendererConfig: RendererConfig = {
     
     components: ["aiden", "pattern", "layout"],
     layoutSize: undefined, //default
+    roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
+    roleColorBackground: false, 
 
     gallop: false, 
     labelThrows: "classic",

@@ -1,6 +1,6 @@
 import type { GroupPattern, BackgroundLayout } from "@modernpassing/layout";
 import { Hand, type Pattern } from "@modernpassing/pattern";
-import { customRendererConfigDefaults, defaultRendererConfig, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
+import { customRendererConfigDefaults, defaultRendererConfig, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { Containable, Container, Element, G, Line, registerWindow, SVG, Svg, Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
@@ -32,23 +32,23 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         [patternCanvas, aidenCanvas, tabJs] = createTabs(svg, width, height, renderConfig.components.indexOf("aiden")<renderConfig.components.indexOf("pattern"))
         javascript += tabJs
     }
-    if (withPattern && !patternCanvas){
-        patternCanvas = svg.group()
-        // javascript += renderPattern(patternCanvas, gp.pattern, renderConfig)
+    if (withPattern && patternCanvas){
+        javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig), renderConfig)
+        patternCanvas.transform({ translate: [0,tabHeight] })
     }
-    if (withAiden && !aidenCanvas) {
-        aidenCanvas = svg.group()
-        // javascript += renderAiden(patternCanvas, gp.pattern, gp.aidenNotation!, renderConfig)
+    if (withAiden && aidenCanvas) {
+        javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0],gp.aidenNotation![1],gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig), renderConfig)
+        aidenCanvas.transform({ translate: [0,tabHeight] })
     }
     if (withLayout){
         layoutCanvas = svg.group()
         if (gp.layout!.background)
             renderBackground(gp.layout!.background, height, height, layoutCanvas, defaultRenderLayoutConfig)
-        const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, height).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+        const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, height+tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation)
-        javascript += renderAnimation(animationPlan, height, height, layoutCanvas, { ...defaultRenderLayoutConfig, ...config }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
-        layoutCanvas.transform({ translate: [width, 0] })
+        javascript += renderAnimation(animationPlan, height, height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
+        layoutCanvas.transform({ translate: [width, tabHeight] })
 }
 
     return [svg, javascript]
@@ -66,7 +66,185 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
 
 
 
-export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
+export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThrow[], config: RendererConfig): String {
+    if (!p.isValid())
+        throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
+
+
+
+
+    const hasAnnotation = config.showStraightCross || config.showLeftRight;
+    const annotationMargin = hasAnnotation ? config.annotationTextSize : 0;
+
+    const maxTime = p.getPrefixLength() + p.getLength() * config.iterations;
+
+
+    // while (lineBendOrientation.length <= p.nrRows)
+    //     lineBendOrientation.push(-1)
+
+
+    // x offset of any point in the pattern (negative numbers for prefix)
+    function xo(time: number): number {
+        return getXOffset(config, time)
+    }
+
+    // y offset of a throw
+    function yo(passerIdx: number, handIdx: 0 | 1 | null): number {
+        // TODO: support rendering synchronous throws with both hands
+        const r = config.yMargin + (hasAnnotation ? annotationMargin : 0) + config.throwCircleSize / 2 +
+            passerIdx * config.yDist +
+            (config.separateleftRightRows && handIdx == 1 ? config.yHandDist : 0) + (config.separateleftRightRows ? passerIdx * config.yHandDist : 0);
+        if (isNaN(r)) throw new Error(`yo(${passerIdx}, ${handIdx}) is NaN`)
+        return r
+    }
+
+    const anyRelabel = p.mapRows.some((v, i) => v !== i)
+    const relabelWidth = config.passerRolesOffset
+    const [width, height] = getRenderPatternSize(p, config)
+    // const width = xMargin * 2 + throwCircleSize / 2 +
+    //     (showStartingHands ? startingHandsOffset : 0) + (showPasserRoles ? passerRolesOffset : 0) +
+    //     (p.getPrefixLength() + p.getLength() * iterations) * xDist +
+    //     (anyRelabel && showPasserRoles ? relabelWidth : 0)
+    // const height = yMargin * 2 + (hasAnnotation ? annotationMargin : 0) * 2 + throwCircleSize + yDist * (p.nrRows - 1)
+    //     + (separateleftRightRows ? yHandDist * 2 : 0)
+
+
+    // // returns a window with a document and an svg root node
+    // const svg: Svg = createSVG(width, height).viewbox(0, 0, width, height)
+    // svg.rect("100%", "100%").fill("white").stroke("black")
+
+
+    const ladderOffset = config.lineKind === "ladder" ? 4 : 0
+    function causalLine(canvas: G, t: RenderedThrow) {
+        //no lines for 0s
+        if (t.throwLength === 0 || t.rethrowTime<0|| t.toPasserIdx < 0) return
+
+        const startTime = t.throwTime
+        const endTime = config.lineKind === "ladder" ? t.rethrowTime : t.causeTime
+        const bendAdjustment = config.lineKind === "ladder" ? .6 : 1
+
+        let color = config.lineColor
+        let width = config.lineWidth
+        let dash = config.lineDash
+        // if (startTime < 0 || endTime < 0)
+        //     color = earlyCausalLineColor
+        // if (startTime > maxTime)
+        //     color = extraCausalLineColor
+        if (config.emphasizeLines.includes(startTime)) {
+            color = config.emphasizeLineColor
+            width = config.emphasizeLineWith
+            dash = config.emphasizeLineDash
+        }
+
+
+        if (yo(t.fromPasserIdx, t.fromHand) !== yo(t.toPasserIdx, t.toHand)) {
+            // diagonal lines are straight
+            canvas.line(xo(startTime), yo(t.fromPasserIdx, t.fromHand), xo(endTime), yo(t.toPasserIdx, t.toHand)).
+                stroke({ color: color, width: width, dasharray: dash })
+        } else {
+            // self throws are curved
+            const dir = config.lineBendOrientation[t.fromPasserIdx];
+            const xDiff = xo(endTime) - xo(startTime)
+            //backward arrows are straight, the rest follows some heuristic
+            const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist * bendAdjustment
+
+            canvas.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`).
+                stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
+        }
+    }
+
+    // const renderedThrows: RenderedThrow[] = getThrowsFromPattern(p, config.iterations, config)
+
+    if (config.showLines || config.emphasizeLines.length > 0) {
+        const maxIdx = maxTime
+        for (let idx = 0; idx < renderedThrows.length; idx++)
+            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.includes(idx))
+                causalLine(canvas, renderedThrows[idx])
+    }
+
+    // for (let idx = 0; idx < maxTime + (showExtraThrows ? beyondMax(p.period) : 0); idx++) {
+    for (let throwIdx = 0; throwIdx < renderedThrows.length; throwIdx++) {
+        const t = renderedThrows[throwIdx]
+        const circleColor = config.emphasizeThrows.includes(throwIdx) ? config.emphasizeCircleColor : config.throwCircleColor
+        // (t.throwTime >= maxTime ? throwExtraCircleColor : throwCircleColor)
+        const circleTextColor = config.emphasizeThrows.includes(throwIdx) ? config.emphasizeTextColor : config.throwTextColor
+        // t.throwTime >= maxTime ? throwExtraTextColor : throwTextColor
+
+        canvas.circle(config.throwCircleSize).
+            center(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
+            fill(circleColor)
+        canvas.text("").plain(t.label).
+            amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
+            font({ size: config.throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
+
+        if (config.showLeftRight || (config.showStraightCross && t.annotation !== "")) {
+            const text = []
+            if (config.showLeftRight)
+                text.push(t.fromHand ? "L" : "R")
+
+            if ((config.showStraightCross && t.annotation !== "")) {
+                text.push(t.annotation)
+            }
+
+            // TODO make this configurable where the labels are printed
+            const offset = t.fromPasserIdx === 0 ? -config.throwCircleSize / 2 : config.throwCircleSize / 2;
+            const baseline = t.fromPasserIdx === 0 ? "text-after-edge" : "text-before-edge"
+
+            canvas.text("").tspan(text.join(" ")).
+                amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand) + offset).
+                addClass("throw-label").
+                font({ size: config.annotationTextSize, 'text-anchor': "middle", fill: config.annotationTextColor, 'dominant-baseline': baseline })
+
+        }
+
+    }
+
+    if (config.showPasserRoles) {
+        // console.log(p.relabel)
+        for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
+            canvas.text("").plain(p.getRole(0, passerIdx) + ":").
+                addClass("passer-roles").
+                font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
+                amove(0, yo(passerIdx, null)).cx(config.xMargin + config.passerRolesOffset / 2)
+            if (anyRelabel) {
+                const newLabel = p.getInitialRoles()[p.mapRows[passerIdx]]
+                if (newLabel) {
+                    canvas.text("").plain("→ " + p.getRole(p.getLength(), passerIdx)).
+                        addClass("passer-roles-relabel").
+                        font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
+                        amove(0, yo(passerIdx, null)).cx(width - config.xMargin - relabelWidth / 2 - config.throwCircleSize / 2)
+                }
+            }
+        }
+
+    }
+
+    if (config.showStartingHands) {
+        const hands = p.getStartingHands()
+        if (!config.separateleftRightRows) {
+            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
+                const startingHands = hands[passerIdx]
+                canvas.text("").plain(startingHands.join("|")).
+                    amove(config.xMargin + config.startingHandsOffset / 2 + (config.showPasserRoles ? config.passerRolesOffset : 0), yo(passerIdx, null)).
+                    addClass("starting-hands").
+                    font({ size: config.startingHandsTextSize, 'text-anchor': "middle", fill: config.annotationTextColor, 'dominant-baseline': "central" })
+            }
+        } else {
+            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++)
+                for (const handIdx of [0, 1]) {
+                    const startingHand = hands[passerIdx][handIdx]
+                    canvas.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
+                        amove(config.xMargin + config.startingHandsOffset / 2 + (config.showPasserRoles ? config.passerRolesOffset : 0), yo(passerIdx, handIdx as 0 | 1)).
+                        addClass("starting-hands").
+                        font({ size: config.startingHandsTextSize, 'text-anchor': "middle", fill: config.annotationTextColor, 'dominant-baseline': "central" })
+                }
+        }
+    }
+    return "" //no javascript
+}
+
+
+export function renderPattern_(p: Pattern, config?: Partial<RendererConfig>): Svg {
     if (!p.isValid())
         throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
 
@@ -307,7 +485,7 @@ export function renderGroupPattern_(gp: GroupPattern, config: Partial<RendererCo
     //     svg = createTabs(renderPattern(gp.aidenNotation, renderConfig), gp.renderPattern(gp.pattern, renderConfig), renderConfig)
 
     const svg = !renderConfig.layoutSize ?
-        renderPattern(gp.pattern, renderConfig) : createSVG(1, renderConfig.layoutSize)
+        renderPattern_(gp.pattern, renderConfig) : createSVG(1, renderConfig.layoutSize)
     if (gp.layout) {
         const height: number = Number(svg.height())
         const width: number = Number(svg.width())
@@ -333,9 +511,9 @@ export function renderGroupPattern_(gp: GroupPattern, config: Partial<RendererCo
 type RenderLayoutConfig = {
     positionCircle: number
     roleLabelFontSize: number
-    colors: string[]
+    roleColors?: string[]
 }
-export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, colors: ["black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black", "black"] }
+export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, roleColors: undefined }
 
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -510,14 +688,17 @@ export function renderAnimation(
     // canvas.circle(s).center(left + s / 2, top + s / 2).fill("none").stroke("lightgrey")
     // canvas.circle(s+config.positionCircle).fill("none").stroke("lightgrey")
     // const positions: Map<number/*passerIdx*/, [number, number, Element, Text]> = new Map()
-    const colors = ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"]
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
         const pos = layout.initialPositions[roleIdx]
         const [x, y] = scale.scale(pos.x, pos.y)
         // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })        
         // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
         const g = canvas.group()
-        const c = canvas.circle(config.positionCircle - strokeWidth).fill(colors[roleIdx]).stroke({ color: config.colors[roleIdx], width: strokeWidth })
+        const c = canvas.circle(config.positionCircle - strokeWidth).stroke({ color: "black", width: strokeWidth })
+        if (config.roleColors && config.roleColors[roleIdx]) 
+            c.fill(config.roleColors[roleIdx]);
+        else
+            c.fill("white")
         c.center(x, y)
         const l = canvas.text(pos.initialRole).
             font({ size: config.roleLabelFontSize, 'text-anchor': "middle", fill: 'black', 'dominant-baseline': "middle", 'font-weight': "bold" }).
@@ -579,16 +760,13 @@ function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G,
             //     <line x1="61" y1="22" x2="123" y2="22" stroke-width="3" />
             // </g>
     const patternCanvas = svg.group()
-    patternCanvas.rect(width, height).y(TAB_HEIGHT+TAB_BORDER_WIDTH).fill("blue")
     const aidenCanvas = svg.group()
-    aidenCanvas.rect(width, height).y(TAB_HEIGHT+TAB_BORDER_WIDTH).fill("green")
     if (aidenFirst) patternCanvas.hide(); else aidenCanvas.hide();
     
     const tab1 = svg.group().addClass("tab tab-active")
     tab1.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_BORDER_WIDTH/2, TAB_BORDER_WIDTH/2)
     tab1.text(aidenFirst? "Aidan" : "Local").amove(TAB_WIDTH/2+TAB_BORDER_WIDTH/2,TAB_HEIGHT / 2+TAB_BORDER_WIDTH)
     tab1.line(0, TAB_HEIGHT + TAB_BORDER_WIDTH, TAB_WIDTH+TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH)
-    console.error(TAB_HEIGHT / 2+TAB_BORDER_WIDTH)
 
     const tab2 = svg.group().addClass("tab")
     tab2.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_BORDER_WIDTH/2)
