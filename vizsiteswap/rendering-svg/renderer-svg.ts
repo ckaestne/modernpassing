@@ -25,7 +25,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const withLayout = renderConfig.components.includes("layout") && gp.layout
     const layoutSize = withLayout ? renderConfig.layoutSize || height : 0
 
-    const svg = createSVG(width + layoutSize, Math.max(height + tabHeight, layoutSize))
+    const svg = createSVG(width + layoutSize, Math.max(height + tabHeight, layoutSize)).viewbox(0, 0, width + layoutSize, Math.max(height + tabHeight, layoutSize))
     let patternCanvas: G | undefined = undefined, aidenCanvas: G | undefined = undefined, layoutCanvas: G | undefined = undefined
     if (withTabs) {
         let tabJs
