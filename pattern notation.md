@@ -74,7 +74,7 @@ passerrow: rowlabel? leftstart? prefix? throw+ relabel? \n
 rowlabel: [A-Z] ':'
 leftstart: '!'
 prefix: throw+ '|'
-relabel: '--' [A-Z]
+relabel: '--' [A-Z]⇆?X?
 ```
 
 A manipulator row is the same as a passer row, but does not allow a prefix and has [manipulator throws](manipulator%20notation.md) instead of normal throws.
@@ -86,6 +86,8 @@ The optional movement rows each starts with `movement:` followed by one or more 
 If the row labels are not provided, rows are implicitly labeled with roles A to Z.
 If the relabel instruction is not provided, rows are implicitly relabeled to themselves.
 By default all rows start right-handed and have no prefix.
+
+Relabeling instructions can optionally indicate whether to switch left and right hand in the next iteration (⇆) or whether to switch straight vs crossing in the next iteration (X). Usually these indicators are not needed and are inferred, however for debugging or explicit communication it may be useful to indicate those. If any ⇆ or X are indicated, it is assumed that all absence of ⇆ and X in other rows means no swap (rather than infer automatically as is the default if none are specified for any row).
 
 In four-handed siteswaps, rows starting with an empty beat are assumed to throw crossing singles and rows starting with a throw are assumed to throw straight singles.
 

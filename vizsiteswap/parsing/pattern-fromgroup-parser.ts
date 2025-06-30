@@ -29,6 +29,8 @@ export type TPatternRow = {
     role: Role | undefined,
     sequence: TSequence,
     relabel?: Role,
+    relabelMapHands?: boolean, 
+    relabelMapCrossing?: boolean,
     isManipulator: boolean
 }
 export type THandSwap = "__handswap__"
@@ -55,7 +57,8 @@ export enum TokenKind {
     Role,
     ManipulatorAction, //10
     HandSwap,
-    Pipe
+    Pipe,
+    MapHands
 }
 export const tokenizer = buildLexer<TokenKind>([
     [true, /^([0-9a-y](p)?[A-Z]?(x)?)/g, TokenKind.Throw],
@@ -69,6 +72,7 @@ export const tokenizer = buildLexer<TokenKind>([
     [true, /^\)/g, TokenKind.RParen],
     [true, /^--|→/g, TokenKind.Arrow],
     [true, /^!/g, TokenKind.HandSwap],
+    [true, /^⇆/g, TokenKind.MapHands],
     [false, /^\s/g, TokenKind.Space],
 ]);
 
@@ -138,17 +142,24 @@ PManipulatorAction.setPattern(
 export const PManipulatorSequence = rule<TokenKind, (TThrow|THandSwap)[]>();
 PManipulatorSequence.setPattern(rep1(PManipulatorAction))
 
+export const PRelabel = rule<TokenKind, [Role, boolean|undefined, boolean|undefined]>();
+PRelabel.setPattern(seq(
+    kright(tok(TokenKind.Arrow), PRole),
+    opt(apply(str("⇆"), ()=> true)),
+    opt(apply(str("X"), ()=>  true)
+)))
+
 export const PRow = rule<TokenKind, TPatternRow>();
 PRow.setPattern(
     apply(amb(alt(
-        apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PBaseSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(false)),
-        apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PManipulatorSequence, opt(kright(tok(TokenKind.Arrow), PRole))), createPatternRow(true))
+        apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PBaseSequence, opt(PRelabel)), createPatternRow(false)),
+        apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PManipulatorSequence, opt(PRelabel)), createPatternRow(true))
     )), m=>m[0]) // if it matches both base and manipulator, use base sequence
 )
 
 function createPatternRow(isManipulator: boolean) {
-    return function (v: [Role | undefined, TSequence, Role?]): TPatternRow {
-        return { role: v[0], sequence: v[1], relabel: v[2], isManipulator }
+    return function (v: [Role | undefined, TSequence, [Role, boolean|undefined, boolean|undefined]?]): TPatternRow {
+        return { role: v[0], sequence: v[1], relabel: v[2]?.[0], relabelMapHands: v[2]?.[1], relabelMapCrossing: v[2]?.[2], isManipulator }
     }
 }
 

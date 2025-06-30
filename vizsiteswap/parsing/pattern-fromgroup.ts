@@ -222,14 +222,27 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
 
     const baseThrows = getBaseThrows()
-    const mapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
-        : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
-    // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
-    const mapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
-        const toRow = baseIdxRelabel[idx]
-        return [isJames[idx] !== isJames[toRow]]
-    })
-    const p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength))
+
+    // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
+    // if not, we are doing guessing and brute force trying all combinations
+    const specifiedMapHandsOrCrossing =
+        rawPattern.filter(r => r.relabelMapHands || r.relabelMapCrossing).length > 0
+
+    let p: Pattern
+    if (specifiedMapHandsOrCrossing) {
+        const mapHands: boolean[][] = rawPattern.map(r => [r.relabelMapHands === true])
+        const mapCrossing: boolean[][] | undefined = rawPattern.map(r => [r.relabelMapCrossing === true])
+        p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength)
+    } else {
+        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
+            : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
+        // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
+        const guestMapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
+            const toRow = baseIdxRelabel[idx]
+            return [isJames[idx] !== isJames[toRow]]
+        })
+        p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, guessedMapHands, guestMapCrossing, undefined, patternLength))
+    }
     const m = getManipulatorActions(p)
 
     return [p, m]
