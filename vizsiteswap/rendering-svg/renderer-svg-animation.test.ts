@@ -129,3 +129,19 @@ positions: Circle(A,B,C)`, 2)
     console.log(js)
 
 })
+
+
+Deno.test.only("animation for 3V", () => {
+    const gp = createGroupPattern(`A: 3pB3  3pC3  3pB3  -- B
+B: 3pA3  3  3  3pA3  -- C
+C: 3 3   3pA3  3  3  -- A
+M: CBz   SBz   IC.   -- M
+N: CCz   SAz   IBe.   -- N
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`, 2)
+    const config = {}
+    const [svg, js] = renderGroupPattern(gp, config)
+    console.log(svg.svg());
+    console.log(js)
+
+})

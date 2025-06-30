@@ -48,6 +48,7 @@ type Timer = {
     delay: number, // delay in fraction of a beat (e.g. 0.5 for half a beat)
     priority: number, // the priority of the timer (lower is earlier)
     fn: (delay: number) => void // the function to execute, delay is expressed as fraction of a beat
+    firstIteration?: boolean // if true, this timer is only executed in the first iteration of the animation, if false only in all other rounds, if undefined (default) it is executed in all iterations
 }
 
 /**
@@ -126,7 +127,7 @@ export function startAnimation(data: Data, patternLength: number) {
         const beatIdx = time % patternLength;
         data.beatLabel?.text((beatIdx + 1).toString());
 
-        const actions = data.timers.filter(t => (time % data.mod) === t.beat)
+        const actions = data.timers.filter(t => (time % data.mod) === t.beat && !firstIterationException(t, time < data.mod))
         actions.forEach(action => action.fn(action.delay))
         if (data.beatIndicator) {
             data.beatIndicator.indicator.
@@ -139,6 +140,13 @@ export function startAnimation(data: Data, patternLength: number) {
     data.intervalId = setInterval(step, 1000 / data.speed)
 
     timeline.play();
+}
+
+function firstIterationException(timer: Timer, isFirstIteration: boolean): boolean {
+    if (timer.firstIteration === undefined) return false; // default is to run in all iterations
+    if (timer.firstIteration && isFirstIteration) return false; // run only in first iteration
+    if (!timer.firstIteration && !isFirstIteration) return false; // run only in all other iterations
+    return true; // run in all iterations
 }
 
 function getPositionByRole(data: Data, role: Role): Position {
@@ -160,7 +168,7 @@ export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAn
             const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
             // console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
             const animation = animateMoveOnPath(data, pos, path, delay, spec.duration);
-            data.animationRunners.set(spec.onBeat+spec.role, animation)
+            data.animationRunners.set(spec.onBeat + spec.role, animation)
         })
     }
 }
@@ -218,7 +226,7 @@ export function setPasses(data: Data, passes: PassAnimation[]): void {
             const animation = data.canvas.animate(p.duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
             (animation as any).on('start', function () { v = renderPass(data, p) })
             animation.after(function () { v?.remove() });
-        })
+        }, 1, p.firstIteration)
 }
 
 /**
@@ -375,11 +383,11 @@ function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number,
 //         }, 1000 / speed)
 // }
 
-function schedule(data: Data, when: number, fn: (delay: number) => void, priority: number = 1) {
+function schedule(data: Data, when: number, fn: (delay: number) => void, priority: number = 1, firstIteration: boolean | undefined = undefined) {
     console.assert(when >= 0 && when < data.mod, `schedule: when must be in range [0, ${data.mod}), was ${when}`);
     const beat = Math.floor(when)
     const delay = when - beat
-    data.timers.push({ beat, delay, priority, fn })
+    data.timers.push({ beat, delay, priority, fn, firstIteration })
 }
 
 

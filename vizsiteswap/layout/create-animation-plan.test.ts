@@ -1,6 +1,6 @@
 import { computeBaseAnimations, createAnimationPlan } from "./create-animation-plan.ts";
 import { createShapeLayout, GroupPattern } from "./layout.ts";
-import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
+import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 
 
@@ -282,6 +282,68 @@ positions: Line(A,B)`
     // assert(m3, "B movement on beat 5 exists")
     // assertEqualLocation(xy(m3), startLocationB, "B at original position on beat 5");
 
+})
+
+
+Deno.test("walking on siteswap, fixing passing positions", () => {
+    const whynotVsPopcorn = `A: 7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
+B: , 887A66887A67 -- C
+C: !, 66887Ax66887Ax -- A⇆
+positions: V(A,B,C)
+move: Vmove(B, 17, 1)`
+
+    const gp: GroupPattern = createGroupPattern(whynotVsPopcorn,4)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+
+    const locationMgr = computeBaseAnimations(gp.layout!.animation)
+    const startLocationA: [number, number] = [0.5, 0] // A then B
+    const startLocationB: [number, number] = [0.75, 0.933] // B before move
+    const startLocationC: [number, number] = [0.25, 0.933] // C then A
+    const moveLocationB: [number, number] = [.933, .25] // B after move, now C
+
+
+
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'C')!), startLocationC, "C at start");
+
+    assertEqualLocation(locationMgr.getLocationByRole(17, 'B'), startLocationB)
+    assertEqualLocation(locationMgr.getLocationByRole(18, 'B'), moveLocationB)
+    // A and C are not moving
+    assertEqualLocation(locationMgr.getLocationByRole(19, 'A'), startLocationA)
+    assertEqualLocation(locationMgr.getLocationByRole(19, 'C'), startLocationC)
+
+    // check passes
+    assert(spec.passAnimations[0].onBeat===0 && spec.passAnimations[0].pass.fromRole === 'A' && spec.passAnimations[0].pass.toRole === 'B', "First pass from A to B on beat 0");
+    assert(spec.passAnimations[6].onBeat===15 && spec.passAnimations[6].pass.fromRole === 'B' && spec.passAnimations[6].pass.toRole === 'A',JSON.stringify(spec.passAnimations[6]))
+    assert(spec.passAnimations[7].onBeat===19 && spec.passAnimations[7].pass.fromRole === 'C' && spec.passAnimations[7].pass.toRole === 'A', JSON.stringify(spec.passAnimations[7]))
+    assert(spec.passAnimations[8].onBeat === 20 && spec.passAnimations[8].pass.fromRole === 'A' && spec.passAnimations[8].pass.toRole === 'C', JSON.stringify(spec.passAnimations[8]))
+
+    // let's find the corresponding entries in the plan
+    assert(plan.passAnimations[0].onBeat===0)
+    assertNearbyLocation([plan.passAnimations[0].fromX, plan.passAnimations[0].fromY], startLocationA, "First pass from A to B on beat 0");
+    assertNearbyLocation([plan.passAnimations[0].toX, plan.passAnimations[0].toY], startLocationB, "First pass from A to B on beat 0");
+
+    const p6 = plan.passAnimations.find(p => p.onBeat === 15)!
+    assertNearbyLocation([p6.fromX, p6.fromY], startLocationB, "Pass from B to A on beat 15");
+    assertNearbyLocation([p6.toX, p6.toY], startLocationA, "Pass from B to A on beat 15");
+
+    const p7 = plan.passAnimations.find(p => p.onBeat === 19)!
+    assertNearbyLocation([p7.fromX, p7.fromY], startLocationC, "Pass from C to A on beat 19");
+    assertNearbyLocation([p7.toX, p7.toY], startLocationA, "Pass from C to A on beat 19");
+
+    const p8 = plan.passAnimations.find(p => p.onBeat === 20)!
+    assertNearbyLocation([p8.fromX, p8.fromY], startLocationA, "Pass from A to C on beat 20");
+    assertNearbyLocation([p8.toX, p8.toY], startLocationC, "Pass from A to C on beat 20");
+
+    // next one is in the next iteration
+    // beat 21 from A to B, fromer C to former A, both in the original positions
+    const p9 = plan.passAnimations.find(p => p.onBeat === 21)!
+    assertNearbyLocation([p9.fromX, p9.fromY], startLocationC, "Pass from A to B on beat 21");
+    assertNearbyLocation([p9.toX, p9.toY], startLocationA)
 })
 
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {

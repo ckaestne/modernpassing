@@ -43,6 +43,7 @@ export type InitialPosition = {
 export type PassAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
     duration: number,
+    firstIteration?: boolean, // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations
 
     fromX: number,
     toX: number,
