@@ -201,11 +201,15 @@ app.use(async (ctx, next) => {
                 }
 
            
-                svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
-                const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
-                svgManipulator = prettyPrintThrowsSvg(rewritten)
-                const filled =  fillPatternGaps(rewritten)
-                svgFilled = prettyPrintThrowsSvg(filled)
+                if (gp.aidenNotation && gp.aidenNotation[1].length > 0) {
+                    svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
+                    const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
+                    svgManipulator = prettyPrintThrowsSvg(rewritten)
+                    const filled =  fillPatternGaps(rewritten)
+                    svgFilled = prettyPrintThrowsSvg(filled)
+                } else {
+                    svgPlain = prettyPrintThrowsSvg(p);
+                }
                 isValid = p.isValid();
                 error = p.prettyPrintThrows(false)
                 // error = p.getValidationError()

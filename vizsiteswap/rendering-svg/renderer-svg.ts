@@ -18,11 +18,11 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     // not every pattern has aiden notation, and not every group pattern has a layout
     // in addition, the configuration could specify only to render a subset of these
     const [width, height] = getRenderPatternSize(gp.pattern, renderConfig)
-    const withPattern = renderConfig.components.includes("pattern")
-    const withAiden = renderConfig.components.includes("aiden") && gp.aidenNotation
-    const withTabs = withPattern && withAiden
+    const withPattern:boolean = renderConfig.components.includes("pattern")
+    const withAiden:boolean = renderConfig.components.includes("aiden") && gp.aidenNotation!==undefined && (gp.aidenNotation[1].length > 0)
+    const withTabs:boolean = withPattern && withAiden
     const tabHeight = withTabs ? TAB_HEIGHT+TAB_BORDER_WIDTH : 0 
-    const withLayout = renderConfig.components.includes("layout") && gp.layout
+    const withLayout:boolean = renderConfig.components.includes("layout") && gp.layout!==undefined
     const layoutSize = withLayout ? renderConfig.layoutSize || height : 0
 
     const svg = createSVG(width + layoutSize, Math.max(height + tabHeight, layoutSize)).viewbox(0, 0, width + layoutSize, Math.max(height + tabHeight, layoutSize))
@@ -32,11 +32,13 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         [patternCanvas, aidenCanvas, tabJs] = createTabs(svg, width, height, renderConfig.components.indexOf("aiden")<renderConfig.components.indexOf("pattern"))
         javascript += tabJs
     }
-    if (withPattern && patternCanvas){
+    if (withPattern){
+        if (!patternCanvas) patternCanvas = svg.group()
         javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig), renderConfig)
         patternCanvas.transform({ translate: [0,tabHeight] })
     }
-    if (withAiden && aidenCanvas) {
+    if (withAiden) {
+        if (!aidenCanvas) aidenCanvas = svg.group()
         javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0],gp.aidenNotation![1],gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig), renderConfig)
         aidenCanvas.transform({ translate: [0,tabHeight] })
     }
@@ -47,7 +49,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, height+tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(renderConfig, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation)
-        javascript += renderAnimation(animationPlan, height, height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets)
+        javascript += renderAnimation(animationPlan, height, height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands/2)
         layoutCanvas.transform({ translate: [width, tabHeight] })
 }
 
