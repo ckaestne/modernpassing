@@ -143,11 +143,24 @@ export const PManipulatorSequence = rule<TokenKind, (TThrow|THandSwap)[]>();
 PManipulatorSequence.setPattern(rep1(PManipulatorAction))
 
 export const PRelabel = rule<TokenKind, [Role, boolean|undefined, boolean|undefined]>();
-PRelabel.setPattern(seq(
-    kright(tok(TokenKind.Arrow), PRole),
-    opt(apply(str("⇆"), ()=> true)),
-    opt(apply(str("X"), ()=>  true)
-)))
+PRelabel.setPattern(
+    kright(tok(TokenKind.Arrow), alt(
+        // Handle case where role+X got tokenized as manipulator action (e.g. "CX")
+        apply(tok(TokenKind.ManipulatorAction), t => {
+            const match = t.text.match(/^([A-Z])X$/);
+            if (match) {
+                return [match[1], undefined, true] as [Role, boolean|undefined, boolean|undefined];
+            }
+            throw new Error(`Unexpected token in relabel context: ${t.text}`);
+        }),
+        // Normal case: role followed by optional modifiers
+        apply(seq(
+            PRole,
+            opt(apply(str("⇆"), ()=> true)),
+            opt(apply(str("X"), ()=>  true))
+        ), v => [v[0], v[1], v[2]] as [Role, boolean|undefined, boolean|undefined])
+    ))
+)
 
 export const PRow = rule<TokenKind, TPatternRow>();
 PRow.setPattern(
