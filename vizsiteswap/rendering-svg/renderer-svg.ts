@@ -21,11 +21,15 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const withPattern: boolean = renderConfig.components.includes("pattern")
     const withAiden: boolean = renderConfig.components.includes("aiden") && gp.aidenNotation !== undefined && (gp.aidenNotation[1].length > 0)
     const withTabs: boolean = withPattern && withAiden
+    const withTurntable: boolean = renderConfig.showTurntable && gp.pattern.mapRows.some((v, i) => v !== i)
+    const turntableHeight = withTurntable ? TURNTABLE_HEIGHT : 0
     const tabHeight = withTabs ? TAB_HEIGHT + TAB_BORDER_WIDTH : 0
     const withLayout: boolean = renderConfig.components.includes("layout") && gp.layout !== undefined
     const layoutSize = withLayout ? renderConfig.layoutSize || size.height : 0
 
-    const svg = createSVG(size.width + layoutSize, Math.max(size.height + tabHeight, layoutSize)).viewbox(0, 0, size.width + layoutSize, Math.max(size.height + tabHeight, layoutSize))
+    const width = size.width + layoutSize
+    const height = Math.max(size.height + tabHeight + turntableHeight, layoutSize)
+    const svg = createSVG(width, height).viewbox(0, 0, width, height)
     let patternCanvas: G | undefined = undefined, aidenCanvas: G | undefined = undefined, layoutCanvas: G | undefined = undefined
     if (withTabs) {
         let tabJs
@@ -33,17 +37,21 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         javascript += tabJs
     }
     if (withPattern) {
-        if (!patternCanvas) patternCanvas = svg.group()
-        javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig), renderConfig)
-        patternCanvas.transform({ translate: [0, tabHeight] })
+        if (!patternCanvas) patternCanvas = svg.group().addClass("pattern-canvas")
+        javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
+            { ...renderConfig, showRoleColorBackground: false })
+        if (tabHeight > 0)
+            patternCanvas.transform({ translate: [0, tabHeight] })
     }
     if (withAiden) {
-        if (!aidenCanvas) aidenCanvas = svg.group()
-        javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig), renderConfig)
-        aidenCanvas.transform({ translate: [0, tabHeight] })
+        if (!aidenCanvas) aidenCanvas = svg.group().addClass("aiden-canvas")
+        javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+            { ...renderConfig, showRoleColorBackground: true })
+        if (tabHeight > 0)
+            aidenCanvas.transform({ translate: [0, tabHeight] })
     }
     if (withLayout) {
-        layoutCanvas = svg.group()
+        layoutCanvas = svg.group().addClass("layout-canvas")
         if (gp.layout!.background)
             renderBackground(gp.layout!.background, size.height, size.height, layoutCanvas, defaultRenderLayoutConfig)
         const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
@@ -51,6 +59,11 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const animationPlan = createAnimationPlan(gp.layout!.animation)
         javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
         layoutCanvas.transform({ translate: [size.width, tabHeight] })
+    }
+    if (withTurntable) {
+        const turntableCanvas = svg.group().addClass("turntable")
+        renderTurntable(turntableCanvas, gp.pattern, renderConfig)
+        turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
 
     return [svg, javascript]
@@ -65,8 +78,35 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
 //TODO: compute starting hands for walking patterns
 
+/**
+ * Calculate role ranges for background rendering
+ * @param p Pattern with roles defined
+ * @returns Array of [fromBeat, toBeat, passerIdx, Role] tuples
+ */
+function calculateRoleRanges(p: Pattern): [number, number, number, string][] {
+    const roleRanges: [number, number, number, string][] = []
 
+    for (let beat = 0; beat < p.getLength(); beat++) {
+        // Find the active role change for this beat
+        const activeRoleChange = p.roles.findLast(([roleBeat]) => roleBeat <= beat)
+        if (!activeRoleChange) continue
 
+        const [fromBeat, roles] = activeRoleChange
+
+        // Find the next role change beat
+        const nextRoleChange = p.roles.find(([roleBeat]) => roleBeat > beat)
+        const toBeat = nextRoleChange ? nextRoleChange[0] : p.getLength()
+
+        // Only add range for the start of each role period
+        if (beat === fromBeat) {
+            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
+                roleRanges.push([fromBeat, toBeat, passerIdx, roles[passerIdx]])
+            }
+        }
+    }
+
+    return roleRanges
+}
 
 export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThrow[], config: RendererConfig): string {
     if (!p.isValid())
@@ -142,6 +182,29 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
 
             canvas.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`).
                 stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
+        }
+    }
+
+    if (config.showRoleColorBackground && config.roleColors) {
+        const roleRanges = calculateRoleRanges(p)
+        // console.log("Role ranges:", roleRanges)
+
+        // Draw background rectangles for each role range
+        for (const [fromBeat, toBeat, passerIdx, role] of roleRanges) {
+            const x = fromBeat === 0 ? size.roleLabelX : xo(fromBeat)
+            const y = yo(passerIdx, Hand.Right) - config.throwCircleSize / 2
+            const toX = toBeat === p.getLength() ? size.width - config.xMargin : xo(toBeat)
+            const width = toX - x
+            const height = config.separateleftRightRows ? config.yDist + config.yHandDist : config.yDist
+
+            // Get color for this role, cycling through available colors
+            const roleIndex = p.getInitialRoles().indexOf(role)
+            const color = config.roleColors![roleIndex % config.roleColors!.length]
+
+            canvas.rect(width, height)
+                .move(x, y)
+                .fill(color)
+                .back() // Send to back so throws appear on top
         }
     }
 
@@ -494,6 +557,7 @@ function getXOffset(size: PatternRenderSize, time: number): number {
 const TAB_WIDTH = 60
 const TAB_HEIGHT = 20
 const TAB_BORDER_WIDTH = 2
+const TURNTABLE_HEIGHT = 20
 
 function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G, G, string] {
     // <g id="fig1">
@@ -520,12 +584,16 @@ function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G,
 
     const tab1 = svg.group().addClass("tab tab-active")
     tab1.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_BORDER_WIDTH / 2, TAB_BORDER_WIDTH / 2)
-    tab1.text(aidenFirst ? "Aidan" : "Local").amove(TAB_WIDTH / 2 + TAB_BORDER_WIDTH / 2, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
-    tab1.line(0, TAB_HEIGHT + TAB_BORDER_WIDTH, TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH)
+    tab1.text(aidenFirst ? "Aidan" : "Local")
+        .amove(TAB_WIDTH / 2 + TAB_BORDER_WIDTH / 2, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
+        .font({ size: 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
+    tab1.line(0, TAB_HEIGHT + TAB_BORDER_WIDTH, TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH);
 
-    const tab2 = svg.group().addClass("tab")
-    tab2.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_BORDER_WIDTH / 2)
-    tab2.text(aidenFirst ? "Local" : "Aidan").amove(TAB_WIDTH * 1.5 + TAB_BORDER_WIDTH * 1.5, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
+    const tab2 = svg.group().addClass("tab");
+    tab2.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_BORDER_WIDTH / 2);
+    tab2.text(aidenFirst ? "Local" : "Aidan")
+        .amove(TAB_WIDTH * 1.5 + TAB_BORDER_WIDTH * 1.5, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
+        .font({ size: 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
     tab2.line(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH / 2, TAB_WIDTH * 2 + TAB_BORDER_WIDTH * 1.5, TAB_HEIGHT + TAB_BORDER_WIDTH)
 
     const js = `
@@ -624,4 +692,27 @@ function debugDrawPatternRenderSize(canvas: G, size: PatternRenderSize) {
     canvas.rect(size.relabelingWidth, size.height).x(size.relabelingX).stroke("green").fill("transparent")
 
 
+}
+
+function renderTurntable(canvas: G, pattern: Pattern, config: RendererConfig) {
+    const roles = pattern.getInitialRoles()
+    const todo = pattern.getInitialRoles().slice()
+    let turntable = ""
+    while (todo.length > 0) {
+        let role = todo[0]
+        if (turntable.length > 0)
+            turntable += "; " 
+        turntable += role
+        let rowIdx = roles.indexOf(role)
+        while (todo.includes(role)) {
+            todo.splice(todo.indexOf(role), 1)
+            rowIdx = pattern.mapRows[rowIdx]
+            role = roles[rowIdx]
+            turntable += " → " + role
+        }
+    }
+
+
+    canvas.text("").plain(turntable.trim()).
+        font({ size: config.turntableTextSize, 'dominant-baseline': "central" }).y(config.turntableTextSize / 2)
 }
