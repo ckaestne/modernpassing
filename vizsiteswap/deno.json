@@ -14,6 +14,7 @@
         "@deno/emit": "jsr:@deno/emit@^0.46.0"
     },
     "tasks": {
-        "gen-runtime": "deno run -A runtime/convert.ts --input runtime/animations.ts --output dist/animations.js"
+        "gen-runtime": "deno run -A runtime/convert.ts --input runtime/animations.ts --output dist/animations.js",
+        "debug": "deno run -A rendering-svg/debug-server.ts"
     }
 }
