@@ -59,7 +59,7 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
 }
 
 export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulatorActions: ManipulatorAction[], roles: Role[], iterations: number, rendererConfig: RendererConfig): RenderedThrow[] {
-    let prefixTimeOffset = basePattern.getPrefixLength()
+    const prefixTimeOffset = basePattern.getPrefixLength()
     let iterationTimeOffset = 0
 
     const result: RenderedThrow[] = getThrowsFromPattern(basePattern, iterations, rendererConfig)

@@ -131,7 +131,7 @@ positions: Circle(A,B,C)`, 2)
 })
 
 
-Deno.test.only("animation for 3V", () => {
+Deno.test("animation for 3V", () => {
     const gp = createGroupPattern(`A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A
