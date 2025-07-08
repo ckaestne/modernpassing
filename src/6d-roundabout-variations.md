@@ -10,30 +10,35 @@ After the standard Roundabout, there are a number of other 3-person patterns tha
 
 **Chopabout.** The chopabout is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B, the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. A usually needs to prepare for the pass a beat early with a narrow self to then throw the pass as a chop (in a pinch, a reverse spin zap or even a pelf or normal zap will do). The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but the manipulator usually has enough time to look back to check and improve their placement.
 
-<TODO-manipulator-sync video="https://www.youtube.com/watch?v=xAqx56CTIZs" todo="highlight the chop throws">
-A: 3pB3 33   3pB3 33   3pB3 33 -> B
-B: 3pA3 33   3pA3 33   3pA3 33 -> A
-M: SBcz SAlz SAcz SAlz IAv> CA 
-</TODO-manipulator-sync>
+<sync-group video="https://www.youtube.com/watch?v=xAqx56CTIZs" todo="highlight the chop throws">
+A: 3pB3 33   3pB3 33   3pB3 33 -- B
+B: 3pA3 33   3pA3 33   3pA3 33 -- A
+M: SBcz SAlz SAcz SAlz IAv CA 
+positions: Line(A,B)
+</sync-group>
 
 All spinning in Chopabout is clockwise, including the German turn at the end (as in Roundabout) and on the carry (opposite to Roundabout). The manipulator spins continuously except for the substituted self after the first chop.
 
 **Three-count roundabouts.** Beyond [Nicki's three-count roundabout](6a-intro.md), there are two classic one-sided, right-handed Roundabout versions based on 6-club three-count.
 
+<!-- TODO: pass seems missing? -->
+
 <TODO-manipulator-sync video="https://youtu.be/94PLxzRh5Ec?si=6z2O5qaDtiMI8x2w&t=8">
-A: 3pB 3 3   3pB 3 3 -> B
-B: 3pA 3 3   3pA 3 3 -> A
+A: 3pB 3 3   3pB 3 3 -- B
+B: 3pA 3 3   3pA 3 3 -- A
 M: SBl z IBl .   CBz
+positions: Line(A,B)
 </TODO-manipulator-sync>
 
 In this one, the manipulator intercepts a self, turns around, and passes that intercepted club immediately on the next beat as B with their left hand -- this is very fast for the manipulator.
 
 
-<TODO-manipulator-sync video="https://youtu.be/94PLxzRh5Ec?si=RpjfOMKeDUPCCuXE&t=34">
-A: 3pB 3 3   3pB 3 3 -> B
-B: 3pA 3 3   3pA 3 3 -> A
-M: CB  z SBl z   IB
-</TODO-manipulator-sync>
+<sync-group video="https://youtu.be/94PLxzRh5Ec?si=RpjfOMKeDUPCCuXE&t=34">
+A: 3pB 3 3   3pB 3 3 -- B
+B: 3pA 3 3   3pA 3 3 -- A
+M: CB↺  z SBl z   IB↺
+positions: Line(A,B)
+</sync-group>
 
 This one is fairly straightforward, except that there is little space to place the club for the substitution, because B throws a left-handed pass at that point. Therefore, the manipulator typically places the substitution from below, even though it is a self.
 
