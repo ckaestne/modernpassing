@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { type Pattern, type Throw, type Beat, type Role, type Time, Hand, ThrowMarker, InterceptMarker } from "./pattern.ts";
 import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
+import { timeStamp } from "node:console";
 
 
 
@@ -485,20 +486,18 @@ export class PatternImpl implements Pattern {
                 iteration--
 
                 const catchHand = this.getTargetHand(t, iteration)
-                const from = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration * this.getLength())
                 const to = this.samePasserNBeatsLater(this.getToPasserIdxOnCausal(t), t.throwBeat, iteration * this.getLength() + t.throwLength - this.nrHands)
                 // console.log(`catching ${from}/${hand(t.fromHand)} ${t.throwLength} @ ${t.throwBeat} -> ${to}/${hand(catchHand)} @ ${causeTime} (${iteration})`)
                 result[to][catchHand]++
             }
             while (causeTime < 0) {
                 const catchHand = this.getTargetHand(t, iteration)
-                const from = this.adjustRowIdxByTime(iteration * this.getLength(), t.fromPasserIdx)
-                const to = this.samePasserNBeatsLater(this.getToPasserIdxOnCausal(t), t.throwBeat, iteration * this.getLength() + t.throwLength - this.nrHands)
+                const to = this.samePasserNBeatsLater(this.getToPasserIdxAtThrow(t), t.throwBeat, iteration * this.getLength())
                 // console.log(`catching ${from}/${hand(t.fromHand)} ${t.throwLength} @ ${t.throwBeat} -> ${to}/${hand(catchHand)} @ ${causeTime} (${iteration})`)
-                result[from][catchHand]--
+                result[to][catchHand]--
+                iteration++
 
                 causeTime += this.getLength()
-                iteration++
             }
         }
 

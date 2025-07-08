@@ -1765,3 +1765,21 @@ Deno.test('fill and validate: ambled 3 with time travel', () => {
 })
 
 
+Deno.test('check starting hands in Nickis 3c roundabout', () => {
+    // this is a pattern that has a starting hand of 3pB, but the manipulator actions are not filled, so it is invalid
+    const p = loadPattern(
+        `A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SB.IB↻   C↻..
+positions: Line(A,B)`
+    )
+
+    console.log(p.prettyPrintThrows())
+
+    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
+    const filled = fillPatternGaps(p)
+    console.log(filled.getStartingHands())
+    assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
+
+    assert.deepEqual(filled.getStartingHands(),[[2,1],[2,1],[1,0]])
+})
