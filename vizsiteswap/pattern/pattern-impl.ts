@@ -1,7 +1,6 @@
 import assert from "node:assert";
 import { type Pattern, type Throw, type Beat, type Role, type Time, Hand, ThrowMarker, InterceptMarker } from "./pattern.ts";
 import { green, bold, gray, red, blue, dim, setColorEnabled } from "https://deno.land/std@0.123.0/fmt/colors.ts"
-import { timeStamp } from "node:console";
 
 
 

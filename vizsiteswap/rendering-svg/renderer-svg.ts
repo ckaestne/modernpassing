@@ -187,20 +187,32 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
 
     if (config.showRoleColorBackground && config.roleColors) {
         const roleRanges = calculateRoleRanges(p)
-        // console.log("Role ranges:", roleRanges)
+        const relabelingColorX = size.relabelingX + size.relabelingWidth / 4
+        const height = config.separateleftRightRows ? config.yDist + config.yHandDist : config.yDist
 
         // Draw background rectangles for each role range
         for (const [fromBeat, toBeat, passerIdx, role] of roleRanges) {
             const x = fromBeat === 0 ? size.roleLabelX : xo(fromBeat)
             const y = yo(passerIdx, Hand.Right) - config.throwCircleSize / 2
-            const toX = toBeat === p.getLength() ? size.width - config.xMargin : xo(toBeat)
+            const toX = toBeat === p.getLength() ? relabelingColorX : xo(toBeat)
             const width = toX - x
-            const height = config.separateleftRightRows ? config.yDist + config.yHandDist : config.yDist
 
             // Get color for this role, cycling through available colors
             const roleIndex = p.getInitialRoles().indexOf(role)
             const color = config.roleColors![roleIndex % config.roleColors!.length]
 
+            canvas.rect(width, height)
+                .move(x, y)
+                .fill(color)
+                .back() // Send to back so throws appear on top
+        }
+        // colors for end-of-iteration relabeling
+        for (let rowIdx = 0; rowIdx < p.nrRows; rowIdx++) {
+            const color = config.roleColors![p.mapRows[rowIdx]]
+            const x = relabelingColorX
+            const toX = size.width- config.xMargin
+            const y = yo(rowIdx, Hand.Right) - config.throwCircleSize / 2
+            const width = toX - x
             canvas.rect(width, height)
                 .move(x, y)
                 .fill(color)
