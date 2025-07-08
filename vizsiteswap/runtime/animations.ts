@@ -2,7 +2,7 @@
  * runtime library for animations
  */
 
-import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner } from "@svgdotjs/svg.js";
+import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner, Circle } from "@svgdotjs/svg.js";
 import type { DirectMovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
 import { assert } from "node:console";
 import { posix } from "node:path";
@@ -42,6 +42,7 @@ export type Data = {
     beatLabel?: Text, // optional label to indicate the current beat
     intervalId?: number, // interval ID for the animation loop, when running
     animationRunners: Map<string, CustomMovementRunner> // map of animation runners for each role at each beat, used to take over animations
+    roleColors: Map<Role, string>
 }
 type Timer = {
     beat: number, // the beat on which the timer is scheduled
@@ -61,7 +62,7 @@ type Timer = {
  * @param beatLabelId Id of a text element that indicates the current beat of the pattern, optional
  * @returns 
  */
-export function initialize(svgId: string, mod: number, speed: number = 1, beatIndicatorId?: string, beatIndicatorXOffsets?: number[], beatLabelId?: string): Data {
+export function initialize(svgId: string, mod: number, speed: number = 1, roleColors: [Role, string][], beatIndicatorId?: string, beatIndicatorXOffsets?: number[], beatLabelId?: string): Data {
     const beatIndicator = beatIndicatorId && beatIndicatorXOffsets ? {
         indicator: SVG(beatIndicatorId) as Element,
         xoffsets: beatIndicatorXOffsets
@@ -80,7 +81,8 @@ export function initialize(svgId: string, mod: number, speed: number = 1, beatIn
         speed,
         beatIndicator,
         beatLabel,
-        animationRunners: new Map()
+        animationRunners: new Map(),
+        roleColors: new Map(roleColors),
     }
 
 
@@ -292,6 +294,10 @@ function relabel(data: Data, changes: [Role, Role][]) {
     for (const change of idxs) {
         data.positions[change[0]].role = change[1]
         data.positions[change[0]].svgLabel.text(change[1])
+        // const color = data.roleColors.get(change[1]) || "white";
+        // console.log(`relabeling ${change[0]} to ${change[1]} with color ${color}`);
+        // (data.positions[change[0]].svgCircle.first() as Circle).fill(color)
+        
     }
 }
 

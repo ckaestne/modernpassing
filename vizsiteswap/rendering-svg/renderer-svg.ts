@@ -1,6 +1,6 @@
 import type { BackgroundLayout, GroupPattern } from "@modernpassing/layout";
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
-import { Hand, type Pattern } from "@modernpassing/pattern";
+import { Hand, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { type Containable, type Container, type G, type Line, registerWindow, SVG, type Svg } from '@svgdotjs/svg.js';
@@ -39,14 +39,14 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     if (withPattern) {
         if (!patternCanvas) patternCanvas = svg.group().addClass("pattern-canvas")
         javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
-            { ...renderConfig, showRoleColorBackground: false })
+            { ...renderConfig, showRoleColorBackground: true })
         if (tabHeight > 0)
             patternCanvas.transform({ translate: [0, tabHeight] })
     }
     if (withAiden) {
         if (!aidenCanvas) aidenCanvas = svg.group().addClass("aiden-canvas")
         javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
-            { ...renderConfig, showRoleColorBackground: true })
+            { ...renderConfig, showRoleColorBackground: false })
         if (tabHeight > 0)
             aidenCanvas.transform({ translate: [0, tabHeight] })
     }
@@ -489,8 +489,11 @@ export function renderAnimation(
 
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
-
-    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
+    const roleColors: [Role, string][] = []
+    for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) 
+        if (config.roleColors && config.roleColors[roleIdx])
+            roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
+    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
