@@ -390,12 +390,6 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 4
 //     canvas.rect(width, height).fill('none').stroke("none")
 // }
 
-function arrow(svg: Containable, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
-    const line = svg.line(x1, y1, x2, y2).stroke({ color })
-    line.marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill(color))
-    return line
-}
-
 
 // deno-lint-ignore no-explicit-any
 // export function renderLayoutFrames(frames: FrameLayout[], frameWidth: number, frameHeight: number, _config: any = {}): Svg[] {
@@ -416,52 +410,6 @@ function arrow(svg: Containable, x1: number, y1: number, x2: number, y2: number,
 // }
 
 
-function computePassp(p1: [number, number], hand1: Hand, p2: [number, number], hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
-    return computePass(p1[0], p1[1], hand1, p2[0], p2[1], hand2, armLength, labelDistance)
-}
-
-function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
-    //angle between the two points
-    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
-    //move 20 pixel 45 degree from that angle from the first point
-    const armAngle = 40 //todo make this configurable
-    const throwOutside = 1
-
-    const direction1 = hand1 === 0 ? armAngle : -armAngle
-    const x3 = x1 + armLength * Math.cos((angle + direction1) * Math.PI / 180)
-    const y3 = y1 + armLength * Math.sin((angle + direction1) * Math.PI / 180)
-
-    const direction2 = hand2 === 0 ? armAngle * throwOutside : -armAngle * throwOutside
-    const x4 = x2 + armLength * Math.cos((180 + angle + direction2) * Math.PI / 180)
-    const y4 = y2 + armLength * Math.sin((180 + angle + direction2) * Math.PI / 180)
-
-    const length = Math.sqrt((x3 - x4) ** 2 + (y3 - y4) ** 2)
-
-    let labelX = (x3 + x4) / 2
-    let labelY = (y3 + y4) / 2
-
-    const passAngle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI
-
-    const labelAngle =
-        hand1 === Hand.Right && hand2 === Hand.Left ? 90 : // right hand pass to the right
-            hand1 === Hand.Left && hand2 === Hand.Right ? 90 : // left hand pass to the left
-                hand1 === Hand.Right && hand2 === Hand.Right ? -90 :
-                    90 // crossing pass toward the target
-    // console.log(`${hand1} ${hand2} ${labelAngle}`)
-
-
-    //sideways adjustment for label
-    // if (labelAngle !== 0) {
-    labelX += labelDistance * Math.cos((angle + labelAngle) * Math.PI / 180)
-    labelY += labelDistance * Math.sin((angle + labelAngle) * Math.PI / 180)
-    // }
-    //forward adjustment for label
-    labelX += length / 4 * Math.cos(passAngle * Math.PI / 180)
-    labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
-
-
-    return [Math.round(x3), Math.round(y3), Math.round(x4), Math.round(y4), Math.round(labelX), Math.round(labelY)]
-}
 
 let idCounter = 0
 function genId(): string {
