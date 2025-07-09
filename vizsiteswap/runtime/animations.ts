@@ -42,7 +42,9 @@ export type Data = {
     beatLabel?: Text, // optional label to indicate the current beat
     intervalId?: number, // interval ID for the animation loop, when running
     animationRunners: Map<string, CustomMovementRunner> // map of animation runners for each role at each beat, used to take over animations
-    roleColors: Map<Role, string>
+    roleColors: Map<Role, string>,
+    arrowMarker: (color: string) => Marker,
+    // movementMarker: Marker,
 }
 type Timer = {
     beat: number, // the beat on which the timer is scheduled
@@ -72,17 +74,27 @@ export function initialize(svgId: string, mod: number, speed: number = 1, roleCo
         beatIndicator.indicator.show()
     }
     const beatLabel = beatLabelId ? SVG(beatLabelId) as Text : undefined;
+    const canvas = SVG(svgId) as Svg;
+    const markers: Map<string, Marker> = new Map();
+    function arrowMarker(color: string): Marker {
+        if (markers.has(color)) return markers.get(color)!;
+        const marker = canvas.marker(5, 5, (add) => add.path('M0,0 L5,2.5 L0,5').fill(color))
+        markers.set(color, marker);
+        return marker;
+    }
+    
     return {
         mod,
         positions: [],
         segments: [],
-        canvas: SVG(svgId) as Svg,
+        canvas,
         timers: [],
         speed,
         beatIndicator,
         beatLabel,
         animationRunners: new Map(),
         roleColors: new Map(roleColors),
+        arrowMarker
     }
 
 
@@ -200,7 +212,7 @@ export function setDirectMovements(data: Data, directMovementAnimations: DirectM
 
 function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number): CustomMovementRunner {
     // gray arrow for the moving path in the background
-    path.stroke({ color: 'lightgrey', width: 4 }).marker('end', 5, 5, function (add: Marker) { add.path('M0,0 L5,2.5 L0,5').fill('lightgrey') }).fill('none').
+    path.stroke({ color: 'lightgrey', width: 4 }).marker('end', data.arrowMarker('lightgrey')).fill('none').
         after(pos.svgCircle).back().hide();
 
     // if already animating, stop the previous animation
@@ -305,16 +317,16 @@ function renderPass(data: Data, pass: PassAnimation): G {
     // console.log(`renderPass from ${fromRole} to ${toRole} with label ${label}`)
     const canvas = data.canvas
     const g = canvas.group()
-    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, "black")
+    const a = arrow(data, pass.fromX, pass.fromY, pass.toX, pass.toY, "black")
     g.add(a)
     if (pass.label)
         g.add(canvas.text(pass.label).font({ size: 8 }).cx(pass.labelX).cy(pass.labelY).fill("black"))
     return g
 }
 
-function arrow(canvas: Svg, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
-    const line = canvas.line(x1, y1, x2, y2).stroke({ color })
-    line.marker('end', 5, 5, add => add.path('M0,0 L5,2.5 L0,5').fill(color))
+function arrow(data: Data, x1: number, y1: number, x2: number, y2: number, color: string = 'blue'): Line {
+    const line = data.canvas.line(x1, y1, x2, y2).stroke({ color })
+    line.marker('end', data.arrowMarker(color))
     return line
 }
 
