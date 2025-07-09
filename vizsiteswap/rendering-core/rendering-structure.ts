@@ -17,7 +17,7 @@ export type RenderedThrow = {
     toPasserIdx: number
     toHand: Hand
     throwLength: number
-    label: string // text in the circle representing the throw, usually p/s or 6/7
+    label: string // text in the circle representing the throw, usually p/s or 6/7; _ indicates the next character as subscript, ^ indicates the next character as superscript
     annotation: string // text shown above a throw. e.g. L, R, X, or ||
 }
 
@@ -102,7 +102,7 @@ export function convertToLabel(throwLength: number, isSelf: boolean, isCrossing:
 
     if (rendererConfig.labelThrows === "simple" || rendererConfig.labelThrows === "simpleAllSync") {
         const normalizedLabel = "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
-        return getSimpleLabel(normalizedLabel, rendererConfig) + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
+        return getSimpleLabel(normalizedLabel, rendererConfig) + (rendererConfig.labelPassDestinationRole && !isSelf ? (targetRole!==""?"_"+ targetRole:"") : "")
     }
     if (rendererConfig.labelThrows === "classic")
         return "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x") + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
@@ -160,9 +160,9 @@ function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig)
 }
 
 function convertManipulationToLabel(m: ManipulatorAction, rendererConfig: RendererConfig): string {
-    if (m.kind === "I") return "I" + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
-    if (m.kind === "C") return "C" + (m.toPasserRole || "") //+ (m.modifiers ? "_" + m.modifiers : "")
-    if (m.kind === "S") return "S" + (m.fromPasserRole || "") + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "I") return "I_" + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "C") return "C" + (m.toPasserRole ? "_"+m.toPasserRole : "") //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "S") return "S" + (m.fromPasserRole ? "^"+m.fromPasserRole : "") + "_"+m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
     if (m.kind === "T") return getBasicLabel("" + m.throwLength)
     throw Error("Unknown manipulation: " + m)
 }

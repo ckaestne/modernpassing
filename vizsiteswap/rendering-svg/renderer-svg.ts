@@ -3,7 +3,7 @@ import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 import { Hand, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
-import { type Containable, type Container, type G, type Line, registerWindow, SVG, type Svg } from '@svgdotjs/svg.js';
+import { type Containable, type Container, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
 import { createSVGWindow } from 'svgdom';
 
 
@@ -237,7 +237,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
         canvas.circle(config.throwCircleSize).
             center(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
             fill(circleColor)
-        canvas.text("").plain(t.label).
+        canvas.text(renderThrowLabel(t.label, config)).
             amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
             font({ size: config.throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
 
@@ -731,3 +731,34 @@ function renderTurntable(canvas: G, pattern: Pattern, config: RendererConfig) {
     canvas.text("").plain(turntable.trim()).
         font({ size: config.turntableTextSize, 'dominant-baseline': "central" }).y(config.turntableTextSize / 2)
 }
+
+function renderThrowLabel(label: string, config: RendererConfig): (add: Text) => void {
+  // add all text using add.plain() -- not as individual characters
+  // exception: the single character immediately following _ and ^ which are separately added as add.tspan()
+    return (add: Text): void => {
+        let i = 0;
+        while (i < label.length) {
+            const char = label[i];
+            if ((char === '_' || char === '^') && i + 1 < label.length) {
+                // Add the following character as a tspan
+                const span = add.tspan(label[i + 1]);
+                span.dy(char === '_' ? 5:-8)
+                span.font({ size: config.throwTextSize*.6 });
+                i += 2;
+            } else {
+                // Find the next special character or end of string
+                let j = i;
+                while (j < label.length && label[j] !== '_' && label[j] !== '^') {
+                    j++;
+                }
+                // Add all characters from i to j as plain text
+                if (j > i) {
+                    add.plain(label.slice(i, j));
+                }
+                i = j;
+            }
+        }
+    }
+}
+
+
