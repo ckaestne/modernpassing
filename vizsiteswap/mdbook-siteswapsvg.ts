@@ -52,11 +52,11 @@ for (const sec of book.sections) {
                 return svg.svg();
             });
             //sync-group
-            sec.Chapter.content = replaceElement("sync-group", sec.Chapter.content, (match, p, config) => {
-                return handleGroupPattern(p, 2, config)
+            sec.Chapter.content = replaceElement("sync-group", sec.Chapter.content, (match, p, config, videoLinks) => {
+                return handleGroupPattern(p, 2, config, videoLinks)
             });
-            sec.Chapter.content = replaceElement("siteswap-group", sec.Chapter.content, (match, p, config) => {
-                return handleGroupPattern(p, 4, config)
+            sec.Chapter.content = replaceElement("siteswap-group", sec.Chapter.content, (match, p, config, videoLinks) => {
+                return handleGroupPattern(p, 4, config, videoLinks)
             });
             // sec.Chapter.content = replaceElement("positions", sec.Chapter.content, (match, p, config) => {
             //     nrPatterns[1]++
@@ -75,15 +75,16 @@ for (const sec of book.sections) {
 
 }
 
-function handleGroupPattern(p: string, nrHands: number, config: any): string {
+function handleGroupPattern(p: string, nrHands: number, config: any, videoLinks: string[]): string {
     assert(nrHands === 2 || nrHands === 4, "Only 2 or 4 hands supported for group patterns");
     nrPatterns[2]++
     let result = ""
-    const pattern = createGroupPattern(p, nrHands)
+    const gp = createGroupPattern(p, nrHands)
+    gp.videoLinks = videoLinks
 
     try {
         // if (!config.renderFramesOnly) {
-            const [svg, js] = renderGroupPattern(pattern, config);
+            const [svg, js] = renderGroupPattern(gp, config);
             result = svg.svg() + `\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
         // } else {
         //     const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);

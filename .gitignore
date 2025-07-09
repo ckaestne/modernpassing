@@ -11,3 +11,7 @@ vizsiteswap/vizsiteswap
 .vscode/
 *.exe
 tmp/
+.claude/settings.local.json
+CLAUDE.md
+tmp_mdbook*
+*.bak

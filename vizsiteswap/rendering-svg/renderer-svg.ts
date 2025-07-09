@@ -4,6 +4,7 @@ import { Hand, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { type Containable, type Container, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
+import { assert } from "node:console";
 import { createSVGWindow } from 'svgdom';
 
 
@@ -18,40 +19,62 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     // not every pattern has aiden notation, and not every group pattern has a layout
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
-    const withPattern: boolean = renderConfig.components.includes("pattern")
-    const withAiden: boolean = renderConfig.components.includes("aiden") && gp.aidenNotation !== undefined && (gp.aidenNotation[1].length > 0)
-    const withTabs: boolean = withPattern && withAiden
+    const tabTitles: string[] = []
+    const tabIds: string[] = []
+    for (const component of renderConfig.components) {
+        if (component === "pattern") {
+            tabTitles.push("Local")
+            tabIds.push("pattern")
+        } else if (component === "aiden" && gp.aidenNotation !== undefined && (gp.aidenNotation[1].length > 0)) {
+            tabTitles.push("Aidan")
+            tabIds.push("aiden")
+        } else if (component === "video" && gp.videoLinks !== undefined && gp.videoLinks.length > 0) {
+            if (gp.videoLinks.length === 1) {
+                tabTitles.push("Video")
+                tabIds.push("video:" + gp.videoLinks[0])
+            } else {
+                for (const [i, link] of gp.videoLinks.entries()) {
+                    tabTitles.push(`Video ${i + 1}`)
+                    tabIds.push(`video:${link}`)
+                }
+            }
+        }
+    }
+
+
     const withTurntable: boolean = renderConfig.showTurntable && gp.pattern.mapRows.some((v, i) => v !== i)
     const turntableHeight = withTurntable ? TURNTABLE_HEIGHT : 0
-    const tabHeight = withTabs ? TAB_HEIGHT + TAB_BORDER_WIDTH : 0
+    const tabHeight = tabTitles.length > 1 ? TAB_HEIGHT + TAB_BORDER_WIDTH : 0
     const withLayout: boolean = renderConfig.components.includes("layout") && gp.layout !== undefined
     const layoutSize = withLayout ? renderConfig.layoutSize || size.height : 0
 
     const width = size.width + layoutSize
     const height = Math.max(size.height + tabHeight + turntableHeight, layoutSize)
     const svg = createSVG(width, height).viewbox(0, 0, width, height)
-    let patternCanvas: G | undefined = undefined, aidenCanvas: G | undefined = undefined, layoutCanvas: G | undefined = undefined
-    if (withTabs) {
-        let tabJs
-        [patternCanvas, aidenCanvas, tabJs] = createTabs(svg, size.width, size.height, renderConfig.components.indexOf("aiden") < renderConfig.components.indexOf("pattern"))
-        javascript += tabJs
+
+    const [panels, tabJs] = createTabs(svg, tabTitles)
+
+    for (let i = 0; i < tabIds.length; i++) {
+        const panel = panels[i]
+        if (tabIds[i] === "pattern") {
+            panel.addClass("pattern-canvas")
+            javascript += renderPattern(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
+                { ...renderConfig, showRoleColorBackground: true })
+        }
+        if (tabIds[i] === "aiden") {
+            panel.addClass("aiden-canvas")
+            javascript += renderPattern(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+                { ...renderConfig, showRoleColorBackground: false })
+        }
+        if (tabIds[i].startsWith("video:")) {
+            createVideoPanel(tabIds[i].substring(6), panel, size.width, height - tabHeight);
+        }
+
     }
-    if (withPattern) {
-        if (!patternCanvas) patternCanvas = svg.group().addClass("pattern-canvas")
-        javascript += renderPattern(patternCanvas, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
-            { ...renderConfig, showRoleColorBackground: true })
-        if (tabHeight > 0)
-            patternCanvas.transform({ translate: [0, tabHeight] })
-    }
-    if (withAiden) {
-        if (!aidenCanvas) aidenCanvas = svg.group().addClass("aiden-canvas")
-        javascript += renderPattern(aidenCanvas, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
-            { ...renderConfig, showRoleColorBackground: false })
-        if (tabHeight > 0)
-            aidenCanvas.transform({ translate: [0, tabHeight] })
-    }
+
+
     if (withLayout) {
-        layoutCanvas = svg.group().addClass("layout-canvas")
+        const layoutCanvas = svg.group().addClass("layout-canvas")
         if (gp.layout!.background)
             renderBackground(gp.layout!.background, size.height, size.height, layoutCanvas, defaultRenderLayoutConfig)
         const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
@@ -66,7 +89,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
 
-    return [svg, javascript]
+    return [svg, javascript + tabJs]
 
 }
 
@@ -74,6 +97,72 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
 
 
 
+function createVideoPanel(videoLink: string, panel: G, width: number, height: number) {
+    // <g id="fig1">
+    //     <foreignObject x="0" y="24" width="600" height="376">
+    //         <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; background: #fdfdfd; display: flex; align-items: center; justify-content: center;">
+    //             <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+    //                     frameborder="0" allowfullscreen></iframe>
+    //         </div>
+    //     </foreignObject>
+    // </g>
+
+    panel.addClass("video-canvas");
+
+
+    // const video = div.element("video").attr({
+    //     width: width,
+    //     height: height,
+    //     controls: "true"
+    // });
+    // video.element("source").attr({
+    //     src: videoLink,
+    //     type: "video/mp4"
+    // });
+    // // video.node.textContent = "Your browser does not support the video tag.";
+
+    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?]+)/;
+    const youtubeMatch = videoLink.match(youtubeRegex);
+    if (youtubeMatch && youtubeMatch[1]) {
+        // Extract any additional parameters from the original URL
+        const urlParams = new URLSearchParams(videoLink.split('?')[1] || '');
+        const startTime = urlParams.get('t');
+
+        let embedUrl = `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+        if (startTime) {
+            embedUrl += `?start=${startTime}`;
+        }
+
+        const fo = panel.element("foreignObject").attr({ x: 0, y: 0, width: width, height: height });
+        const div = fo.element("div").attr({
+            xmlns: "http://www.w3.org/1999/xhtml",
+            style: `width: 100%; height: 100%; background: #fdfdfd; display: flex; align-items: center; justify-content: center;`
+        });
+
+        const iframe = div.element("iframe").attr({
+            width: width,
+            height: height,
+            src: embedUrl,
+            frameborder: "0",
+            allowfullscreen: "true"
+        });
+    } else {
+        //  <a href="https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4" target="_blank">
+        //             <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#007acc" text-decoration="underline" cursor="pointer" font-size="14">https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4</text>
+        //         </a>
+        const a = panel.link(videoLink).target('_blank')
+        a.text("").tspan(videoLink).attr({
+                x: width / 2,
+                y: height / 2,
+                "text-anchor": "middle",
+                fill: "#007acc",
+                "text-decoration": "underline",
+                cursor: "pointer",
+                "font-size": "14"
+            })
+    }
+
+}
 
 //TODO: with animations at odd period patterns, L and R annotations should change at runtime
 //TODO: compute starting hands for walking patterns
@@ -210,7 +299,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
         for (let rowIdx = 0; rowIdx < p.nrRows; rowIdx++) {
             const color = config.roleColors![p.mapRows[rowIdx]]
             const x = relabelingColorX
-            const toX = size.width- config.xMargin
+            const toX = size.width - config.xMargin
             const y = yo(rowIdx, Hand.Right) - config.throwCircleSize / 2
             const width = toX - x
             canvas.rect(width, height)
@@ -345,8 +434,14 @@ type RenderLayoutConfig = {
     positionCircle: number
     roleLabelFontSize: number
     roleColors?: string[]
+    animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
 }
-export const defaultRenderLayoutConfig: RenderLayoutConfig = { positionCircle: 40, roleLabelFontSize: 28, roleColors: undefined }
+export const defaultRenderLayoutConfig: RenderLayoutConfig = {
+    positionCircle: 40,
+    roleLabelFontSize: 28,
+    roleColors: undefined,
+    animateRoleColors: false // this is pretty confusing
+}
 
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -450,9 +545,11 @@ export function renderAnimation(
     const counter = canvas.text('_').cx(10).cy(10).fill("black")
 
     const roleColors: [Role, string][] = []
-    for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) 
-        if (config.roleColors && config.roleColors[roleIdx])
-            roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
+    if (config.animateRoleColors && config.roleColors) {
+        for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++)
+            if (config.roleColors && config.roleColors[roleIdx])
+                roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
+    }
     let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
@@ -479,7 +576,7 @@ export function renderAnimation(
         // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
         const g = canvas.group()
         const c = canvas.circle(config.positionCircle - strokeWidth).stroke({ color: "black", width: strokeWidth })
-        if (config.roleColors && config.roleColors[roleIdx])
+        if (config.animateRoleColors && config.roleColors && config.roleColors[roleIdx])
             c.fill(config.roleColors[roleIdx]);
         else
             c.fill("white")
@@ -520,48 +617,53 @@ function getXOffset(size: PatternRenderSize, time: number): number {
 const TAB_WIDTH = 60
 const TAB_HEIGHT = 20
 const TAB_BORDER_WIDTH = 2
-const TURNTABLE_HEIGHT = 20
+const TURNTABLE_HEIGHT = 24
 
-function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G, G, string] {
-    // <g id="fig1">
-    //     <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
-    //     <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Aidan content</text>
-    // </g>
-    // <g id="fig2" style="display: none">
-    //     <rect width="600" height="400" x="0" y="0" fill="#fdfdfd" />
-    //     <text x="300" y="212" text-anchor="middle" dominant-baseline="central" fill="#888">Local content</text>
-    // </g>
-    // <g id="tab1" class="tab tab-active">
-    //     <rect x="1" y="1" width="60" height="20" />
-    //     <text x="30" y="12" text-anchor="middle" dominant-baseline="central">Aidan</text>
-    //     <line x1="0" y1="22" x2="62" y2="22" stroke-width="3" />
-    // </g>
-    // <g id="tab2" class="tab">
-    //     <rect x="62" y="1" width="60" height="20" />
-    //     <text x="90" y="12" text-anchor="middle" dominant-baseline="central">Local</text>
-    //     <line x1="61" y1="22" x2="123" y2="22" stroke-width="3" />
-    // </g>
-    const patternCanvas = svg.group()
-    const aidenCanvas = svg.group()
-    if (aidenFirst) patternCanvas.hide(); else aidenCanvas.hide();
+/**
+ * creates a tab for each tabTitle and returns a group element below for each (and Javascript to handle the switching)
+ * @param svg 
+ * @param tabTitles 
+ * @returns 
+ */
+function createTabs(svg: Svg, tabTitles: string[]): [G[], string] {
+    assert(tabTitles.length >= 1, "At least one tab title is required")
 
-    const tab1 = svg.group().addClass("tab tab-active")
-    tab1.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_BORDER_WIDTH / 2, TAB_BORDER_WIDTH / 2)
-    tab1.text(aidenFirst ? "Aidan" : "Local")
-        .amove(TAB_WIDTH / 2 + TAB_BORDER_WIDTH / 2, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
-        .font({ size: 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
-    tab1.line(0, TAB_HEIGHT + TAB_BORDER_WIDTH, TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH);
+    // if there is only one tab, we don't need to create tabs, just a single panel
+    if (tabTitles.length === 1) {
+        const panel = svg.group()
+        return [[panel], ""]
+    }
 
-    const tab2 = svg.group().addClass("tab");
-    tab2.rect(TAB_WIDTH, TAB_HEIGHT).move(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_BORDER_WIDTH / 2);
-    tab2.text(aidenFirst ? "Local" : "Aidan")
-        .amove(TAB_WIDTH * 1.5 + TAB_BORDER_WIDTH * 1.5, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
-        .font({ size: 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
-    tab2.line(TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH / 2, TAB_WIDTH * 2 + TAB_BORDER_WIDTH * 1.5, TAB_HEIGHT + TAB_BORDER_WIDTH)
+    const panels: G[] = []
+    const tabs: G[] = []
+    for (let i = 0; i < tabTitles.length; i++) {
+
+        const panel = svg.group()
+        const tab = svg.group().addClass("tab")
+        if (i === 0) tab.addClass("tab-active")
+        else panel.hide()
+
+        tab.rect(TAB_WIDTH, TAB_HEIGHT).move((TAB_WIDTH + TAB_BORDER_WIDTH) * i + TAB_BORDER_WIDTH / 2, TAB_BORDER_WIDTH / 2)
+        tab.text(tabTitles[i])
+            .amove(TAB_WIDTH / 2 + (TAB_WIDTH + TAB_BORDER_WIDTH) * i + TAB_BORDER_WIDTH / 2, TAB_HEIGHT / 2 + TAB_BORDER_WIDTH)
+            .font({ size: 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
+        tab.line((TAB_WIDTH + TAB_BORDER_WIDTH) * i, TAB_HEIGHT + TAB_BORDER_WIDTH, (TAB_WIDTH + TAB_BORDER_WIDTH) * i + TAB_WIDTH + TAB_BORDER_WIDTH, TAB_HEIGHT + TAB_BORDER_WIDTH);
+
+        panel.transform({ translate: [0, TAB_HEIGHT + TAB_BORDER_WIDTH] })
+
+        panels.push(panel)
+        tabs.push(tab)
+
+    }
+
+    const tabIds = tabs.map((tab) => `SVG('#${tab.id()}')`).join(", ")
+    const panelIds = panels.map((panel) => `SVG('#${panel.id()}')`).join(", ")
+
 
     const js = `
-        const tabs = [SVG('#${tab1.id()}'), SVG('#${tab2.id()}')];
-        const panels = [SVG('#${aidenFirst ? aidenCanvas.id() : patternCanvas.id()}'), SVG('#${aidenFirst ? patternCanvas.id() : aidenCanvas.id()}')];
+        const tabs = [${tabIds}];
+        const panels = [${panelIds}];
+        panels.forEach(p => p.front());
         tabs.forEach((tab, i) => {
             tab.on('click', () => {
                 tabs.forEach(t => t.removeClass('tab-active'));
@@ -571,7 +673,7 @@ function createTabs(svg: Svg, width: any, height: any, aidenFirst: boolean): [G,
         });`
 
 
-    return [patternCanvas, aidenCanvas, js]
+    return [panels, js]
 }
 
 
@@ -664,7 +766,7 @@ function renderTurntable(canvas: G, pattern: Pattern, config: RendererConfig) {
     while (todo.length > 0) {
         let role = todo[0]
         if (turntable.length > 0)
-            turntable += "; " 
+            turntable += "; "
         turntable += role
         let rowIdx = roles.indexOf(role)
         while (todo.includes(role)) {
@@ -681,8 +783,8 @@ function renderTurntable(canvas: G, pattern: Pattern, config: RendererConfig) {
 }
 
 function renderThrowLabel(label: string, config: RendererConfig): (add: Text) => void {
-  // add all text using add.plain() -- not as individual characters
-  // exception: the single character immediately following _ and ^ which are separately added as add.tspan()
+    // add all text using add.plain() -- not as individual characters
+    // exception: the single character immediately following _ and ^ which are separately added as add.tspan()
     return (add: Text): void => {
         let i = 0;
         while (i < label.length) {
@@ -690,8 +792,8 @@ function renderThrowLabel(label: string, config: RendererConfig): (add: Text) =>
             if ((char === '_' || char === '^') && i + 1 < label.length) {
                 // Add the following character as a tspan
                 const span = add.tspan(label[i + 1]);
-                span.dy(char === '_' ? 5:-8)
-                span.font({ size: config.throwTextSize*.6 });
+                span.dy(char === '_' ? 5 : -8)
+                span.font({ size: config.throwTextSize * .6 });
                 i += 2;
             } else {
                 // Find the next special character or end of string

@@ -8,6 +8,7 @@ export type GroupPattern = {
     pattern: Pattern,
     aidenNotation?: [Pattern, ManipulatorAction[]]
     layout?: GroupPatternLayoutSpec
+    videoLinks?: string[];
 }
 export type GroupPatternLayoutSpec = {
     animation: AnimationSpec,
