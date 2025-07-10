@@ -59,7 +59,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
             javascript += renderPattern(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
-                { ...renderConfig, showRoleColorBackground: true })
+                { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2 })
         }
         if (tabIds[i] === "aiden") {
             panel.addClass("aiden-canvas")
@@ -238,7 +238,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
     const ladderOffset = config.lineKind === "ladder" ? 4 : 0
     function causalLine(canvas: G, t: RenderedThrow) {
         //no lines for 0s
-        if (t.throwLength === 0 || t.rethrowTime < 0 || t.toPasserIdx < 0) return
+        if (t.rethrowTime < 0 || t.toPasserIdx < 0) return
 
         const startTime = t.throwTime
         const endTime = config.lineKind === "ladder" ? t.rethrowTime : t.causeTime
@@ -257,17 +257,19 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
             dash = config.emphasizeLineDash
         }
 
-
         if (yo(t.fromPasserIdx, t.fromHand) !== yo(t.toPasserIdx, t.toHand)) {
             // diagonal lines are straight
             canvas.line(xo(startTime), yo(t.fromPasserIdx, t.fromHand), xo(endTime), yo(t.toPasserIdx, t.toHand)).
                 stroke({ color: color, width: width, dasharray: dash })
         } else {
             // self throws are curved
-            const dir = config.lineBendOrientation[t.fromPasserIdx];
+            const dir = config.lineBendOrientation[t.fromPasserIdx] || 1
             const xDiff = xo(endTime) - xo(startTime)
             //backward arrows are straight, the rest follows some heuristic
             const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist * bendAdjustment
+
+        if (t.fromPasserIdx===2 && t.toPasserIdx===2)
+            console.error(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`)
 
             canvas.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`).
                 stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
