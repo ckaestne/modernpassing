@@ -251,7 +251,8 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
         //     color = earlyCausalLineColor
         // if (startTime > maxTime)
         //     color = extraCausalLineColor
-        if (config.emphasizeLines.includes(startTime)) {
+        const isEmphasized = config.emphasizeLines.find((el) => el[0] === t.fromPasserIdx && el[1] === startTime) !== undefined
+        if (isEmphasized) {
             color = config.emphasizeLineColor
             width = config.emphasizeLineWith
             dash = config.emphasizeLineDash
@@ -267,9 +268,6 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
             const xDiff = xo(endTime) - xo(startTime)
             //backward arrows are straight, the rest follows some heuristic
             const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist * bendAdjustment
-
-        if (t.fromPasserIdx===2 && t.toPasserIdx===2)
-            console.error(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`)
 
             canvas.path(`M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${yo(t.toPasserIdx, t.toHand)}`).
                 stroke({ color: color, width: width, dasharray: dash }).fill("transparent")
@@ -314,15 +312,16 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
     if (config.showLines || config.emphasizeLines.length > 0) {
         const maxIdx = maxTime
         for (let idx = 0; idx < renderedThrows.length; idx++)
-            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.includes(idx))
+            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined )
                 causalLine(canvas, renderedThrows[idx])
     }
 
     for (let throwIdx = 0; throwIdx < renderedThrows.length; throwIdx++) {
         const t = renderedThrows[throwIdx]
-        const circleColor = config.emphasizeThrows.includes(throwIdx) ? config.emphasizeCircleColor : config.throwCircleColor
+        const isEmphasized:boolean = config.emphasizeThrows.find((et)=> et[0]===t.fromPasserIdx && et[1]===t.throwTime)!==undefined
+        const circleColor = isEmphasized ? config.emphasizeCircleColor : config.throwCircleColor
         // (t.throwTime >= maxTime ? throwExtraCircleColor : throwCircleColor)
-        const circleTextColor = config.emphasizeThrows.includes(throwIdx) ? config.emphasizeTextColor : config.throwTextColor
+        const circleTextColor = isEmphasized ? config.emphasizeTextColor : config.throwTextColor
         // t.throwTime >= maxTime ? throwExtraTextColor : throwTextColor
 
         canvas.circle(config.throwCircleSize).
@@ -399,14 +398,10 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
 }
 
 
-export function renderPattern_(p: Pattern, config?: Partial<RendererConfig>): Svg {
+export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
 
-    const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(p), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(p),  ...config }
 
-    // there are three parts that we may render: the pattern, the aiden notation, and the layout
-    // not every pattern has aiden notation, and not every group pattern has a layout
-    // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(p, renderConfig)
     const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height)
     const patternCanvas = svg.group()

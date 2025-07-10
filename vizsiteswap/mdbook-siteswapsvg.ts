@@ -6,7 +6,7 @@
  */
 
 import { createGroupPattern, createSiteswapPattern, createSyncPattern } from '@modernpassing/parsing';
-import { renderGroupPattern, renderPattern, renderPattern_ } from '@modernpassing/rendering-svg';
+import { renderGroupPattern, renderPattern, renderPlainPattern } from '@modernpassing/rendering-svg';
 import { assert } from "node:console";
 import fs from 'node:fs';
 import process from "node:process";
@@ -38,7 +38,7 @@ for (const sec of book.sections) {
                     console.error(`Invalid siteswap: ${inner}: \n${pattern.getValidationError()}`);
                     process.exit(1);
                 }
-                const svg = renderPattern_(pattern, config);
+                const svg = renderPlainPattern(pattern, config);
                 return svg.svg();
             });
             sec.Chapter.content = replaceElement("sync", sec.Chapter.content, (match, p, config) => {
@@ -48,7 +48,7 @@ for (const sec of book.sections) {
                     console.error(`Invalid siteswap: ${p}: \n${pattern.getValidationError()}`);
                     process.exit(1);
                 }
-                const svg = renderPattern_(pattern, config);
+                const svg = renderPlainPattern(pattern, config);
                 return svg.svg();
             });
             //sync-group

@@ -38,10 +38,10 @@ export interface RendererConfig {
     lineBendOrientation: number[]; // one orientation for each passer, 0 = straight, -1 = bend top, 1 = bend bottom, can be scaled (e.g. 2=more bend)
 
     //emphasis
-    emphasizeThrows: number[],
+    emphasizeThrows: [number,number][], // identified by rowId and beat 
     emphasizeCircleColor: string,
     emphasizeTextColor: string,
-    emphasizeLines: number[],
+    emphasizeLines: [number,number][], // identified by rowId and beat from where the line originates
     emphasizeLineColor: string,
     emphasizeLineWith: number,
     emphasizeLineDash: string
@@ -110,7 +110,7 @@ export const defaultRendererConfig: RendererConfig = {
     components: ["aiden", "pattern", "video", "layout"],
     layoutSize: undefined, //default
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
-    showRoleColorBackground: true, 
+    showRoleColorBackground: false, 
     showTurntable: true, 
     turntableTextSize: 16,
 

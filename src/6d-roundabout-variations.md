@@ -8,12 +8,12 @@ There are many variations of Roundabout, patterns that incorporate Roundabout in
 
 After the standard Roundabout, there are a number of other 3-person patterns that are one-sided with all right-handed manipulations, each followed by a zip, that are good next patterns with only gently increased difficulty.
 
-**Chopabout.** The chopabout is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B, the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. A usually needs to prepare for the pass a beat early with a narrow self to then throw the pass as a chop (in a pinch, a reverse spin zap or even a pelf or normal zap will do). The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but the manipulator usually has enough time to look back to check and improve their placement.
+**Chopabout.** The chopabout is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B on the first beat (highlighted), the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. The same happens in the opposite direction on the fifth beat. A usually needs to prepare for the pass a beat early with a narrow self to then throw the pass as a chop (in a pinch, a reverse spin zap or even a pelf or normal zap will do). The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but with some practice, the manipulator has enough time to look back to check and improve their placement.
 
-<sync-group video="https://www.youtube.com/watch?v=xAqx56CTIZs" todo="highlight the chop throws">
+<sync-group video="https://www.youtube.com/watch?v=xAqx56CTIZs" todo="highlight the chop throws; fix carry from wrong hand" style='{"emphasizeThrows":[[0,0],[1,4]]}'>
 A: 3pB3 33   3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33   3pA3 33 -- A
-M: SBcz SAlz SAcz SAlz IAv CA 
+M: SBcz SAlz SAcz SAlz IAv . CA 
 positions: Line(A,B)
 </sync-group>
 
