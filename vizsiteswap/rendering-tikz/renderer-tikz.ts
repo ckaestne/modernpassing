@@ -91,7 +91,8 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         //     color = earlyCausalLineColor
         // if (startTime > maxTime)
         //     color = extraCausalLineColor
-        if (emphasizeLines.includes(startTime)) {
+        const isEmphasized = emphasizeLines.find((el) => el[0] === t.fromPasserIdx && el[1] === startTime) !== undefined
+        if (isEmphasized) {
             color = emphasizeLineColor
             width = emphasizeLineWith
             dash = emphasizeLineDash
@@ -119,17 +120,21 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
 
     if (showLines || emphasizeLines.length>0) {
         const maxIdx = maxTime
-        for (let idx = 0; idx < allThrows.length; idx++)
-            if (showLines&&(selectLinesForThrows === undefined || selectLinesForThrows.includes(idx)) || emphasizeLines.includes(idx))
+        for (let idx = 0; idx < allThrows.length; idx++) {
+            const isEmphasized = emphasizeLines.find((el) => el[0] === allThrows[idx].fromPasserIdx && el[1] === allThrows[idx].throwTime) !== undefined
+            const isSelected = !selectLinesForThrows || selectLinesForThrows.find((el) => el[0] === allThrows[idx].fromPasserIdx && el[1] === allThrows[idx].throwTime) !== undefined
+            if (showLines && (isSelected || isEmphasized))
                 causalLine(allThrows[idx])
+        }
     }
 
     // for (let idx = 0; idx < maxTime + (showExtraThrows ? beyondMax(p.period) : 0); idx++) {
     for (let throwIdx = 0; throwIdx < allThrows.length; throwIdx++) {
         const t = allThrows[throwIdx]
-        const circleColor = emphasizeThrows.includes(throwIdx) ? emphasizeCircleColor : throwCircleColor
+        const isEmphasized: boolean = emphasizeThrows.find((et) => et[0] === t.fromPasserIdx && et[1] === t.throwTime) !== undefined
+        const circleColor = isEmphasized ? emphasizeCircleColor : throwCircleColor
         // (t.throwTime >= maxTime ? throwExtraCircleColor : throwCircleColor)
-        const circleTextColor = emphasizeThrows.includes(throwIdx) ? emphasizeTextColor : throwTextColor
+        const circleTextColor = isEmphasized ? emphasizeTextColor : throwTextColor
         // t.throwTime >= maxTime ? throwExtraTextColor : throwTextColor
 
 

@@ -3,7 +3,7 @@ import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 import { Hand, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
-import { type Containable, type Container, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
+import { type Containable, type Container, Element, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
 import { assert } from "node:console";
 import { createSVGWindow } from 'svgdom';
 
@@ -59,12 +59,14 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const panel = panels[i]
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
-            javascript += renderPattern(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
+            javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
+                getRelabel(gp.pattern),
                 { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2 })
         }
         if (tabIds[i] === "aiden") {
             panel.addClass("aiden-canvas")
-            javascript += renderPattern(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+            javascript += renderInternal(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+                getRelabel(gp.aidenNotation![0]),
                 { ...renderConfig, showRoleColorBackground: false })
         }
         if (tabIds[i].startsWith("video:")) {
@@ -198,7 +200,7 @@ function calculateRoleRanges(p: Pattern): [number, number, number, string][] {
     return roleRanges
 }
 
-function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThrow[], relabel: (Role|undefined)[], config: RendererConfig): string {
+function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThrow[], relabel: undefined | (Role | undefined)[], config: RendererConfig): string {
     if (!pattern.isValid())
         throw new Error(`Invalid pattern: ${pattern.getValidationError()}\n${pattern.prettyPrintThrows()}`);
 
@@ -230,7 +232,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         return r
     }
 
-    const anyRelabel = pattern.mapRows.some((v, i) => v !== i)
+    const anyRelabel = relabel && relabel.some((v) => v !== undefined)
     const size = getRenderPatternSize(pattern, config)
 
     // debugDrawPatternRenderSize(canvas, size)
@@ -314,9 +316,12 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
 
     // lines for throws (either all or just some highlighted), before drawing the throws 
     if (config.showLines || config.emphasizeLines.length > 0) {
-        for (let idx = 0; idx < renderedThrows.length; idx++)
-            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined)
+        for (let idx = 0; idx < renderedThrows.length; idx++) {
+            const isEmphasized = config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined
+            const isSelected = !config.selectLinesForThrows || config.selectLinesForThrows.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined
+            if (config.showLines && (isSelected || isEmphasized))
                 throwLine(canvas, renderedThrows[idx])
+        }
     }
 
     // now the actual throws
@@ -367,7 +372,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
                 font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(config.xMargin + config.passerRolesOffset / 2)
             if (anyRelabel) {
-                const newLabel = pattern.getInitialRoles()[pattern.mapRows[passerIdx] ?? passerIdx]
+                const newLabel: Role | undefined = relabel.length > passerIdx ? relabel[passerIdx] : undefined
                 if (newLabel) {
                     canvas.text("").plain("→ " + pattern.getRole(pattern.getLength(), passerIdx)).
                         addClass("passer-roles-relabel").
@@ -402,7 +407,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         }
     }
 
-    
+
     return "" //no javascript
 }
 
@@ -414,7 +419,7 @@ export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>)
     const size = getRenderPatternSize(p, renderConfig)
     const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height)
     const patternCanvas = svg.group()
-    renderPattern(patternCanvas, p, getThrowsFromPattern(p, renderConfig.iterations, renderConfig), renderConfig)
+    renderInternal(patternCanvas, p, getThrowsFromPattern(p, renderConfig.iterations, renderConfig), getRelabel(p), renderConfig)
 
 
     return svg
@@ -441,12 +446,14 @@ type RenderLayoutConfig = {
     roleLabelFontSize: number
     roleColors?: string[]
     animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
+    showAnimationCounter: boolean
 }
 export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     positionCircle: 40,
     roleLabelFontSize: 28,
     roleColors: undefined,
-    animateRoleColors: false // this is pretty confusing
+    animateRoleColors: false, // this is pretty confusing
+    showAnimationCounter: false
 }
 
 
@@ -548,7 +555,7 @@ export function renderAnimation(
 ): string {
 
 
-    const counter = undefined // canvas.text('_').cx(10).cy(10).fill("black")
+    const counter: Text | undefined = config.showAnimationCounter ? canvas.text('_').cx(10).cy(10).fill("black") : undefined
 
     const roleColors: [Role, string][] = []
     if (config.animateRoleColors && config.roleColors) {
@@ -556,7 +563,7 @@ export function renderAnimation(
             if (config.roleColors && config.roleColors[roleIdx])
                 roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
     }
-    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, ${beatIndicator ? "'#"+beatIndicator.id()+"'" : undefined}, ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, ${counter ? "'#"+counter.id()+"'" : undefined});\n`
+    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, ${beatIndicator ? "'#" + beatIndicator.id() + "'" : undefined}, ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, ${counter ? "'#" + counter.id() + "'" : undefined});\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -632,9 +639,9 @@ const TURNTABLE_HEIGHT = 24
  * @returns 
  */
 function createTabs(svg: Svg, tabTitles: string[]): [G[], string] {
-    if (!tabTitles || tabTitles.length === 0) 
+    if (!tabTitles || tabTitles.length === 0)
         return [[], ""]
-    
+
     // if there is only one tab, we don't need to create tabs, just a single panel
     if (tabTitles.length === 1) {
         const panel = svg.group()
@@ -819,3 +826,8 @@ function renderThrowLabel(label: string, config: RendererConfig): (add: Text) =>
 }
 
 
+
+function getRelabel(pattern: Pattern): (string | undefined)[] | undefined {
+    const initialRoles = pattern.getInitialRoles()
+    return pattern.mapRows.map((r) => initialRoles[r])
+}

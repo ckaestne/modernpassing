@@ -31,7 +31,7 @@ export interface RendererConfig {
     //lines
     showLines: boolean;
     lineKind: "causal" | "ladder";
-    selectLinesForThrows: undefined | number[]; // undefined = show lines for all throws
+    selectLinesForThrows: undefined | [number,number][]; // undefined = show lines for all throws
     lineColor: string;
     lineWidth: number;
     lineDash: string;

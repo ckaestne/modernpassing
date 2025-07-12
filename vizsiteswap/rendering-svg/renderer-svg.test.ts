@@ -2,7 +2,7 @@
 import { Svg } from "@svgdotjs/svg.js";
 import fs from "node:fs";
 import test from "node:test";
-import { renderGroupPattern, renderPattern, renderPlainPattern } from "./renderer-svg.ts";
+import { renderGroupPattern, renderPlainPattern } from "./renderer-svg.ts";
 import { createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing";
 import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
