@@ -19,6 +19,7 @@ export type RenderedThrow = {
     throwLength: number
     label: string // text in the circle representing the throw, usually p/s or 6/7; _ indicates the next character as subscript, ^ indicates the next character as superscript
     annotation: string // text shown above a throw. e.g. L, R, X, or ||
+    modifiers?: string // additional modifiers for manipulator actions
 }
 
 export function getThrowsFromPattern(pattern: Pattern, iterations: number, rendererConfig: RendererConfig): RenderedThrow[] {
@@ -76,7 +77,8 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
                 toHand: 0,
                 throwLength: 0,
                 label: convertManipulationToLabel(m, rendererConfig),
-                annotation: ""
+                annotation: "",
+                modifiers: m.modifiers 
             })
         }
         iterationTimeOffset += basePattern.getLength()

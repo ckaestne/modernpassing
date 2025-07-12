@@ -151,13 +151,17 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     }
 
     function convertManipulatorAction(pattern: Pattern, throwStr: string, whoIdx: number, when: Beat): ManipulatorAction {
-        if (throwStr[0] === 'z') throwStr = (nrHands / 2).toString()
+        let modifiers = ""
+        if (throwStr[0] === 'z') {
+            modifiers = throwStr.slice(1)
+            throwStr = (nrHands / 2).toString()
+        }
         const who = roles[whoIdx]
 
         if (['I', 'S'].includes(throwStr[0])) {
             const firstRole: string | undefined = throwStr[1]
             assert(roles.includes(firstRole), `target role ${firstRole} in ${throwStr} not found in ${roles}`)
-            let modifiers = throwStr.slice(2)
+            modifiers = throwStr.slice(2)
             let secondRole: string | undefined = undefined
             if (throwStr[2] && throwStr[2].match(/[A-Z]/)) {
                 secondRole = throwStr[2]
@@ -179,7 +183,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 modifiers
             }
         } else if (throwStr[0] === 'C') {
-            let modifiers = throwStr.slice(1)
+            modifiers = throwStr.slice(1)
             let toPasserRole: string | undefined = undefined
             if (throwStr[1] && throwStr[1].match(/[A-Z]/)) {
                 toPasserRole = throwStr[1]
@@ -202,6 +206,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 isCrossing: t.isCrossing,
                 beat: t.throwBeat,
                 manipulatorRole: who,
+                modifiers
             }
         }
     }

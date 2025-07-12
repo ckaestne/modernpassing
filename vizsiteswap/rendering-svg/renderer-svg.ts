@@ -61,13 +61,13 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             panel.addClass("pattern-canvas")
             javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
-                { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2 })
+                { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2, ...config })
         }
         if (tabIds[i] === "aiden") {
             panel.addClass("aiden-canvas")
             javascript += renderInternal(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
                 getRelabel(gp.aidenNotation![0]),
-                { ...renderConfig, showRoleColorBackground: false })
+                { ...renderConfig, showRoleColorBackground: false, ...config })
         }
         if (tabIds[i].startsWith("video:")) {
             createVideoPanel(tabIds[i].substring(6), panel, size.width, height - tabHeight);
@@ -232,7 +232,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         return r
     }
 
-    const anyRelabel = relabel && relabel.some((v) => v !== undefined)
+    const anyRelabel = config.showRelabel && relabel && relabel.some((v) => v !== undefined)
     const size = getRenderPatternSize(pattern, config)
 
     // debugDrawPatternRenderSize(canvas, size)
@@ -319,7 +319,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         for (let idx = 0; idx < renderedThrows.length; idx++) {
             const isEmphasized = config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined
             const isSelected = !config.selectLinesForThrows || config.selectLinesForThrows.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined
-            if (config.showLines && (isSelected || isEmphasized))
+            if ((config.showLines && isSelected) || isEmphasized)
                 throwLine(canvas, renderedThrows[idx])
         }
     }
@@ -339,6 +339,10 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         canvas.text(renderThrowLabel(t.label, config)).
             amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
             font({ size: config.throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
+        if (config.showManipulatorModifiers && t.modifiers && t.modifiers.length > 0) 
+            canvas.text(t.modifiers).
+            amove(xo(t.throwTime)+config.throwCircleSize*.2, yo(t.fromPasserIdx, t.fromHand)-config.throwCircleSize*.3).
+            font({ size: config.throwTextSize * 0.4, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", weight: "lighter", family: "monospace" })   
 
         if (config.showLeftRight || (config.showStraightCross && t.annotation !== "")) {
             const text = []
@@ -723,7 +727,7 @@ function getRenderPatternSize(p: Pattern, config: RendererConfig): PatternRender
     const throwsAreaX = startingHandsX + startingHandsWidth
     const throwsAreaWidth = throwCircleSize * nrThrows + throwCircleSeparation * (nrThrows - 1)
 
-    const anyRelabel = p.mapRows.some((v, i) => v !== i)
+    const anyRelabel = config.showRelabel && p.mapRows.some((v, i) => v !== i)
     const relabelingX = throwsAreaX + throwsAreaWidth
     const relabelingWidth = anyRelabel ? config.passerRolesOffset * 2 : 0
 

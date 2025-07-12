@@ -52,6 +52,7 @@ export interface RendererConfig {
 
     //passer roles
     showPasserRoles: boolean
+    showRelabel: boolean
     passerRolesOffset: number,
     passerRolesTextSize: number,
     roleColors?: string[],    
@@ -62,6 +63,7 @@ export interface RendererConfig {
     components: RenderComponents[],
     layoutSize?: number; // undefined/0 picks a default size; any other number is taken as width and height of the layout
     turntableTextSize: number,
+    showManipulatorModifiers: boolean,
 
     gallop: boolean, // right hand is 0.1 earlier and left hand 0.1 later
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
@@ -103,6 +105,7 @@ export const defaultRendererConfig: RendererConfig = {
     selectLinesForThrows: undefined,
     separateleftRightRows: false,
     showPasserRoles: false,
+    showRelabel: true,
     passerRolesOffset: 36,
     passerRolesTextSize: 28,
     
@@ -111,6 +114,7 @@ export const defaultRendererConfig: RendererConfig = {
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
     showRoleColorBackground: false, 
     turntableTextSize: 16,
+    showManipulatorModifiers: true,
 
     gallop: false, 
     labelThrows: "classic",

@@ -123,7 +123,7 @@ export function renderPattern(p: Pattern, config?: Partial<RendererConfig>): str
         for (let idx = 0; idx < allThrows.length; idx++) {
             const isEmphasized = emphasizeLines.find((el) => el[0] === allThrows[idx].fromPasserIdx && el[1] === allThrows[idx].throwTime) !== undefined
             const isSelected = !selectLinesForThrows || selectLinesForThrows.find((el) => el[0] === allThrows[idx].fromPasserIdx && el[1] === allThrows[idx].throwTime) !== undefined
-            if (showLines && (isSelected || isEmphasized))
+            if ((showLines && isSelected) || isEmphasized)
                 causalLine(allThrows[idx])
         }
     }

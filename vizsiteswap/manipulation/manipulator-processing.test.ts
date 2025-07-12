@@ -10,7 +10,7 @@ Deno.test('test parsing chopabout', () => {
     const p = parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33   3pA3 33 -- A
-         M: SBcz SAlz SAcz SAlz IAv]. CA`
+         M: SBcz SAlz SAcz SAlz IAvo. CA`
     )
     const [t, a] = createPatternFromRaw(p[0], 2)
 
@@ -985,7 +985,7 @@ Deno.test('chopabout', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33   3pA3 33 -- A
-         M: SBcz SAlz SAcz SAlz IAv]. CA`
+         M: SBcz SAlz SAcz SAlz IAvo. CA`
     )[0], 2)
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)

@@ -413,6 +413,7 @@ export type ThrowAction = {
     manipulatorRole: Role,
     fromHand: Hand,
     isCrossing: boolean,
+    modifiers: string
     kind: 'T'
 }
 export type CarryAction = {
