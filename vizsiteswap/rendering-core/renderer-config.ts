@@ -57,18 +57,17 @@ export interface RendererConfig {
     roleColors?: string[],    
     showRoleColorBackground: boolean, // if true, show a background color indicating manipulators and manipulator changes
 
-    showTurntable: boolean, // show how roles change at the end of the pattern, if any
-    turntableTextSize: number,
 
     //layout and animation options
     components: RenderComponents[],
     layoutSize?: number; // undefined/0 picks a default size; any other number is taken as width and height of the layout
+    turntableTextSize: number,
 
     gallop: boolean, // right hand is 0.1 earlier and left hand 0.1 later
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
     labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
-export type RenderComponents = "aiden" | "pattern" | "layout" | "video";
+export type RenderComponents = "aiden" | "pattern" | "layout" | "video" | "turntable";
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
@@ -107,11 +106,10 @@ export const defaultRendererConfig: RendererConfig = {
     passerRolesOffset: 36,
     passerRolesTextSize: 28,
     
-    components: ["aiden", "pattern", "video", "layout"],
+    components: ["aiden", "pattern", "video", "layout", "turntable"], 
     layoutSize: undefined, //default
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
     showRoleColorBackground: false, 
-    showTurntable: true, 
     turntableTextSize: 16,
 
     gallop: false, 

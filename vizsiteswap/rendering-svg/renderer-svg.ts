@@ -42,14 +42,15 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     }
 
 
-    const withTurntable: boolean = renderConfig.showTurntable && gp.pattern.mapRows.some((v, i) => v !== i)
+    const withTurntable: boolean = renderConfig.components.includes("turntable") && gp.pattern.mapRows.some((v, i) => v !== i)
     const turntableHeight = withTurntable ? TURNTABLE_HEIGHT : 0
     const tabHeight = tabTitles.length > 1 ? TAB_HEIGHT + TAB_BORDER_WIDTH : 0
     const withLayout: boolean = renderConfig.components.includes("layout") && gp.layout !== undefined
+    const onlyLayout = renderConfig.components.length === 1 && renderConfig.components[0] === "layout"
     const layoutSize = withLayout ? renderConfig.layoutSize || size.height : 0
 
-    const width = size.width + layoutSize
-    const height = Math.max(size.height + tabHeight + turntableHeight, layoutSize)
+    const width = onlyLayout ? layoutSize : size.width + layoutSize
+    const height = onlyLayout ? layoutSize : Math.max(size.height + tabHeight + turntableHeight, layoutSize)
     const svg = createSVG(width, height).viewbox(0, 0, width, height)
 
     const [panels, tabJs] = createTabs(svg, tabTitles)
@@ -77,11 +78,11 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const layoutCanvas = svg.group().addClass("layout-canvas")
         if (gp.layout!.background)
             renderBackground(gp.layout!.background, size.height, size.height, layoutCanvas, defaultRenderLayoutConfig)
-        const beatIndicator = renderConfig.layoutSize ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
+        const beatIndicator = onlyLayout ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation)
         javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
-        layoutCanvas.transform({ translate: [size.width, tabHeight] })
+        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width, tabHeight] })
     }
     if (withTurntable) {
         const turntableCanvas = svg.group().addClass("turntable")
@@ -152,14 +153,14 @@ function createVideoPanel(videoLink: string, panel: G, width: number, height: nu
         //         </a>
         const a = panel.link(videoLink).target('_blank')
         a.text("").tspan(videoLink).attr({
-                x: width / 2,
-                y: height / 2,
-                "text-anchor": "middle",
-                fill: "#007acc",
-                "text-decoration": "underline",
-                cursor: "pointer",
-                "font-size": "14"
-            })
+            x: width / 2,
+            y: height / 2,
+            "text-anchor": "middle",
+            fill: "#007acc",
+            "text-decoration": "underline",
+            cursor: "pointer",
+            "font-size": "14"
+        })
     }
 
 }
@@ -197,9 +198,9 @@ function calculateRoleRanges(p: Pattern): [number, number, number, string][] {
     return roleRanges
 }
 
-export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThrow[], config: RendererConfig): string {
-    if (!p.isValid())
-        throw new Error(`Invalid pattern: ${p.getValidationError()}\n${p.prettyPrintThrows()}`);
+function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThrow[], relabel: (Role|undefined)[], config: RendererConfig): string {
+    if (!pattern.isValid())
+        throw new Error(`Invalid pattern: ${pattern.getValidationError()}\n${pattern.prettyPrintThrows()}`);
 
 
 
@@ -207,7 +208,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
     const hasAnnotation = config.showStraightCross || config.showLeftRight;
     const annotationMargin = hasAnnotation ? config.annotationTextSize : 0;
 
-    const maxTime = p.getPrefixLength() + p.getLength() * config.iterations;
+    const maxTime = pattern.getPrefixLength() + pattern.getLength() * config.iterations;
 
 
     // while (lineBendOrientation.length <= p.nrRows)
@@ -229,14 +230,50 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
         return r
     }
 
-    const anyRelabel = p.mapRows.some((v, i) => v !== i)
-    const relabelWidth = config.passerRolesOffset
-    const size = getRenderPatternSize(p, config)
+    const anyRelabel = pattern.mapRows.some((v, i) => v !== i)
+    const size = getRenderPatternSize(pattern, config)
 
     // debugDrawPatternRenderSize(canvas, size)
 
-    const ladderOffset = config.lineKind === "ladder" ? 4 : 0
-    function causalLine(canvas: G, t: RenderedThrow) {
+
+    // highlighting of roles in the background (optional)
+    if (config.showRoleColorBackground && config.roleColors) {
+        const roleRanges = calculateRoleRanges(pattern)
+        const relabelingColorX = size.relabelingX + size.relabelingWidth / 4
+        const height = config.separateleftRightRows ? config.yDist + config.yHandDist : config.yDist
+
+        // Draw background rectangles for each role range
+        for (const [fromBeat, toBeat, passerIdx, role] of roleRanges) {
+            const x = fromBeat === 0 ? size.roleLabelX : xo(fromBeat)
+            const y = yo(passerIdx, Hand.Right) - config.throwCircleSize / 2
+            const toX = toBeat === pattern.getLength() ? relabelingColorX : xo(toBeat)
+            const width = toX - x
+
+            // Get color for this role, cycling through available colors
+            const roleIndex = pattern.getInitialRoles().indexOf(role)
+            const color = config.roleColors![roleIndex % config.roleColors!.length]
+
+            canvas.rect(width, height)
+                .move(x, y)
+                .fill(color)
+                .back() // Send to back so throws appear on top
+        }
+        // colors for end-of-iteration relabeling
+        for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
+            const color = config.roleColors![pattern.mapRows[rowIdx]]
+            const x = relabelingColorX
+            const toX = size.width - config.xMargin
+            const y = yo(rowIdx, Hand.Right) - config.throwCircleSize / 2
+            const width = toX - x
+            canvas.rect(width, height)
+                .move(x, y)
+                .fill(color)
+                .back() // Send to back so throws appear on top
+        }
+    }
+
+    // function to draw lines for throws, either causal or ladder diagram style
+    function throwLine(canvas: G, t: RenderedThrow) {
         //no lines for 0s
         if (t.rethrowTime < 0 || t.toPasserIdx < 0) return
 
@@ -264,7 +301,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
                 stroke({ color: color, width: width, dasharray: dash })
         } else {
             // self throws are curved
-            const dir = config.lineBendOrientation[t.fromPasserIdx] || 1
+            const dir = config.lineBendOrientation[t.fromPasserIdx] ?? 1
             const xDiff = xo(endTime) - xo(startTime)
             //backward arrows are straight, the rest follows some heuristic
             const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist * bendAdjustment
@@ -274,51 +311,18 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
         }
     }
 
-    if (config.showRoleColorBackground && config.roleColors) {
-        const roleRanges = calculateRoleRanges(p)
-        const relabelingColorX = size.relabelingX + size.relabelingWidth / 4
-        const height = config.separateleftRightRows ? config.yDist + config.yHandDist : config.yDist
 
-        // Draw background rectangles for each role range
-        for (const [fromBeat, toBeat, passerIdx, role] of roleRanges) {
-            const x = fromBeat === 0 ? size.roleLabelX : xo(fromBeat)
-            const y = yo(passerIdx, Hand.Right) - config.throwCircleSize / 2
-            const toX = toBeat === p.getLength() ? relabelingColorX : xo(toBeat)
-            const width = toX - x
-
-            // Get color for this role, cycling through available colors
-            const roleIndex = p.getInitialRoles().indexOf(role)
-            const color = config.roleColors![roleIndex % config.roleColors!.length]
-
-            canvas.rect(width, height)
-                .move(x, y)
-                .fill(color)
-                .back() // Send to back so throws appear on top
-        }
-        // colors for end-of-iteration relabeling
-        for (let rowIdx = 0; rowIdx < p.nrRows; rowIdx++) {
-            const color = config.roleColors![p.mapRows[rowIdx]]
-            const x = relabelingColorX
-            const toX = size.width - config.xMargin
-            const y = yo(rowIdx, Hand.Right) - config.throwCircleSize / 2
-            const width = toX - x
-            canvas.rect(width, height)
-                .move(x, y)
-                .fill(color)
-                .back() // Send to back so throws appear on top
-        }
-    }
-
+    // lines for throws (either all or just some highlighted), before drawing the throws 
     if (config.showLines || config.emphasizeLines.length > 0) {
-        const maxIdx = maxTime
         for (let idx = 0; idx < renderedThrows.length; idx++)
-            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined )
-                causalLine(canvas, renderedThrows[idx])
+            if (config.showLines && (config.selectLinesForThrows === undefined || config.selectLinesForThrows.includes(idx)) || config.emphasizeLines.find((el) => el[0] === renderedThrows[idx].fromPasserIdx && el[1] === renderedThrows[idx].throwTime) !== undefined)
+                throwLine(canvas, renderedThrows[idx])
     }
 
+    // now the actual throws
     for (let throwIdx = 0; throwIdx < renderedThrows.length; throwIdx++) {
         const t = renderedThrows[throwIdx]
-        const isEmphasized:boolean = config.emphasizeThrows.find((et)=> et[0]===t.fromPasserIdx && et[1]===t.throwTime)!==undefined
+        const isEmphasized: boolean = config.emphasizeThrows.find((et) => et[0] === t.fromPasserIdx && et[1] === t.throwTime) !== undefined
         const circleColor = isEmphasized ? config.emphasizeCircleColor : config.throwCircleColor
         // (t.throwTime >= maxTime ? throwExtraCircleColor : throwCircleColor)
         const circleTextColor = isEmphasized ? config.emphasizeTextColor : config.throwTextColor
@@ -353,17 +357,19 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
 
     }
 
+    // optionally write role labels in the beginning and relabeling labels at the end
     if (config.showPasserRoles) {
         // console.log(p.relabel)
-        for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
-            canvas.text("").plain(p.getRole(0, passerIdx) + ":").
+        assert(false, "TODO role changes should be shown only for the base rows in aiden notation")
+        for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
+            canvas.text("").plain(pattern.getRole(0, passerIdx) + ":").
                 addClass("passer-roles").
                 font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(config.xMargin + config.passerRolesOffset / 2)
             if (anyRelabel) {
-                const newLabel = p.getInitialRoles()[p.mapRows[passerIdx]]
+                const newLabel = pattern.getInitialRoles()[pattern.mapRows[passerIdx] ?? passerIdx]
                 if (newLabel) {
-                    canvas.text("").plain("→ " + p.getRole(p.getLength(), passerIdx)).
+                    canvas.text("").plain("→ " + pattern.getRole(pattern.getLength(), passerIdx)).
                         addClass("passer-roles-relabel").
                         font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
                         amove(0, yo(passerIdx, null)).cx(size.relabelingX + size.relabelingWidth / 2)
@@ -373,10 +379,11 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
 
     }
 
+    // and write starting hands (optional)
     if (config.showStartingHands) {
-        const hands = p.getStartingHands()
+        const hands = pattern.getStartingHands()
         if (!config.separateleftRightRows) {
-            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++) {
+            for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
                 const startingHands = hands[passerIdx]
                 canvas.text("").plain(startingHands.join("|")).
                     amove(config.xMargin + config.startingHandsOffset / 2 + (config.showPasserRoles ? config.passerRolesOffset : 0), yo(passerIdx, null)).
@@ -384,7 +391,7 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
                     font({ size: config.startingHandsTextSize, 'text-anchor': "middle", fill: config.annotationTextColor, 'dominant-baseline': "central" })
             }
         } else {
-            for (let passerIdx = 0; passerIdx < p.nrRows; passerIdx++)
+            for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++)
                 for (const handIdx of [0, 1]) {
                     const startingHand = hands[passerIdx][handIdx]
                     canvas.text("").plain((handIdx === 0 ? "R: " : "L: ") + startingHand).
@@ -394,13 +401,15 @@ export function renderPattern(canvas: G, p: Pattern, renderedThrows: RenderedThr
                 }
         }
     }
+
+    
     return "" //no javascript
 }
 
 
 export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>): Svg {
 
-    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(p),  ...config }
+    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(p), ...config }
 
     const size = getRenderPatternSize(p, renderConfig)
     const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height)
@@ -534,12 +543,12 @@ export function renderAnimation(
     width: number, height: number, canvas: Container,
     config: RenderLayoutConfig,
     patternLength: number,
-    beatIndicator: Line | null = null, beatXOffsets: number[] | null = null,
+    beatIndicator: Line | undefined = undefined, beatXOffsets: number[] | undefined = undefined,
     speed: number = 1
 ): string {
 
 
-    const counter = canvas.text('_').cx(10).cy(10).fill("black")
+    const counter = undefined // canvas.text('_').cx(10).cy(10).fill("black")
 
     const roleColors: [Role, string][] = []
     if (config.animateRoleColors && config.roleColors) {
@@ -547,7 +556,7 @@ export function renderAnimation(
             if (config.roleColors && config.roleColors[roleIdx])
                 roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
     }
-    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, '#${beatIndicator?.id()}', ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, '#${counter.id()}');\n`
+    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, ${beatIndicator ? "'#"+beatIndicator.id()+"'" : undefined}, ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, ${counter ? "'#"+counter.id()+"'" : undefined});\n`
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
     let left = config.positionCircle / 2
@@ -623,8 +632,9 @@ const TURNTABLE_HEIGHT = 24
  * @returns 
  */
 function createTabs(svg: Svg, tabTitles: string[]): [G[], string] {
-    assert(tabTitles.length >= 1, "At least one tab title is required")
-
+    if (!tabTitles || tabTitles.length === 0) 
+        return [[], ""]
+    
     // if there is only one tab, we don't need to create tabs, just a single panel
     if (tabTitles.length === 1) {
         const panel = svg.group()
