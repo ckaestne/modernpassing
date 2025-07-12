@@ -4,13 +4,11 @@ The first manipulator patterns were written down as lengthy wordy descriptions, 
 
 ## The Aidan Notation
 
-The basic idea of the Aidan notation is as follows: A base pattern is described with a convention passing notation, such as [basic synchronous throws](2b-basic-sync.md) or [moving group patterns](5d-moving.md). In addition the action each manipulator is described on a separate line below the actions of the base pattern. A manipulator's action are described in terms of the three concepts carry, substitution, and intercept. To identify which throw is carried, substituted, or intercepted, we need usually use two pieces of information: The time when it is thrown and the passer who will receive it.
-
-We then simply write the manipulator's actions as a sequence of carries, substitution, and intercepts identified with the letters C, S, and I on the beats where the corresponding club is thrown, and each letter receives a subfix of the passer's role who will or would receive it. (Sometimes also a superfix is added indicating the role where the pass is coming from.)
+The basic idea of the Aidan notation is as follows: A base pattern is described with a convention passing notation, such as [basic synchronous throws](2b-basic-sync.md) or [moving group patterns](5d-moving.md). In addition the action each manipulator is described on a separate line below  the base pattern. A manipulator's action are described in terms of the three concepts *carry* (C), *substitution* (S), and *intercept* (I). To identify which throw is carried, substituted, or intercepted, we need usually use two pieces of information: The time when it is thrown and the passer who will receive it. We notate this with the letters C, S, and I on the throw beats and use a subscript to identify the role of the passer who would receive it (sometimes additionally a superfix is added indicating the role where the pass is coming from).
 
 In this notation, *Nicki's three-count roundabout* can be written as:
 
-<sync-group style='{"aidanOnly": true}'>
+<sync-group style='{"components":["aiden"]}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
@@ -22,7 +20,7 @@ That is, on the first beat, the manipulator substitutes the throw to B, which is
 
 The scheme generalizes to patterns with more passers and more manipulators. For example, this is the notation for the five-person pattern [Scrambled 3-V](6f-aidan-patterns.md), with two manipulators M and N based on a [rotating two-count vs. four-count feed](5d-moving.md):
 
-<sync-group style='{"aidanOnly": true}'>
+<sync-group style='{"components":["aiden"]}'>
 A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A
@@ -35,46 +33,91 @@ move: Vmove(B,4.9,3)
 For common base patterns, especially for the [rotating two-count vs. four-count feed](5d-moving.md), it is also common to describe a manipulator pattern just in terms of the manipulator's actions -- for example, describing [Scrambled V](6f-aidan-patterns.md) as C<sub>B</sub>S<sub>B</sub>I<sub>C</sub>.
 
 
-
-**Relabeling.**
+## Changing Roles
 One thing that makes the Aidan notation somewhat challenging to read is *relabeling*, where passers switch roles.
-While relabeling was already introduced for [moving patterns](5d-moving.md), now we have two forms of relabeling: one swapping roles at the end of the sequence and one for switching manipulators.
+There are now two forms of relabeling: (1) The relabeling in the base pattern as described for [moving patterns](5d-moving.md) and (2) relabeling when the manipulator switches with a passer in the base pattern. Only the former is explicitly written down in the Aidan notation, with arrows at the end of a row.
 
-The one for switching roles, indicated by arrows at the end of each row in the notation, is simply a shorthand to avoid having to repeat the pattern for each person in each position. For example, in *Nicki's three-count roundabout* it indicates that the two passers start with roles A and B and swap roles after two rounds of 3-count. Since the manipulator always manipulates the pass from A to B, this means that the manipulation changes directions. See the [moving patterns](5d-moving.md) for more details and examples.
+The relabeling for switching manipulators is less obvious to recognize in the notation. It happens when the manipulator takes over the role of another passer *triggered by intercepting* a throw to that passer, often in the middle of the pattern. At the time the throw is intercepted, the passer who would otherwise would have caught that throw becomes the new manipulator and continues with the manipulator's actions. 
 
-The relabeling for switching manipulators is less obvious to recognize in the notation. It happens when the manipulator takes over the role of another passer *triggered by intercepting* a throw to that passer, and that passer then becomes the new manipulator. In *Nicki's three-count roundabout*, the switch between M and B is triggered when M intercept's B's self. After that the previous manipulator now has two clubs and takes over the remainder of B's sequence, in this case by also catching A's pass to B on beat 4. At the same time that the previous manipulator takes on the role of B, the previous passer in the role of B becomes the new manipulator M and starts with a carry on beat 4.
+In *Nicki's three-count roundabout*, the switch between M and B is triggered when M intercept's B's self (highlighted below). The intercepted self is thrown on beat 3 and intercepted on beat 4, so beat 4 is where M and B switch (also highlighted with background colors and changes during the animation). On beat 4 the previous manipulator now has two clubs and takes over the remainder of B's sequence, in this case by also catching the pass that A throws on beat 4 to B. At the same time, the previous passer in the role of B becomes the new manipulator M and starts with a carry on beat 4. At the end of the iteration, the passers in role B (originally M at the start of the iteration) and A swap roles, and the pattern repeats.
 
-Taken together there are two relabeling events before the sequence repeats: First the relabeling between each manipulator and the passer who would have received the intercepted throw and then the relabeling at the end of the sequence. In *Nicki's three-count roundabout* that's first the swap between roles M and B when intercepting the self on beat 3 and then the swap between roles A and B at the end of the sequence. As a result, the passer who starts in role A ends up in role B, the passer who starts in role B ends up in role M, and the passer who starts in role M ends up in role A (after briefly being in role B).
-
-To *turn back the pattern* to a previous start (see [moving patterns](5d-moving.md)), it is hence also necessary to do both relabeling in reverse. First, the end of period relabeling is reversed by following the arrows in the notation backward (here passers in role A and B swap) and then the manipulator relabeling is reversed by swapping the manipulator on their intercept (here passers in role M and B swap). 
-
-
-## Local notation
-The Aidan notation is compact and sufficient to describe even complicated patterns with multiple passers and multiple manipulators. However, the manipulator relabeling in the middle of the period can obfuscate what is really happening. The notation also ignores what exactly is happening after the intercept, where many patterns leave out throws (not *Nicki's three-count roundabout*, another reason why it is a good first teaching pattern).
-
-An alternative notation, that we prefer here, is to show the actions of all jugglers, where a steal is shown as a throw from a passer to the manipulator and a place as a throw from the manipulator to a passer. We use causal arrows, introduced in the context of [siteswap theory](4l-4hsw-theory.md), to show how clubs move (roughly, an arrow points to the hand that needs to be emptied to catch the throw). With this, *Nicki's three-count roundabout* looks like this:
-
-<sync-group style='{"localOnly": true}'>
+<sync-group style='{"components":["aiden","turntable","layout"], "emphasizeLines":[[1,2]],"emphasizeThrows":[[1,2]],"showRoleColorBackground":true, "showRelabel":false}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
 positions: Line(A,B)
 </sync-group>
 
-Now the pattern can be read like a walking pattern, seeing what each juggler does and where the clubs actually go, with relabeling only at the end of the sequence. However, actions like substitutions are now shown with two arrows crossing lines, not by a single letter below the pattern. We use colors to indicate which juggler is acting as the manipulator (here, first role C then role B).
+**Turntable and turning back.**
+Having both explicit relabeling at the end of the pattern and implicit relabeling at intercepts in the middle is not intuitive to read 
+and can make it tedious to identify how roles change in the previous or next iteration of the pattern. 
+Hence it is now common to write a *turntable* about how roles change at the end of the pattern, like the "A → B → M → A" for *Nicki's three-count roundabout*. This shows that the passer with the role A will start the next iteration in role B, the passer in role B will start as M, and the passer in role M will start as A. 
 
-The notation also highlights gaps in actions that can be filled: Notice how the passer in the second row has two beats pauses after starting the manipulation with the carry -- here the remaining club can be zipped twice or flipped; similarly the passer in the third row has two beats pause after intercepting the self -- time they usually use for turning but where they also could flip both clubs in their hands.
+When turning back to learn the previous iteration (usually a very good strategy to learn new patterns, see the corresponding explanation in [moving patterns](5d-moving.md)), we simply follow those arrows backward.
 
-(TODO: *Nicki's three-count roundabout* is a good pattern to learn first, but it is not ideal to illustrate the local notation. The local notation suggests a zip before the intercept to catch the intercept with the left hand. This fits the normal juggling beats and alternating hands better, but is harder to learn and hence skipped in *Nicki's three-count roundabout* -- this little cheating makes the pattern a good first pattern.)
+When the turntable is not available for a pattern and deriving this from the notation is inconvenient, here is another practical approach for turning back after having learned one or two iterations of a pattern: Juggle the pattern as a group for one iteration and stop. Everybody now should recognize which role they have now (e.g., in *Nicki's three-count roundabout* B would recognize that they now do M's actions). Everybody now points to the person who previously had that role. The pointing should form a circle -- the equivalent of the turntable above. To move back one iteration, everybody goes to the starting position of the person *who points at them.*
+
+## Movement
+As for [moving patterns](5d-moving.md), the Aidan notation does not describe how passers move, only when things happen.
+
+Manipulator patterns usually inherit some movements from a base pattern, none in *Nicki's three-count roundabout* because the base pattern has only two stationary passers, but [walking feeds](5d-moving.md) are common as a base pattern for manipulator patterns with four or more passers. This is usually described together with the pattern.
+
+There is also no common notation for describing the location of the manipulator or *how* they steal and place clubs (see the description of early vs late steals and placement from below vs above in our [introduction to manipulator patterns](6a-intro.md)). Some patterns have canonical forms that are passed verbally or through videos, but it is equally common that passers will just experiment and figure out what works. For example, for *Nicki's three-count roundabout* I would recommend late steals for both substitution and intercept, placement from below for carry and substitution, and the manipulator moving to the left of the pattern when intercepting the self, but there are also videos of the pattern with other movements.
+
+For this book, we experiment with optional superfix symbols for intercepts and passes to indicate common conventions. We use:
+* `e` for early steals
+* `l` for late steals
+* `v` for very late steals
+* `↑` for placement from below
+* `↓` for placement from above
+* `c` for a steal caught as a chop (see [Chopabout](6d-roundabout-variations.md))
+* `o` for an action standing on the outside of the passing lane
+* `x` for an action standing on the outside of the *opposite* passing lane
+* `b` for an action standing behind the original receiver of a throw
+* `↻` and `↺` for moving clockwise or counter-clockwise around a passer
+* `f` for flipping a club on a zip
+
+With this, *Nicki's three-count roundabout* indicates late steals, placement from below, and clockwise movement when B and M swap can be written as follows:
+
+<sync-group style='{"components":["aiden"]}'>
+A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SBl↑.IBl↑↻   C↻..
+positions: Line(A,B)
+</sync-group>
 
 
 
-## Limitations and Extensions
+## Local Notation (experimental)
 
-Just as with walking patterns, the Aidan notation describes the actions of each juggler, but not how they are walking -- for example, whether the manipulator is turning out to the left or the right when swapping with passer B in *Nicki's three-count roundabout*. This is additional information that is either left open for the jugglers to decide (in *Nicki's three-count roundabout* both directions are possible, but moving to the left of B requires less walking through passing lanes) or needs to be provided in addition to the notation (e.g., explaining that [Scrambled V](6f-aidan-patterns.md) is juggled on a [rotating feed](5d-moving.md)). 
+<div class="warning">
 
-The notation also does not indicate how clubs are stolen or placed -- early, late, as a chop, from below, from above, and so forth. Again this is often left to the jugglers to decide, though many standard patterns have a canonical form. We tend to note *e* for early steal, *l* for late steal, *v* for very late steal, and *c* for late steal from a chop, each as a superfix on intercept and substitutions. In the local notation, the difference between early and late steal can be seen as shorter or longer throws to the manipulator. We do not denote the direction of placement and simply assume that all clubs placed instead of passes are placed from below and all clubs placed instead of selfs are placed from above.
+*This notation is not common and likely only of interest to few who want to experiment with new patterns or gain a deeper understanding. Feel free to skip this.*
 
-Often we indicate zips that the manipulator performs to move a club to the other hand (like in the *Scrambled 3-V* notation above), but we could also leave those out and instead steal the next club with the other hand (as done to intercept the right-hand self with a right hand in *Nicki's three-count roundabout*). We also do not notate the rotation of each club in the manipulator's hand and when to flip them. Usually jugglers intuitively figure those out, once they get the hang of their first few manipulator patterns.
+</div>
 
-As people push what is possible, they discover many issues that seem at first confusing or impossible in the Aidan notation. There are patterns that feel like there are multiple intercepts raising the question about what an intercept actually is, patterns without a carry, patterns where a manipulator substitutes two passes at the same time, and several others. We will discuss them when we introduce the corresponding patterns.
+By now the Aidan notation is ubiquitous and well known and is widely used, but it has a couple of shortcomings. Among others, it can be difficult to see who is doing what and throwing where exactly after mid-pattern role switches, it can be difficult to see what exactly happens between intercept and carry  (not a problem in *Nicki's three-count roundabout*, another reason why it is a good first teaching pattern), it makes many of the standard pattern manipulations and computations from siteswaps and sync passing (e.g., computing starting hands) harder to apply.
+
+As an alternative, some have recently explored writing manipulator patterns as normal passing patterns,
+where intercepts and substitutions are just normal throws.
+We use causal arrows, introduced in the context of [siteswap theory](4l-4hsw-theory.md), to show how clubs move (roughly: an arrow points to the time and place just before the throw is caught, when a previous action there needs to empty that hand).
+
+
+With this, *Nicki's three-count roundabout* looks like this:
+
+<sync-group style='{"components":["pattern"], "emphasizeLines":[[0,0],[2,0],[1,2],[1,3]],"emphasizeThrows":[[0,0],[2,0],[1,2],[1,3]]}'>
+A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SB.IB↻   C↻..
+positions: Line(A,B)
+</sync-group>
+
+Now the pattern can be read like a walking pattern, seeing what each juggler does and where the clubs actually go -- each person corresponds to the actions of a physical person, even if they switch roles in between. It is no longer needed to read actions in a different row after a role change. If the changing roles (indicated with background colors) are confusing, ignore the roles in passes and simply see which row each pass goes to.
+
+A substitution is visible as two passes: A pass (pelf) from the passer A to the manipulator, and a pass from the manipulator to B. We could model this in different ways, but we assume that the pelf has the same length as a zip (solo siteswap 1, so the causal arrow goes backward) and the placement has the length of a normal pass; both are thrown on the same beat -- the first beat in our example.
+
+An intercept is now also just a pass to the manipulator. In our example, passer B's self on beat 3 is now a pass to the manipulator.
+
+A carry is now also a pass, in our example, the pass from the second passer (initially row B) to the first passer.
+
+The notation also fills all empty spots with empty hands (empty circle) or beats where a club is just held (and could be flipped). In our example, the manipulator has time after the substitution until intercepting the self on beat 3 and they could zip and flip a club in that time (in practice they usually have less time, because usually they place the substitution later than indicated and intercept the self earlier than indicated; in our explanation of the pattern we also recommend to avoid a zip and catch the club with the opposite hand, since this is easier to learn). Similarly the new manipulator has two beats after the carry, where they could flip a club and wait briefly with an empty hand or zip their club twice.
