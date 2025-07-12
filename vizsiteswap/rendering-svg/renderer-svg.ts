@@ -374,7 +374,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
             if (anyRelabel) {
                 const newLabel: Role | undefined = relabel.length > passerIdx ? relabel[passerIdx] : undefined
                 if (newLabel) {
-                    canvas.text("").plain("→ " + pattern.getRole(pattern.getLength(), passerIdx)).
+                    canvas.text("").plain("→ " + newLabel).
                         addClass("passer-roles-relabel").
                         font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
                         amove(0, yo(passerIdx, null)).cx(size.relabelingX + size.relabelingWidth / 2)

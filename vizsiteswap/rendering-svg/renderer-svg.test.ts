@@ -4,7 +4,7 @@ import fs from "node:fs";
 import test from "node:test";
 import { renderGroupPattern, renderPlainPattern } from "./renderer-svg.ts";
 import { createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing";
-import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
+import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
 if (!fs.existsSync("test")) fs.mkdirSync("test");
 
@@ -200,4 +200,27 @@ test("create basic group sync examples", async (t) => {
     fs.writeFileSync("test/pattern_animation.html", content);
 
 
+})
+
+
+
+test("test manipulator patterns", async (t) => {
+    const patterns: [any, string][] = [
+        [{  }, `A: 3pB333 3pB333 -- B
+B: 3pA333 3pA333 -- A
+M: SBezSBlz IBvo.CBz
+positions: Line(A,B)`], // roundabout
+    ]
+
+    let content = "<!DOCTYPE html><html>"
+
+    for (const [conf, p] of patterns) {
+        const pattern = createGroupPattern(p, 2)
+        const [svg, js] = renderGroupPattern(pattern, conf)
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><pre>${js}</pre>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/manipulator.html", content);
 })
