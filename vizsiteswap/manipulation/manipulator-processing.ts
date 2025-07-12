@@ -179,6 +179,12 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     }
     const cBeat = carryDelay !== undefined ? (iBeat + cTimeOffset) % patternLength : undefined
     const manipulatedRowIdxAtCarry = pattern.adjustRowIdxByTime(carryThrowTime, manipulatedRowIdxAfterIBeat)
+    if (carryAction) {
+        assert(carriedThrow, `carry action ${carryAction} provided, but no throw found to carry`)
+        assert(carryAction?.toPasserRole===undefined || carryAction!.toPasserRole! == initialPattern.getToPasserRole(carriedThrow!), `carry's specified target role ${carryAction?.toPasserRole} does not match the identified target role ${initialPattern.getToPasserRole(carriedThrow!)}`)
+        // updating the target role for rendering if it was not specified in the notation (I don't like to mutate this, but ...)
+        carryAction.toPasserRole = carryAction.toPasserRole ?? initialPattern.getToPasserRole(carriedThrow!)
+    }
     const carryMarker: CarryMarker | undefined = carriedThrow ? { 
         kind: 'C', 
         toRoleAtThrow: initialPattern.getToPasserRole(carriedThrow), 

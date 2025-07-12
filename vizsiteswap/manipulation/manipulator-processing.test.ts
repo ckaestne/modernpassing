@@ -253,7 +253,7 @@ Deno.test('intercept rewrite: two carry on a pass', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3pB 3 -- B
          B: 3 3 3pA 3 -- A
-         M: IA . CA`
+         M: IA . C`
     )[0], 2)
 
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
