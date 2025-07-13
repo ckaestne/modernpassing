@@ -156,7 +156,10 @@ PRelabel.setPattern(
         // Normal case: role followed by optional modifiers
         apply(seq(
             PRole,
-            opt(apply(str("⇆"), ()=> true)),
+            opt(alt_sc(
+                apply(seq(str("⇆"),str("⇆")), ()=> false),
+                apply(str("!"), ()=> false),
+                apply(str("⇆"), ()=> true))),
             opt(apply(str("X"), ()=>  true))
         ), v => [v[0], v[1], v[2]] as [Role, boolean|undefined, boolean|undefined])
     ))
