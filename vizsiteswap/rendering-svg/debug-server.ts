@@ -180,9 +180,9 @@ app.use(async (ctx, next) => {
         if (ctx.request.method === "GET") {
             ctx.response.body = page("", "","","", true, "", false, "", "");
         } else if (ctx.request.method === "POST") {
-            const formData: FormData = await ctx.request.body.formData();
-            const pattern = formData.get("content")?.toString() || "";
-            const hands = (formData.get("patternType")?.toString() || "sync") === "sync" ? 2 : 4;
+            const body = await ctx.request.body.form();
+            const pattern = body.get("content") || "";
+            const hands = (body.get("patternType") || "sync") === "sync" ? 2 : 4;
 
             let error = ""
             let isValid = false

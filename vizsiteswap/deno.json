@@ -15,6 +15,6 @@
     },
     "tasks": {
         "gen-runtime": "deno run -A runtime/convert.ts --input runtime/animations.ts --output dist/animations.js",
-        "debug": "deno run -A rendering-svg/debug-server.ts"
+        "debug": "deno run -A --watch rendering-svg/debug-server.ts"
     }
 }
