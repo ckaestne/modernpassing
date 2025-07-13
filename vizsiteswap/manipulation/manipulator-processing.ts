@@ -519,7 +519,7 @@ function assertUniqueIntercepts(mActions: ManipulatorAction[]) {
     for (const m of mActions)
         if (m.kind === 'I') {
             const key = `${m.beat}-${m.fromPasserRole}-${m.toPasserRole}`;
-            assert(!uniqueCheck.has(key))
+            assert(!uniqueCheck.has(key), `there are two or more manipulators who attempt to intercept the same throw at the same time (beat ${m.beat}, from ${m.fromPasserRole} to ${m.toPasserRole})`)
             uniqueCheck.add(key);
         }
 }
