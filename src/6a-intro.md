@@ -13,7 +13,6 @@
 A: 3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33  -- A
 M: SB z SB z  IB . CB↺ z
-positions: Line(A,B)
 </sync-group>
 
 The new actions in manipulator patterns are *stealing* and *placing* clubs. A sequence of first stealing a club and then placing a different club where the original club would have landed is called a *takeout* or (now more commonly) a *substitution*.
@@ -65,7 +64,6 @@ Role switching works similarly to [moving patterns](5d-moving.md): The pattern r
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
-positions: Line(A,B)
 </sync-group>
 
 

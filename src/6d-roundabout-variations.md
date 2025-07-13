@@ -14,7 +14,6 @@ After the standard Roundabout, there are a number of other 3-person patterns tha
 A: 3pB3 33   3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33   3pA3 33 -- A
 M: SBcz SAlz SAcz SAlz IAv . CA 
-positions: Line(A,B)
 </sync-group>
 
 All spinning in Chopabout is clockwise, including the German turn at the end (as in Roundabout) and on the carry (opposite to Roundabout). The manipulator spins continuously except for the substituted self after the first chop.
@@ -36,8 +35,7 @@ In this one, the manipulator intercepts a self, turns around, and passes that in
 <sync-group video="https://youtu.be/94PLxzRh5Ec?si=RpjfOMKeDUPCCuXE&t=34">
 A: 3pB 3 3   3pB 3 3 -- B
 B: 3pA 3 3   3pA 3 3 -- A
-M: CB↺  z SBl z   IB↺
-positions: Line(A,B)
+M: CB↺↑  z SBl↑ z   IB↺
 </sync-group>
 
 This one is fairly straightforward, except that there is little space to place the club for the substitution, because B throws a left-handed pass at that point. Therefore, the manipulator typically places the substitution from below, even though it is a self.

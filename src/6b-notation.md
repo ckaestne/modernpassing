@@ -12,7 +12,6 @@ In this notation, *Nicki's three-count roundabout* can be written as:
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
-positions: Line(A,B)
 </sync-group>
 
 
@@ -45,7 +44,6 @@ In *Nicki's three-count roundabout*, the switch between M and B is triggered whe
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
-positions: Line(A,B)
 </sync-group>
 
 **Turntable and turning back.**
@@ -83,7 +81,6 @@ With this, *Nicki's three-count roundabout* indicates late steals, placement fro
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SBl↑.IBl↑↻   C↻..
-positions: Line(A,B)
 </sync-group>
 
 
@@ -109,7 +106,6 @@ With this, *Nicki's three-count roundabout* looks like this:
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
-positions: Line(A,B)
 </sync-group>
 
 Now the pattern can be read like a walking pattern, seeing what each juggler does and where the clubs actually go -- each person corresponds to the actions of a physical person, even if they switch roles in between. It is no longer needed to read actions in a different row after a role change. If the changing roles (indicated with background colors) are confusing, ignore the roles in passes and simply see which row each pass goes to.

@@ -26,7 +26,7 @@ export function createSyncGroupPattern(patternStr: string): GroupPattern {
 }
 export function createGroupPattern(patternStr: string, nrHands: number, skipRewrite: boolean = false, skipFillDuringRewrite: boolean = false): GroupPattern {
 
-    const [rows, layout, movement] = parseGroupPattern(patternStr)
+    let [rows, layout, movement] = parseGroupPattern(patternStr)
 
     // basic checks
     const baseRows = rows.filter(r => !r.isManipulator)
@@ -38,6 +38,9 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     // apply manipulations
     let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
+
+    // infer basic layouts (heuristic)
+    layout = layout ?? inferDefaultLayout(rows, movement)
 
     const patternLayout = !layout ? undefined :
         setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), pattern, rewritten)
@@ -231,7 +234,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
     // if not, we are doing guessing and brute force trying all combinations
     const specifiedMapHandsOrCrossing =
-        rawPattern.filter(r => r.relabelMapHands || r.relabelMapCrossing).length > 0
+        rawPattern.filter(r => r.relabelMapHands!==undefined || r.relabelMapCrossing!==undefined).length > 0
 
     let p: Pattern
     if (specifiedMapHandsOrCrossing) {
@@ -239,7 +242,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         const mapCrossing: boolean[][] | undefined = rawPattern.map(r => [r.relabelMapCrossing === true])
         p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength)
     } else {
-        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
+        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [false])
             : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
         // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
         const guestMapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
@@ -565,3 +568,13 @@ export function createLayout(input: string, patternLength: number = 0): GroupPat
     return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ['A', 'B', 'C', 'D', 'E']))
 }
 
+
+function inferDefaultLayout(rows: TPatternRow[], movement: TMovement | undefined): TLayout | undefined {
+    // for patterns with two passers and one to three manipulators, let's just assume that the passers are in a line (i.e., roundabout)
+    const baseRoles = rows.filter(r => !r.isManipulator && r.role).map(r => r.role!)
+    const nrManipulators = rows.filter(r => r.isManipulator).length
+    if (baseRoles.length === 2 && nrManipulators > 0) {
+        return { type: 'standard', shape: 'Line', roles: baseRoles }
+    }
+    return undefined
+}
