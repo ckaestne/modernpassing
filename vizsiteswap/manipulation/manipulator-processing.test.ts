@@ -1783,3 +1783,29 @@ positions: Line(A,B)`
 
     assert.deepEqual(filled.getStartingHands(),[[2,1],[2,1],[1,0]])
 })
+
+
+
+
+Deno.test("check animations/hands in ronjabout roundabout", () => {
+    const ronjabout = `A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
+B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
+M: SBe! . 1x     SBl IBv.. CB 
+positions: Line(A,B)`
+
+    const r = parseGroupSyncPattern(ronjabout)
+    const [t, m] = createPatternFromRaw(r[0], 2)
+    const rewritten = applyManipulations(t, m)
+
+    console.log(rewritten.prettyPrintThrows())
+    const A = 0, B = 1, M = 2
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
+    // first throw is substituted (right handed)
+    assertThrowH(full, 0, 1, A, Hand.Right, M, true, 'sub pass -- steal')
+    const firstThrow = full.throws.find(t => t.throwBeat === 0 && t.fromPasserIdx === A && t.fromHand === Hand.Right)!
+    assert(full.getThrowHand(firstThrow, 1) === Hand.Right, 'first throw should be right handed also in the second iteration')
+
+})
