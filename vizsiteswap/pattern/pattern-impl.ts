@@ -602,7 +602,7 @@ export class PatternImpl implements Pattern {
         const isSameStart = (iteration: number): boolean => {
             // roles must match
             for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++)
-              if (this.getRole(0, 0) !== this.getRole(iteration * this.getLength(), 0))
+              if (this.getRole(0, rowIdx) !== this.getRole(iteration * this.getLength(), rowIdx))
                 return false
             // hands and crossing must match
             for (const t of this.throws) {
