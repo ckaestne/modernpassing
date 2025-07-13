@@ -115,20 +115,24 @@ positions: Circle(A,B,C)
 
 There have been several attempts to create *Roundabout*-style patterns that use more clubs and higher passes. Most commonly, the goal is to keep the manipulator sequences as in the base pattern, but have the two passers juggle a harder sequence with an extra club.
 
-**Extra-club roundabout.** The original *extra-club roundabout* is a good example of this strategy. Notice that the manipulator actions are the same as in *Roundabout* and all passer actions that relate to the manipulator, highlighted, especially passes and selfs that get stolen, remain as in the base pattern, but a lot of other throws are changed to crossing double passes and heffs. The base pattern itself becomes a hard, long synchronous 7-club pattern, specifically designed to keep the manipulator actions unchanged.
+**Extra-club roundabout.** The original *extra-club roundabout* is a good example of this strategy. Notice that the manipulator actions are the same as in *Roundabout* and all throws that are stolen  remain unchanged from the base pattern (highlighted), but a lot of other throws are changed to crossing double passes and heffs. Due to quirks of the notation, the intercept is notated one beat earlier, since it is intercepting a double pass thrown one beat earlier, but caught at the same time as in regular roundabout. The base pattern itself is challenging, long synchronous 7-club pattern, specifically designed to keep the manipulator actions unchanged.
 
-**TODO Notation**
+<sync-group style='{"emphasizeThrows":[[0,0],[1,2]]}'>
+A: 3B 4 4 4pB 4 4 4 4pB -- B
+B: 4pA 333 3pA 333 -- A
+M: SBe z SBl IBvo .. CB↺ z
+</sync-group>
 
 **Ronjabout.** *Ronjabout* is a newer and more elegant solution to the problem, making the pattern one beat longer but maintaining simpler base pattern with all straight double passes (with the [usual trick](2d-advanced.md) of having one passer start left-handed).  Here the manipulator is technically substituting a double pass and has more time for the substitution, though it may be barely noticable as they wait for an empty hand anyway.
 
-<sync-group video="https://passing.zone/ronjabout/">
+<sync-group video="https://passing.zone/ronjabout/" style='{"emphasizeThrows":[[0,0],[1,3]]}'>
 A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
 B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
 M: SBe! . 1x     SBl IBv.. CB↺  -- M!
 </sync-group>
 
 
-**Beyond.** There are (usually hard) extra-club versions of many common patterns and also patterns that add two clubs (e.g., [*9-club Roundabout*](https://passing.zone/9-club-roundabout/)), resulting in triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). For other takeout patterns on more challenging base patterns of seven and more clubs explore [takeouts in four-handed siteswaps](6j-siteswap-takeouts.md). 
+**Beyond.** While not common, there are challenging extra-club versions of many common patterns and also patterns that add two clubs (e.g., [*9-club Roundabout*](https://passing.zone/9-club-roundabout/)), with triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). For other takeout patterns on more challenging base patterns of seven and more clubs explore [takeouts in four-handed siteswaps](6j-siteswap-takeouts.md). 
 
 
 
