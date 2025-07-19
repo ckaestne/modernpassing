@@ -38,7 +38,7 @@ Deno.test("parse simple group pattern", async (t) => {
 test('basic manipulator pattern parsing', async (t) => {
     const chopabout = `A: 3pB3 33   3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33   3pA3 33 -- A
-M: SBcz SAlz SAcz SAlz IAv]. CA`
+M: SBcz SAlz SAcz SAlz IAvo. CA`
     const p = parseGroupPattern(chopabout)
 
     assert.deepStrictEqual(p[0][0].sequence, ['3pB', '3', '3', '3', '3pB', '3', '3', '3', '3pB', '3', '3', '3'])
@@ -49,7 +49,7 @@ M: SBcz SAlz SAcz SAlz IAv]. CA`
     assert.equal(p[0][1].role, 'B')
     assert.equal(p[0][1].isManipulator, false)
     assert.equal(p[0][1].relabel, "A")
-    assert.deepStrictEqual(p[0][2].sequence, ["SBc", "z", "SAl", "z", "SAc", "z", "SAl", "z", "IAv]", ".", "CA"])
+    assert.deepStrictEqual(p[0][2].sequence, ["SBc", "z", "SAl", "z", "SAc", "z", "SAl", "z", "IAvo", ".", "CA"])
     assert.equal(p[0][2].role, 'M')
     assert.equal(p[0][2].isManipulator, true)
     assert.equal(p[0][2].relabel, undefined)

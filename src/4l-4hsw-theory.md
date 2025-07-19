@@ -113,7 +113,7 @@ With a siteswap animator like [passist.org]() it is easy to cycle through the va
 
 Following a pass in a ladder diagram identifies its orbit, that is the sequence of throws until the club repeats the same path through the pattern. Clubs that always repeat only a single action are called magic and can be highlighted by using a club of a different color. Zaps and trelfs in siteswaps of length 5 are always magic, and so are selfs and doubles in siteswaps of length 3 and singles in siteswaps of length 7. 
 
-<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[0,5,10,15], "emphasizeLines":[0,5,10,15]}'>56784</siteswap>
+<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[[0,0],[1,5],[0,10],[1,15]], "emphasizeLines":[[0,0],[1,5],[0,10],[1,15]]}'>56784</siteswap>
 
 ## Terminology
 

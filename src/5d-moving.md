@@ -257,7 +257,7 @@ The feeder always throws crossing passes to the feedee walking and straight pass
 
 <siteswap-group>
 A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
-B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
+B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C
 C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)
@@ -311,9 +311,9 @@ positions: Circle(A,B,C,D,_)
 move: Cmove(C,0.9,2.5,144,1)
 </sync-group>
 
-Note: The passer with role C starts with 2 clubs.
+Note: The passer with role C starts with two clubs.
 
-Variation: It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. Removing one more club, the passer facing the hole starts with 1 club instead and the passer not receiving clubs passes until they are down to a single club for walking. Alternatively, the passer facing the hole starts without clubs and the passer not receiving clubs walks without any clubs after throwing their last pass. This slows down the pattern and results in walking only every other or every third pass. Alternatively, 
+Variation: It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. Removing one more club, the passer facing the hole starts with one club instead and the passer not receiving clubs passes until they are down to a single club for walking. Alternatively, the passer facing the hole starts without clubs and the passer not receiving clubs walks without any clubs after throwing their last pass. This slows down the pattern and results in walking only every other or every third pass. 
 
 **Two-count shooting star.** In the two-count version of the shooting star, the person moving stops in the middle to let passes go by before making it to the hole. Typically they walk when they have one club, but they can also walk to the middle with two and pass a last one from the middle.
 

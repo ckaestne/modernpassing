@@ -2,9 +2,9 @@
 import { Svg } from "@svgdotjs/svg.js";
 import fs from "node:fs";
 import test from "node:test";
-import { renderGroupPattern, renderPattern, renderPattern_ } from "./renderer-svg.ts";
+import { renderGroupPattern, renderPlainPattern } from "./renderer-svg.ts";
 import { createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing";
-import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
+import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 
 if (!fs.existsSync("test")) fs.mkdirSync("test");
 
@@ -18,7 +18,7 @@ test("create siteswap examples file", async (t) => {
         const pattern = createSiteswapPattern(p, {})
         const errors = pattern.getValidationError()
         // console.log(JSON.stringify(pattern.getThrows(2)))
-        const svg = renderPattern_(pattern, { showLines: true, lineKind: "ladder", showStraightCross: true, iterations: 4, yMargin: 30 })
+        const svg = renderPlainPattern(pattern, { showLines: true, lineKind: "ladder", showStraightCross: true, iterations: 4, yMargin: 30 })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p><br/>${errors}`
     }
@@ -37,7 +37,7 @@ test("create basic sync examples", async (t) => {
 
     for (const p of patterns) {
         const pattern = createSyncPattern(p)
-        const svg = renderPattern_(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 4 })
+        const svg = renderPlainPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 4 })
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }
@@ -61,7 +61,7 @@ test("highlight in sync patterns", async (t) => {
 
     for (const [conf, p] of patterns) {
         const pattern = createSyncPattern(p)
-        const svg = renderPattern_(pattern, conf)
+        const svg = renderPlainPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }
@@ -87,7 +87,7 @@ test("advanced sync patterns", async (t) => {
 
     for (const [conf, p] of patterns) {
         const pattern = createSyncPattern(p)
-        const svg = renderPattern_(pattern, conf)
+        const svg = renderPlainPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }
@@ -115,7 +115,7 @@ test("jims and galloped sync patterns", async (t) => {
 
     for (const [conf, p] of patterns) {
         const pattern = createSyncPattern(p)
-        const svg = renderPattern_(pattern, conf)
+        const svg = renderPlainPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }
@@ -154,7 +154,7 @@ test("fully synchronous patterns", async (t) => {
         // console.log(pattern)
         // console.log(pattern.getThrows(1))
         conf.labelThrows = "simpleAllSync"
-        const svg = renderPattern_(pattern, conf)
+        const svg = renderPlainPattern(pattern, conf)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>`
     }
@@ -200,4 +200,27 @@ test("create basic group sync examples", async (t) => {
     fs.writeFileSync("test/pattern_animation.html", content);
 
 
+})
+
+
+
+test("test manipulator patterns", async (t) => {
+    const patterns: [any, string][] = [
+        [{  }, `A: 3pB333 3pB333 -- B
+B: 3pA333 3pA333 -- A
+M: SBezSBlz IBvo.CBz
+positions: Line(A,B)`], // roundabout
+    ]
+
+    let content = "<!DOCTYPE html><html>"
+
+    for (const [conf, p] of patterns) {
+        const pattern = createGroupPattern(p, 2)
+        const [svg, js] = renderGroupPattern(pattern, conf)
+
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><pre>${js}</pre>`
+    }
+
+    content += "</html>"
+    fs.writeFileSync("test/manipulator.html", content);
 })

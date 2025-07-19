@@ -138,6 +138,7 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                     <div class="section">
                         <h2>Plain:</h2>
                         ${svg1}
+                        <p>Notation: throw height, target role at throw, X/‖ for straight/crossing passes, row of receiver at causal, target hand (in first iteration), optional manipulator annotations (I, C, S); blue is right hand, green is left hand; arrow color indicates the hand at receiver</p>
                     </div>
                     
                     <div class="section">
@@ -180,9 +181,9 @@ app.use(async (ctx, next) => {
         if (ctx.request.method === "GET") {
             ctx.response.body = page("", "","","", true, "", false, "", "");
         } else if (ctx.request.method === "POST") {
-            const formData: FormData = await ctx.request.body.formData();
-            const pattern = formData.get("content")?.toString() || "";
-            const hands = (formData.get("patternType")?.toString() || "sync") === "sync" ? 2 : 4;
+            const body = await ctx.request.body.form();
+            const pattern = body.get("content") || "";
+            const hands = (body.get("patternType") || "sync") === "sync" ? 2 : 4;
 
             let error = ""
             let isValid = false
@@ -201,14 +202,18 @@ app.use(async (ctx, next) => {
                 }
 
            
-                svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
-                const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
-                svgManipulator = prettyPrintThrowsSvg(rewritten)
-                const filled =  fillPatternGaps(rewritten)
-                svgFilled = prettyPrintThrowsSvg(filled)
+                if (gp.aidenNotation && gp.aidenNotation[1].length > 0) {
+                    svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
+                    const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
+                    svgManipulator = prettyPrintThrowsSvg(rewritten)
+                    const filled =  fillPatternGaps(rewritten)
+                    svgFilled = prettyPrintThrowsSvg(filled)
+                } else {
+                    svgPlain = prettyPrintThrowsSvg(p);
+                }
                 isValid = p.isValid();
                 error = p.prettyPrintThrows(false)
-                // error = p.getValidationError()
+                error = p.getValidationError()
             } catch (e) {
                 error = e instanceof Error ? e.message : String(e);
                 console.error("Error:", (e as Error).stack);

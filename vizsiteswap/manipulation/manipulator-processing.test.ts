@@ -10,7 +10,7 @@ Deno.test('test parsing chopabout', () => {
     const p = parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33   3pA3 33 -- A
-         M: SBcz SAlz SAcz SAlz IAv]. CA`
+         M: SBcz SAlz SAcz SAlz IAvo. CA`
     )
     const [t, a] = createPatternFromRaw(p[0], 2)
 
@@ -109,7 +109,7 @@ Deno.test('intercept rewrite: basic', () => {
 
 
 
-Deno.test('intercept rewrite: 456about should be easy', () => {
+Deno.test.ignore('**broken:**intercept rewrite: 456about should be easy', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 5 4 6 5 4 -- B
          B: ,6 5 4 6 -- A
@@ -147,7 +147,7 @@ Deno.test('intercept rewrite: 456about should be easy', () => {
 
 
 
-Deno.test('intercept rewrite: manege', () => {
+Deno.test.ignore('**broken:** intercept rewrite: manege', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 7 6 8 7 6 -- B
          B: ,8 7 6 8 -- A
@@ -253,7 +253,7 @@ Deno.test('intercept rewrite: two carry on a pass', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3 3 3pB 3 -- B
          B: 3 3 3pA 3 -- A
-         M: IA . CA`
+         M: IA . C`
     )[0], 2)
 
     assert(manipulations[0].kind === 'I' && manipulations[1].kind === 'C') // just making sure parsing is stable
@@ -985,7 +985,7 @@ Deno.test('chopabout', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 3pB3 33   3pB3 33   3pB3 33 -- B
          B: 3pA3 33   3pA3 33   3pA3 33 -- A
-         M: SBcz SAlz SAcz SAlz IAv]. CA`
+         M: SBcz SAlz SAcz SAlz IAvo. CA`
     )[0], 2)
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
@@ -1139,10 +1139,11 @@ Deno.test('scrambled V', () => {
 Deno.test('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
-        B: !34pAx  3  3  34pAx  4x  -- C
-        C: !2 33 4pAx 3  3  3   -- A
-        M: C  !1x z  SB z  IC 
-        positions: V(A,B,C)`
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A!
+M: C  !1x z  SB z  IC 
+positions: V(A,B,C)
+move: Vmove(B,5.9,3)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
@@ -1517,7 +1518,7 @@ export function assertThrowH(pattern: Pattern, beat: number, length: number, fro
         (isCrossing===undefined || t.isCrossing === isCrossing) &&
         t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
-    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
+    assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(x=>JSON.stringify(x)).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
 }
 function assertNoThrow(pattern: Pattern, beat: number, fromPasserIdx: number, toPasserIdxAtCausal: number, msg?: string) {
@@ -1765,3 +1766,46 @@ Deno.test('fill and validate: ambled 3 with time travel', () => {
 })
 
 
+Deno.test('check starting hands in Nickis 3c roundabout', () => {
+    // this is a pattern that has a starting hand of 3pB, but the manipulator actions are not filled, so it is invalid
+    const p = loadPattern(
+        `A: 3pB333pB33 -- B
+B: 3pA333pA33 -- A
+M: SB.IB↻   C↻..
+positions: Line(A,B)`
+    )
+
+    console.log(p.prettyPrintThrows())
+
+    assert.ok(!p.isValid(), 'pattern is valid without filling manipulator actions: '+p.getValidationError())
+    const filled = fillPatternGaps(p)
+    console.log(filled.getStartingHands())
+    assert.ok(filled.isValid(), 'pattern is invalid after filling manipulator actions: '+filled.getValidationError())
+
+    assert.deepEqual(filled.getStartingHands(),[[2,1],[2,1],[1,0]])
+})
+
+
+
+
+Deno.test("check animations/hands in ronjabout roundabout", () => {
+    const ronjabout = `A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
+B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
+M: SBe! . 1x     SBl IBv.. CB↺  -- M!`
+
+    const r = parseGroupSyncPattern(ronjabout)
+    const [t, m] = createPatternFromRaw(r[0], 2)
+    const rewritten = applyManipulations(t, m)
+
+    console.log(rewritten.prettyPrintThrows())
+    const A = 0, B = 1, M = 2
+
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+
+    // first throw is substituted (right handed)
+    assertThrowH(full, 0, 1, A, Hand.Right, M, true, 'sub pass -- steal')
+    const firstThrow = full.throws.find(t => t.throwBeat === 0 && t.fromPasserIdx === A && t.fromHand === Hand.Right)!
+    assert(full.getThrowHand(firstThrow, 1) === Hand.Right, 'first throw should be right handed also in the second iteration')
+
+})

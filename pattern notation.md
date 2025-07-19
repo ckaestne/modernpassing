@@ -87,7 +87,7 @@ If the row labels are not provided, rows are implicitly labeled with roles A to 
 If the relabel instruction is not provided, rows are implicitly relabeled to themselves.
 By default all rows start right-handed and have no prefix.
 
-Relabeling instructions can optionally indicate whether to switch left and right hand in the next iteration (⇆) or whether to switch straight vs crossing in the next iteration (X). Usually these indicators are not needed and are inferred, however for debugging or explicit communication it may be useful to indicate those. If any ⇆ or X are indicated, it is assumed that all absence of ⇆ and X in other rows means no swap (rather than infer automatically as is the default if none are specified for any row).
+Relabeling instructions can optionally indicate whether to switch left and right hand in the next iteration (`⇆`) or whether to switch straight vs crossing in the next iteration (`X`). Usually these indicators are not needed and are inferred, however for debugging or explicit communication it may be useful to indicate those. If any `⇆` or `X` are indicated, it is assumed that all absence of `⇆` and `X` in other rows means no swap (rather than infer automatically as is the default if none are specified for any row). To explicitly indicate that there are no swaps at all, add a `!` (should rarely be needed).
 
 In four-handed siteswaps, rows starting with an empty beat are assumed to throw crossing singles and rows starting with a throw are assumed to throw straight singles.
 

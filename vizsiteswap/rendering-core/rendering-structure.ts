@@ -17,8 +17,9 @@ export type RenderedThrow = {
     toPasserIdx: number
     toHand: Hand
     throwLength: number
-    label: string // text in the circle representing the throw, usually p/s or 6/7
+    label: string // text in the circle representing the throw, usually p/s or 6/7; _ indicates the next character as subscript, ^ indicates the next character as superscript
     annotation: string // text shown above a throw. e.g. L, R, X, or ||
+    modifiers?: string // additional modifiers for manipulator actions
 }
 
 export function getThrowsFromPattern(pattern: Pattern, iterations: number, rendererConfig: RendererConfig): RenderedThrow[] {
@@ -59,7 +60,7 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
 }
 
 export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulatorActions: ManipulatorAction[], roles: Role[], iterations: number, rendererConfig: RendererConfig): RenderedThrow[] {
-    let prefixTimeOffset = basePattern.getPrefixLength()
+    const prefixTimeOffset = basePattern.getPrefixLength()
     let iterationTimeOffset = 0
 
     const result: RenderedThrow[] = getThrowsFromPattern(basePattern, iterations, rendererConfig)
@@ -76,7 +77,8 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
                 toHand: 0,
                 throwLength: 0,
                 label: convertManipulationToLabel(m, rendererConfig),
-                annotation: ""
+                annotation: "",
+                modifiers: m.modifiers 
             })
         }
         iterationTimeOffset += basePattern.getLength()
@@ -102,7 +104,7 @@ export function convertToLabel(throwLength: number, isSelf: boolean, isCrossing:
 
     if (rendererConfig.labelThrows === "simple" || rendererConfig.labelThrows === "simpleAllSync") {
         const normalizedLabel = "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x")
-        return getSimpleLabel(normalizedLabel, rendererConfig) + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
+        return getSimpleLabel(normalizedLabel, rendererConfig) + (rendererConfig.labelPassDestinationRole && !isSelf ? (targetRole!==""?"_"+ targetRole:"") : "")
     }
     if (rendererConfig.labelThrows === "classic")
         return "" + throwLength + (!isSelf ? "p" : "") + (isCrossing === expectCrossing ? "" : "x") + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
@@ -160,9 +162,9 @@ function getSimpleLabel(normalizedLabel: string, rendererConfig: RendererConfig)
 }
 
 function convertManipulationToLabel(m: ManipulatorAction, rendererConfig: RendererConfig): string {
-    if (m.kind === "I") return "I" + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
-    if (m.kind === "C") return "C" + (m.toPasserRole || "") //+ (m.modifiers ? "_" + m.modifiers : "")
-    if (m.kind === "S") return "S" + (m.fromPasserRole || "") + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "I") return "I_" + m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "C") return "C" + (m.toPasserRole ? "_"+m.toPasserRole : "") //+ (m.modifiers ? "_" + m.modifiers : "")
+    if (m.kind === "S") return "S" + (m.fromPasserRole ? "^"+m.fromPasserRole : "") + "_"+m.toPasserRole //+ (m.modifiers ? "_" + m.modifiers : "")
     if (m.kind === "T") return getBasicLabel("" + m.throwLength)
     throw Error("Unknown manipulation: " + m)
 }

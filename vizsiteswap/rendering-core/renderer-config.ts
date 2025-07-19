@@ -31,17 +31,17 @@ export interface RendererConfig {
     //lines
     showLines: boolean;
     lineKind: "causal" | "ladder";
-    selectLinesForThrows: undefined | number[]; // undefined = show lines for all throws
+    selectLinesForThrows: undefined | [number,number][]; // undefined = show lines for all throws
     lineColor: string;
     lineWidth: number;
     lineDash: string;
     lineBendOrientation: number[]; // one orientation for each passer, 0 = straight, -1 = bend top, 1 = bend bottom, can be scaled (e.g. 2=more bend)
 
     //emphasis
-    emphasizeThrows: number[],
+    emphasizeThrows: [number,number][], // identified by rowId and beat 
     emphasizeCircleColor: string,
     emphasizeTextColor: string,
-    emphasizeLines: number[],
+    emphasizeLines: [number,number][], // identified by rowId and beat from where the line originates
     emphasizeLineColor: string,
     emphasizeLineWith: number,
     emphasizeLineDash: string
@@ -52,20 +52,24 @@ export interface RendererConfig {
 
     //passer roles
     showPasserRoles: boolean
+    showRelabel: boolean
     passerRolesOffset: number,
     passerRolesTextSize: number,
     roleColors?: string[],    
-    roleColorBackground: boolean, // if true, show a background color indicating manipulators and manipulator changes
+    showRoleColorBackground: boolean, // if true, show a background color indicating manipulators and manipulator changes
+
 
     //layout and animation options
     components: RenderComponents[],
     layoutSize?: number; // undefined/0 picks a default size; any other number is taken as width and height of the layout
+    turntableTextSize: number,
+    showManipulatorModifiers: boolean,
 
     gallop: boolean, // right hand is 0.1 earlier and left hand 0.1 later
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
     labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
-export type RenderComponents = "aiden" | "pattern" | "layout";
+export type RenderComponents = "aiden" | "pattern" | "layout" | "video" | "turntable";
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
@@ -101,13 +105,16 @@ export const defaultRendererConfig: RendererConfig = {
     selectLinesForThrows: undefined,
     separateleftRightRows: false,
     showPasserRoles: false,
+    showRelabel: true,
     passerRolesOffset: 36,
     passerRolesTextSize: 28,
     
-    components: ["aiden", "pattern", "layout"],
+    components: ["aiden", "pattern", "video", "layout", "turntable"], 
     layoutSize: undefined, //default
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
-    roleColorBackground: false, 
+    showRoleColorBackground: false, 
+    turntableTextSize: 16,
+    showManipulatorModifiers: true,
 
     gallop: false, 
     labelThrows: "classic",

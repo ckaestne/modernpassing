@@ -63,7 +63,7 @@ export enum TokenKind {
 export const tokenizer = buildLexer<TokenKind>([
     [true, /^([0-9a-y](p)?[A-Z]?(x)?)/g, TokenKind.Throw],
     [true, /^[A-Z0_]/g, TokenKind.Role],
-    [true, /^(S[A-Z]{1,2}(e[ox\[\]]?|l[ox\[\]]?|[ox\[\]]|v|c|d[1-9]?)?|I[A-Z]{1,2}(e[ox\[\]]|e|l[ox\[\]]|l|v[oxb\[\]]|v|c)?[↻|↺]?|C[A-Z]{0,2}f?[↻|↺]?|zf?)/g, TokenKind.ManipulatorAction],
+    [true, /^(S[A-Z]{1,2}([elvcoxb↑↓↻↺]|d[1-9]?)*|I[A-Z]{1,2}[elvcoxb↑↓↻↺]*|C[A-Z]{0,2}[↑↓↻↺f]*|zf?)/g, TokenKind.ManipulatorAction],
     [true, /^[\.-]/g, TokenKind.Empty],
     [true, /^\,/g, TokenKind.HalfEmpty],
     [true, /^:/g, TokenKind.Colon],
@@ -143,11 +143,27 @@ export const PManipulatorSequence = rule<TokenKind, (TThrow|THandSwap)[]>();
 PManipulatorSequence.setPattern(rep1(PManipulatorAction))
 
 export const PRelabel = rule<TokenKind, [Role, boolean|undefined, boolean|undefined]>();
-PRelabel.setPattern(seq(
-    kright(tok(TokenKind.Arrow), PRole),
-    opt(apply(str("⇆"), ()=> true)),
-    opt(apply(str("X"), ()=>  true)
-)))
+PRelabel.setPattern(
+    kright(tok(TokenKind.Arrow), alt(
+        // Handle case where role+X got tokenized as manipulator action (e.g. "CX")
+        apply(tok(TokenKind.ManipulatorAction), t => {
+            const match = t.text.match(/^([A-Z])X$/);
+            if (match) {
+                return [match[1], undefined, true] as [Role, boolean|undefined, boolean|undefined];
+            }
+            throw new Error(`Unexpected token in relabel context: ${t.text}`);
+        }),
+        // Normal case: role followed by optional modifiers
+        apply(seq(
+            PRole,
+            opt(alt_sc(
+                apply(seq(str("⇆"),str("⇆")), ()=> false),
+                apply(str("!"), ()=> false),
+                apply(str("⇆"), ()=> true))),
+            opt(apply(str("X"), ()=>  true))
+        ), v => [v[0], v[1], v[2]] as [Role, boolean|undefined, boolean|undefined])
+    ))
+)
 
 export const PRow = rule<TokenKind, TPatternRow>();
 PRow.setPattern(

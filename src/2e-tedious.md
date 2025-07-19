@@ -8,7 +8,7 @@ There are various ways to make juggling patterns harder mentally without making 
 
 **Patterns from hell.** These patterns involve counting. Pass three count and throw a double on every fifth throw (double pass or double self, whichever happens on that beat) waiting for it to land to continue. If that becomes too easy start walking in one direction (e.g., passer A walks forward, passer B walks backward) one step per throw for 7 beats, and then walk in the other direction for the next 7 beats. This works with any other numbers and other actions on those counts, particularly if actions are always on multiples of prime numbers.
 
-<sync style='{"iterations":6,"emphasizeThrows": [8,9,18,19,28,29,38,39]}'>3p33</sync>
+<sync style='{"iterations":6,"emphasizeThrows": [[0,4],[1,4],[0,9],[1,9],[0,14],[1,14],[0,19],[1,19]]}'>3p33</sync>
 
 Another hard pattern is *Jim's pass-pass-self-pass-self (brainstroming)* with switch who is passing the crossing passes. The most common variation is for passer A to throw crossing-crossing-straight-crossing-straight (counting only the passes) and for passer B to do the opposite. This pattern will have a lot of hurries and only repeats after 120 beats.
 
