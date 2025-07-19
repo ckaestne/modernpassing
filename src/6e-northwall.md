@@ -2,19 +2,19 @@
 
 Prerequisites: [Nicki's three-count roundabout](6a-intro.md); recommended after [Roundabout](6c-roundabout.md) and some [Roundabout variations](6d-roundabout-variations.md). Next: [Add a club](6e-extra-club.md) or try [four-handed siteswap abouts](6j-siteswap-takeouts.md).
 
-All three-person roundabout-style patterns on based patterns with an *odd period* are symmetric in that they have a left side and a right side; every passer goes through all passing and manipulator positions both left-handed and right-handed before the pattern repeats (after six segments).
+All three-person Roundabout-style patterns on based patterns with an *odd period* are symmetric in that they have a left side and a right side; every passer goes through all passing and manipulator positions both left-handed and right-handed before the pattern repeats after six iterations.
 
-These patterns are often known as *north-wall patterns* because actions relate to fixed directions in a room: Assume that passers A and B stand in the east and west position of the room, specific actions always happen on the north or south side of the room. For example, a carry would always carry the club on the north side -- the left handed club when carrying west to east and the right-handed club when carrying east to west. It is often easier to remember whether an action happens on the north or the south side, rather than whether it is left or right handed in each direction. That is, after each segment, the pattern repeats after *flipping* it on the north-south axis, rather than *rotating* it by 180 degrees as even-period patterns like Roundabout do.
+These patterns are often called *north-wall patterns* because actions relate to fixed directions in a room: Assume that passers A and B stand in the east and west position of the room, specific actions always happen on the north or south side of the room. For example, a carry would always happen at the north side -- the left handed club when carrying west to east and the right-handed club when carrying east to west. It is often easier to remember whether an action happens on the north or the south side, rather than whether it is left or right handed in each direction. That is, after each iteration, the pattern repeats after *flipping* it, rather than *rotating* it by 180 degrees as even-period Roundabout-style patterns do.
 
 ## Phoenicean Waltz
 
 Phoenicean Waltz is a good first pattern to learn north-wall patterns, as it is on the easier side and widely known.
 
-<TODO-manipulator-sync video="https://passing.zone/phoenician-waltz/">
-A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B
-B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -> A
-M: SBlsz   zf  SBlnz   .   IBvbCA  . 
-</TODO-manipulator-sync>
+<sync-group video="https://passing.zone/phoenician-waltz/">
+A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBlo z   zf  SBlo z   .   IBvb CA  . 
+</sync-group>
 
 The substitutions happen from outside the pattern, the first on the south side and the second (after walking through the pattern) on the north side. The intercept is caught on the south side from behind B and the new manipulator carries the next club on the south side and steps out of the pattern to start the next segment by substituting a pass on the south side in the same direction as the carry (catching with the same hand that just placed the carry, which is the opposite hand and in the opposite direction compared to the previous cycle). Notice that, unless handing in a club for the second substitution upside down, the manipulator needs to flip a club between the two substitutions while walking through the pattern.
 

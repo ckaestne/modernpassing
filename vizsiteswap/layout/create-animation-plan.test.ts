@@ -2,6 +2,7 @@ import { computeBaseAnimations, createAnimationPlan } from "./create-animation-p
 import { createShapeLayout, GroupPattern } from "./layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
+import test from "node:test";
 
 
 Deno.test("locationMgr for moving feed (V)", () => {
@@ -346,6 +347,48 @@ move: Vmove(B, 17, 1)`
     assertNearbyLocation([p9.toX, p9.toY], startLocationA)
 })
 
+test("check position for *outside* substitutions in phoneician waltz", () => {
+    const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBlo z   zf  SBlo z   .   IBvb CA  . `
+
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+
+    const startLocationA: [number, number] = [0, 0.5] // A then B
+    const startLocationB: [number, number] = [1, .5] // B before move
+    const centerLocation: [number, number] = [0.5, 0.5]
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    // M should be south of the center between A and B
+    assertLocationSouthOf(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), centerLocation, "M at start");
+
+    // on beat 1 M moves north on beat 2
+    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 2)
+    assert(m1, "M movement on beat 2 exists")
+    assertLocationNorthOf(xy(m1), centerLocation, "M north of the pass on beat 3");
+
+    // on beat 8 M moves south to the starting point for the second iteration
+    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 8)
+    assert(m2, "M movement on beat 8 exists")
+    assertLocationSouthOf(xy(m2), centerLocation, "M south of the pass on beat 9");
+
+    // then we move north again on beat 11
+    const m3 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
+    assert(m3, "M movement on beat 11 exists")
+    assertLocationNorthOf(xy(m3), centerLocation, "M north of the pass on beat 11");
+
+    // now we are back to the start, moving south on beat 17
+    const m4 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 17)
+    assert(m4, "M movement on beat 17 exists")
+    assertLocationSouthOf(xy(m4), centerLocation, "M south of the pass on beat 17"); 
+
+})
+
+
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
     if ('toX' in pos) {
         return [pos.toX, pos.toY]
@@ -356,6 +399,15 @@ function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [numb
 function assertEqualLocation(actual: [number, number], expected: [number, number], label?: string) {
     assert(Math.round(100 * actual[0]) / 100 === Math.round(100 * expected[0]) / 100, `${label ?? 'assertEqualLocation'}: X location mismatch: expected ${expected} but got ${actual}`);
     assert(Math.round(100 * actual[1]) / 100 === Math.round(100 * expected[1]) / 100, `${label ?? 'assertEqualLocation'}: Y location mismatch: expected ${expected} but got ${actual}`);
+}
+
+function assertLocationSouthOf(actual: [number, number], expected: [number, number], label?: string) {
+    assert(Math.round(100 * actual[0]) / 100 === Math.round(100 * expected[0]) / 100, `${label ?? 'assertEqualLocation'}: X location mismatch: expected ${expected} but got ${actual}`);
+    assert(actual[1] > expected[1], `${label ?? 'assertLocationSouthOf'}: Y location ${actual[1]} is not south of expected ${expected[1]}`);
+}
+function assertLocationNorthOf(actual: [number, number], expected: [number, number], label?: string) {
+    assert(Math.round(100 * actual[0]) / 100 === Math.round(100 * expected[0]) / 100, `${label ?? 'assertEqualLocation'}: X location mismatch: expected ${expected} but got ${actual}`);
+    assert(actual[1] < expected[1], `${label ?? 'assertLocationNorthOf'}: Y location ${actual[1]} is not north of expected ${expected[1]}`);
 }
 
 // check that the location is anywhere between the two expected locations

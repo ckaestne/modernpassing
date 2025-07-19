@@ -4,7 +4,7 @@
 //  * generally takes a base pattern with a layout and adjusts it for the manipulators
 //  */
 
-import type { Pattern, Role, CarryMarker, InterceptMarker, SubstitutionMarker } from "@modernpassing/pattern";
+import { type Pattern, type Role, type CarryMarker, type InterceptMarker, type SubstitutionMarker, Hand } from "@modernpassing/pattern";
 import assert from "node:assert";
 import type { GroupPatternLayoutSpec, PositionSpec, RelativeMovementSpec } from "@modernpassing/layout";
 import { AnimationSpec } from "../layout/animation-spec.ts";
@@ -167,6 +167,10 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
             //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
             const duration = 1
 
+            const needToConsiderHandedness = marker.modifiers.includes("o") || marker.modifiers.includes("x")
+            const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
+            const mod = pattern.getLength()*iterations
+            for (let iteration = 0; iteration < iterations; iteration++) {
 
             // handling slightly different positions
              let positionSpec: RelativeMovementSpec["positionSpec"]
@@ -194,13 +198,14 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
                     direction = 180 
                 }
                 // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("o") || marker.modifiers.includes("]")) {
-                    offset = 0.2
+                if (marker.modifiers.includes("o")) {
+                    offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2 
                     direction = 270 // facing inside
                 }
                 // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("x") || marker.modifiers.includes("[")) {
+                if (marker.modifiers.includes("x")) {
                     // ??
+                    assert(false, "TODO: implement opposite side for substitutions");
                 }
                 positionSpec = {
                     type: "between",
@@ -213,13 +218,14 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
 
 
             relativeMovements.push({
-                onBeat: (t.throwBeat - duration + pattern.getLength()) % pattern.getLength(),
-                mod: pattern.getLength(),
+                onBeat: (t.throwBeat - duration + iteration*pattern.getLength()+mod) % mod,
+                mod: mod,
                 role: manipulatorRole,
                 duration: duration,
                 targetRoleTime: "arrival",
                 positionSpec
             });
+            }
         }
 
         // intercepts
