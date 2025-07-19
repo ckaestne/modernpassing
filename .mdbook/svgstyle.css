@@ -70,3 +70,17 @@ svg .tab-active line { stroke: var(--tab-active);            stroke-width: 3;}
     --tab-hover:#747681;
     --tab-active:#3f4144;
   }
+
+
+
+
+.global-toc #modern-passing-1 {
+    display: none;
+}
+.global-toc p {
+    display: none;
+}
+.global-toc h1 {
+      font-size: 1.6rem;
+}
+

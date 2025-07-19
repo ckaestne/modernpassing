@@ -12,6 +12,13 @@ I try to curate and guide in a short book, rather than create a comprehensive re
 
 -- [Christian Kästner](https://www.cs.cmu.edu/~ckaestne/)
 
+---
 
+
+## Table of Content
+
+<div class="global-toc">
 
 {{#include SUMMARY.md}}
+
+</div>
