@@ -51,7 +51,6 @@
 - [Notation](./6b-notation.md)
 - [Roundabout](./6c-roundabout.md)
 - [Roundabout variations](./6d-roundabout-variations.md)
-- [Extra club patterns](./6e-extra-club.md)
 - [North-wall patterns](./6e-northwall.md)
 - [Aidan patterns](./6f-aidan-patterns.md)
 - [Ambled patterns](./6g-ambled-patterns.md)

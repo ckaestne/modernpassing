@@ -1,3 +1,1 @@
-# Extra Club Roundabouts
-
-todo ronjabout, ...
+# Extra club patterns
