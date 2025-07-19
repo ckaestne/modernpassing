@@ -195,12 +195,6 @@ app.use(async (ctx, next) => {
             try {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
-                if (p.isValid()) {
-                    const t = renderGroupPattern(gp, {})
-                    rendered = t[0].svg()
-                    js = t[1]
-                }
-
            
                 if (gp.aidenNotation && gp.aidenNotation[1].length > 0) {
                     svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
@@ -212,6 +206,11 @@ app.use(async (ctx, next) => {
                     svgPlain = prettyPrintThrowsSvg(p);
                 }
                 isValid = p.isValid();
+                if (p.isValid()) {
+                    const t = renderGroupPattern(gp, {})
+                    rendered = t[0].svg()
+                    js = t[1]
+                }
                 error = p.prettyPrintThrows(false)
                 error = p.getValidationError()
             } catch (e) {

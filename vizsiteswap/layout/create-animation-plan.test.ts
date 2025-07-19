@@ -420,6 +420,17 @@ M: SBezSBlz IBv CBz`
     
 })
 
+test.skip("compute animation plan for Opernball", () => {
+    const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
+
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+})
 
 
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
