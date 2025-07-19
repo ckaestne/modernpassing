@@ -59,11 +59,11 @@ The same idea to switch directions by leaving out the last self and carrying to 
 Opernball is a five-person version of the Phoenicean Waltz with 3 manipulators all going through the Phoenicean Waltz sequence, but with offset starting points. This results in a pattern that feels like Phoenicean Waltz locally, but without ever pausing in a pass-pass-self sequence for long. Also all but a single pass that is going back and forth across the pattern are manipulated.
 
 <TODO-manipulator-sync video="https://passing.zone/gottinger-opernball/">
-A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -> B
-B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -> A
-M: SBlsz   zf  SBlnz   .   IBvbCA  . 
-N: SAlnz   .   IAvbCB  .   SBlsz   zf  
-O: IBvbCA  .   SAlsz   zf  SAlnz   .   
+A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAlo z   zf  SAlo z   .   
 </TODO-manipulator-sync>
 
 
