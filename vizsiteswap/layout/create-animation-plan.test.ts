@@ -389,6 +389,39 @@ M: SBlo z   zf  SBlo z   .   IBvb CA  . `
 })
 
 
+test("check position for *very late* left-handed intercept in dolbysoeround", () => {
+    const pattern = `A: 3pB333 3pB33 -- B
+B: 3pA333 3pA33 -- A
+M: SBezSBlz IBv CBz`
+
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const spec = gp.layout!.animation
+    const plan = createAnimationPlan(spec);
+
+    const startLocationA: [number, number] = [0, 0.5] // A then B
+    const startLocationB: [number, number] = [1, .5] // B before move
+    const centerLocation: [number, number] = [0.5, 0.5]
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    // M should be between A and B
+    assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationA, startLocationB, "M at start");
+
+    // first intercept on beat 4, start moving on beat 3
+    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    assert(m1, "M movement on beat 3 exists")
+    assertLocationSouthOf(xy(m1), startLocationB, "M south of the intercepted passer on beat 4");
+
+    // in the second iteration, the intercept is on beat 11, start moving on 10
+    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 10)
+    assert(m2, "M movement on beat 10 exists")
+    assertLocationSouthOf(xy(m2), startLocationA, "M south of the intercepted passer on beat 11");
+    
+})
+
+
+
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
     if ('toX' in pos) {
         return [pos.toX, pos.toY]

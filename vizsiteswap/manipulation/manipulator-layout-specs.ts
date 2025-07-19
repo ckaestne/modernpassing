@@ -167,64 +167,64 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
             //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
             const duration = 1
 
-            const needToConsiderHandedness = marker.modifiers.includes("o") || marker.modifiers.includes("x")
+            const needToConsiderHandedness = marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o");
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
-            const mod = pattern.getLength()*iterations
+            const mod = pattern.getLength() * iterations
             for (let iteration = 0; iteration < iterations; iteration++) {
 
-            // handling slightly different positions
-             let positionSpec: RelativeMovementSpec["positionSpec"]
-            if (marker.fromRole === marker.toRoleAtThrow) {
-                // intercepting a self from in front of the passer
-                positionSpec = {
-                    type: "infront",
-                    toRole: marker.toRoleAtThrow
-                }
-            } else {
-                // intercepting a pass, processing several possible modifiers
-                // default is late intercept, so exactly in the middle, facing outside
-                let side = .5 
-                let offset = 0 
-                let direction = 90 
+                // handling slightly different positions
+                let positionSpec: RelativeMovementSpec["positionSpec"]
+                if (marker.fromRole === marker.toRoleAtThrow) {
+                    // intercepting a self from in front of the passer
+                    positionSpec = {
+                        type: "infront",
+                        toRole: marker.toRoleAtThrow
+                    }
+                } else {
+                    // intercepting a pass, processing several possible modifiers
+                    // default is late intercept, so exactly in the middle, facing outside
+                    let side = .5
+                    let offset = 0
+                    let direction = 90
 
-                if (marker.modifiers.includes("e")) {
-                    // early intercept, standing a bit closer to the passer throwing the pelf
-                    side = 0.6
+                    if (marker.modifiers.includes("e")) {
+                        // early intercept, standing a bit closer to the passer throwing the pelf
+                        side = 0.6
+                    }
+                    if (marker.modifiers.includes("v")) {
+                        // very late subsitution from next to the receiver, facing the incoming pass
+                        side = 1
+                        offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2
+                        direction = 180
+                    }
+                    // `o` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+                    if (marker.modifiers.includes("o")) {
+                        offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2
+                        direction = 270 // facing inside
+                    }
+                    // `x` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+                    if (marker.modifiers.includes("x")) {
+                        // ??
+                        assert(false, "TODO: implement opposite side for substitutions");
+                    }
+                    positionSpec = {
+                        type: "between",
+                        between: [marker.fromRole, marker.toRoleAtThrow],
+                        side,
+                        offset,
+                        direction,
+                    }
                 }
-                if (marker.modifiers.includes("v")) {
-                    // very late subsitution from next to the receiver, facing the incoming pass
-                    side = 1
-                    offset = .2
-                    direction = 180 
-                }
-                // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("o")) {
-                    offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2 
-                    direction = 270 // facing inside
-                }
-                // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("x")) {
-                    // ??
-                    assert(false, "TODO: implement opposite side for substitutions");
-                }
-                positionSpec = {
-                    type: "between",
-                    between: [marker.fromRole, marker.toRoleAtThrow],
-                    side,
-                    offset,
-                    direction,
-                }
-            }
 
 
-            relativeMovements.push({
-                onBeat: (t.throwBeat - duration + iteration*pattern.getLength()+mod) % mod,
-                mod: mod,
-                role: manipulatorRole,
-                duration: duration,
-                targetRoleTime: "arrival",
-                positionSpec
-            });
+                relativeMovements.push({
+                    onBeat: (t.throwBeat - duration + iteration * pattern.getLength() + mod) % mod,
+                    mod: mod,
+                    role: manipulatorRole,
+                    duration: duration,
+                    targetRoleTime: "arrival",
+                    positionSpec
+                });
             }
         }
 
@@ -240,63 +240,70 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
 
             // TODO for now let's just assume standard 2-beat patterns, where we can move 1 beat before the intercept beat to arrive on the intercept beat (not when the intercept arrives), even though we could move a beat later
             const moveToInterceptDuration = 1 // let's just assume a short movement for now
-            const leavingTime = (t.throwBeat - moveToInterceptDuration + pattern.getLength()) % pattern.getLength()
 
-            let positionSpec: RelativeMovementSpec["positionSpec"]
-            if (marker.fromRole === marker.originalToRoleAtThrow) {
-                // intercepting a self from in front of the passer
-                positionSpec = {
-                    type: "infront",
-                    toRole: marker.originalToRoleAtThrow
-                }
-            } else {
-                // intercepting a pass, processing several possible modifiers
-                let side = 0 // default is very late intercept, so next to the receiver
-                let offset = .2 // default is very late intercept, standing left of the receiver
-                let direction = 180 // face the origin of the pass
 
-                if (marker.modifiers.includes("e")) {
-                    // early intercept
-                    side = 0.6
-                    offset = 0 // stand in the passing lane
+            const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b");
+            const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
+            const mod = pattern.getLength() * iterations
+            for (let iteration = 0; iteration < iterations; iteration++) {
+                const leavingTime = (t.throwBeat - moveToInterceptDuration + iteration*pattern.getLength()+mod) % mod
+
+                let positionSpec: RelativeMovementSpec["positionSpec"]
+                if (marker.fromRole === marker.originalToRoleAtThrow) {
+                    // intercepting a self from in front of the passer
+                    positionSpec = {
+                        type: "infront",
+                        toRole: marker.originalToRoleAtThrow
+                    }
+                } else {
+                    // intercepting a pass, processing several possible modifiers
+                    let side = 0 // default is very late intercept, so next to the receiver
+                    let offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2 // default is very late intercept, standing left of the receiver
+                    let direction = 180 // face the origin of the pass
+
+                    if (marker.modifiers.includes("e")) {
+                        // early intercept
+                        side = 0.6
+                        offset = 0 // stand in the passing lane
+                    }
+                    if (marker.modifiers.includes("l") || marker.modifiers.includes("c")) {
+                        // late intercept (i.e., half way through the pass); also for chop (which doesn't really matter for movement)
+                        side = 0.5
+                        offset = 0 // stand in the passing lane
+                    }
+                    // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+                    if (marker.modifiers.includes("o")) {
+                        offset = pattern.getThrowHand(t, iteration) === Hand.Right ? 0.2 : -0.2
+                    }
+                    // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
+                    if (marker.modifiers.includes("x") || marker.modifiers.includes("[")) {
+                        offset = -0.2
+                    }
+                    // `b` -- intercept very late from **b**ehind the target's location
+                    if (marker.modifiers.includes("b")) {
+                        side = -.2
+                        offset = 0 // stand in the passing lane
+                    }
+                    positionSpec = {
+                        type: "between",
+                        between: [marker.fromRole, marker.originalToRoleAtThrow],
+                        side,
+                        offset,
+                        direction,
+                    }
                 }
-                if (marker.modifiers.includes("l") || marker.modifiers.includes("c")) {
-                    // late intercept (i.e., half way through the pass); also for chop (which doesn't really matter for movement)
-                    side = 0.5
-                    offset = 0 // stand in the passing lane
-                }
-                // `o` or `]` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("o") || marker.modifiers.includes("]")) {
-                    offset = 0.2
-                }
-                // `x` or `[` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to x). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
-                if (marker.modifiers.includes("x") || marker.modifiers.includes("[")) {
-                    offset = -0.2
-                }
-                // `b` -- intercept very late from **b**ehind the target's location
-                if (marker.modifiers.includes("b")) {
-                    side = -.2
-                    offset = 0 // stand in the passing lane
-                }
-                positionSpec = {
-                    type: "between",
-                    between: [marker.fromRole, marker.originalToRoleAtThrow],
-                    side,
-                    offset,
-                    direction,
-                }
+
+
+                // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
+                relativeMovements.push({
+                    onBeat: leavingTime,
+                    mod: mod,
+                    role: manipulatorRole,
+                    duration: moveToInterceptDuration,
+                    targetRoleTime: "arrival",
+                    positionSpec
+                });
             }
-
-
-            // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
-            relativeMovements.push({
-                onBeat: leavingTime,
-                mod: pattern.getLength(),
-                role: manipulatorRole,
-                duration: moveToInterceptDuration,
-                targetRoleTime: "arrival",
-                positionSpec
-            });
             // once the pass lands, the prior manipulator (now in its new role) will go to the position of the manipulated
             const landingOffset = pattern.nrHands;
             const moveAfterInterceptDuration = 1 // let's just assume a short movement to the position
