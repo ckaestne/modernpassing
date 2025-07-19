@@ -138,6 +138,7 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                     <div class="section">
                         <h2>Plain:</h2>
                         ${svg1}
+                        <p>Notation: throw height, target role at throw, X/‖ for straight/crossing passes, row of receiver at causal, target hand (in first iteration), optional manipulator annotations (I, C, S); blue is right hand, green is left hand; arrow color indicates the hand at receiver</p>
                     </div>
                     
                     <div class="section">
@@ -212,7 +213,7 @@ app.use(async (ctx, next) => {
                 }
                 isValid = p.isValid();
                 error = p.prettyPrintThrows(false)
-                // error = p.getValidationError()
+                error = p.getValidationError()
             } catch (e) {
                 error = e instanceof Error ? e.message : String(e);
                 console.error("Error:", (e as Error).stack);
