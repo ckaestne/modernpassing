@@ -6,13 +6,13 @@
 
 (created by Maria, reconstructed from memory and changed directions)
 
-<siteswap-group>
+<todo-siteswap-group>
 A: 7B 6 7Cx 827Cx -- B
 B: , a67A67 -- C⇆
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
-</siteswap-group>
+</todo-siteswap-group>
 
 
 Notes:
@@ -24,9 +24,9 @@ Notes:
 * After walking, start passing crossing passes; when a feedee leaves, only straight passes remain
 
 <pre>
-A: !7B 6 7Cx 827Cx -- B
-B: !, a67A67 -- C⇆
-C: , 66a67Ax -- A
+A: 7B 6 7Cx 827Cx -- B
+B: , a67A67 -- C⇆
+C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
 </pre>
@@ -37,13 +37,13 @@ move: Vmove(B, 7, 5)
 
 This longer version has a left and a right side (starting left handed and right handed) and is thus much longer.
 
-<siteswap-group>
+<todo-siteswap-group>
 A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
 B: !, 887A66887A67 -- C
 C: , 66887Ax66887Ax -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
-</siteswap-group>
+</todo-siteswap-group>
 
 
 Same notes as for the shorter version above.
