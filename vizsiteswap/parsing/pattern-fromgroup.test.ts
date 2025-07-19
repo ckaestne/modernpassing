@@ -342,7 +342,7 @@ test('hands: techno', () => {
 
     assert.deepEqual(p.getStartingHands(), [[2, 2], [2, 1]])
 })
- 
+
 
 test('siteswaps, basics', () => {
     const q = createSiteswapPattern("756", {})
@@ -363,7 +363,7 @@ test('siteswaps, basics', () => {
 test('hands/crossing complicated: extra club brunos', () => {
     const pattern = `
         A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
-        B: , 6   9A  6   6   6   6   6   9A  6   7   -- C
+        B: , 6   9A  6   6   6   6   6   9A  6   7x   -- C
         C:!, 6   6   6   6   9Ax 6   6   6   6   6   -- A
         positions: Brunos(A,B,C)
         move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5) `
@@ -433,7 +433,7 @@ test('prefix notations', () => {
 })
 
 
-test('siteswap feed',()=>{
+test('siteswap feed', () => {
     const pattern = `A: 7B7C267B7C6
 B: ,7A667A466
 C: ,67A667A46
@@ -446,16 +446,16 @@ positions: V(A,B,C)`
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
 
     assert.ok(p.isValid(), p.getValidationError())
-    assert.equal(p.iterationsUntilRepeat(),2)
+    assert.equal(p.iterationsUntilRepeat(), 2)
 })
 
 test('brunos 10 club -- siteswap walking feed', () => {
-    const pattern=`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
-B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
+    const pattern = `A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
+B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C
 C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`
-const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
     console.log(p.prettyPrintThrows())
 
@@ -465,4 +465,167 @@ const gp: GroupPattern = createGroupPattern(pattern, 4)
     assert.ok(p.isValid(), p.getValidationError())
     // assert.equal(p.iterationsUntilRepeat(),6)
 })
+
+
+
+
+test('test crossing/hands validation: jim\'s three count', async (t) => {
+    const patterns: [string, boolean][] = [
+        [`3p  3 3 3p  3 3 -- B⇆X
+          3px 3 3 3px 3 3 -- A⇆X`, false],
+        [`3p  3 3 3p  3 3 -- B⇆
+          3px 3 3 3px 3 3 -- A⇆`, true]
+    ]
+    for (const [pattern, expectValid] of patterns) {
+        printAndCheckValidity(pattern, expectValid, 2)
+    }
+
+})
+
+
+test('test crossing/hands validation: 10c brunos', async (t) => {
+    const patterns: [string, boolean][] = [
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
+B: , 6   9A  6   6   6   6   6   9A  6   7  -- CX
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆X
+positions: Brunos(A,B,C)
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, false],
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
+B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆
+positions: Brunos(A,B,C)
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, false],
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
+B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C⇆
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆
+positions: Brunos(A,B,C)
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, true]
+    ]
+    for (const [pattern, expectValid] of patterns) {
+        printAndCheckValidity(pattern, expectValid)
+    }
+})
+
+
+
+
+test('testing crossing/hands validation (shorter): popcorn vs whynot walking feed', async (t) => {
+    const patterns: [string, boolean][] = [
+        [`A: 7B 6 7Cx 827Cx -- B
+        B: , a67A67 -- C⇆
+        C: !, 66a67Ax -- A
+        positions: V(A,B,C)
+        move: Vmove(B, 7, 5)`, false],
+        [`A: 7B 6 7Cx 827Cx -- B
+B: , a67A67x -- C!
+C: !, 66a67Ax -- A
+positions: V(A,B,C)
+move: Vmove(B, 7, 5)`, true],
+        [`A: 7B 6 7Cx 827Cx -- B
+B: , a67A67x -- CX
+C: !, 66a67Ax -- A
+positions: V(A,B,C)
+move: Vmove(B, 7, 5)`, false]
+    ]
+    for (const [pattern, expectValid] of patterns) {
+        printAndCheckValidity(pattern, expectValid)
+    }
+})
+
+function printAndCheckValidity(pattern: string, expectValid: boolean, nrHands: number = 4) {
+    const gp: GroupPattern = createGroupPattern(pattern, nrHands)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+
+    const roles = p.getInitialRoles()
+    const result: string[][] = roles.map((r) => [])
+
+    for (let passerIdx = 0; passerIdx < roles.length; passerIdx++) {
+        for (let time = 0; time < p.getLength() * 3; time++) {
+            const iteration = Math.floor(time / p.getLength())
+            const rowIdx = p.samePasserNBeatsLater(passerIdx, 0, time)
+            const t = p.findThrow(time % p.getLength(), rowIdx)
+
+            if (t) {
+                result[passerIdx].push((t.throwLength + "").slice(0, 1) + p.samePasserNBeatsLater(t.toPasserIdxAtCausal, time, t.throwLength - 4 - iteration * p.getLength()) + (p.getThrowHand(t, iteration) ? 'L' : 'R') + (p.isSelfThrow(t) ? "s" : p.isCrossingPass(t, iteration) ? '∥' : 'X'))
+            } else result[passerIdx].push('----')
+        }
+        console.log(roles[passerIdx] + ': ' + result[passerIdx].join(' '))
+    }
+    console.log((p as any).countHurries(), p.iterationsUntilRepeat())
+    assert.equal(p.isValid(), expectValid, `Pattern is ${p.isValid() ? 'valid' : 'invalid'} but expected ${expectValid} for pattern:\n${pattern}\n${p.getValidationError()}`)
+}
+
+
+test.skip('**broken:** testing crossing/hands validation: 456about', async (t) => {
+    const patterns: [string, boolean][] = [
+        [`A: 5 4 6 5 4 -- B⇆X
+B: ,6 5 4 6 -- AX
+M: .IA -- MX`, true],
+        [`A: 5 4 6 5 4 -- B⇆X
+B: ,6 5 4 6 -- AX
+M: .IA -- M`, false]
+    ]
+    for (const [pattern, expectValid] of patterns) {
+        printAndCheckValidity(pattern, expectValid)
+    }
+})
+test.skip('**broken:** testing crossing/hands validation: manege', async (t) => {
+    const pattern = `A: 7 6 8 7 6 -- B⇆
+         B: ,8 7 6 8 -- AX
+        M: IB, CA -- M`
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+
+    console.log(p.nrRows)
+    console.log(p.mapHands)
+    console.log(p.mapCrossing)
+    p.mapHands[1]=[false,true]
+console.log(p.mapHands)
+    
+    // first pass
+    const p7 = p.findThrow(0, 0)!
+    // B's reaction
+    const p8 = p.findThrow(1, 1)!
+    // M's first action (should be same hand as B's reaction)
+    const p6 = p.findThrow(5, 2)!
+
+    p.getThrowHand(p7, 2)
+    
+
+    console.log("Hand of throw 0 (A):", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i)? 'L' : 'R')+(p.isCrossingPass(p7,i)? '‖' : 'X')))
+    console.log("Hand of throw 1 (B):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p8, i)))
+    console.log("Hand of throw 5 (M):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p6, i)))
+
+    // const plan = createAnimationPlan(gp.layout!.animation);
+    // const startLocationA: [number, number] = [0, 0.5] // A then B
+    // const startLocationB: [number, number] = [1, .5] // B before move
+    // const centerLocation: [number, number] = [0.5, 0.5]
+    // plan.
+    // console.log("Location of A:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'A')))
+    // console.log("Location of B:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'B')))
+    // console.log("Location of M:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'M')))
+
+    assert.equal(p.iterationsUntilRepeat(), 12)
+
+    // const roles = p.getInitialRoles()
+    // const result: string[][] = roles.map((r) => [])
+
+    // for (let passerIdx = 0; passerIdx < roles.length; passerIdx++) {
+    //     for (let time = 0; time < p.getLength() * 3; time++) {
+    //         const iteration = Math.floor(time / p.getLength())
+    //         const rowIdx = p.samePasserNBeatsLater(passerIdx, 0, time)
+    //         const t = p.findThrow(time % p.getLength(), rowIdx)
+
+    //         if (t) {
+    //             result[passerIdx].push((t.throwLength + "").slice(0, 1) + p.samePasserNBeatsLater(t.toPasserIdxAtCausal, time, t.throwLength - 4 - iteration * p.getLength()) + (p.getThrowHand(t, iteration) ? 'L' : 'R') + (p.isSelfThrow(t) ? "s" : p.isCrossingPass(t, iteration) ? '∥' : 'X'))
+    //         } else result[passerIdx].push('----')
+    //     }
+    //     console.log(roles[passerIdx] + ': ' + result[passerIdx].join(' '))
+    // }
+    // console.log((p as any).countHurries(), p.iterationsUntilRepeat())
+    assert.ok(p.isValid(), p.getValidationError())
+})
+
 

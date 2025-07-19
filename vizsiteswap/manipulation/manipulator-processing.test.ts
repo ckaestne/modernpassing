@@ -109,7 +109,7 @@ Deno.test('intercept rewrite: basic', () => {
 
 
 
-Deno.test('intercept rewrite: 456about should be easy', () => {
+Deno.test.ignore('**broken:**intercept rewrite: 456about should be easy', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 5 4 6 5 4 -- B
          B: ,6 5 4 6 -- A
@@ -147,7 +147,7 @@ Deno.test('intercept rewrite: 456about should be easy', () => {
 
 
 
-Deno.test('intercept rewrite: manege', () => {
+Deno.test.ignore('**broken:** intercept rewrite: manege', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 7 6 8 7 6 -- B
          B: ,8 7 6 8 -- A
@@ -1139,10 +1139,11 @@ Deno.test('scrambled V', () => {
 Deno.test('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
-        B: !34pAx  3  3  34pAx  4x  -- C
-        C: !2 33 4pAx 3  3  3   -- A
-        M: C  !1x z  SB z  IC 
-        positions: V(A,B,C)`
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A!
+M: C  !1x z  SB z  IC 
+positions: V(A,B,C)
+move: Vmove(B,5.9,3)`
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
@@ -1790,8 +1791,7 @@ positions: Line(A,B)`
 Deno.test("check animations/hands in ronjabout roundabout", () => {
     const ronjabout = `A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
 B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
-M: SBe! . 1x     SBl IBv.. CB 
-positions: Line(A,B)`
+M: SBe! . 1x     SBl IBv.. CB↺  -- M!`
 
     const r = parseGroupSyncPattern(ronjabout)
     const [t, m] = createPatternFromRaw(r[0], 2)

@@ -234,7 +234,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
     // if not, we are doing guessing and brute force trying all combinations
     const specifiedMapHandsOrCrossing =
-        rawPattern.filter(r => r.relabelMapHands!==undefined || r.relabelMapCrossing!==undefined).length > 0
+        rawPattern.filter(r => r.relabelMapHands !== undefined || r.relabelMapCrossing !== undefined).length > 0
 
     let p: Pattern
     if (specifiedMapHandsOrCrossing) {
@@ -242,7 +242,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         const mapCrossing: boolean[][] | undefined = rawPattern.map(r => [r.relabelMapCrossing === true])
         p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength)
     } else {
-        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [false])
+        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
             : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
         // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
         const guestMapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
@@ -262,33 +262,34 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
  */
 function tryHandMapping(pattern: Pattern): Pattern {
     if (pattern.isValid()) return pattern
-    // for 2 passers, aggressively try all combinations
-    if (pattern.nrRows === 2) {
-        const mapHands = [[[false], [false]], [[true], [true]], [[true], [false]], [[false], [true]]]
-        const mapCrossings = [[[false], [false]], [[true], [true]], [[true], [false]], [[false], [true]]]
-        for (const mapCrossing of mapCrossings) {
-            for (const mapHand of mapHands) {
-                const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHand, mapCrossing, pattern.initialHands)
-                if (p.isValid()) return p
-            }
-        }
-    }
-    // for more passers, just try switching hands
-    if (pattern.nrRows > 2) {
-        const combinations = (length: number): boolean[][] => {
-            if (length === 0) return [[]];
-            const smaller = combinations(length - 1);
-            return smaller.flatMap(c => [c.concat(true), c.concat(false)]);
-        };
 
-        const mappingCombinations = combinations(pattern.nrRows).map(c => c.map(v => [v]));
-        for (const mapCrossing of mappingCombinations) {
-            for (const mapHands of mappingCombinations) {
-                const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
-                if (p.isValid()) return p;
+    let results: Pattern[] = []
+    // aggressively try all combinations, brute force
+    const combinations = (length: number): boolean[][] => {
+        if (length === 0) return [[]];
+        const smaller = combinations(length - 1);
+        return smaller.flatMap(c => [c.concat(true), c.concat(false)]);
+    };
+
+    const mappingCombinations = combinations(pattern.nrRows).map(c => c.map(v => [v]));
+    for (const mapCrossing of mappingCombinations) {
+        for (const mapHands of mappingCombinations) {
+            const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
+            if (p.isValid()) {
+                if (results.length > 0 && results[0].iterationsUntilRepeat() > p.iterationsUntilRepeat()) results = []
+                if (results.length > 0 && results[0].iterationsUntilRepeat() < p.iterationsUntilRepeat()) continue
+                results.push(p);
             }
         }
     }
+
+    assert(results.length <= 1, `multiple valid patterns found when trying hand/crossing mapping: ${results.map(r => JSON.stringify(r.mapHands)+"/"+JSON.stringify(r.mapCrossing)+"@"+r.iterationsUntilRepeat()+"h"+(r as any).countHurries()).join('; ')}`)
+    if (results.length=== 1) return results[0]
+    if (results.length > 1) {
+        console.error(`multiple valid patterns found when trying hand/crossing mapping; returning first one`)
+        return results[0]
+    }
+
     // I guess nothing worked, so just return the original invalid pattern
     return pattern
 }

@@ -514,3 +514,43 @@ Deno.test("hands, 10 club brunos", () => {
     assert.equal(pattern.iterationsUntilRepeat(), 6)
 
 })
+
+
+Deno.test.ignore("**broken:** pattern validation with crossingMapping", () => {
+    /*
+    A: 7B 6 7Cx 827Cx -- B
+    B: , a67A67 -- C⇆X
+    C: !, 66a67Ax -- A
+    */
+
+     function self(from: number, when: number, swapHands: boolean=false): Throw {
+        return { fromPasserIdx: from, fromHand: (when%4<2) !==swapHands? Hand.Right:Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when+2>20 ? 1 : 0))%3 }
+    }
+    // this requires the weird transition between siteswap sides (with a 7 as a high self) and the unusual handling of straight/crossing passes
+    const pattern = createPattern([
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdxAtCausal: 1 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 4, throwLength: 7, toPasserIdxAtCausal: 2 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: false, throwBeat: 6, throwLength: 8, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 8, throwLength: 2, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: false, throwBeat: 10, throwLength: 7, toPasserIdxAtCausal: 0 /*C*/ },
+
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: true, throwBeat: 1, throwLength: 10, toPasserIdxAtCausal: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 6, toPasserIdxAtCausal: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: false, throwBeat: 5, throwLength: 7, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: true, throwBeat: 7, throwLength: 6, toPasserIdxAtCausal: 1 },
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: false, throwBeat: 9, throwLength: 7, toPasserIdxAtCausal: 2 /*B*/ },
+
+        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 6, toPasserIdxAtCausal: 2 },
+        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 3, throwLength: 6, toPasserIdxAtCausal: 2 },
+        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 5, throwLength: 10, toPasserIdxAtCausal: 0 /*C*/ },
+        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 7, throwLength: 6, toPasserIdxAtCausal: 2 },   
+        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 9, throwLength: 7, toPasserIdxAtCausal: 1 /*A*/ },
+    ], 4, [1, 2, 0], ['A', 'B','C'], [[false], [true],[false]], [[false], [false],[false]]) as PatternImpl
+
+    console.log(pattern.prettyPrintThrows())
+    assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
+    assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2,1],[1,2]])
+    assert.equal(pattern.iterationsUntilRepeat(), 6)
+
+})
