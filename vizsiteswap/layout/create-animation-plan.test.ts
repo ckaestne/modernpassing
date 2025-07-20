@@ -121,7 +121,7 @@ Deno.test("check positions in scrambled V animations", () => {
     const scambledV = `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
-M: CB.SB.IC
+M: CB↺.SB.IC↺
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(scambledV)
