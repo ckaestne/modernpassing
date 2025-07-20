@@ -12,7 +12,7 @@ Recommended prerequisite: Roundabout; Next: Ambled Patterns or Zippy
 A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
-M: CB↺.SBl z ICv↺ 
+M: CB↺.SBl z ICl↺ 
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)
 </sync-group>

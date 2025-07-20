@@ -8,15 +8,16 @@ Ambeled patterns are extra-club versions of scrambled patterns, juggled on doubl
 
 ## Ambled V
 
-**Ambled V* is the extra club version of *Scrambled V*. As described when introducing the [base pattern](5d-moving.md), all passes are doubles and the feedes start left-handed, the pattern is one beat longer and the feeder has one extra pass to C in their feed, and B needs to fill one extra beat when walking across the pattern (e.g., double self, juggling slow, or triple pass).
+*Ambled V* is the extra club version of *Scrambled V*. As described when introducing its base pattern the *[extra-club rotating feed](5d-moving.md),* all passes are doubles and the feedes start left-handed. With the extra club, the pattern is one beat longer than and the feeder has one extra pass to C in their feed, and B needs to fill one extra beat when walking across the pattern (e.g., double self, juggling slow, or triple pass).
 
-**TODO: switch left and righthand start**
-<TODO-manipulator-sync >
-A: 4pB3  4pC3  4pB3  4pC -> B
-B: 34pA  3  3  34pA  3  -> C
-C: 33  34pA 3  3  3   -> A
-M: CB. z    SB (z  IC) ..     
-</TODO-manipulator-sync>
+<sync-group>
+A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A
+M: CB↺ 1 !1x    SB . IC↺ ..  -- M!
+positions: V(A,B,C)
+move: Vmove(B,5.9,3)
+</sync-group>
 
 Hints: The carry has an extra beat to walk ("amble") across the pattern. The manipulator should look up immediately after the intercept to look for their next incoming pass. More than aiming for a specific placement, the feeder should try to throw the last two passes (caught by the previous manipulator) to the *same* place.
 
