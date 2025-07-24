@@ -143,11 +143,12 @@ export class PatternImpl implements Pattern {
      */
     adjustRowIdxByTime(time: Time, rowIdx: number): number {
         while (time >= this.getLength()) {
-            rowIdx = this.mapRows[rowIdx]
+            rowIdx = this.mapRows[rowIdx] ?? rowIdx
             time -= this.getLength()
         }
         while (time < 0) {
-            rowIdx = this.mapRows.findIndex(r => r === rowIdx)
+            const r = this.mapRows.findIndex(r => r === rowIdx)
+            if (r !== -1) rowIdx = r
             time += this.getLength()
         }
         return rowIdx

@@ -629,3 +629,17 @@ console.log(p.mapHands)
 })
 
 
+
+Deno.test("zippy", () => {
+    const pattern = `A: 3pC 3pB 3  3pC 3pB 3  3pC 3 -- B
+B: 3   3pA 3  3   3pA 3  3   3 -- C
+C: 3pA 3   3  3pA 3   3  3pA 3 -- A
+M: z   SBe zf IAv CB  z  SB  z 
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    const gp: GroupPattern = createGroupPattern(pattern, 2)
+    const p = gp.pattern
+    console.log(p.prettyPrintThrows())
+    assert.ok(p.isValid(), p.getValidationError())
+
+})

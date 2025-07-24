@@ -68,6 +68,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
  */
 export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number): [Pattern, ManipulatorAction[]] {
     const roles = rawPattern.map(row => row.role!)
+    const fullRelabel: number[] = rawPattern.map(t => roles.indexOf(t.relabel ?? t.role!))
     const baseRoles = rawPattern.filter(t => !t.isManipulator).map(row => row.role!)
     const baseIdxRelabel: number[] = rawPattern.filter(t => !t.isManipulator).map(t => baseRoles.indexOf(t.relabel ?? t.role!))
     const nrBaseRoles = baseRoles.length
@@ -125,9 +126,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         // deal with relabeling (transforming toPasserIdxAtThrow to toPasserIdxAtCausal)
         let toPasserIdxAtCausal = to
         for (let wrap = 0; wrap < Math.floor(causeTime / patternLength); wrap++)
-            toPasserIdxAtCausal = baseIdxRelabel[toPasserIdxAtCausal]
+            toPasserIdxAtCausal = fullRelabel[toPasserIdxAtCausal]
         for (let wrap = 0; wrap > Math.floor(causeTime / patternLength); wrap--)
-            toPasserIdxAtCausal = baseIdxRelabel.indexOf(toPasserIdxAtCausal)
+            toPasserIdxAtCausal = fullRelabel.indexOf(toPasserIdxAtCausal)
 
 
 
@@ -200,6 +201,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 modifiers
             }
         } else {
+            try {
             const t = convert(throwStr, whoIdx, undefined, when)
             return {
                 kind: 'T',
@@ -210,6 +212,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 beat: t.throwBeat,
                 manipulatorRole: who,
                 modifiers
+            }
+            }  catch (e) {
+                throw new Error(`error converting manipulator action ${throwStr} for ${who} at ${when}`, {cause: e})
             }
         }
     }
