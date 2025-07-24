@@ -57,8 +57,6 @@ N: .CC   z SAl  (3IBl) . .
 
 ## Other Ambled Patterns and Combinations
 
-Assuming always a sequence of carry-substitution-intercept on right-handed beats (but not necessarily every other beat), there are 45 ambled patterns, where many but not all roughly correspond to a scrambled pattern. For most of them videos can be found on passing.zone. 
+Assuming always a sequence of carry-substitution-intercept on right-handed beats (but not necessarily every other beat), there are 45 ambled patterns, where many but not all roughly correspond to a scrambled pattern. For many of them videos can be found on passing.zone. Here is a spreadsheet with all possible combinations: [https://passing.zone/lukas-ambled-sheet/](https://passing.zone/lukas-ambled-sheet/) -- however, note the nonstandard notation with the manipulator action written on the beat the causal arrow arrives.
 
-**TODO** Use this sheet currently: https://passing.zone/lukas-ambled-sheet/ -- but should be translated into normal notation when things are thrown.
-
-Many combinations of these work, including *Ambled B on Toast*
+Many combinations of these work, including *Ambled B on Toast*.
