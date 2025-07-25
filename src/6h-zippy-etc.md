@@ -21,19 +21,61 @@ When Zippy became popular, some in the community started exploring variations on
 
 ## Beyond Zippy
 
-After Zippy, many more patterns explored ambidextrious base patterns. They can be challenging and interesting, but they tend to be less well known. They usually have an even period and do not repeat on both sides -- there is no equivalence of a north-wall pattern for 3 passers and a manipulator (yet), odd period patterns simply have two jugglers doing the right side of the pattern and two jugglers doing the left side, without ever swapping.
-
-**BrunEd.** BrunEd was an early attempt to have a 4-person pattern with the *[MinuEd](6e-northwall.md)* manipulator sequence, using *[Bruno's nightmare](5d-moving.md)* as a base pattern. This one is very challenging for the feeder, who needs to pass around the manipulator to various different locations. It has not caught on :)
+After *Zippy*, some more patterns explored synchronous ambidextrous base patterns. They can be challenging and interesting, but they tend to be less well known. 
 
 
 
+**Dumb ways to die.** *Dumb ways to die* is a pattern based on what's called a *civil war feed* as the base pattern. There is no walking here in the base pattern, but positions rotate due to three manipulator switches within the sequence.
 
-**MiniEd.** 
+<sync-group video="https://passing.zone/dumb-ways-to-die/">
+A: 3pB 3pC 3  3pB 3pC 3  3pC 3pB 3 3pC 3pB 3 -- A
+B: 3pA 3   3  3pA 3   3  3   3pA 3 3   3pA 3 -- B
+C: 3   3pA 3  3   3pA 3  3pA 3   3 3pA 3   3 -- C
+M: z   IC  CC z   z   IB .   CA  z  IA CB  z
+positions: V(A,B,C)
+</sync-group>
 
 
-**Kitten something?**
 
 
+**BrunEd.** *BrunEd* was an early attempt to have a 4-person pattern with the *[MinuEd](6e-northwall.md)* manipulator sequence, using a pass-pass-self version of *[Bruno's nightmare](7-appendix-brunos.md)* as a base pattern. This one is very challenging for the feeder, who needs to pass around the manipulator to various different locations. It has not caught on.
 
-## TODO: Others?
+<TODO-manipulator-sync video="https://passing.zone/bruned/">
+A: 3pB 3pC 3  3pB 3pC 3  3pB 3pC 3 -- B
+B: 3pA 3   3  3pA 3   3  3pA 3   3 -- C
+C: 3   3pA 3  3   3pA 3  3   3pA 3 -- A
+M: CB  .   .  SA  .   SA .   SC  IC
+positions: Brunos(A,B,C)
+move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
+</TODO-manipulator-sync>
+
+There is no equivalence of a north-wall pattern for 3 passers and a manipulator where everybody cycles to the pattern both left and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two jugglers doing the right side of the pattern and two jugglers doing the left side, without ever swapping.
+
+**Brunickolf.** *Brunickolf* is a 5-person takeout pattern on the standard *[Bruno's nightmare](5d-moving.md)* base pattern.
+It is composed of two 4-person patterns that have only one of the manipulators each. 
+
+<sync-group video="https://passing.zone/brunickolf/" video2="https://passing.zone/brunicki/">
+A: 3pB 3 3  3pC 3 3  3pB 3 3 -- B
+B: 3pA 3 3  3   3 3  3pA 3 3 -- C
+C: 3   3 3  3pA 3 3  3   3 3 -- A
+M: SB  z   IB .   C  z  SB  z   z
+N: SC  z z  SC  z IC .   CC z
+positions: Brunos(A,B,C)
+move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
+</sync-group>
+
+The 5-person pattern is a north-wall pattern with two sides, but the two 4-person patterns again have two passers do the right-handed sequence and two passers do the left-handed sequence.
+
+**MiniEd.** MiniEd is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three count (C on beat 2 and A on beat 4) as the base pattern. 
+
+<TODO-manipulator-sync video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
+A: 3pB 3pC 3  3pB 3   3 -- B
+B: 3pA 3   3  3pA 3pC 3 -- C
+C: 3   3pA 3  3   3pB 3 -- A
+M: CB  .   SBe .   SCl  IC↻ 
+positions: VL(A,B,C)
+move: Vmove(C,1.9,2)Vmove(A,3.9,2)
+</TODO-manipulator-sync>
+
+
 

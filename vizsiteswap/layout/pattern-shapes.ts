@@ -30,7 +30,7 @@ export type TMovementStep = {
 export type TMovementType = string; //'Vmove' | 'Bmove' | 'Cmove'
 
 export function defaultLayoutForTwo(roles: Role[]): TLayout {
-    assert(roles.length===2, "default layout for two only works for 2 roles")
+    assert(roles.length === 2, "default layout for two only works for 2 roles")
     return { type: 'standard', shape: 'Pair', roles }
 }
 
@@ -170,67 +170,73 @@ const initialV3Positions = [/*A*/ 270, /*B*/90 - 30, /*C*/90 + 30]
 const initialV4Positions = [/*A*/ 270, /*B*/90 - 45, /*C*/90, /*D*/90 + 45]
 
 // --- V layout, V movement ---
-factories.push({
-    supportedShapes: ['V'],
-    supportedMovement: ['Vmove'],
-    matches: function (layout: TLayout, movement: TMovement): boolean {
-        return layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement(movement, 'Vmove')
-    },
-    createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
-        const positions: PositionSpec[] = []
-        const background: BackgroundLayout[] = []
+factories.push(createVFactory("V", true))
+factories.push(createVFactory("VL", false))
 
-        assert(layout.type === 'standard')
-        assert(layout.shape === 'V')
-        const roles = layout.roles
+function createVFactory(shapeName: string, moveRight: boolean): PatternShapeFactory {
+    return {
+        supportedShapes: [shapeName],
+        supportedMovement: ['Vmove'],
+        matches: function (layout: TLayout, movement: TMovement): boolean {
+            return layout.type === 'standard' && layout.shape === shapeName && [3, 4].includes(layout.roles.length) && allMovement(movement, 'Vmove')
+        },
+        createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
+            const positions: PositionSpec[] = []
+            const background: BackgroundLayout[] = []
 
-        const angles = roles.length === 3 ? initialV3Positions : initialV4Positions
-        for (let i = 0; i < roles.length; i++) {
-            const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
-            const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
-            assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
-            positions.push({ role: roles[i], x, y })
-        }
-        background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
+            assert(layout.type === 'standard')
+            assert(layout.shape === shapeName)
+            const roles = layout.roles
 
-
-        //     if (layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement('Vmove')) {
-        const segments: MovementSegmentSpec[] = []
-        const sequences: MovementSequenceSpec[] = []
-        if (movement.length > 0) {
-            assert(patternRoles.length === layout.roles.length, `number of passer roles must match layout roles ${patternRoles} ${layout.roles}`)
-            // get the movement path of each initial position, moving by 90 degree each
-            const initialAngles = angles
-
-            let segmentIdx = 0
-            for (let passerIdx = 0; passerIdx < patternRoles.length; passerIdx++) {
-                const sequence: MovementSequenceSpec = []
-                const initialAngle = initialAngles[passerIdx]
-                for (let walkIdx = 0; walkIdx < 4; walkIdx++) {
-                    const fromAngle = initialAngle - walkIdx * 90
-                    const toAngle = initialAngle - (walkIdx + 1) * 90
-                    const [fromX, fromY] = getCirclePosition(fromAngle)
-                    const [toX, toY] = getCirclePosition(toAngle)
-                    const path = ['A', 0.5, 0.5, 0, 0, 0]
-
-                    segments.push({
-                        fromX,
-                        fromY,
-                        path,
-                        toX,
-                        toY
-                    })
-                    sequence.push(segmentIdx)
-
-                    segmentIdx++
-                }
-                sequences.push(sequence)
+            const angles = roles.length === 3 ? initialV3Positions : initialV4Positions
+            for (let i = 0; i < roles.length; i++) {
+                const x = Math.cos(angles[i] * Math.PI / 180) * 0.5 + 0.5
+                const y = Math.sin(angles[i] * Math.PI / 180) * 0.5 + 0.5
+                assert(patternRoles.includes(roles[i]), `role ${roles[i]} not in pattern`)
+                positions.push({ role: roles[i], x, y })
             }
-        }
+            background.push({ type: "circle", x: 0.5, y: 0.5, r: 0.5, fill: "none", stroke: "lightgrey", strokeWidth: 1 })
 
-        return [positions, segments, sequences, background]
+
+            //     if (layout.type === 'standard' && layout.shape === 'V' && [3, 4].includes(layout.roles.length) && allMovement('Vmove')) {
+            const segments: MovementSegmentSpec[] = []
+            const sequences: MovementSequenceSpec[] = []
+            if (movement.length > 0) {
+                assert(patternRoles.length === layout.roles.length, `number of passer roles must match layout roles ${patternRoles} ${layout.roles}`)
+                // get the movement path of each initial position, moving by 90 degree each
+                const initialAngles = angles
+
+                let segmentIdx = 0
+                for (let passerIdx = 0; passerIdx < patternRoles.length; passerIdx++) {
+                    const sequence: MovementSequenceSpec = []
+                    const initialAngle = initialAngles[passerIdx]
+                    const direction = moveRight ? 1 : -1
+                    for (let walkIdx = 0; walkIdx < 4; walkIdx++) {
+                        const fromAngle = initialAngle - direction*walkIdx * 90
+                        const toAngle = initialAngle - direction*(walkIdx + 1) * 90
+                        const [fromX, fromY] = getCirclePosition(fromAngle)
+                        const [toX, toY] = getCirclePosition(toAngle)
+                        const path = ['A', 0.5, 0.5, 0, 0, moveRight ? 0 : 1]
+
+                        segments.push({
+                            fromX,
+                            fromY,
+                            path,
+                            toX,
+                            toY
+                        })
+                        sequence.push(segmentIdx)
+
+                        segmentIdx++
+                    }
+                    sequences.push(sequence)
+                }
+            }
+
+            return [positions, segments, sequences, background]
+        }
     }
-})
+}
 
 // --- trapezoid layout, no movement ---
 factories.push({
@@ -434,7 +440,7 @@ factories.push({
 
 
         assert(layout.type === 'svg')
-        for (let i = 0; i<layout.roles.length; i++) {
+        for (let i = 0; i < layout.roles.length; i++) {
             const initialSegmentIdx = layout.roles[i][1]
             assert(initialSegmentIdx >= 0 && initialSegmentIdx < layout.segments.length, `initial segment index ${initialSegmentIdx} for role ${layout.roles[i][0]} out of bounds for ${layout.segments.length} segments`)
             const s = layout.segments[initialSegmentIdx]
@@ -456,7 +462,7 @@ factories.push({
 
         const sequence = layout.segments.map((_, i) => i)
         const sequences: MovementSequenceSpec[] = layout.roles.map((r) => sequence.slice(r[1]).concat(sequence.slice(0, r[1])))
-       
+
         return [positions, segments, sequences, background]
     }
 })
@@ -484,7 +490,7 @@ factories.push({
         positions.push({ role: roles[0], x: 0, y: .5 })
         positions.push({ role: roles[1], x: 1, y: .5 })
 
-        return [positions,[],[],[]]
+        return [positions, [], [], []]
     }
 })
 
@@ -546,6 +552,5 @@ export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayo
             return f.createLayout(roles, parsedLayoutInstructions, parsedMovementInstructions ? parsedMovementInstructions : [])
     throw new Error(`layout/movement combination not supported ${parsedLayoutInstructions.type} ${JSON.stringify(parsedMovementInstructions)}`)
 }
- 
+
 // function createLayout(p:PLayout)
- 
