@@ -581,9 +581,9 @@ test.skip('**broken:** testing crossing/hands validation: manege', async (t) => 
     console.log(p.nrRows)
     console.log(p.mapHands)
     console.log(p.mapCrossing)
-    p.mapHands[1]=[false,true]
-console.log(p.mapHands)
-    
+    p.mapHands[1] = [false, true]
+    console.log(p.mapHands)
+
     // first pass
     const p7 = p.findThrow(0, 0)!
     // B's reaction
@@ -592,9 +592,9 @@ console.log(p.mapHands)
     const p6 = p.findThrow(5, 2)!
 
     p.getThrowHand(p7, 2)
-    
 
-    console.log("Hand of throw 0 (A):", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i)? 'L' : 'R')+(p.isCrossingPass(p7,i)? '‖' : 'X')))
+
+    console.log("Hand of throw 0 (A):", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i) ? 'L' : 'R') + (p.isCrossingPass(p7, i) ? '‖' : 'X')))
     console.log("Hand of throw 1 (B):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p8, i)))
     console.log("Hand of throw 5 (M):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p6, i)))
 
