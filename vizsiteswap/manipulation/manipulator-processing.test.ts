@@ -1435,6 +1435,23 @@ Deno.test('ambled 3 (with early intercept and delayed hand-in and real time-trav
     assert.ok(full.isValid(), full.getValidationError())
 })
 
+Deno.test.ignore('ambled 3 with straight passes', () => {
+    // now we need to switch hands during the manipulation sequence (i.e. the substitution must come from the left hand, but still thrown to the left hand, i.e., now crossing instead of straight)
+    const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
+        `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A
+M: !.  C  z ! SCA  IABe -- M!
+positions: V(A,B,C)
+move: Vmove(B,5.9,3)`
+    )[0], 2)
+    let rewritten = applyManipulations(p, manipulations)
+    const full = fillPatternGaps(rewritten)
+    assert.ok(full.isValid(), full.getValidationError())
+})
+
+
+
 
 Deno.test('intercept: at end of pattern with different base rows', () => {
     // this really messes with relabeling: the intercept is to the person who is B when the intercept is thrown but is actually A when it arrives, so A and M swap at that point

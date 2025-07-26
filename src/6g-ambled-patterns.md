@@ -29,13 +29,14 @@ Several other scrambled patterns work with the same base pattern, for example *A
 The double passes, timing differences, and the extra beat create some challenges, so that not all patterns can be translated into ambled patterns easily, and some not at all. Ambled 3 is one of those patterns that needed a new solution.
 
 <TODO-manipulator-sync >
-A: 4B 3  4C 3  4B 3  4C -- B
-B: 3  4A 3  3  3  4A 3  -- C
-C: 3  3  3  4A 3  3  3  -- A
-M: .  C  z  (SCAd 3) IABe 
+A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A
+M: !.  C  z ! (SCAd 3) IABe --M!
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </TODO-manipulator-sync>
+<!-- the problem here is the hand switching. per notation the substitution would be from the right hand and hence the delayed one from the left hand. the time-travel self needs to be from the left. what we kind of want is to switch hands after the zip, still steal the self with the left but pretend we are also placing it with the left, which when delayed would be from the right. we may need a new modifier for this kind of thing; it is unclear to me how to even write this down -->
 
 Since the substitution of the pass on beat 4 is for a double pass, it takes an extra beat and would be placed just after beat 6, but the manipulator also needs to intercept the pass to B on beat 5, before they place the substitution! 
 The common solution here is for the manipulator to first steal the substituted pass (late, on the handle) and then turn to face A and throw a self with that hand to catch the intercept (also late, on the handle), and only then handing in the substitution as a zap. That is, the manipulator briefly has three clubs. Ideally the manipulator has both clubs on the handle to do the self-zap combination, rather than flipped. This trick is commonly referred to as *time travel*.
@@ -47,11 +48,13 @@ This can be difficult to read this all in the Aidan notation. The problem is tha
 Just as multiple scrambled manipulators can be combined in the same pattern, the same can be done for ambled patterns. The most common one is *Unicorn Charge*, which is the extra-club version of [*Scrambled 3-V*](6f-aidan-patterns.md), combining the manipulators of *Ambled V* and *Ambled 3*.
 
 <TODO-manipulator-sync video="https://juggling.tv/16543">
-A: 4pB3  4pC3  4pB3  4pC -> B
-B: 34pA  3  3  34pA  3  -> C
-C: 33  34pA 3  3  3   -> A
-M: CB. z    SB (z  IC) ..     
-N: .CC   z SAl  (3IBl) . .     
+A: 4pBx3  4pCx3  4pBx3  4pCx -- B
+B: !34pAx  3  3  34pAx  4x  -- C
+C: !2 33 4pAx 3  3  3   -- A
+M: CB↺ 1 !1x    SB . IC↺ ..  -- M!
+N: .  C  z  (SCAd 3) IABe 
+positions: V(A,B,C)
+move: Vmove(B,5.9,3)
 </TODO-manipulator-sync>
 
 
