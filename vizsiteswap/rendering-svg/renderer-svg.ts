@@ -1,6 +1,6 @@
 import type { BackgroundLayout, GroupPattern } from "@modernpassing/layout";
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
-import { Hand, Role, type Pattern } from "@modernpassing/pattern";
+import { Hand, ManipulatorAction, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
 import { type Containable, type Container, Element, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
@@ -61,13 +61,16 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
             const rconfig: RendererConfig = tabIds.includes("aidan") ? { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2, ...config } : renderConfig
-            javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
+            javascript += renderInternal(panel, gp.pattern, gp.pattern.getInitialRoles(),
+                getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
                 rconfig)
         }
         if (tabIds[i] === "aidan") {
             panel.addClass("aidan-canvas")
-            javascript += renderInternal(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidanNotation![0], gp.aidanNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+            const roles = getInitialAidanRoles(gp.aidanNotation![0], gp.aidanNotation![1])
+            javascript += renderInternal(panel, gp.pattern, roles,
+                getThrowsFromManipulatorPattern(gp.aidanNotation![0], gp.aidanNotation![1], roles, renderConfig.iterations, renderConfig),
                 getRelabel(gp.aidanNotation![0]),
                 { ...renderConfig, showRoleColorBackground: false, ...config })
         }
@@ -86,20 +89,27 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
         javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
-        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width+layoutGap, tabHeight] })
+        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width + layoutGap, tabHeight] })
     }
     if (withTurntable) {
         const turntableCanvas = svg.group().addClass("turntable")
         renderTurntable(turntableCanvas, gp.pattern, renderConfig)
         turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
- 
+
     return [svg, javascript + tabJs]
 
 }
 
 
 
+function getInitialAidanRoles(p: Pattern, manipulatorActions: ManipulatorAction[]): Role[] {
+    // get the initial roles from the pattern, and then apply the manipulator actions to them
+    const roles = p.getInitialRoles().slice()
+    const manipulatorRoles = [...new Set(manipulatorActions.map((m) => m.manipulatorRole))].sort()
+    roles.push(...manipulatorRoles)
+    return roles
+}
 
 
 function createVideoPanel(videoLink: string, panel: G, width: number, height: number) {
@@ -202,10 +212,10 @@ function calculateRoleRanges(p: Pattern): [number, number, number, string][] {
     return roleRanges
 }
 
-function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThrow[], relabel: undefined | (Role | undefined)[], config: RendererConfig): string {
+function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], renderedThrows: RenderedThrow[], relabel: undefined | (Role | undefined)[], config: RendererConfig): string {
     if (!pattern.isValid())
         throw new Error(`Invalid pattern: ${pattern.getValidationError()}\n${pattern.prettyPrintThrows()}`);
-
+    assert(pattern.nrRows=== initialRoles.length, `Number of initial roles (${initialRoles.length}) does not match number of rows in pattern (${pattern.nrRows})`);
 
 
 
@@ -341,10 +351,10 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
         canvas.text(renderThrowLabel(t.label, config)).
             amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand)).
             font({ size: config.throwTextSize, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", 'font-weight': "bold" })
-        if (config.showManipulatorModifiers && t.modifiers && t.modifiers.length > 0) 
+        if (config.showManipulatorModifiers && t.modifiers && t.modifiers.length > 0)
             canvas.text(t.modifiers).
-            amove(xo(t.throwTime)+config.throwCircleSize*.2, yo(t.fromPasserIdx, t.fromHand)-config.throwCircleSize*.3).
-            font({ size: config.throwTextSize * 0.4, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", weight: "lighter", family: "monospace" })   
+                amove(xo(t.throwTime) + config.throwCircleSize * .2, yo(t.fromPasserIdx, t.fromHand) - config.throwCircleSize * .3).
+                font({ size: config.throwTextSize * 0.4, 'text-anchor': "middle", fill: circleTextColor, 'dominant-baseline': "central", weight: "lighter", family: "monospace" })
 
         if (config.showLeftRight || (config.showStraightCross && t.annotation !== "")) {
             const text = []
@@ -372,7 +382,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
     if (config.showPasserRoles) {
         // console.log(p.relabel)
         for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
-            canvas.text("").plain(pattern.getRole(0, passerIdx) + ":").
+            canvas.text("").plain(initialRoles[passerIdx] + ":").
                 addClass("passer-roles").
                 font({ size: config.passerRolesTextSize, 'text-anchor': "end", fill: config.annotationTextColor, 'dominant-baseline': "central" }).
                 amove(0, yo(passerIdx, null)).cx(config.xMargin + config.passerRolesOffset / 2)
@@ -834,5 +844,5 @@ function renderThrowLabel(label: string, config: RendererConfig): (add: Text) =>
 
 function getRelabel(pattern: Pattern): (string | undefined)[] | undefined {
     const initialRoles = pattern.getInitialRoles()
-    return pattern.mapRows.map((r,i) => i!==r ? initialRoles[r] : undefined)
+    return pattern.mapRows.map((r, i) => i !== r ? initialRoles[r] : undefined)
 }
