@@ -104,8 +104,8 @@ test("render first animation (star with a hole)", async (t) => {
             type: "circle", r: 0.5, x: 0.5, y: 0.5, fill: 'none',
             stroke: 'lightgrey', strokeWidth: 1
         }], 350, 350, svg, defaultRenderLayoutConfig)
-        
-        const js = renderAnimation(createAnimationPlan(p), 350, 350, svg, defaultRenderLayoutConfig, 4)
+
+        const js = renderAnimation(createAnimationPlan(p, 350 / defaultRenderLayoutConfig.positionCircle), 350, 350, svg, defaultRenderLayoutConfig, 4)
 
         content += `<h2>${p}</h2><p>${svg.svg()}</p>
         <script>${js}</script>

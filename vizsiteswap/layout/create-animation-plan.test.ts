@@ -56,7 +56,7 @@ move: Bmove(B,1,1.9)Bmove(B,2.9,1.5)Bmove(C,1.4,1.5)`
 
     const baseAnimations = computeBaseAnimations(gp.layout!.animation)
 
-    const plan = createAnimationPlan(gp.layout!.animation);
+    const plan = createAnimationPlan(gp.layout!.animation, 10);
 
 
 
@@ -88,7 +88,7 @@ move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,
 
     const baseAnimations = computeBaseAnimations(gp.layout!.animation)
 
-    const plan = createAnimationPlan(gp.layout!.animation);
+    const plan = createAnimationPlan(gp.layout!.animation, 10);
 
 
 })
@@ -110,7 +110,7 @@ positions: V(A,B,C)`
          M: SB z SB z  IB . CB z
 positions: Line(A,B)`
     const gp: GroupPattern = createSyncGroupPattern(scambledV)
-    const plan = createAnimationPlan(gp.layout!.animation);
+    const plan = createAnimationPlan(gp.layout!.animation, 10);
     // console.log(plan)
 
 })
@@ -126,7 +126,7 @@ positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(scambledV)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const locationMgr = computeBaseAnimations(gp.layout!.animation)
     const startLocationA: [number, number] = [0.5, 0] // A then B
@@ -206,7 +206,7 @@ Deno.test("check positions roundabout", () => {
 positions: Line(A,B)`
     const gp: GroupPattern = createSyncGroupPattern(roundabout)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const locationMgr = computeBaseAnimations(gp.layout!.animation)
     const startLocationA: [number, number] = [0, 0.5] // A then B
@@ -245,7 +245,7 @@ M: SB.IBe C↻..
 positions: Line(A,B)`
     const gp: GroupPattern = createSyncGroupPattern(roundabout)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const locationMgr = computeBaseAnimations(gp.layout!.animation)
     const startLocationA: [number, number] = [0, 0.5] // A then B
@@ -295,7 +295,7 @@ move: Vmove(B, 17, 1)`
 
     const gp: GroupPattern = createGroupPattern(whynotVsPopcorn,4)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const locationMgr = computeBaseAnimations(gp.layout!.animation)
     const startLocationA: [number, number] = [0.5, 0] // A then B
@@ -354,7 +354,7 @@ M: SBlo z   zf  SBlo z   .   IBvb CA  . `
 
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const startLocationA: [number, number] = [0, 0.5] // A then B
     const startLocationB: [number, number] = [1, .5] // B before move
@@ -396,7 +396,7 @@ M: SBezSBlz IBv CBz`
 
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 
     const startLocationA: [number, number] = [0, 0.5] // A then B
     const startLocationB: [number, number] = [1, .5] // B before move
@@ -429,7 +429,7 @@ O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
 
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const spec = gp.layout!.animation
-    const plan = createAnimationPlan(spec);
+    const plan = createAnimationPlan(spec, 10);
 })
 
 

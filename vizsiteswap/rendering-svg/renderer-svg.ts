@@ -83,7 +83,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
             renderBackground(gp.layout!.background, size.height, size.height, layoutCanvas, defaultRenderLayoutConfig)
         const beatIndicator = onlyLayout ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
-        const animationPlan = createAnimationPlan(gp.layout!.animation)
+        const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
         javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
         if (!onlyLayout) layoutCanvas.transform({ translate: [size.width, tabHeight] })
     }
@@ -92,7 +92,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         renderTurntable(turntableCanvas, gp.pattern, renderConfig)
         turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
-
+ 
     return [svg, javascript + tabJs]
 
 }
@@ -236,7 +236,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
     const anyRelabel = config.showRelabel && relabel && relabel.some((v) => v !== undefined)
     const size = getRenderPatternSize(pattern, config)
 
-    // debugDrawPatternRenderSize(canvas, size)
+    debugDrawPatternRenderSize(canvas, size)
 
 
     // highlighting of roles in the background (optional)

@@ -16,7 +16,15 @@ import { Path, Svg } from "@svgdotjs/svg.js";
 
 
 
-export function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan {
+/**
+ * creates the animation plan
+ * @param animationSpec 
+ * @param canvasSizeByPasserCircle Size of the canvas relative to the size of a circle representing a passer
+ *      for example, a 200px canvas with a passer circle of 20px would be 10.
+ *      While all animations are rendered on relative locations from 0 to 1, this is needed to scale animations to the circle size, especially the length of arms for passes
+ * @returns 
+ */
+export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number): AnimationPlan {
     // all roles, this is used to create ids
     const roles = animationSpec.initialPositions.map(pos => pos.role)
     function passerId(role: Role): number { return roles.indexOf(role) }
@@ -32,7 +40,7 @@ export function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan
     // relative movements add manipulator movements; creating animations and also adding computed manipulator positions to the location manager
     const [directMovementAnimations, updateLocationMgr]: [DirectMovementAnimation[], LocationMgr] = computeRelativeMovements(animationSpec.relativeMovements, locationMgr, animationSpec.passAnimations)
 
-    const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(updateLocationMgr))
+    const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(updateLocationMgr, canvasSizeByPasserCircle))
     const relabeling: RelabelAnimation[] = convertRelabeling(locationMgr, animationSpec.relabeling)
 
     // initial positions is trivial
@@ -55,7 +63,9 @@ export function createAnimationPlan(animationSpec: AnimationSpec): AnimationPlan
 
 }
 
-function convertPassAnimation(locationMgr: LocationMgr): (passSpec: PassSpec) => PassAnimation[] {
+function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle: number): (passSpec: PassSpec) => PassAnimation[] {
+    const relativeArmLength = 1/ canvasSizeByPasserCircle *.9
+    console.error(relativeArmLength, canvasSizeByPasserCircle)
     return (passSpec: PassSpec): PassAnimation[] => {
 
         const result: PassAnimation[] = []
@@ -71,7 +81,8 @@ function convertPassAnimation(locationMgr: LocationMgr): (passSpec: PassSpec) =>
                 const [r, initialX, initialY] = locationMgr.initialPositions.find(i => i[0] === passSpec.pass.toRole)!
                 if (Math.abs(initialX - toX) > 0.001 || Math.abs(initialY - toY) > 0.001) {
                     firstIteration = false
-                    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, toX, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, 0.22, 0.01)
+                    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
+                        computePass(fromX, toX, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, relativeArmLength, 0.01)
                     result.push({
                         onBeat: time,
                         duration: passSpec.duration,
@@ -88,7 +99,8 @@ function convertPassAnimation(locationMgr: LocationMgr): (passSpec: PassSpec) =>
                 }
             }
 
-            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, 0.22, 0.01)
+            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = 
+                computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
             result.push({
                 onBeat: time,
                 duration: passSpec.duration,
@@ -364,7 +376,7 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
  * @param labelDistance 
  * @returns 
  */
-function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number = 25, labelDistance: number = 4): [number, number, number, number, number, number] {
+function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number, labelDistance: number): [number, number, number, number, number, number] {
     //angle between the two points
     const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI
     //move 20 pixel 45 degree from that angle from the first point
