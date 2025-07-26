@@ -196,9 +196,9 @@ app.use(async (ctx, next) => {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
            
-                if (gp.aidenNotation && gp.aidenNotation[1].length > 0) {
-                    svgPlain = prettyPrintThrowsSvg(gp.aidenNotation![0])
-                    const rewritten =  applyManipulations(gp.aidenNotation![0], gp.aidenNotation![1])
+                if (gp.aidanNotation && gp.aidanNotation[1].length > 0) {
+                    svgPlain = prettyPrintThrowsSvg(gp.aidanNotation![0])
+                    const rewritten =  applyManipulations(gp.aidanNotation![0], gp.aidanNotation![1])
                     svgManipulator = prettyPrintThrowsSvg(rewritten)
                     const filled =  fillPatternGaps(rewritten)
                     svgFilled = prettyPrintThrowsSvg(filled)

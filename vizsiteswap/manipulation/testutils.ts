@@ -9,7 +9,7 @@ export function parseGroupSyncPattern(s: string): [string] {
 }
 export function createPatternFromRaw(p: string, hands: number): [Pattern, ManipulatorAction[]] {
     const x = createGroupPattern(p, hands, true)
-    return [x.aidenNotation![0], x.aidenNotation![1]]
+    return [x.aidanNotation![0], x.aidanNotation![1]]
 
 }
 

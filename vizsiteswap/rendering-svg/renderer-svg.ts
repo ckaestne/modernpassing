@@ -15,8 +15,8 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
     const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
-    // there are three parts that we may render: the pattern, the aiden notation, and the layout
-    // not every pattern has aiden notation, and not every group pattern has a layout
+    // there are three parts that we may render: the pattern, the aidan notation, and the layout
+    // not every pattern has aidan notation, and not every group pattern has a layout
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const tabTitles: string[] = []
@@ -25,9 +25,9 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (component === "pattern") {
             tabTitles.push("Local")
             tabIds.push("pattern")
-        } else if (component === "aiden" && gp.aidenNotation !== undefined && (gp.aidenNotation[1].length > 0)) {
+        } else if (component === "aidan" && gp.aidanNotation !== undefined && (gp.aidanNotation[1].length > 0)) {
             tabTitles.push("Aidan")
-            tabIds.push("aiden")
+            tabIds.push("aidan")
         } else if (component === "video" && gp.videoLinks !== undefined && gp.videoLinks.length > 0) {
             if (gp.videoLinks.length === 1) {
                 tabTitles.push("Video")
@@ -59,15 +59,15 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const panel = panels[i]
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
-            const rconfig: RendererConfig = tabIds.includes("aiden") ? { ...renderConfig, showRoleColorBackground: false, showLines: true, lineKind: "causal", lineWidth: 2 } : renderConfig
+            const rconfig: RendererConfig = tabIds.includes("aidan") ? { ...renderConfig, showRoleColorBackground: false, showLines: true, lineKind: "causal", lineWidth: 2 } : renderConfig
             javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
                 rconfig)
         }
-        if (tabIds[i] === "aiden") {
-            panel.addClass("aiden-canvas")
-            javascript += renderInternal(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidenNotation![0], gp.aidenNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
-                getRelabel(gp.aidenNotation![0]),
+        if (tabIds[i] === "aidan") {
+            panel.addClass("aidan-canvas")
+            javascript += renderInternal(panel, gp.pattern, getThrowsFromManipulatorPattern(gp.aidanNotation![0], gp.aidanNotation![1], gp.pattern.getInitialRoles(), renderConfig.iterations, renderConfig),
+                getRelabel(gp.aidanNotation![0]),
                 { ...renderConfig, showRoleColorBackground: false, ...config })
         }
         if (tabIds[i].startsWith("video:")) {
@@ -370,7 +370,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
     // optionally write role labels in the beginning and relabeling labels at the end
     if (config.showPasserRoles) {
         // console.log(p.relabel)
-        assert(false, "TODO role changes should be shown only for the base rows in aiden notation")
+        assert(false, "TODO role changes should be shown only for the base rows in aidan notation")
         for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
             canvas.text("").plain(pattern.getRole(0, passerIdx) + ":").
                 addClass("passer-roles").

@@ -49,7 +49,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
 
     return {
         pattern: rewritten,
-        aidenNotation: [pattern, manipulatorActions],
+        aidanNotation: [pattern, manipulatorActions],
         layout: patternLayout
     }
 }

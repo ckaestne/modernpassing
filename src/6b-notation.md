@@ -8,7 +8,7 @@ The basic idea of the Aidan notation is as follows: A base pattern is described 
 
 In this notation, *Nicki's three-count roundabout* can be written as:
 
-<sync-group style='{"components":["aiden"]}'>
+<sync-group style='{"components":["aidan"]}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
@@ -19,7 +19,7 @@ That is, on the first beat, the manipulator substitutes the throw to B, which is
 
 The scheme generalizes to patterns with more passers and more manipulators. For example, this is the notation for the five-person pattern [Scrambled 3-V](6f-aidan-patterns.md), with two manipulators M and N based on a [rotating two-count vs. four-count feed](5d-moving.md):
 
-<sync-group style='{"components":["aiden"]}'>
+<sync-group style='{"components":["aidan"]}'>
 A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A
@@ -40,7 +40,7 @@ The relabeling for switching manipulators is less obvious to recognize in the no
 
 In *Nicki's three-count roundabout*, the switch between M and B is triggered when M intercept's B's self (highlighted below). The intercepted self is thrown on beat 3 and intercepted on beat 4, so beat 4 is where M and B switch (also highlighted with background colors and changes during the animation). On beat 4 the previous manipulator now has two clubs and takes over the remainder of B's sequence, in this case by also catching the pass that A throws on beat 4 to B. At the same time, the previous passer in the role of B becomes the new manipulator M and starts with a carry on beat 4. At the end of the iteration, the passers in role B (originally M at the start of the iteration) and A swap roles, and the pattern repeats.
 
-<sync-group style='{"components":["aiden","turntable","layout"], "emphasizeLines":[[1,2]],"emphasizeThrows":[[1,2]],"showRoleColorBackground":true, "showRelabel":false}'>
+<sync-group style='{"components":["aidan","turntable","layout"], "emphasizeLines":[[1,2]],"emphasizeThrows":[[1,2]],"showRoleColorBackground":true, "showRelabel":false}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
@@ -77,7 +77,7 @@ For this book, we experiment with optional superfix symbols for intercepts and p
 
 With this, *Nicki's three-count roundabout* indicates late steals, placement from below, and clockwise movement when B and M swap can be written as follows:
 
-<sync-group style='{"components":["aiden"]}'>
+<sync-group style='{"components":["aidan"]}'>
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SBl↑.IBl↑↻   C↻..

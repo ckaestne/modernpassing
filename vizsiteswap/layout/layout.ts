@@ -6,7 +6,7 @@ import type { AnimationSpec } from "./animation-spec.ts";
 
 export type GroupPattern = {
     pattern: Pattern,
-    aidenNotation?: [Pattern, ManipulatorAction[]]
+    aidanNotation?: [Pattern, ManipulatorAction[]]
     layout?: GroupPatternLayoutSpec
     videoLinks?: string[];
 }

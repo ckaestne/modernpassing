@@ -421,7 +421,7 @@ test('invariant: applying manipulator actions should be stable across shifts', a
 })
 
 
-const aidenPatterns: { [key: string]: string } = function () {
+const aidanPatterns: { [key: string]: string } = function () {
 
     const base =
         `A: 3B 3  3C 3  3B 3 -- B
@@ -444,9 +444,9 @@ C: 3  3  3A 3  3  3  -- A`
 
 
 
-test('generate all aiden patterns', async () => {
-    for (const patternName of Object.keys(aidenPatterns)) {
-        const pattern = aidenPatterns[patternName] as string
+test('generate all aidan patterns', async () => {
+    for (const patternName of Object.keys(aidanPatterns)) {
+        const pattern = aidanPatterns[patternName] as string
         let pWithManipulator
         try {
             const r = parseGroupSyncPattern(pattern)

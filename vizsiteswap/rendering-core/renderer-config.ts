@@ -69,7 +69,7 @@ export interface RendererConfig {
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
     labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
-export type RenderComponents = "aiden" | "pattern" | "layout" | "video" | "turntable";
+export type RenderComponents = "aidan" | "pattern" | "layout" | "video" | "turntable";
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
@@ -109,7 +109,7 @@ export const defaultRendererConfig: RendererConfig = {
     passerRolesOffset: 36,
     passerRolesTextSize: 28,
     
-    components: ["aiden", "pattern", "video", "layout", "turntable"], 
+    components: ["aidan", "pattern", "video", "layout", "turntable"], 
     layoutSize: undefined, //default
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
     showRoleColorBackground: false, 
