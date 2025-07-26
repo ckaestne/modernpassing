@@ -59,9 +59,10 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const panel = panels[i]
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
+            const rconfig: RendererConfig = tabIds.includes("aiden") ? { ...renderConfig, showRoleColorBackground: false, showLines: true, lineKind: "causal", lineWidth: 2 } : renderConfig
             javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
-                { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2, ...config })
+                rconfig)
         }
         if (tabIds[i] === "aiden") {
             panel.addClass("aiden-canvas")
@@ -833,5 +834,5 @@ function renderThrowLabel(label: string, config: RendererConfig): (add: Text) =>
 
 function getRelabel(pattern: Pattern): (string | undefined)[] | undefined {
     const initialRoles = pattern.getInitialRoles()
-    return pattern.mapRows.map((r) => initialRoles[r])
+    return pattern.mapRows.map((r,i) => i!==r ? initialRoles[r] : undefined)
 }
