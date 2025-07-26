@@ -1,6 +1,6 @@
 # Scrambled V and other Scrambled Patterns
 
-Recommended prerequisite: Roundabout; Next: Ambled Patterns or Zippy
+Recommended prerequisite: [Roundabout](6c-roundabout.md); Next: [Ambled Patterns](6g-ambled-patterns.md) or [Zippy](6h-zippy-etc.md)
 
 
 *Scrambled V* is a standard 4 person manipulator pattern that is widely known and the first that most people learn, just like Roundabout for 3 passers. It is based on a [rotating two-count vs four-count feed](5d-moving.md) where passers stand in a *V* formation. Beyond *Scrambled V*, there are 26 more 4-person patterns based on the same rotating feed with similar takeout actions.

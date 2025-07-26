@@ -55,8 +55,8 @@
 - [Aidan patterns](./6f-aidan-patterns.md)
 - [Ambled patterns](./6g-ambled-patterns.md)
 - [Zippy and more](./6h-zippy-etc.md)
-- [Siteswap patterns](./6j-siteswap-takeouts.md) 
-- [Beyond the basics](./6i-beyond-basics.md)
+- [Siteswap patterns](./6i-siteswap-takeouts.md) 
+- [Other ideas](./6j-beyond-basics.md)
 
 # Appendix
 

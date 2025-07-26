@@ -1,5 +1,6 @@
 # Zippy and other advanced 4-5 person patterns
 
+Prerequisites: Any basic synchronous takeouts like [Scrambled V](6f-aidan-patterns.md); Next: [North-wall patterns](6e-northwall.md) or [Takeouts in four-handed siteswaps](6j-siteswap-takeouts.md)
 
 All standard scrambled and ambled patterns are right-handed and use four-count or two-count as the base pattern. *Zippy* is based on a [rotating pass-pass-self feed](5d-moving.md) is a good starting point to explore patterns with more interesting base patterns and even a left-handed takeout.
 
