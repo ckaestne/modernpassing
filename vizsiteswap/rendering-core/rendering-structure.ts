@@ -68,12 +68,15 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
         for (const m of manipulatorActions) if (m.beat >= 0 || iteration === 0) {
             const throwTime = prefixTimeOffset + iterationTimeOffset + m.beat
             const mIdx = roles.indexOf(m.manipulatorRole)
-
             const existingThrow = result.find(t => t.throwTime === throwTime && t.fromPasserIdx === mIdx)
             if (existingThrow) {
                 // existingThrow.label = existingThrow.label +"/" + convertManipulationToLabel(m, rendererConfig)
                 // console.error(existingThrow.label)
             }
+            else
+                if (m.kind==='T' && m.throwLength===(basePattern.nrHands/2) && m.isCrossing===false && m.toPasserRole === m.manipulatorRole) { 
+                    // ignore 1x throws from manipulators in rendering, they are not actually thrown just needed for switching hands
+                }
             else
             result.push({
                 throwTime,
