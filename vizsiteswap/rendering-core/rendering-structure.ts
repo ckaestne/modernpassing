@@ -67,11 +67,19 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
     for (let iteration = 0; iteration < iterations; iteration++) {
         for (const m of manipulatorActions) if (m.beat >= 0 || iteration === 0) {
             const throwTime = prefixTimeOffset + iterationTimeOffset + m.beat
+            const mIdx = roles.indexOf(m.manipulatorRole)
+
+            const existingThrow = result.find(t => t.throwTime === throwTime && t.fromPasserIdx === mIdx)
+            if (existingThrow) {
+                // existingThrow.label = existingThrow.label +"/" + convertManipulationToLabel(m, rendererConfig)
+                // console.error(existingThrow.label)
+            }
+            else
             result.push({
                 throwTime,
                 rethrowTime: -1,
                 causeTime: -1,
-                fromPasserIdx: roles.indexOf(m.manipulatorRole),
+                fromPasserIdx: mIdx,
                 fromHand: 0,
                 toPasserIdx: -1,
                 toHand: 0,

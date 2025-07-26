@@ -29,10 +29,10 @@ Several other scrambled patterns work with the same base pattern, for example *A
 The double passes, timing differences, and the extra beat create some challenges, so that not all patterns can be translated into ambled patterns easily, and some not at all. Ambled 3 is one of those patterns that needed a new solution.
 
 <TODO-manipulator-sync >
-A: 4pB3  4pC3  4pB3  4pC -> B
-B: 34pA  3  3  34pA  3  -> C
-C: 33    3 4pA 3  3  3   -> A
-M: .CC   z SAl  (3,IBl) . .     
+A: 4B 3  4C 3  4B 3  4C -- B
+B: 3  4A 3  3  3  4A 3  -- C
+C: 3  3  3  4A 3  3  3  -- A
+M: .  C  z  (SCAd 3) IABe 
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </TODO-manipulator-sync>
