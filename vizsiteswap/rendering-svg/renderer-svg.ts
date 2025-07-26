@@ -49,7 +49,8 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const onlyLayout = renderConfig.components.length === 1 && renderConfig.components[0] === "layout"
     const layoutSize = withLayout ? renderConfig.layoutSize || size.height : 0
 
-    const width = onlyLayout ? layoutSize : size.width + layoutSize
+    const layoutGap = 10
+    const width = onlyLayout ? layoutSize : size.width + layoutSize + layoutGap
     const height = onlyLayout ? layoutSize : Math.max(size.height + tabHeight + turntableHeight, layoutSize)
     const svg = createSVG(width, height).viewbox(0, 0, width, height)
 
@@ -59,7 +60,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const panel = panels[i]
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
-            const rconfig: RendererConfig = tabIds.includes("aidan") ? { ...renderConfig, showRoleColorBackground: false, showLines: true, lineKind: "causal", lineWidth: 2 } : renderConfig
+            const rconfig: RendererConfig = tabIds.includes("aidan") ? { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2, ...config } : renderConfig
             javascript += renderInternal(panel, gp.pattern, getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
                 rconfig)
@@ -85,7 +86,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
         javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
-        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width, tabHeight] })
+        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width+layoutGap, tabHeight] })
     }
     if (withTurntable) {
         const turntableCanvas = svg.group().addClass("turntable")
@@ -236,7 +237,7 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
     const anyRelabel = config.showRelabel && relabel && relabel.some((v) => v !== undefined)
     const size = getRenderPatternSize(pattern, config)
 
-    debugDrawPatternRenderSize(canvas, size)
+    //debugDrawPatternRenderSize(canvas, size)
 
 
     // highlighting of roles in the background (optional)
@@ -370,7 +371,6 @@ function renderInternal(canvas: G, pattern: Pattern, renderedThrows: RenderedThr
     // optionally write role labels in the beginning and relabeling labels at the end
     if (config.showPasserRoles) {
         // console.log(p.relabel)
-        assert(false, "TODO role changes should be shown only for the base rows in aidan notation")
         for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
             canvas.text("").plain(pattern.getRole(0, passerIdx) + ":").
                 addClass("passer-roles").
