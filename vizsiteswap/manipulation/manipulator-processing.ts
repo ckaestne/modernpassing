@@ -423,7 +423,7 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     const manipulatorRowIdx = pattern.getRowIdxByRole(t.beat, t.manipulatorRole)
 
     const existingManipulatorThrow = pattern.findThrow(t.beat, manipulatorRowIdx, undefined)
-    if (existingManipulatorThrow && existingManipulatorThrow.throwLength === 0)
+    if (existingManipulatorThrow && (existingManipulatorThrow.throwLength === 0 || existingManipulatorThrow.throwLength === 2))
         pattern = pattern.removeThrow(existingManipulatorThrow)
     else {
         assert(!existingManipulatorThrow, `existing throw from manipulator on beat ${t.beat} (${JSON.stringify(existingManipulatorThrow)}) where trying to insert new throw ${t.throwLength}${t.toPasserRole}`)
