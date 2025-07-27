@@ -236,7 +236,11 @@ export class PatternImpl implements Pattern {
                 result += t.map(printThrow).join(",")
                 result += "\t"
             }
-            result += `-> ${this.mapRows[rowIdx]} [${this.getRole(this.getLength(), rowIdx)}]${this.mapHands[rowIdx][0] ? "⇆" : ""}${this.mapCrossing[rowIdx][0] ? "X" : ""}`
+            const mapHandsSymbol = (rowIdx: number): string => {
+                if (this.mapHands[rowIdx].length === 1) return this.mapHands[rowIdx][0] ? "⇆" : ""
+                else return "[" + this.mapHands[rowIdx].map(h => h ? "⇆" : "").join(",") + "]"
+            }
+            result += `-> ${this.mapRows[rowIdx]} [${this.getRole(this.getLength(), rowIdx)}]${mapHandsSymbol(rowIdx)}${this.mapCrossing[rowIdx][0] ? "X" : ""}`
             result += "\n"
         }
         return result

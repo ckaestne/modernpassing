@@ -571,18 +571,24 @@ M: .IA -- M`, false]
     }
 })
 test.skip('**broken:** testing crossing/hands validation: manege', async (t) => {
-    const pattern = `A: 7 6 8 7 6 -- B⇆
-         B: ,8 7 6 8 -- AX
+    const pattern = `A: 7 6 8 7 6 -- B
+         B: ,8 7 6 8 -- A
         M: IB, CA -- M`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
 
-    console.log(p.nrRows)
+    p.mapHands[0] = [true]
+    p.mapHands[1] = [true, false]
+    p.mapHands[2] = [false]
+    p.mapCrossing[0] = [true]
+    p.mapCrossing[1] = [true]
+    p.mapCrossing[2] = [true]
     console.log(p.mapHands)
     console.log(p.mapCrossing)
-    p.mapHands[1] = [false, true]
-    console.log(p.mapHands)
+
+    console.log(p.prettyPrintThrows())
+
+
 
     // first pass
     const p7 = p.findThrow(0, 0)!
@@ -590,44 +596,120 @@ test.skip('**broken:** testing crossing/hands validation: manege', async (t) => 
     const p8 = p.findThrow(1, 1)!
     // M's first action (should be same hand as B's reaction)
     const p6 = p.findThrow(5, 2)!
+    // for crossing/straight, let's look at the carry (from the opposite hand than the starting hand)
+    const b7 = p.findThrow(3, 1)!
 
-    p.getThrowHand(p7, 2)
+    for (let quarter = 0; quarter < 13; quarter += 4) {
+        // in the first iteration A starts right, B and M start right
+        assert.equal(p.getThrowHand(p7, quarter + 0), Hand.Right, `A's first throw in iteration 0+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(p8, quarter + 0), Hand.Right, `B's first throw in iteration 0+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(p6, quarter + 0), Hand.Right, `M's first throw in iteration 0+${quarter} should be right hand`)
+
+        // in the second iteration, new A starts right handed, B and M start left handed
+        assert.equal(p.getThrowHand(p7, quarter + 1), Hand.Right, `A's first throw in iteration 1+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(p8, quarter + 1), Hand.Left, `B's first throw in iteration 1+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(p6, quarter + 1), Hand.Left, `M's first throw in iteration 1+${quarter} should be left hand`)
+
+        // in the third iteration, everybody starts left handed
+        assert.equal(p.getThrowHand(p7, quarter + 2), Hand.Left, `A's first throw in iteration 2+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(p8, quarter + 2), Hand.Left, `B's first throw in iteration 2+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(p6, quarter + 2), Hand.Left, `M's first throw in iteration 2+${quarter} should be left hand`)
+
+        // in the fourth iteration, A starts left handed, B and M start right handed
+        assert.equal(p.getThrowHand(p7, quarter + 3), Hand.Left, `A's first throw in iteration 3+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(p8, quarter + 3), Hand.Right, `B's first throw in iteration 3+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(p6, quarter + 3), Hand.Right, `M's first throw in iteration 3+${quarter} should be right hand`)
+    }
+
+    for (let iteration = 0; iteration < 13; iteration++) {
+        assert.equal(isJames(p, p7, iteration), iteration % 2 == 0, "A should be on the james side for every even iteration " + iteration)
+        assert.equal(isJames(p, b7, iteration), !isJames(p, p7, iteration), "B should be on the opposite side of A")
+        // assert.equal(isJames(p, m5, iteration), isJames(p, b5, iteration), "M should always start on the same side as B")
+    }
+
+    console.log("Hand of start A:", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i) ? 'L' : 'R') + (isJames(p, p7, i) ? '‖' : 'X')))
+    console.log("Hand of start B:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(b7, i) ? 'L' : 'R') + (isJames(p, b7, i) ? '‖' : 'X')))
+    // console.log("Hand of start C:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(m5, i) ? 'L' : 'R') + (isJames(p, m5, i) ? '‖' : 'X')))
 
 
-    console.log("Hand of throw 0 (A):", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i) ? 'L' : 'R') + (p.isCrossingPass(p7, i) ? '‖' : 'X')))
-    console.log("Hand of throw 1 (B):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p8, i)))
-    console.log("Hand of throw 5 (M):", Array.from({ length: 13 }, (_, i) => p.getThrowHand(p6, i)))
-
-    // const plan = createAnimationPlan(gp.layout!.animation);
-    // const startLocationA: [number, number] = [0, 0.5] // A then B
-    // const startLocationB: [number, number] = [1, .5] // B before move
-    // const centerLocation: [number, number] = [0.5, 0.5]
-    // plan.
-    // console.log("Location of A:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'A')))
-    // console.log("Location of B:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'B')))
-    // console.log("Location of M:", Array.from({ length: 13 }, (_, i) => locationMgr.getLocationByRole(i, 'M')))
-
-    assert.equal(p.iterationsUntilRepeat(), 12)
-
-    // const roles = p.getInitialRoles()
-    // const result: string[][] = roles.map((r) => [])
-
-    // for (let passerIdx = 0; passerIdx < roles.length; passerIdx++) {
-    //     for (let time = 0; time < p.getLength() * 3; time++) {
-    //         const iteration = Math.floor(time / p.getLength())
-    //         const rowIdx = p.samePasserNBeatsLater(passerIdx, 0, time)
-    //         const t = p.findThrow(time % p.getLength(), rowIdx)
-
-    //         if (t) {
-    //             result[passerIdx].push((t.throwLength + "").slice(0, 1) + p.samePasserNBeatsLater(t.toPasserIdxAtCausal, time, t.throwLength - 4 - iteration * p.getLength()) + (p.getThrowHand(t, iteration) ? 'L' : 'R') + (p.isSelfThrow(t) ? "s" : p.isCrossingPass(t, iteration) ? '∥' : 'X'))
-    //         } else result[passerIdx].push('----')
-    //     }
-    //     console.log(roles[passerIdx] + ': ' + result[passerIdx].join(' '))
-    // }
-    // console.log((p as any).countHurries(), p.iterationsUntilRepeat())
     assert.ok(p.isValid(), p.getValidationError())
 })
 
+
+test('detailed testing crossing/hands validation: 567about', async (t) => {
+    const pattern = `A: 7 6 5 7 6 -- B
+        B: ,5 7 6 5 -- A
+        M: IB, CA -- M`
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+
+    console.log(p.nrRows)
+    // console.log(p.mapHands)
+    // console.log(p.mapCrossing)
+    p.mapHands[0] = [true]
+    p.mapHands[1] = [true, false]
+    p.mapHands[2] = [false]
+    p.mapCrossing[0] = [true]
+    p.mapCrossing[1] = [true]
+    p.mapCrossing[2] = [true]
+    console.log(p.mapHands)
+    console.log(p.mapCrossing)
+
+    console.log(p.prettyPrintThrows())
+
+
+    // first pass
+    const a7 = p.findThrow(0, 0)!
+    // B's reaction (a zap); this is on the opposite site of crossing/straight, but being a 5 vs 7 this should be crossing if a7 is crossing
+    const b5 = p.findThrow(1, 1)!
+    // M's first action two beats later (a self) -- should be same hand as B's reaction
+    const m6 = p.findThrow(5, 2)!
+    // M's last action is a zap, from the opposite hand than b5, but same crossing/straight
+    const m5 = p.findThrow(7, 2)!
+
+
+
+    for (let quarter = 0; quarter < 13; quarter += 4) {
+        // in the first iteration A starts right, B and M start right
+        assert.equal(p.getThrowHand(a7, quarter + 0), Hand.Right, `A's first throw in iteration 0+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(b5, quarter + 0), Hand.Right, `B's first throw in iteration 0+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(m6, quarter + 0), Hand.Right, `M's first throw in iteration 0+${quarter} should be right hand`)
+
+        // in the second iteration, new A starts right handed, B and M start left handed
+        assert.equal(p.getThrowHand(a7, quarter + 1), Hand.Right, `A's first throw in iteration 1+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(b5, quarter + 1), Hand.Left, `B's first throw in iteration 1+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(m6, quarter + 1), Hand.Left, `M's first throw in iteration 1+${quarter} should be left hand`)
+
+        // in the third iteration, everybody starts left handed
+        assert.equal(p.getThrowHand(a7, quarter + 2), Hand.Left, `A's first throw in iteration 2+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(b5, quarter + 2), Hand.Left, `B's first throw in iteration 2+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(m6, quarter + 2), Hand.Left, `M's first throw in iteration 2+${quarter} should be left hand`)
+
+        // in the fourth iteration, A starts left handed, B and M start right handed
+        assert.equal(p.getThrowHand(a7, quarter + 3), Hand.Left, `A's first throw in iteration 3+${quarter} should be left hand`)
+        assert.equal(p.getThrowHand(b5, quarter + 3), Hand.Right, `B's first throw in iteration 3+${quarter} should be right hand`)
+        assert.equal(p.getThrowHand(m6, quarter + 3), Hand.Right, `M's first throw in iteration 3+${quarter} should be right hand`)
+    }
+
+    for (let iteration = 0; iteration < 13; iteration++) {
+        assert.equal(isJames(p, a7, iteration), iteration % 2 == 0, "A should be on the james side for every even iteration " + iteration)
+        assert.equal(isJames(p, b5, iteration), !isJames(p, a7, iteration), "B should be on the opposite side of A")
+        assert.equal(isJames(p, m5, iteration), isJames(p, b5, iteration), "M should always start on the same side as B")
+    }
+    console.log("Hand of start A:", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(a7, i) ? 'L' : 'R') + (isJames(p, a7, i) ? '‖' : 'X')))
+    console.log("Hand of start B:", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(b5, i) ? 'L' : 'R') + (isJames(p, b5, i) ? '‖' : 'X')))
+    console.log("Hand of start C:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(m5, i) ? 'L' : 'R') + (isJames(p, m5, i) ? '‖' : 'X')))
+
+    assert.ok(p.isValid(), p.getValidationError())
+})
+
+// for my sanity, let's not use the internal crossing/straight but see which side we are on
+function isJames(p: Pattern, t: Throw, iteration: number): boolean {
+    assert(t.throwLength === 5 || t.throwLength === 7 || t.throwLength === 9, "This is only for passes, but found " + t.throwLength)
+    if (t.throwLength === 7)
+        return p.isCrossingPass(t, iteration)
+    else return !p.isCrossingPass(t, iteration)
+}
 
 
 Deno.test("zippy", () => {

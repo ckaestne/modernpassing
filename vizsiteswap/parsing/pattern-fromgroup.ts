@@ -36,7 +36,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     const [pattern, manipulatorActions] = createPatternFromRaw(rows, nrHands)
 
     // apply manipulations
-    let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
+    let rewritten = skipRewrite ? pattern : tryHandMapping(applyManipulations(pattern, manipulatorActions))
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
     // infer basic layouts (heuristic)
@@ -202,19 +202,19 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             }
         } else {
             try {
-            const t = convert(throwStr, whoIdx, undefined, when)
-            return {
-                kind: 'T',
-                throwLength: t.throwLength,
-                toPasserRole: roles[pattern.getToPasserIdxAtThrow(t)],
-                fromHand: t.fromHand,
-                isCrossing: t.isCrossing,
-                beat: t.throwBeat,
-                manipulatorRole: who,
-                modifiers
-            }
-            }  catch (e) {
-                throw new Error(`error converting manipulator action ${throwStr} for ${who} at ${when}`, {cause: e})
+                const t = convert(throwStr, whoIdx, undefined, when)
+                return {
+                    kind: 'T',
+                    throwLength: t.throwLength,
+                    toPasserRole: roles[pattern.getToPasserIdxAtThrow(t)],
+                    fromHand: t.fromHand,
+                    isCrossing: t.isCrossing,
+                    beat: t.throwBeat,
+                    manipulatorRole: who,
+                    modifiers
+                }
+            } catch (e) {
+                throw new Error(`error converting manipulator action ${throwStr} for ${who} at ${when}`, { cause: e })
             }
         }
     }
@@ -268,15 +268,22 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 function tryHandMapping(pattern: Pattern): Pattern {
     if (pattern.isValid()) return pattern
 
+    // for 4hsw with 3 or more passers, we also try [true, false] as hand mapping, which is sometimes needed
+    // we avoid it otherwise to not explode the search space
+    const tryTrueFalseMapping = pattern.nrRows > 2 && pattern.nrHands === 4
+
     let results: Pattern[] = []
     // aggressively try all combinations, brute force
-    const combinations = (length: number): boolean[][] => {
+    const combinations = (length: number): boolean[][][] => {
         if (length === 0) return [[]];
         const smaller = combinations(length - 1);
-        return smaller.flatMap(c => [c.concat(true), c.concat(false)]);
+        if (tryTrueFalseMapping)
+            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]]), c.concat([[true, false]]), c.concat([[false, true]])]);
+        else
+            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]])]);
     };
 
-    const mappingCombinations = combinations(pattern.nrRows).map(c => c.map(v => [v]));
+    const mappingCombinations = combinations(pattern.nrRows);
     for (const mapCrossing of mappingCombinations) {
         for (const mapHands of mappingCombinations) {
             const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
@@ -288,8 +295,8 @@ function tryHandMapping(pattern: Pattern): Pattern {
         }
     }
 
-    assert(results.length <= 1, `multiple valid patterns found when trying hand/crossing mapping: ${results.map(r => JSON.stringify(r.mapHands)+"/"+JSON.stringify(r.mapCrossing)+"@"+r.iterationsUntilRepeat()+"h"+(r as any).countHurries()).join('; ')}`)
-    if (results.length=== 1) return results[0]
+    assert(results.length <= 1, `multiple valid patterns found when trying hand/crossing mapping: ${results.map(r => JSON.stringify(r.mapHands) + "/" + JSON.stringify(r.mapCrossing) + "@" + r.iterationsUntilRepeat() + "h" + (r as any).countHurries()).join('; ')}`)
+    if (results.length === 1) return results[0]
     if (results.length > 1) {
         console.error(`multiple valid patterns found when trying hand/crossing mapping; returning first one`)
         return results[0]
