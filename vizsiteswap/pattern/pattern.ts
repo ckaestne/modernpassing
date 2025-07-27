@@ -147,6 +147,7 @@ export interface Pattern {
      * (hopefully clearer version of adjustRowIdxByTime)
      */
     samePasserNBeatsLater(rowIdx: number, currentTime: Time, timeDelta: number): number
+ 
     /**
      * another version of the same idea for convenience -- find which row 
      * the passer on rowIdx at currentTime will be at newTime
@@ -158,6 +159,12 @@ export interface Pattern {
      * @param newTime time for which an updated rowIdx is needed
      */
     samePasserOtherTime(rowIdx: number, currentTime: Time, newTime: number): number
+
+    /**
+     * helper function to do the same transformation as `samePasserOtherTime`
+     * but with roles
+     */
+    samePasserOtherTimeByRole(role: Role, currentTime: Time, newTime: Time): Role
 
 
 
@@ -370,14 +377,14 @@ export interface SubstitutionMarker extends ThrowMarker {
     fromRole: Role, // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
     toRoleAtThrow: Role,
     modifiers: string
-} 
+}
 export interface InterceptMarker extends ThrowMarker {
     kind: 'I',
     fromRole: Role,
     originalToRoleAtThrow: Role, // actually to manipulator
     originalThrowLength: number,
     modifiers: string
-} 
+}
 export interface CarryMarker extends ThrowMarker {
     kind: 'C',
     originalFromRole: Role, // actually from manipulator

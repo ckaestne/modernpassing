@@ -4,7 +4,7 @@
 //  * generally takes a base pattern with a layout and adjusts it for the manipulators
 //  */
 
-import { type Pattern, type Role, type CarryMarker, type InterceptMarker, type SubstitutionMarker, Hand } from "@modernpassing/pattern";
+import { type Pattern, type Role, type CarryMarker, type InterceptMarker, type SubstitutionMarker, Hand, Throw } from "@modernpassing/pattern";
 import assert from "node:assert";
 import type { GroupPatternLayoutSpec, PositionSpec, RelativeMovementSpec } from "@modernpassing/layout";
 import { AnimationSpec } from "../layout/animation-spec.ts";
@@ -34,11 +34,11 @@ import { setMaxIdleHTTPParsers } from "node:http";
 
 
 
-export function applyManipulatorLayout(initialLayout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
+export function applyManipulatorLayout(initialLayout: GroupPatternLayoutSpec, pattern: Pattern, basePattern: Pattern): GroupPatternLayoutSpec {
     if (initialLayout.animation) {
         return {
             ...initialLayout,
-            animation: applyManipulatorAnimationLayout(pattern, initialLayout.animation)
+            animation: applyManipulatorAnimationLayout(pattern, basePattern, initialLayout.animation)
         }
     }
     return initialLayout
@@ -59,9 +59,9 @@ export function applyManipulatorLayout(initialLayout: GroupPatternLayoutSpec, pa
  * @param initialLayout initial layout of the base pattern, with positions and movement, but without manipulators
  * @returns updated layout with manipulator positions/movement added
  */
-export function applyManipulatorAnimationLayout(pattern: Pattern, initialLayout: AnimationSpec): AnimationSpec {
+export function applyManipulatorAnimationLayout(pattern: Pattern, basePattern: Pattern, initialLayout: AnimationSpec): AnimationSpec {
 
-    const relativeMovements = getRelativeMovementsFromPatter(pattern);
+    const relativeMovements = getRelativeMovementsFromPattern(pattern, basePattern);
 
     const manipulatorRoles: Role[] = [];
     for (const t of pattern.throws)
@@ -72,14 +72,14 @@ export function applyManipulatorAnimationLayout(pattern: Pattern, initialLayout:
 
         }
     manipulatorRoles.sort()
-    // Group positions by manipulator role
-    const initialManipulatorPositions: PositionSpec[] = []
-    const firstMovementPerManipulator: Record<Role, RelativeMovementSpec[]> = manipulatorRoles.reduce((acc, role) => {
-        acc[role] = relativeMovements
-            .filter(position => position.role === role)
-            .sort((a, b) => ((a.onBeat + a.duration) % a.mod) - (b.onBeat + b.duration) % b.mod);
-        return acc;
-    }, {} as Record<Role, RelativeMovementSpec[]>);
+    // // Group positions by manipulator role
+    // const initialManipulatorPositions: PositionSpec[] = []
+    // const firstMovementPerManipulator: Record<Role, RelativeMovementSpec[]> = manipulatorRoles.reduce((acc, role) => {
+    //     acc[role] = relativeMovements
+    //         .filter(position => position.role === role)
+    //         .sort((a, b) => ((a.onBeat + a.duration) % a.mod) - (b.onBeat + b.duration) % b.mod);
+    //     return acc;
+    // }, {} as Record<Role, RelativeMovementSpec[]>);
 
 
     const newLayout: AnimationSpec = {
@@ -151,7 +151,7 @@ function mod(va: number, len: number): number {
     return v % len;
 }
 
-export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMovementSpec[] {
+export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: Pattern): RelativeMovementSpec[] {
     const relativeMovements: RelativeMovementSpec[] = [];
 
     for (const t of pattern.throws) {
@@ -167,7 +167,7 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
             //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
             const duration = 1
 
-            const needToConsiderHandedness = marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o");
+            const needToConsiderHandedness = (marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o")) && differentThrowHandAcrossIterations(pattern, t)
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
             const mod = pattern.getLength() * iterations
             for (let iteration = 0; iteration < iterations; iteration++) {
@@ -242,7 +242,7 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
             const moveToInterceptDuration = 1 // let's just assume a short movement for now
 
 
-            const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b");
+            const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b") && differentThrowHandAcrossIterations(pattern, t)
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
             const mod = pattern.getLength() * iterations
             for (let iteration = 0; iteration < iterations; iteration++) {
@@ -304,20 +304,24 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
                     positionSpec
                 });
             }
-            // once the pass lands, the prior manipulator (now in its new role) will go to the position of the manipulated
+            // once the intercepted throw would have landed, the prior manipulator (now in its new role) will go to the position of the manipulated
             const landingOffset = pattern.nrHands;
             const moveAfterInterceptDuration = 1 // let's just assume a short movement to the position
             const when = (t.throwBeat + marker.originalThrowLength - landingOffset + pattern.getLength()) % pattern.getLength()
+            // figuring out the right role in the base pattern(!) to go to. it is usually the role of the interceptee, but we are moving one beat later
+            // so at that time there may have been relabeling already. however, we cannot use relabeling from `pattern` here since
+            // this already includes switches with the manipulator
+            const roleOfIntercepteeOnMovementStart = basePattern.samePasserOtherTimeByRole(marker.originalToRoleAtThrow, t.throwBeat, t.throwBeat + marker.originalThrowLength - landingOffset)
             // console.log(`After intercept on ${t.throwBeat} by ${manipulatorRole}, is now ${marker.originalToRoleAtThrow} moving on ${when} to ${marker.originalToRoleAtThrow}'s position`);
             relativeMovements.push({
                 onBeat: when,
                 mod: pattern.getLength(),
                 duration: moveAfterInterceptDuration,
-                role: marker.originalToRoleAtThrow, // this is after the role swap
+                role: roleOfIntercepteeOnMovementStart, // this is after the role swap
                 targetRoleTime: "onBeat",
                 positionSpec: {
                     type: "take",
-                    toRole: marker.originalToRoleAtThrow // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
+                    toRole: roleOfIntercepteeOnMovementStart // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
                 },
                 bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
             });
@@ -329,13 +333,21 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
             const manipulatorRole = pattern.getFromPasserRole(t)
             const duration = 1 // let's just assume a quick movement for now
             //TODO this should probably be timed relative to the intercept, not the carry pass, but for now, let's just move the beat before the carry
-            const onBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
+            const actionBeat = t.throwBeat
+            const movementBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
             // the manipulator changes on the iBeat, which is the earliest possible carry. However if we want to leave 1 beat before the carry, it may still be the original role
-            const role = marker.carryDelay < 1 ? marker.originalFromRole : manipulatorRole
+            const roleOnAction = manipulatorRole
+            const roleIdxOnAction = pattern.getRowIdxByRole(actionBeat, roleOnAction)
+            const roleOnMovementStart = pattern.getRole(actionBeat-duration, roleIdxOnAction)
+
+            const movementTime = marker.carryDelay < 1 ? movementBeat + 0.5 : movementBeat
+            const actualDuration = marker.carryDelay < 1 ? duration - 0.5 : duration; 
 
             // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
             relativeMovements.push({
-                onBeat, role, duration,
+                onBeat: movementTime, 
+                role: roleOnMovementStart, 
+                duration: actualDuration,
                 mod: pattern.getLength(),
                 targetRoleTime: "arrival",
                 positionSpec: {
@@ -358,3 +370,16 @@ export function getRelativeMovementsFromPatter(pattern: Pattern): RelativeMoveme
 // function getBasePasserPositions(layout: AnimationLayout): [BasePasserLocationRecord[], number/*mod*/] {
 
 // }
+
+
+function differentThrowHandAcrossIterations(pattern:Pattern, t: Throw): boolean {
+    // if the throw hand is different across iterations, we need to consider handedness
+    const throwHand = pattern.getThrowHand(t, 0);
+    for (let i = 1; i < pattern.iterationsUntilRepeat(); i++) {
+        if (pattern.getThrowHand(t, i) !== throwHand) {
+            return true;
+        }
+    }
+    return false;
+
+}

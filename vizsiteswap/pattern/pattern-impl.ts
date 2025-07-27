@@ -168,6 +168,18 @@ export class PatternImpl implements Pattern {
         return this.samePasserNBeatsLater(rowIdx, currentTime, newTime - currentTime)
     }
 
+    /**
+     * helper function to do the same transformation as `samePasserOtherTime`
+     * but with roles
+     * @param role 
+     * @param currentTime 
+     * @param newTime 
+     * @returns 
+     */
+    samePasserOtherTimeByRole(role: Role, currentTime: Time, newTime: Time): Role {
+        const rowIdxAtCurrentTime = this.getRowIdxByRole(currentTime, role)
+        return this.getRole(newTime, rowIdxAtCurrentTime)
+    }
 
     prettyPrintThrows(withColor?: boolean): string {
         setColorEnabled(withColor !== false)

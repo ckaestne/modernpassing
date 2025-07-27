@@ -65,7 +65,6 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
 
 function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle: number): (passSpec: PassSpec) => PassAnimation[] {
     const relativeArmLength = 1/ canvasSizeByPasserCircle *.9
-    console.error(relativeArmLength, canvasSizeByPasserCircle)
     return (passSpec: PassSpec): PassAnimation[] => {
 
         const result: PassAnimation[] = []
@@ -198,7 +197,7 @@ export class LocationMgr {
 
     getFutureLocationByRole(timeOfLocation: number, timeOfRoleIdentification: number, role: Role): [number, number] {
         if (this.manipulatorPositions.has(role)) {
-            console.warn(`Cannot (yet?) get future location for manipulator role ${role}/${timeOfRoleIdentification} at time ${timeOfLocation}. Assuming they do not move`);
+            // console.warn(`Cannot (yet?) get future location for manipulator role ${role}/${timeOfRoleIdentification} at time ${timeOfLocation}. Assuming they do not move`);
             return this.getManipulatorLocation(timeOfLocation, role)
         }
 
@@ -456,12 +455,11 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
             if (startTime % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
                 // we need to compute the position of the manipulator at this time
                 let toX: number, toY: number;
-                const arrivalTime = (startTime + relativeMovementSpec.duration) % locationMgr.mod;
+                const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % locationMgr.mod);
                 const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
 
                 // console.log("computeRelativeMovement", time, locationTime, relativeMovementSpec)
                 let takeRelativeMovementFrom: [number, Role] | undefined = undefined
-                locationMgr.getLocationByRole
                 if (relativeMovementSpec.positionSpec.type === "take") {
                     [toX, toY] = locationMgr.getFutureLocationByRole(arrivalTime, roleTime, relativeMovementSpec.positionSpec.toRole)
                     // after we "take" a position, we continue that animation if it is moving on an animation -- we record the role+beat of that animation to find it in the frontend

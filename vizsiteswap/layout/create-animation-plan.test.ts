@@ -95,20 +95,20 @@ move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,
 
 
 Deno.test("first attempt at manipulator animation", () => {
-    const unscambledB = `A: 3pB3 3pC3 3pB3 -- B
-B: 3pA3 33   3pA3 -- C
-C: 33   3pA3 33   -- A
-M: IB.CB.SA.
-positions: V(A,B,C)`
+//     const unscambledB = `A: 3pB3 3pC3 3pB3 -- B
+// B: 3pA3 33   3pA3 -- C
+// C: 33   3pA3 33   -- A
+// M: IB.CB.SA.
+// positions: V(A,B,C)`
     const scambledV = `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
 M: CB.SB.IC
 positions: V(A,B,C)`
-    const roundabout = `A: 3pB3 33   3pB3 33 -- B
-         B: 3pA3 33   3pA3 33  -- A
-         M: SB z SB z  IB . CB z
-positions: Line(A,B)`
+//     const roundabout = `A: 3pB3 33   3pB3 33 -- B
+//          B: 3pA3 33   3pA3 33  -- A
+//          M: SB z SB z  IB . CB z
+// positions: Line(A,B)`
     const gp: GroupPattern = createSyncGroupPattern(scambledV)
     const plan = createAnimationPlan(gp.layout!.animation, 10);
     // console.log(plan)
@@ -126,6 +126,13 @@ positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(scambledV)
     const spec = gp.layout!.animation
+
+    // on beat 5 we should take C's position
+    const r5 = spec.relativeMovements.find(r => r.onBeat === 5 && r.positionSpec.type === 'take')
+    assert(r5, "Relative movement on beat 5 exists")
+    assert(r5.positionSpec.type === 'take' && r5.positionSpec.toRole === 'C', "Relative movement on beat 5 is a take to C's position"+JSON.stringify(r5.positionSpec))
+
+
     const plan = createAnimationPlan(spec, 10);
 
     const locationMgr = computeBaseAnimations(gp.layout!.animation)
@@ -269,7 +276,7 @@ positions: Line(A,B)`
     assertEqualLocation(xy(m2), startLocationB, "B at original position on beat 3");
 
     // new new manipulator may need to move somewhat early to do the carry on beat 3, so leaving on beat 2, when they are still B
-    const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 2)
+    const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 2.5)
     assert(m3, "B movement on beat 2 exists")
     assertLocationBetween(xy(m3), startLocationA, centerLocation, "B moving toward A on beat 2");
 
@@ -432,6 +439,80 @@ O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
     const plan = createAnimationPlan(spec, 10);
 })
 
+test("check positions for MiniEd", () => {
+    const pattern = `A: 3pB 3pC 3  3pB 3   3 -- B
+B: 3pA 3   3  3pA 3pC 3 -- C
+C: 3   3pA 3  3   3pB 3 -- A
+M: CB  .   SBe .   SCl  IC↻ 
+positions: VL(A,B,C)
+move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
+
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const spec = gp.layout!.animation
+
+
+    const carryMovement = spec.relativeMovements.find(m => m.onBeat===5.5)!
+    // the carry movement is started by C, who will be M when they arrive
+    assert(carryMovement.role === 'C', "Carry movement is started by C");
+    // the carry is between A and B (arrival roles)
+    assert(carryMovement.positionSpec.type==='between' &&
+        carryMovement.positionSpec.between![0] === 'A' &&
+        carryMovement.positionSpec.between![1] === 'B', "Carry movement is between A and B");
+
+    // intercept on 5, so movement on 4
+    const interceptMovement = spec.relativeMovements.find(m => m.onBeat === 4)!
+    // movement by M to in front of C
+    assert(interceptMovement.role === 'M', "Intercept movement is by M");
+    assert(interceptMovement.positionSpec.type === 'infront' && interceptMovement.positionSpec.toRole === 'C', "Intercept movement is in front of C");
+    
+    // after the intercept on beat 0, M is now A (would be C, but immediately relabeled to A) and should take A's position
+    const swapAfterInterceptMovement = spec.relativeMovements.find(m => m.onBeat === 0)!
+    assert(swapAfterInterceptMovement.role === 'A', "After intercept, M is now A");
+    assert(swapAfterInterceptMovement.positionSpec.type === 'take' && swapAfterInterceptMovement.positionSpec.toRole === 'A', "After intercept, M is now A at A's position");
+    
+
+
+
+
+    const plan = createAnimationPlan(spec, 10);
+
+    const locationMgr = computeBaseAnimations(gp.layout!.animation)
+    const startLocationA: [number, number] = [0.5, 0] // A then B
+    const startLocationB: [number, number] = [0.75, 0.933] // B before move
+    const startLocationC: [number, number] = [0.25, 0.933] // C then A
+    const centerLocation: [number, number] = [0.5, 0.5]
+    const moveLocationB: [number, number] = [.933, .25] // B after move, now C
+    const cAfterMovingLocation: [number, number] = [.067,0.25]
+    const aAfterMovingLocation: [number, number] = [1,0.5] 
+
+    // initial positions
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'A')!), startLocationA, "A at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'B')!), startLocationB, "B at start");
+    assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'C')!), startLocationC, "C at start");
+    // M should be in front of B
+    assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationB, centerLocation, "M at start");
+
+    // C walks after 1
+    assertEqualLocation(locationMgr.getLocationByRole(1.9, 'C'), startLocationC, "C at start");
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'C'), cAfterMovingLocation, "C after moving");
+
+    // A walks after 3
+    assertEqualLocation(locationMgr.getLocationByRole(3.9, 'A'), startLocationA, "A at start");
+    assertEqualLocation(locationMgr.getLocationByRole(5.9, 'A'), aAfterMovingLocation, "A after moving");
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), aAfterMovingLocation, "A, now B after moving");
+
+    // the carry starts on beat 5.5 and should arrive on beat 6. M should now be between A and B
+    const carryPlan = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 5.5)
+    assertLocationBetween(xy(carryPlan!), cAfterMovingLocation/*now A*/,aAfterMovingLocation/*now B*/, "Carry movement is between A and B on beat 5.5");
+
+    // the beat after the intercept (0), M is now C, relabeled to A and should move toward A's position (cAfterMovingLocation), where they should arrive on beat 1
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'A'), cAfterMovingLocation, "A at a beat after the start of the second iteration");
+    const mFinalMovePlan = plan.directMovementAnimations.find(m => m.role === 'A' && m.onBeat === 6)
+    assert(mFinalMovePlan, "Final movement plan for A exists");
+    assertEqualLocation(xy(mFinalMovePlan), cAfterMovingLocation, "A moving toward A's position on beat 6");
+
+
+})
 
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
     if ('toX' in pos) {

@@ -43,7 +43,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     layout = layout ?? inferDefaultLayout(rows, movement)
 
     const patternLayout = !layout ? undefined :
-        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten), pattern, rewritten)
+        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten, pattern), pattern, rewritten)
 
 
 

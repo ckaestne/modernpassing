@@ -69,14 +69,14 @@ The 5-person pattern is a north-wall pattern with two sides, but the two 4-perso
 
 **MiniEd.** MiniEd is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three count (C on beat 2 and A on beat 4) as the base pattern. 
 
-<TODO-manipulator-sync video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
+<sync-group video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
 A: 3pB 3pC 3  3pB 3   3 -- B
 B: 3pA 3   3  3pA 3pC 3 -- C
 C: 3   3pA 3  3   3pB 3 -- A
 M: CB  .   SBe .   SCl  IC↻ 
 positions: VL(A,B,C)
 move: Vmove(C,1.9,2)Vmove(A,3.9,2)
-</TODO-manipulator-sync>
+</sync-group>
 
 
 

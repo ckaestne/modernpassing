@@ -434,7 +434,7 @@ export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>)
     const size = getRenderPatternSize(p, renderConfig)
     const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height)
     const patternCanvas = svg.group()
-    renderInternal(patternCanvas, p, getThrowsFromPattern(p, renderConfig.iterations, renderConfig), getRelabel(p), renderConfig)
+    renderInternal(patternCanvas, p, p.getInitialRoles(), getThrowsFromPattern(p, renderConfig.iterations, renderConfig), getRelabel(p), renderConfig)
 
 
     return svg
