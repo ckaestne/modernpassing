@@ -193,7 +193,7 @@ export function setDirectMovements(data: Data, directMovementAnimations: DirectM
             const pos = getPositionByRole(data, spec.role)
             const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY, spec.bend);
             // console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
-            const directMoveAnimation = animateMoveOnPath(data, pos, path, delay, spec.duration);
+            const directMoveAnimation = animateMoveOnPath(data, pos, path, delay, spec.duration-.1);
 
             if (spec.takeRelativeMovementFrom) {
                 const id = spec.takeRelativeMovementFrom[0] + spec.takeRelativeMovementFrom[1]
@@ -431,6 +431,7 @@ class CustomMovementRunner {
         animation.during((relativeProgress: number) => {
             if (this.aborted) return
             const p = path.pointAt(relativeProgress * path.length());
+            updateLocation(pos, p.x, p.y);
             pos.svgCircle.center(p.x, p.y);
         })
 

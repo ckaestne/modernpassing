@@ -44,20 +44,23 @@ test("render first animation (star with a hole)", async (t) => {
             {
                 pass: rpass("A", "D"),
                 onBeat: 0,
-                duration: 1,
-                mod: 4
+                displayDuration: 1,
+                mod: 4,
+                throwLength: 3,
             },
             {
                 pass: rpass("C", "A"),
                 onBeat: 0,
-                duration: 1,
-                mod: 4
+                displayDuration: 1,
+                mod: 4,
+                throwLength: 3,
             },
             {
                 pass: rpass("D", "B"),
                 onBeat: 0,
-                duration: 1,
-                mod: 4
+                displayDuration: 1,
+                mod: 4,
+                throwLength: 3,
             },
         ],
         baseMovementSegments: [move(2, 4), move(0, 2), move(3, 0), move(1, 3), move(4, 1)],

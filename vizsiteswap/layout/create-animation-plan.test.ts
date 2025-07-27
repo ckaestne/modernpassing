@@ -512,7 +512,32 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
     assertEqualLocation(xy(mFinalMovePlan), cAfterMovingLocation, "A moving toward A's position on beat 6");
 
 
+    // M walks on 3 for the substitution on 4
+    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    assert(m1, "M movement on beat 3 exists")
+    assertLocationBetween(xy(m1), startLocationB, cAfterMovingLocation, "M in between B and C when arriving on 4");
+
+    // M then walks again on 4 for the intercept on 5
+    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 4)
+    assert(m2, "M movement on beat 4 exists")
+    assertLocationBetween(xy(m2), cAfterMovingLocation, centerLocation, "M in front of C on beat 5");
+
+    // the subsitution on beat 4 should be with M's position in the middle, all three passes should be parallel?
+    // Actually, no, the pass from B to M goes to where M will be a beat later and the pass from 
+    // M to C goes from where M is now, so unfortuntately while it looks wonky it is kind of correct
+    // However, isn't the pass from B to M a pelf (1), so it should probably be seen as arriving immediately?
+    const ps = plan.passAnimations.filter(p => p.onBeat === 4)
+    assert(ps.length === 3, "Three passes on beat 4")
+    const angles = ps.map(p => (Math.atan2(p.toY - p.fromY, p.toX - p.fromX)+Math.PI)%Math.PI)
+    assert(angles[0] === angles[1] && angles[1] === angles[2], "All three passes on beat 4 should be parallel "+ JSON.stringify(angles));
+
+
 })
+
+
+
+
+
 
 function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
     if ('toX' in pos) {

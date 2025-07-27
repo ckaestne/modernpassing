@@ -41,14 +41,14 @@ positions: V(A,B,C)
 
 **BrunEd.** *BrunEd* was an early attempt to have a 4-person pattern with the *[MinuEd](6e-northwall.md)* manipulator sequence, using a pass-pass-self version of *[Bruno's nightmare](7-appendix-brunos.md)* as a base pattern. This one is very challenging for the feeder, who needs to pass around the manipulator to various different locations. It has not caught on.
 
-<TODO-manipulator-sync video="https://passing.zone/bruned/">
+<sync-group video="https://passing.zone/bruned/">
 A: 3pB 3pC 3  3pB 3pC 3  3pB 3pC 3 -- B
 B: 3pA 3   3  3pA 3   3  3pA 3   3 -- C
 C: 3   3pA 3  3   3pA 3  3   3pA 3 -- A
 M: CB  .   .  SA  .   SA .   SC  IC
 positions: Brunos(A,B,C)
-move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
-</TODO-manipulator-sync>
+move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,4)
+</sync-group>
 
 There is no equivalence of a north-wall pattern for 3 passers and a manipulator where everybody cycles to the pattern both left and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two jugglers doing the right side of the pattern and two jugglers doing the left side, without ever swapping.
 

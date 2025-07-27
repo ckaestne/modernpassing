@@ -76,7 +76,8 @@ export type PassSpec = {
     pass: PassLayoutSpec,
     onBeat: number,
     mod: number, // default to length of the pattern
-    duration: number,
+    displayDuration: number, // how long the pass is shown, in beats
+    throwLength: number, // the actual length of the passing throw
 }
 /**
  * movement is more complex -- 

@@ -93,6 +93,7 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
                 const fromHand = pattern.getThrowHand(t, iteration)
                 const toPasserRoleAtThrow = pattern.getToPasserRole(t)
                 const toHand = pattern.getTargetHand(t, iteration)
+                const displayDuration = Math.max(pattern.getThrowCauseLength(t), pattern.nrHands === 4 ? 2 : 1) // for 4 hands, we show the pass for a minimum of two beats, otherwise one
                 passAnimations.push({
                     pass: {
                         fromRole: fromPasserRole,
@@ -103,7 +104,8 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
                     },
                     onBeat: timeOffset + t.throwBeat,
                     mod: completePatternLength,
-                    duration: pattern.nrHands === 4 ? 2 : 1,
+                    displayDuration,
+                    throwLength: t.throwLength,
                 })
                 // console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
             }

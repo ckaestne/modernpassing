@@ -71,7 +71,9 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
         for (let time = passSpec.onBeat; time < locationMgr.mod; time += passSpec.mod) {
             const [fromX, fromY] = locationMgr.getLocationByRole(time, passSpec.pass.fromRole)
             // get location for the "to" position, at the beat that the pass arrives (role may have changed, we use the role at the time the pass is thrown to identify the target passer)
-            const [toX, toY] = locationMgr.getFutureLocationByRole((time + passSpec.duration) % locationMgr.mod, time, passSpec.pass.toRole)
+            // for zaps (pelfs in takeouts), we use the location where the passer starts, not the location where they will be when the arrow is no longer shown
+            const arrivalTime = passSpec.throwLength <= 2 ? time : time + passSpec.displayDuration
+            const [toX, toY] = locationMgr.getFutureLocationByRole(arrivalTime % locationMgr.mod, time, passSpec.pass.toRole)
 
             // in the first iteration, a walking passer might start in the wrong space, we need to handle this separately
             // TODO for now let's just assume the passer is not also walking immediately on beat 0 and is not walking longer to deal with passes on other beats
@@ -84,7 +86,7 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
                         computePass(fromX, toX, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, relativeArmLength, 0.01)
                     result.push({
                         onBeat: time,
-                        duration: passSpec.duration,
+                        duration: passSpec.displayDuration,
                         firstIteration: true,
 
                         fromX: fromHandX,
@@ -102,7 +104,7 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
                 computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
             result.push({
                 onBeat: time,
-                duration: passSpec.duration,
+                duration: passSpec.displayDuration,
                 firstIteration,
 
                 fromX: fromHandX,
