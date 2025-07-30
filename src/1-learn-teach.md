@@ -14,7 +14,7 @@ In the following I assume a more experienced *teacher* and a less experienced *s
 
 *Illustration of the four passes between the teacher (T) and the student (S).*
 
-Use this first step to practice passes, watch them land, and correct with the next throw if needed. Passes will often be too spiny, too short, too fast, or too low. Passes should be lofty and should be caught with an open hand facing the other passer roughly at shoulder height, maybe 10 to 20 cm (4-8 inch) diagonally in front of the shoulder. It is a good exercise for the teacher (a) to hold the empty hand where they want to catch the club as a reference point for the student to aim for, and (b) to provide feedback on what to correct.
+Use this first step to practice passes, watch them land, and correct with the next throw if needed. Passes will often be too spinny, too short, too fast, or too low. Passes should be lofty and should be caught with an open hand facing the other passer roughly at shoulder height, maybe 10 to 20 cm (4-8 inch) diagonally in front of the shoulder. It is a good exercise for the teacher (a) to hold the empty hand where they want to catch the club as a reference point for the student to aim for, and (b) to provide feedback on what to correct.
 
 [TODO: Photo of where to catch]
  
