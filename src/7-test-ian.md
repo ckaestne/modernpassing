@@ -6,13 +6,13 @@
 
 (created by Maria, reconstructed from memory and changed directions)
 
-<todo-siteswap-group>
+<siteswap-group>
 A: 7B 6 7Cx 827Cx -- B
-B: , a67A67 -- C⇆
+B: , a67A67x -- C!
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 Notes:
@@ -25,8 +25,8 @@ Notes:
 
 <pre>
 A: 7B 6 7Cx 827Cx -- B
-B: , a67A67 -- C⇆
-C: !, 66a67Ax -- A
+B: , a 6 7A 6 7x -- C!
+C: !, 6 6 a 6 7Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
 </pre>
@@ -37,13 +37,13 @@ move: Vmove(B, 7, 5)
 
 This longer version has a left and a right side (starting left handed and right handed) and is thus much longer.
 
-<todo-siteswap-group>
+<siteswap-group>
 A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, 887A66887A67 -- C
+B: !, 887A66887A67x -- C⇆
 C: , 66887Ax66887Ax -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 Same notes as for the shorter version above.
@@ -51,8 +51,9 @@ Same notes as for the shorter version above.
 
 <pre>
 A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, 887A66887A67 -- C
-C: , 66887Ax66887Ax -- A⇆
+B: !, 8 8 7A 6 6 8 8 7A 6 7x -- C⇆
+C: ,  6 6 8 8 7Ax 6 6 8 8 7Ax -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
 </pre>
+
