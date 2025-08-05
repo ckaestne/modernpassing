@@ -57,12 +57,25 @@ positions: V(A,B,C)
 move: Vmove(B, 17, 1)
 </pre>
 
+
+## Maria's original version
+
+
+<siteswap-group>
+A: 7B 6 7Cx 8 2 7B 6 6 8 8 7B -- C
+B: , 88 7A 6 6 8 8 7A 6 6 -- A!
+C: !, 6 6 8 8 7Ax 6 6 6 6 7 -- B
+positions: VL(A,B,C)
+move: Vmove(C, 11, 5)
+</siteswap-group>
+
+
 ## Martin's one count vs Why not
 
 <siteswap-group>
-A: 7B 7Cx 7B 7Cx 2 7Cx -- B
-B: , 8 2 7A 6 7x -- C!
-C: !, 7Ax 8 2 7Ax 6  -- A
+A: !7B 7Cx 7B 7Cx 2 7Cx -- B
+B: !, 8 2 7A 6 7x -- C!
+C: , 7Ax 8 2 7Ax 6  -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 2)
 </siteswap-group>
@@ -70,9 +83,9 @@ move: Vmove(B, 7, 2)
 
 
 <siteswap-group>
-A: 7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 7Cx -- B⇆
-B: , 8 2 7A 6 7A 8 2 7A 6 7x -- C⇆
-C: !, 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A⇆
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 7Cx -- B⇆
+B: !, 8 2 7A 6 7A 8 2 7A 6 7x -- C⇆
+C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 2)
 </siteswap-group>
