@@ -89,3 +89,11 @@ C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 2)
 </siteswap-group>
+
+<siteswap-group>
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 6 7Cx -- B!
+B: !, 8 2 7A 6 7A 8 2 7A 6 6 7x  -- C
+C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6 6  -- A
+positions: V(A,B,C)
+move: Vmove(B, 17, 4)
+<siteswap-group>
