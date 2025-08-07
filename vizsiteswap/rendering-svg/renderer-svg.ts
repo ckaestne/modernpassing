@@ -366,8 +366,9 @@ function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], rende
             }
 
             // TODO make this configurable where the labels are printed
-            const offset = t.fromPasserIdx === 0 ? -config.throwCircleSize / 2 : config.throwCircleSize / 2;
-            const baseline = t.fromPasserIdx === 0 ? "text-after-edge" : "text-before-edge"
+            const showAbove = pattern.nrRows === 2 ? t.fromPasserIdx === 0 : t.fromPasserIdx <= 1
+            const offset = showAbove ? -config.throwCircleSize / 2 : config.throwCircleSize / 2;
+            const baseline = showAbove ? "text-after-edge" : "text-before-edge"
 
             canvas.text("").tspan(text.join(" ")).
                 amove(xo(t.throwTime), yo(t.fromPasserIdx, t.fromHand) + offset).
