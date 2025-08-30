@@ -420,7 +420,7 @@ Deno.test("hands, 720", () => {
 
 
 function sw(p: number[]): Pattern {
-    assert(p.length%2===1, "Pattern must be odd length")
+    assert(p.length % 2 === 1, "Pattern must be odd length")
     const ts: Throw[] = []
 
     function isCrossing(l: number, isA: boolean): boolean {
@@ -432,8 +432,8 @@ function sw(p: number[]): Pattern {
 
     // const d = createPattern([{fromPasserIdx:0,toPasserIdxAtCausal:0,fromHand:0,isCrossing:false,throwLength:2,throwBeat:p.length-1}], 4, [1, 0], ['A', 'B'], [[false], [true]], [[true], [true]]) as PatternImpl
     for (let i = 0; i < p.length; i++) {
-        const causalTime = i+p[i] - 4
-        const targetPasserNow = (i + p[i] + Math.floor(causalTime/p.length)) % 2
+        const causalTime = i + p[i] - 4
+        const targetPasserNow = (i + p[i] + Math.floor(causalTime / p.length)) % 2
         ts.push({ fromPasserIdx: i % 2, fromHand: i % 4 < 2 ? Hand.Right : Hand.Left, isCrossing: isCrossing(p[i], i % 2 === 0), throwBeat: i, throwLength: p[i], toPasserIdxAtCausal: targetPasserNow })
     }
 
@@ -453,23 +453,23 @@ Deno.test("starting hands, various siteswaps", () => {
     assert.deepEqual(sw([9, 9, 6]).getStartingHands(), [[2, 2], [2, 2]])
     assert.deepEqual(sw([6, 9, 9]).getStartingHands(), [[3, 1], [2, 2]])
     assert.deepEqual(sw([9, 9, 9]).getStartingHands(), [[3, 2], [2, 2]])
-    assert.deepEqual(sw([7,7,7,2,2]).getStartingHands(), [[2, 1], [1, 1]])
+    assert.deepEqual(sw([7, 7, 7, 2, 2]).getStartingHands(), [[2, 1], [1, 1]])
     assert.deepEqual(sw([9]).getStartingHands(), [[3, 2], [2, 2]])
 
-    assert.deepEqual(sw([9,7,2]).getStartingHands(), [[1, 2], [2, 1]])
-    assert.deepEqual(sw([7,2,9]).getStartingHands(), [[3, 1], [2, 0]])
-    assert.deepEqual(sw([2,9,7]).getStartingHands(), [[2,1], [1,2]])
+    assert.deepEqual(sw([9, 7, 2]).getStartingHands(), [[1, 2], [2, 1]])
+    assert.deepEqual(sw([7, 2, 9]).getStartingHands(), [[3, 1], [2, 0]])
+    assert.deepEqual(sw([2, 9, 7]).getStartingHands(), [[2, 1], [1, 2]])
 
-    assert.deepEqual(sw([7,2,0]).getStartingHands(), [[2, 0], [1, 0]])
-    assert.deepEqual(sw([2,0,7]).getStartingHands(), [[1, 1], [0,1]])
-    assert.deepEqual(sw([0,7,2]).getStartingHands(), [[0, 1], [2,0]])
+    assert.deepEqual(sw([7, 2, 0]).getStartingHands(), [[2, 0], [1, 0]])
+    assert.deepEqual(sw([2, 0, 7]).getStartingHands(), [[1, 1], [0, 1]])
+    assert.deepEqual(sw([0, 7, 2]).getStartingHands(), [[0, 1], [2, 0]])
 
 })
 
 
 Deno.test("hands, 10 club brunos", () => {
-    function self(from: number, when: number, swapHands: boolean=false): Throw {
-        return { fromPasserIdx: from, fromHand: (when%4<2) !==swapHands? Hand.Right:Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when+2>20 ? 1 : 0))%3 }
+    function self(from: number, when: number, swapHands: boolean = false): Throw {
+        return { fromPasserIdx: from, fromHand: (when % 4 < 2) !== swapHands ? Hand.Right : Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when + 2 > 20 ? 1 : 0)) % 3 }
     }
     // this requires the weird transition between siteswap sides (with a 7 as a high self) and the unusual handling of straight/crossing passes
     const pattern = createPattern([
@@ -506,11 +506,11 @@ Deno.test("hands, 10 club brunos", () => {
         self(2, 15, true),
         self(2, 17, true),
         self(2, 19, true),
-    ], 4, [1, 2, 0], ['A', 'B','C'], [[true], [true],[true]], [[false], [false],[false]]) as PatternImpl
+    ], 4, [1, 2, 0], ['A', 'B', 'C'], [[true], [true], [true]], [[false], [false], [false]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
-    assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2,1],[1,2]])
+    assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2, 1], [1, 2]])
     assert.equal(pattern.iterationsUntilRepeat(), 6)
 
 })
@@ -523,8 +523,8 @@ Deno.test.ignore("**broken:** pattern validation with crossingMapping", () => {
     C: !, 66a67Ax -- A
     */
 
-     function self(from: number, when: number, swapHands: boolean=false): Throw {
-        return { fromPasserIdx: from, fromHand: (when%4<2) !==swapHands? Hand.Right:Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when+2>20 ? 1 : 0))%3 }
+    function self(from: number, when: number, swapHands: boolean = false): Throw {
+        return { fromPasserIdx: from, fromHand: (when % 4 < 2) !== swapHands ? Hand.Right : Hand.Left, isCrossing: true, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when + 2 > 20 ? 1 : 0)) % 3 }
     }
     // this requires the weird transition between siteswap sides (with a 7 as a high self) and the unusual handling of straight/crossing passes
     const pattern = createPattern([
@@ -544,13 +544,77 @@ Deno.test.ignore("**broken:** pattern validation with crossingMapping", () => {
         { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 1, throwLength: 6, toPasserIdxAtCausal: 2 },
         { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 3, throwLength: 6, toPasserIdxAtCausal: 2 },
         { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 5, throwLength: 10, toPasserIdxAtCausal: 0 /*C*/ },
-        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 7, throwLength: 6, toPasserIdxAtCausal: 2 },   
+        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 7, throwLength: 6, toPasserIdxAtCausal: 2 },
         { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 9, throwLength: 7, toPasserIdxAtCausal: 1 /*A*/ },
-    ], 4, [1, 2, 0], ['A', 'B','C'], [[false], [true],[false]], [[false], [false],[false]]) as PatternImpl
+    ], 4, [1, 2, 0], ['A', 'B', 'C'], [[false], [true], [false]], [[false], [false], [false]]) as PatternImpl
 
     console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
-    assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2,1],[1,2]])
+    assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2, 1], [1, 2]])
     assert.equal(pattern.iterationsUntilRepeat(), 6)
 
+})
+
+
+
+Deno.test.only("hand sequence modeling for siteswap takeout in manage", () => {
+
+    const intercepted7FromA = { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 0, throwLength: 7, toPasserIdxAtCausal: 2 }//intercepted
+    const carried7FromB = { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: false, throwBeat: 3, throwLength: 7, toPasserIdxAtCausal: 0 }//carry
+    const firstHeffFromM = { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: false, throwBeat: 7, throwLength: 8, toPasserIdxAtCausal: 0 }
+    const t = [
+        intercepted7FromA,
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 2, throwLength: 6, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: false, throwBeat: 4, throwLength: 8, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Left, isCrossing: true, throwBeat: 6, throwLength: 7, toPasserIdxAtCausal: 0 },
+        { fromPasserIdx: 0, fromHand: Hand.Right, isCrossing: true, throwBeat: 8, throwLength: 6, toPasserIdxAtCausal: 1 },
+
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: false, throwBeat: 1, throwLength: 8, toPasserIdxAtCausal: 2 },
+        carried7FromB,
+        { fromPasserIdx: 1, fromHand: Hand.Right, isCrossing: false, throwBeat: 5, throwLength: 4, toPasserIdxAtCausal: 1 },//fill
+        { fromPasserIdx: 1, fromHand: Hand.Left, isCrossing: false, throwBeat: 7, throwLength: 0, toPasserIdxAtCausal: 1 },//fill
+
+        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: false, throwBeat: 1, throwLength: 1, toPasserIdxAtCausal: 1 },//fill
+        { fromPasserIdx: 2, fromHand: Hand.Left, isCrossing: true, throwBeat: 3, throwLength: 2, toPasserIdxAtCausal: 2 },//fill
+        { fromPasserIdx: 2, fromHand: Hand.Right, isCrossing: true, throwBeat: 5, throwLength: 6, toPasserIdxAtCausal: 2 },
+        firstHeffFromM
+    ]
+    const p = createPattern(t, 4, [1, 2, 0], ["A", "B", "M"], [[true], [false], [false]], [[true], [false], [true]], [false, true, false], [Hand.Right, Hand.Right, Hand.Right]) as PatternImpl
+
+
+
+    console.log(p.iterationsUntilRepeat())
+    console.log(p.prettyPrintThrows())
+
+    console.log(p.throws[5])
+    console.log(p.getThrowHand(p.throws[5], 0))
+    console.log(p.getTargetHand(p.throws[5], 0))
+    console.log(p.getThrowHand(p.throws[5], 1))
+    console.log(p.getTargetHand(p.throws[5], 1))
+    console.log(p.getTargetHandFirstIteration(p.throws[5]))
+
+    const handStartSequenceA = [Hand.Right, Hand.Right, Hand.Left, Hand.Left]
+    const handStartSequenceBM = [Hand.Right, Hand.Left, Hand.Left, Hand.Right]
+    const crossingSequenceA = [false, true]
+    const crossingSequenceBM = [true, false]
+
+    for (let iteration = 0; iteration < 25; iteration++) {
+        
+        assert.equal(p.getThrowHand(intercepted7FromA, iteration), handStartSequenceA[iteration%handStartSequenceA.length],
+            `Intercepted pass thrown from hand ${p.getThrowHand(intercepted7FromA, iteration)} in iteration ${iteration}, expected ${handStartSequenceA[iteration%handStartSequenceA.length]}`)
+        // the carry is from the opposite of the starting hand
+        assert.equal(p.getThrowHand(carried7FromB, iteration), 1-handStartSequenceBM[iteration%handStartSequenceBM.length],
+            `Carried pass thrown from hand ${p.getThrowHand(carried7FromB, iteration)} in iteration ${iteration}, expected ${1-handStartSequenceBM[iteration%handStartSequenceBM.length]}`)
+        // M should start the same side as B
+        assert.equal(p.getThrowHand(firstHeffFromM, iteration), p.getThrowHand(carried7FromB, iteration),
+            `First heff from M thrown from hand ${p.getThrowHand(firstHeffFromM, iteration)} in iteration ${iteration}, expected ${p.getThrowHand(carried7FromB, iteration)}`)
+
+        assert.equal(p.isCrossingPass(intercepted7FromA, iteration), !crossingSequenceA[iteration%crossingSequenceA.length],
+            `Intercepted pass crossing status in iteration ${iteration} is ${p.isCrossingPass(intercepted7FromA, iteration)}, expected ${!crossingSequenceA[iteration%crossingSequenceA.length]}`)
+        assert.equal(p.isCrossingPass(carried7FromB, iteration), !crossingSequenceBM[iteration%crossingSequenceBM.length],
+            `Carried pass crossing status in iteration ${iteration} is ${p.isCrossingPass(carried7FromB, iteration)}, expected ${!crossingSequenceBM[iteration%crossingSequenceBM.length]}`)
+    }
+
+
+    assert.ok(p.isValid(), p.getValidationError())
 })

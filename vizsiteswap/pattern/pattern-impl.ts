@@ -19,9 +19,10 @@ export class PatternImpl implements Pattern {
     // hands
     readonly mapHands: boolean[][]
     readonly mapCrossing: boolean[][]
+    readonly mapCopy: boolean[]
     readonly initialHands: Hand[]
 
-    constructor(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], initialHands?: Hand[], patternLength?: number) {
+    constructor(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], mapCopy?: boolean[], initialHands?: Hand[], patternLength?: number) {
         this.throws = throws
         this.nrHands = nrHands
         this.mapRows = mapRows
@@ -34,6 +35,7 @@ export class PatternImpl implements Pattern {
         this.nrRows = mapRows.length
         this.mapHands = mapHands ?? Array(mapRows.length).fill([false])
         this.mapCrossing = mapCrossing ?? Array(mapRows.length).fill([false])
+        this.mapCopy = mapCopy ?? Array(mapRows.length).fill(false)
         this.initialHands = initialHands ?? Array(mapRows.length).fill(Hand.Right)
         this.length = patternLength
     }
@@ -236,14 +238,19 @@ export class PatternImpl implements Pattern {
                 result += t.map(printThrow).join(",")
                 result += "\t"
             }
-            const mapHandsSymbol = (rowIdx: number): string => {
-                if (this.mapHands[rowIdx].length === 1) return this.mapHands[rowIdx][0] ? "⇆" : ""
-                else return "[" + this.mapHands[rowIdx].map(h => h ? "⇆" : "").join(",") + "]"
-            }
-            result += `-> ${this.mapRows[rowIdx]} [${this.getRole(this.getLength(), rowIdx)}]${mapHandsSymbol(rowIdx)}${this.mapCrossing[rowIdx][0] ? "X" : ""}`
+            result += `-> ${this.mapRows[rowIdx]} [${this.getRole(this.getLength(), rowIdx)}]${this.printMapSymbols(rowIdx)}`
             result += "\n"
         }
         return result
+    }
+
+    printMapSymbols(rowIdx: number): string {
+        if (this.mapCopy[rowIdx]) return "◯"
+        const mapHandsSymbol = (rowIdx: number): string => {
+            if (this.mapHands[rowIdx].length === 1) return this.mapHands[rowIdx][0] ? "⇆" : ""
+            else return "[" + this.mapHands[rowIdx].map(h => h ? "⇆" : "").join(",") + "]"
+        }
+        return mapHandsSymbol(rowIdx) + (this.mapCrossing[rowIdx][0] ? "X" : "")
     }
 
 
@@ -282,11 +289,11 @@ export class PatternImpl implements Pattern {
 
     addThrow(newThrow: Throw): Pattern {
         const newThrows = [...this.throws, newThrow]
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.initialHands)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.mapCopy, this.initialHands)
     }
     removeThrow(thatThrow: Throw): Pattern {
         const newThrows = this.throws.filter(t => t !== thatThrow)
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.initialHands)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.mapHands, this.mapCrossing, this.mapCopy, this.initialHands)
     }
 
     /** 
@@ -305,9 +312,9 @@ export class PatternImpl implements Pattern {
         // on its own
 
         return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]),
-            this.mapHands.length<=newRowIdx ? this.mapHands.concat([[this.getLength() % 2 === 1]]):this.mapHands,
-            this.mapCrossing.length<=newRowIdx ? this.mapCrossing.concat([[false]]):this.mapCrossing,
-            undefined, this.length)
+            this.mapHands.length <= newRowIdx ? this.mapHands.concat([[this.getLength() % 2 === 1]]) : this.mapHands,
+            this.mapCrossing.length <= newRowIdx ? this.mapCrossing.concat([[false]]) : this.mapCrossing,
+            undefined, undefined, this.length)
     }
 
     hasRole(manipulatorRole: string): boolean {
@@ -371,7 +378,7 @@ export class PatternImpl implements Pattern {
         // assert(this.mapCrossing.every((v) => v.every(x=>!x)), `TODO: mapCrossing not implemented for swapRoles (${this.mapCrossing})`)
         // assert.deepEqual(this.mapHands[rowIdxA], this.mapHands[rowIdxB], "TODO: mapHands not implemented for mapHands with different values")
 
-        return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.mapHands, this.mapCrossing, this.initialHands)
+        return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.mapHands, this.mapCrossing, this.mapCopy, this.initialHands)
     }
 
     private validationError: string | undefined = undefined
@@ -470,10 +477,10 @@ export class PatternImpl implements Pattern {
                 const toHand = this.getTargetHand(t, iteration)
                 const causedThrow = foundThrown[t.toPasserIdxAtCausal][this.getTargetHandFirstIteration(t)][causeBeat]
                 if (!causedThrow && this.nrHands === 4 && t.markers?.some(m => m.kind === 'I')) continue //TODO ignore without incoming intercept for now
-                assert(causedThrow, `cannot find caused throw on beat ${causeBeat} for throw ${t.toPasserIdxAtCausal}/${this.getTargetHandFirstIteration(t)? "L" : "R"} at time ${causeTime} (iteration ${iteration}) -- ${JSON.stringify(t)}`)
+                assert(causedThrow, `cannot find caused throw on beat ${causeBeat} for throw ${t.toPasserIdxAtCausal}/${this.getTargetHandFirstIteration(t) ? "L" : "R"} at time ${causeTime} (iteration ${iteration}) -- ${JSON.stringify(t)}`)
                 const causedThrowHand = this.getThrowHand(causedThrow, Math.floor(causeTime / this.getLength()))
                 if (toHand !== causedThrowHand) {
-                    this.validationError = `crossing/straight: ${this.isCrossingPass(t, iteration)?"‖":"X" } throw at time ${time} (beat ${t.throwBeat}) "${t.throwLength}${this.getRole(causeBeat, t.toPasserIdxAtCausal)}${t.isCrossing ? "X" : ""}" from ${t.fromPasserIdx}/${fromHand?"L" : "R"} is thrown to ${t.toPasserIdxAtCausal}/${toHand?"L" : "R"} but the caused throw is thrown from ${t.toPasserIdxAtCausal}/${causedThrowHand?"L" : "R"} at time ${causeTime}`
+                    this.validationError = `crossing/straight: ${this.isCrossingPass(t, iteration) ? "‖" : "X"} throw at time ${time} (beat ${t.throwBeat}) "${t.throwLength}${this.getRole(causeBeat, t.toPasserIdxAtCausal)}${t.isCrossing ? "X" : ""}" from ${t.fromPasserIdx}/${fromHand ? "L" : "R"} is thrown to ${t.toPasserIdxAtCausal}/${toHand ? "L" : "R"} but the caused throw is thrown from ${t.toPasserIdxAtCausal}/${causedThrowHand ? "L" : "R"} at time ${causeTime}`
                     return false
                 }
             }
@@ -546,8 +553,14 @@ export class PatternImpl implements Pattern {
         return this.prefixLength
     }
     isSwappedHands(rowIdx: number, iteration: number): boolean {
+        // if we are just copying from another row, let's compute and return the values of that row
+        const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
+        const isMapCopy = this.mapCopy[previousRowIdx]!
+        if (isMapCopy)
+            return this.isSwappedHands(previousRowIdx, iteration)
+
+
         if (iteration > 0) {
-            const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
             const previousSwap = this.mapHands[previousRowIdx]!
             const didSwap = previousSwap[(iteration - 1) % previousSwap.length]!
             return didSwap !== this.isSwappedHands(previousRowIdx, iteration - 1)
@@ -562,6 +575,13 @@ export class PatternImpl implements Pattern {
         return false
     }
     isSwappedCrossing(rowIdx: number, iteration: number): boolean {
+        // if we are just copying from another row, let's compute and return the values of that row
+        const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
+        const isMapCopy = this.mapCopy[previousRowIdx]!
+        if (isMapCopy)
+            return this.isSwappedCrossing(previousRowIdx, iteration)
+
+
         if (iteration > 0) {
             const previousRowIdx = this.mapRows.findIndex(r => r === rowIdx)
             const previousSwap = this.mapCrossing[previousRowIdx]!
@@ -612,6 +632,7 @@ export class PatternImpl implements Pattern {
     }
 
     isSelfThrow(t: Throw): boolean {
+        // if (this.nrHands === 4) return t.throwLength % 2 === 0
         return t.fromPasserIdx === this.getToPasserIdxAtThrow(t)
     }
 
@@ -652,26 +673,45 @@ export class PatternImpl implements Pattern {
     countHurries(): number {
         let hurryCount = 0;
 
-        const findNextThrow = (t: Throw, distance: number): [Throw | undefined, number] => {
-            // searching the immediate next for 2handed patterns, and the next three (usually only distance 2, but allow for weird wraps) for 4handed patterns
-            if (distance > 1 && this.nrHands===2) return [undefined, 0] 
-            if (distance > 3) return [undefined, 0]
+        // const findNextThrow = (t: Throw, distance: number): [Throw | undefined, number] => {
+        //     // searching the immediate next for 2handed patterns, and the next three (usually only distance 2, but allow for weird wraps) for 4handed patterns
+        //     if (distance > 1 && this.nrHands===2) return [undefined, 0] 
+        //     if (distance > 3) return [undefined, 0]
 
-            const nextTime = t.throwBeat + distance
-            const nextBeat = nextTime % this.getLength();
-            const nextIteration = Math.floor(nextTime / this.getLength());
-            const samePasserNextBeat = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, nextTime-t.throwBeat)
-            const nextThrow = this.findThrow(nextBeat, samePasserNextBeat)
-            if (!nextThrow) return findNextThrow(t, distance + 1)
-            return [nextThrow, nextIteration]
+        //     const nextTime = t.throwBeat + distance
+        //     const nextBeat = nextTime % this.getLength();
+        //     const nextIteration = Math.floor(nextTime / this.getLength());
+        //     const samePasserNextBeat = this.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, nextTime-t.throwBeat)
+        //     const nextThrow = this.findThrow(nextBeat, samePasserNextBeat)
+        //     if (!nextThrow) return findNextThrow(t, distance + 1)
+        //     return [nextThrow, nextIteration]
+        // }
+
+        // for (const t of this.throws) {
+        //     const [nextThrow, nextIteration] = findNextThrow(t, 1)
+        //     if (nextThrow && this.getThrowHand(t, 0) === this.getThrowHand(nextThrow, nextIteration))
+        //         hurryCount++;
+
+        // }
+
+        for (let time = 0; time < this.getLength() * this.iterationsUntilRepeat(); time++) {
+            for (let rowIdx = 0; rowIdx < this.nrRows; rowIdx++) {
+                const r = this.samePasserOtherTime(rowIdx, 0, time)
+                const t1 = this.findThrows(time % this.getLength(), r, undefined)
+
+                const nextTime = time + this.nrHands / 2
+                const r2 = this.samePasserOtherTime(rowIdx, 0, nextTime)
+                const t2 = this.findThrows(nextTime % this.getLength(), r2, undefined)
+
+                if (t1.length === 0 && t2.length === 0) {/*if no throws on either beat, ignore it*/ }
+                else if (t1.length === 0 || t2.length === 0) { }//hurryCount++
+                else if (t1.length === 1 && t2.length === 1) {
+                    if (this.getThrowHand(t1[0], Math.floor(time / this.getLength())) === this.getThrowHand(t2[0], Math.floor(nextTime / this.getLength())))
+                        hurryCount++
+                } else console.warn(`unclear how to handle ${JSON.stringify(t1)} and ${JSON.stringify(t2)} at time ${time} for row ${rowIdx} (${this.getRole(time, rowIdx)})`)
+            }
         }
 
-        for (const t of this.throws) {
-            const [nextThrow, nextIteration] = findNextThrow(t, 1)
-            if (nextThrow && this.getThrowHand(t, 0) === this.getThrowHand(nextThrow, nextIteration))
-                hurryCount++;
-
-        }
         return hurryCount;
     }
 }

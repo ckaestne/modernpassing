@@ -49,3 +49,4 @@ Deno.test("invalid prefix throws: to a hand not throwing on that beat", () => {
 
     assert.ok(!p.isValid())
 })
+

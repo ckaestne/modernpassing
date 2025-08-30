@@ -274,22 +274,23 @@ function tryHandMapping(pattern: Pattern): Pattern {
 
     let results: Pattern[] = []
     // aggressively try all combinations, brute force
-    const combinations = (length: number): boolean[][][] => {
+    const combinations = (length: number, tryTrueFalseMapping: boolean): boolean[][][] => {
         if (length === 0) return [[]];
-        const smaller = combinations(length - 1);
+        const smaller = combinations(length - 1, tryTrueFalseMapping);
         if (tryTrueFalseMapping)
-            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]]), c.concat([[true, false]]), c.concat([[false, true]])]);
+            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]]), c.concat([[true, false]])/*, c.concat([[false, true]])*/]);
         else
             return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]])]);
     };
 
-    const mappingCombinations = combinations(pattern.nrRows);
-    for (const mapCrossing of mappingCombinations) {
-        for (const mapHands of mappingCombinations) {
+    const mapCrossingCombinations = combinations(pattern.nrRows, false)
+    const mapHandsCombinations = combinations(pattern.nrRows, tryTrueFalseMapping)
+    for (const mapCrossing of mapCrossingCombinations) {
+        for (const mapHands of mapHandsCombinations) {
             const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
             if (p.isValid()) {
-                if (results.length > 0 && results[0].iterationsUntilRepeat() > p.iterationsUntilRepeat()) results = []
-                if (results.length > 0 && results[0].iterationsUntilRepeat() < p.iterationsUntilRepeat()) continue
+                // if (results.length > 0 && results[0].iterationsUntilRepeat() > p.iterationsUntilRepeat()) results = []
+                // if (results.length > 0 && results[0].iterationsUntilRepeat() < p.iterationsUntilRepeat()) continue
                 results.push(p);
             }
         }

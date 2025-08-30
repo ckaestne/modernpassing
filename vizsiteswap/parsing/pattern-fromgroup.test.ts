@@ -570,21 +570,22 @@ M: .IA -- M`, false]
         printAndCheckValidity(pattern, expectValid)
     }
 })
-test.skip('**broken:** testing crossing/hands validation: manege', async (t) => {
+test('**broken:** testing crossing/hands validation: manege', async (t) => {
     const pattern = `A: 7 6 8 7 6 -- B
          B: ,8 7 6 8 -- A
         M: IB, CA -- M`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
 
-    p.mapHands[0] = [true]
-    p.mapHands[1] = [true, false]
-    p.mapHands[2] = [false]
-    p.mapCrossing[0] = [true]
-    p.mapCrossing[1] = [true]
-    p.mapCrossing[2] = [true]
-    console.log(p.mapHands)
-    console.log(p.mapCrossing)
+    // p.mapHands[0] = [true]
+    // p.mapHands[1] = [true, false]
+    // p.mapHands[2] = [false]
+    // p.mapCrossing[0] = [true]
+    // p.mapCrossing[1] = [true]
+    // p.mapCrossing[2] = [true]
+    // console.log(p.mapHands)
+    // console.log(p.mapCrossing)
+    // console.log((p as any).countHurries())
 
     console.log(p.prettyPrintThrows())
 
@@ -622,6 +623,13 @@ test.skip('**broken:** testing crossing/hands validation: manege', async (t) => 
     }
 
     for (let iteration = 0; iteration < 13; iteration++) {
+        // the first heff of B is thrown with the hand opposite to the target hand of the first past from A
+        assert.notEqual (       p.getTargetHand(p7, iteration),        p.getThrowHand(p8, iteration))
+        assert.equal(p.getThrowHand(p8, iteration), p.getTargetHand(p8, iteration), "B's heff is never crossing "+iteration)
+
+    }
+
+    for (let iteration = 0; iteration < 13; iteration++) {
         assert.equal(isJames(p, p7, iteration), iteration % 2 == 0, "A should be on the james side for every even iteration " + iteration)
         assert.equal(isJames(p, b7, iteration), !isJames(p, p7, iteration), "B should be on the opposite side of A")
         // assert.equal(isJames(p, m5, iteration), isJames(p, b5, iteration), "M should always start on the same side as B")
@@ -636,6 +644,32 @@ test.skip('**broken:** testing crossing/hands validation: manege', async (t) => 
 })
 
 
+test('testing crossing/hands validation: 744about', async (t) => {
+    const pattern = `A: 7 4 4 7 4 -- BX
+        B: ,4 7 4 4 -- A
+        M: IB, CA -- M`
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+    console.log(p.nrRows)
+    console.log(p.iterationsUntilRepeat())
+    console.log(p.mapHands)
+    console.log(p.mapCrossing)
+    console.log(p.isValid(), p.getValidationError())
+
+    p.mapHands[0] = [true]
+    p.mapHands[1] = [true, false]
+    p.mapHands[2] = [false]
+    p.mapCrossing[0] = [true]
+    p.mapCrossing[1] = [true]
+    p.mapCrossing[2] = [true]
+    console.log(p.mapHands)
+    console.log(p.mapCrossing);
+    console.log((p as any).countHurries())
+
+    console.log(p.prettyPrintThrows())
+    assert(p.isValid(), p.getValidationError())
+})
+
 test('detailed testing crossing/hands validation: 567about', async (t) => {
     const pattern = `A: 7 6 5 7 6 -- B
         B: ,5 7 6 5 -- A
@@ -644,8 +678,8 @@ test('detailed testing crossing/hands validation: 567about', async (t) => {
     const p = gp.pattern
 
     console.log(p.nrRows)
-    // console.log(p.mapHands)
-    // console.log(p.mapCrossing)
+    console.log(p.mapHands)
+    console.log(p.mapCrossing)
     p.mapHands[0] = [true]
     p.mapHands[1] = [true, false]
     p.mapHands[2] = [false]
@@ -710,6 +744,37 @@ function isJames(p: Pattern, t: Throw, iteration: number): boolean {
         return p.isCrossingPass(t, iteration)
     else return !p.isCrossingPass(t, iteration)
 }
+
+
+
+
+test.only('testing crossing/hands validation: whynot-vs-popcorn walking feed', async (t) => {
+    const pattern = `A: 7B 6 7Cx 827Cx -- B
+B: , a67A67 -- C
+C: !, 66a67Ax -- A
+positions: V(A,B,C)
+move: Vmove(B, 7, 5)`
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const p = gp.pattern
+    console.log(p.nrRows)
+    console.log(p.iterationsUntilRepeat())
+    console.log(p.mapHands)
+    console.log(p.mapCrossing)
+    console.log(p.isValid(), p.getValidationError())
+
+    p.mapHands[0] = [true]
+    p.mapHands[1] = [true, false]
+    p.mapHands[2] = [false]
+    p.mapCrossing[0] = [true]
+    p.mapCrossing[1] = [true]
+    p.mapCrossing[2] = [true]
+    console.log(p.mapHands)
+    console.log(p.mapCrossing);
+    console.log((p as any).countHurries())
+
+    console.log(p.prettyPrintThrows())
+    assert(p.isValid(), p.getValidationError())
+})
 
 
 Deno.test("zippy", () => {

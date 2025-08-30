@@ -253,9 +253,11 @@ export interface Pattern {
      * mapping happens at the end of a period, like mapRows
      * - mapHands = true for a row indicates that the passer next for this row switches left and right hands to be opposite of those of the first period (two trues switch back). If there is an array of n switches, they are only applied every n periods to model longer more complicated sequences
      * - mapCrossing = true for a row indicates that the next passer switches straight and crossing passes compared to those in the first period (two trues switch back). If there is an array of n switches, they are only applied every n periods to model longer more complicated sequences
+     * - mapCopy = true for a row indicates that the passer keeps the same hands and crossing as the passer in the previous position is starting now (ignores mapCross and mapHands for this row if true)
      **/
     readonly mapHands: boolean[][] // swapping of labels for subsequent rounds; false = same hand, true = flipped left/right; one entry per row, entry contains array for n-periods until the pattern repeats (often just 1 or is entirely mirrored)
     readonly mapCrossing: boolean[][]
+    readonly mapCopy: boolean[]
     readonly initialHands: Hand[] // initial hands for each passer for the first beat of the pattern (not counting prefix throws); undefined for default for all right-handed
 
     /**
@@ -437,8 +439,8 @@ export type CarryAction = {
 
 
 
-export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], initialHands?: Hand[], patternLength?: number): Pattern {
-    return new PatternImpl(throws, nrHands, mapRows, roles, mapHands, mapCrossing, initialHands, patternLength)
+export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], mapCopy?: boolean[], initialHands?: Hand[], patternLength?: number): Pattern {
+    return new PatternImpl(throws, nrHands, mapRows, roles, mapHands, mapCrossing, mapCopy, initialHands, patternLength)
 }
 
 export function createThrow(
