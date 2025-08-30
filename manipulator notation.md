@@ -31,7 +31,7 @@ Modifiers for `S`, `I` and `C` relevant for movement and understanding the orien
 `↓` -- placement from above (default for self substitution) -- does not affect rendering
 
 
-`o` -- substitute/intercept from **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
+`o` -- substitute/intercept from or carry to **o**utside of the passing lane (inside is the default), only for early and late substitutions (`eo`, `lo`) and very late intercepts (`vo`; to the right of the receiver for a right-handed pass). For crossing passes, outside is relative to the receiving side.
 `x` -- substitute/intercept from outside of the *opposite* passing lane (opposite side of the pattern to `o`). Used primarily to indicate turning out to the *left* for a right-handed very late intercept (`vx`). For crossing passes, outside is relative to the receiving side.
 `b` -- intercept very late from **b**ehind the target's location
 

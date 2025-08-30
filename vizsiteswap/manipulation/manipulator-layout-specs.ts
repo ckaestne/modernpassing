@@ -165,9 +165,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
 
             //for a substitution, I want to be there on the substitution beat, so let's move one beat earlier
             //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
-            const duration = 1
+            const duration = pattern.nrHands/2
 
-            const needToConsiderHandedness = (marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o")) && differentThrowHandAcrossIterations(pattern, t)
+            const needToConsiderHandedness = (marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o")) && differentThrowOrTargetHandAcrossIterations(pattern, t)
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
             const mod = pattern.getLength() * iterations
             for (let iteration = 0; iteration < iterations; iteration++) {
@@ -239,14 +239,14 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
             // const moveToInterceptDuration = pattern.getThrowCauseLength(t)-.01 // let's arrive a tiny moment before the actual intercept so that we don't change roles yet
 
             // TODO for now let's just assume standard 2-beat patterns, where we can move 1 beat before the intercept beat to arrive on the intercept beat (not when the intercept arrives), even though we could move a beat later
-            const moveToInterceptDuration = 1 // let's just assume a short movement for now
+            const moveToInterceptDuration = pattern.nrHands/2 // let's just assume a short movement for now
 
 
-            const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b") && differentThrowHandAcrossIterations(pattern, t)
+            const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b") && differentThrowOrTargetHandAcrossIterations(pattern, t)
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
             const mod = pattern.getLength() * iterations
             for (let iteration = 0; iteration < iterations; iteration++) {
-                const leavingTime = (t.throwBeat - moveToInterceptDuration + iteration*pattern.getLength()+mod) % mod
+                const leavingTime = (t.throwBeat - moveToInterceptDuration + iteration * pattern.getLength() + mod) % mod
 
                 let positionSpec: RelativeMovementSpec["positionSpec"]
                 if (marker.fromRole === marker.originalToRoleAtThrow) {
@@ -331,34 +331,49 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
         if (t.markers?.some(m => m.kind === "C")) {
             const marker: CarryMarker = t.markers!.find(m => m.kind === "C") as CarryMarker;
             const manipulatorRole = pattern.getFromPasserRole(t)
-            const duration = 1 // let's just assume a quick movement for now
+            const duration = pattern.nrHands/2 // let's just assume a quick movement for now
             //TODO this should probably be timed relative to the intercept, not the carry pass, but for now, let's just move the beat before the carry
             const actionBeat = t.throwBeat
             const movementBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
             // the manipulator changes on the iBeat, which is the earliest possible carry. However if we want to leave 1 beat before the carry, it may still be the original role
             const roleOnAction = manipulatorRole
             const roleIdxOnAction = pattern.getRowIdxByRole(actionBeat, roleOnAction)
-            const roleOnMovementStart = pattern.getRole(actionBeat-duration, roleIdxOnAction)
+            const roleOnMovementStart = pattern.getRole(actionBeat - duration, roleIdxOnAction)
 
             const movementTime = marker.carryDelay < 1 ? movementBeat + 0.5 : movementBeat
-            const actualDuration = marker.carryDelay < 1 ? duration - 0.5 : duration; 
+            const actualDuration = marker.carryDelay < 1 ? duration - 0.5 : duration;
 
-            // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
-            relativeMovements.push({
-                onBeat: movementTime, 
-                role: roleOnMovementStart, 
-                duration: actualDuration,
-                mod: pattern.getLength(),
-                targetRoleTime: "arrival",
-                positionSpec: {
-                    type: "between",
-                    between: [marker.originalFromRole, marker.toRoleAtThrow],
-                    side: 0.4, // stand in front of target
-                    offset: 0, // stand in the passing lane // TODO distinguish different carries
-                    direction: 0 // face the receiver
-                },
-                bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
-            });
+            const needToConsiderHandedness = marker.modifiers.includes("o") && differentThrowOrTargetHandAcrossIterations(pattern, t)
+            const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
+            const mod = pattern.getLength() * iterations
+            for (let iteration = 0; iteration < iterations; iteration++) {
+                const leavingTime = (movementTime + iteration * pattern.getLength() + mod) % mod
+
+                // by default stand in the passing lane
+                let offset = 0
+                if (marker.modifiers.includes("o")) {
+                    // console.log('o'+ pattern.getTargetHand(t, iteration))
+                    offset = .2 //pattern.getTargetHand(t, iteration) === Hand.Left ? 0.2 : -0.2
+                }
+
+
+                // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
+                relativeMovements.push({
+                    onBeat: leavingTime,
+                    role: roleOnMovementStart,
+                    duration: actualDuration,
+                    mod: pattern.getLength(),
+                    targetRoleTime: "arrival",
+                    positionSpec: {
+                        type: "between",
+                        between: [marker.originalFromRole, marker.toRoleAtThrow],
+                        side: 0.4, // stand in front of target
+                        offset,
+                        direction: 0 // face the receiver
+                    },
+                    bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
+                });
+            }
         }
 
 
@@ -372,11 +387,12 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
 // }
 
 
-function differentThrowHandAcrossIterations(pattern:Pattern, t: Throw): boolean {
+function differentThrowOrTargetHandAcrossIterations(pattern: Pattern, t: Throw): boolean {
     // if the throw hand is different across iterations, we need to consider handedness
     const throwHand = pattern.getThrowHand(t, 0);
+    const targetHand = pattern.getTargetHand(t, 0)
     for (let i = 1; i < pattern.iterationsUntilRepeat(); i++) {
-        if (pattern.getThrowHand(t, i) !== throwHand) {
+        if (pattern.getThrowHand(t, i) !== throwHand || pattern.getTargetHand(t, i) !== targetHand) {
             return true;
         }
     }

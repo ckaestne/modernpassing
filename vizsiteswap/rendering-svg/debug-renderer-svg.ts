@@ -40,7 +40,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         const toRole = pattern.getToPasserRole(t)
         // const printRole = fromRole !== toRole ? toRole : ""
         const markers = t.markers ? t.markers.filter(m => m.kind !== 'B' && m.kind !== 'M') : []
-        const printType = markers.length === 0 ? "" : markers.map(m=>m.kind).join("")
+        const printType = markers.length === 0 ? "" : markers.map(m => m.kind).join("")
         const hand = pattern.getThrowHand(t, 0)
         const isCrossing = pattern.isSelfThrow(t) ? "" : (pattern.isCrossingPass(t, 0) ? "‖" : "X")
         const targetFirstIteration = (pattern as PatternImpl).getToPasserIdxOnCausal(t) + (pattern.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + pattern.getThrowCauseBeat(t)
@@ -88,10 +88,10 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
                 const hand = pattern.getThrowHand(t, 0)
                 svg.circle(4).move(getX(beat) - 2, getY(rowIdx, Hand.Right) - 2).fill("blue")
                 svg.circle(4).move(getX(beat) - 2, getY(rowIdx, Hand.Left) - 2).fill("green")
-                svg.text(printThrow(t)).move(getX(beat)+5, getY(rowIdx, hand)+5).fill(hand ? "green" : "blue")
+                svg.text(printThrow(t)).move(getX(beat) + 5, getY(rowIdx, hand) + 5).fill(hand ? "green" : "blue")
             }
         }
-        const l = `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]${pattern.mapHands[rowIdx][0] ? "⇆" : ""}${pattern.mapCrossing[rowIdx][0] ? "X" : ""}`
+        const l = `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]${(pattern as PatternImpl).printMapSymbols(rowIdx)}`
         svg.text(l).move(getX(pattern.getLength()), getY(rowIdx, 0))
     }
 
@@ -102,7 +102,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
 
     function error(x: number, y: number, message: string): void {
         svg.circle(10).move(x - 5, y - 5).fill("red").stroke({ color: "black", width: 1 })
-        svg.text(message).move(x +5, y + 25).fill("red").font({ size: 12 })
+        svg.text(message).move(x + 5, y + 25).fill("red").font({ size: 12 })
     }
 
     function causal(x1: number, y1: number, x2: number, y2: number, throwLength: number): Path {
@@ -121,13 +121,13 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         const bendOffset = xDiff > 0 ? 0 : dist / 5.5 * xDiff / dist * .9
         const flipOffset = 20
 
-        const path = xDiff!==0 ? 
+        const path = xDiff !== 0 ?
             svg.path(`M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`).fill("transparent") :
-            svg.path(`M ${x1} ${y1} C ${x1 - flipOffset} ${y1 - flipOffset}, ${x2 +flipOffset} ${y2 - flipOffset}, ${x2} ${y2}`).fill("transparent") // flip
+            svg.path(`M ${x1} ${y1} C ${x1 - flipOffset} ${y1 - flipOffset}, ${x2 + flipOffset} ${y2 - flipOffset}, ${x2} ${y2}`).fill("transparent") // flip
         if (throwLength < 0)
             path.stroke({ dasharray: '2,2' });
 
-        
+
         return path
 
     }
@@ -162,10 +162,10 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
             .stroke({ width: 2, color: targetHandInFirstIteration ? "green" : "blue" })
 
         // if (t.throwBeat!==causeBeat || from!==to || hand!==targetHandInFirstIteration) 
-        path.marker('end', 10, 10, add => 
-                add.polygon('0,0 7.5,5 0,10').fill(targetHandInFirstIteration ? "green" : "blue").scale(.5,.5)
-            );
-    
+        path.marker('end', 10, 10, add =>
+            add.polygon('0,0 7.5,5 0,10').fill(targetHandInFirstIteration ? "green" : "blue").scale(.5, .5)
+        );
+
     }
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
         for (let beat = 0; beat < pattern.getLength(); beat++) {
