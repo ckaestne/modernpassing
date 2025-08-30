@@ -6,13 +6,13 @@
 
 (created by Maria, reconstructed from memory and changed directions)
 
-<todo-siteswap-group>
+<siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
 A: 7B 6 7Cx 827Cx -- B
-B: , a67A67 -- C⇆
+B: , a67A67x -- C!
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 Notes:
@@ -25,8 +25,8 @@ Notes:
 
 <pre>
 A: 7B 6 7Cx 827Cx -- B
-B: , a67A67 -- C⇆
-C: !, 66a67Ax -- A
+B: , a 6 7A 6 7x -- C!
+C: !, 6 6 a 6 7Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
 </pre>
@@ -37,13 +37,13 @@ move: Vmove(B, 7, 5)
 
 This longer version has a left and a right side (starting left handed and right handed) and is thus much longer.
 
-<todo-siteswap-group>
+<siteswap-group  style='{"emphasizeThrows":[[1,19]],"components":["pattern","turntable"]}'>
 A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, 887A66887A67 -- C
-C: , 66887Ax66887Ax -- A⇆
+B: !, a67A66a67A67x -- C⇆
+C: , 66a67Ax66a67Ax -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
-</todo-siteswap-group>
+</siteswap-group>
 
 
 Same notes as for the shorter version above.
@@ -51,8 +51,103 @@ Same notes as for the shorter version above.
 
 <pre>
 A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, 887A66887A67 -- C
-C: , 66887Ax66887Ax -- A⇆
+B: !, 8 8 7A 6 6 8 8 7A 6 7x -- C⇆
+C: ,  6 6 8 8 7Ax 6 6 8 8 7Ax -- A⇆
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
 </pre>
+
+
+## Maria's original version
+
+
+<siteswap-group style='{"emphasizeThrows":[[2,19]],"components":["pattern","turntable"]}'>
+A: 7B 6 7Cx 8 2 7B 6 6 8 8 7B -- C
+B: , 88 7A 6 6 8 8 7A 6 6 -- A!
+C: !, 6 6 8 8 7Ax 6 6 6 6 7 -- B
+positions: VL(A,B,C)
+move: Vmove(C, 11, 5)
+</siteswap-group>
+
+<siteswap-group style='{"emphasizeThrows":[[1,19]],"components":["pattern","turntable"]}'>
+A: !7C 6 7Bx 8 2 7C 6 6 8 8 7C -- B
+B: !, 6 6 8 8 7A 6 6 6 6 7x -- C
+C: , 88 7Ax 6 6 8 8 7Ax 6 6 -- A!
+positions: V(A,B,C)
+move: Vmove(B, 11, 5)
+</siteswap-group>
+
+
+## Martin's one count vs Why not
+
+<siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
+A: !7B 7Cx 7B 7Cx 2 7Cx -- B
+B: !, 8 2 7A 6 7x -- C!
+C: , 7Ax 8 2 7Ax 6  -- A
+positions: V(A,B,C)
+move: Vmove(B, 7, 2)
+</siteswap-group>
+
+
+
+<siteswap-group>
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 7Cx -- B⇆
+B: !, 8 2 7A 6 7A 8 2 7A 6 7x -- C⇆
+C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A⇆
+positions: V(A,B,C)
+move: Vmove(B, 17, 2)
+</siteswap-group>
+
+<siteswap-group>
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 6 7Cx -- B!
+B: !, 8 2 7A 6 7A 8 2 7A 6 6 7x  -- C
+C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6 6  -- A
+positions: V(A,B,C)
+move: Vmove(B, 17, 4)
+</siteswap-group>
+
+
+## Takeouts
+
+
+<siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["aidan","turntable"]    }'>
+A: 7B 6 7Cx 827Cx -- B
+B: , 887A67x -- C!
+C: !, 66887Ax -- A
+M: IB,C
+positions: V(A,B,C)
+move: Vmove(B, 7, 5)
+</siteswap-group>
+
+
+## Example
+
+<siteswap-group style='{"components":["pattern","turntable"]    }'>
+A: 7B7C267B7C6 -- A
+B: , 7A667A466 -- B
+C: , 67A667A46 -- C
+positions: V(A,B,C)
+</siteswap-group>
+
+
+<siteswap-group style='{"components":["pattern","turntable"]    }'>
+A: 7B7Cx267B7Cx6 -- A
+B: , 7A667A466 -- B
+C: !, 67Ax667Ax46 -- C
+positions: V(A,B,C)
+</siteswap-group>
+
+<siteswap-group style='{"emphasizeThrows":[[1,13]],"components":["pattern","turntable"]    }'>
+A: 7B7Cx267B7Cx66 -- B
+B: , 7A667A467x -- C
+C: !, 67Ax667Ax46 -- A!
+positions: V(A,B,C)
+</siteswap-group>
+
+
+<siteswap-group style='{"components":["pattern","turntable"], "showLines": true    }'>
+A: 7B7B7C7B7C
+B: , 7A27A7A2
+C: , 27A227A
+positions: V(A,B,C)
+</siteswap-group>
