@@ -5,11 +5,11 @@ import { createPattern, Hand, createThrow } from "./pattern.ts";
 Deno.test("prefix throws", () => {
 
     const t = [
-        createThrow(-1,0,Hand.Left,true,0,3),
-        createThrow(0,0,Hand.Right,true,1,3),
-        createThrow(0,1,Hand.Right,true,0,3),
-        createThrow(1,0,Hand.Left,true,0,3),
-        createThrow(1,1,Hand.Left,true,1,3),
+        createThrow(-1,0,false, false,0,3),
+        createThrow(0,0,false, false,1,3),
+        createThrow(0,1,false, false,0,3),
+        createThrow(1,0,false, false,0,3),
+        createThrow(1,1,false, false,1,3),
     ]
     const p = createPattern(t, 2, [0,1],["A","B"])
 
@@ -23,11 +23,11 @@ Deno.test("prefix throws", () => {
 Deno.test("invalid prefix throws: to a hand already receiving a throw", () => {
 
     const t = [
-        createThrow(-1,0,Hand.Left,false,0,4),//should land where the pass lands
-        createThrow(0,0,Hand.Right,true,1,3),
-        createThrow(0,1,Hand.Right,true,0,3),
-        createThrow(1,0,Hand.Left,true,0,3),
-        createThrow(1,1,Hand.Left,true,1,3),
+        createThrow(-1,0,false, false,0,4),//should land where the pass lands
+        createThrow(0,0,false, false,1,3),
+        createThrow(0,1,false, false,0,3),
+        createThrow(1,0,false, false,0,3),
+        createThrow(1,1,false, false,1,3),
     ]
     const p = createPattern(t, 2, [0,1],["A","B"])
 
@@ -39,11 +39,11 @@ Deno.test("invalid prefix throws: to a hand already receiving a throw", () => {
 Deno.test("invalid prefix throws: to a hand not throwing on that beat", () => {
 
     const t = [
-        createThrow(-1,0,Hand.Left,false,0,3),//should land on the wrong hand that is not throwing on that beat
-        createThrow(0,0,Hand.Right,true,1,3),
-        createThrow(0,1,Hand.Right,true,0,3),
-        createThrow(1,0,Hand.Left,true,0,3),
-        createThrow(1,1,Hand.Left,true,1,3),
+        createThrow(-1,0,false, true,0,3),//should land on the wrong hand that is not throwing on that beat
+        createThrow(0,0,false, false,1,3),
+        createThrow(0,1,false, false,0,3),
+        createThrow(1,0,false, false,0,3),
+        createThrow(1,1,false, false,1,3),
     ]
     const p = createPattern(t, 2, [0,1],["A","B"])
 

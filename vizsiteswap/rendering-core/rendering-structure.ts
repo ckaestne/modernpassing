@@ -102,7 +102,7 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
 function getAnnotation(p: Pattern, t: Throw, iteration: number): string {
     const isPass = !p.isSelfThrow(t)
     if (isPass)
-        return p.isCrossingPass(t, iteration) ? "∥"/*"||"*/ : "X"
+        return p.isStraightPass(t, iteration) ? "∥"/*"||"*/ : "X"
 
     return ""
 }

@@ -35,8 +35,8 @@ export type Time = number
  * - `mapRows` identifies how physical passers repeat the pattern with another row
  *   For example, in an odd-period 4-handed siteswap, the passer in the first row
  *   continues with the passes of the second row in the second iteration.
- * - `mapHands` and `mapCrossing` identify how the hand sequence is repeated or alternated,
- *   described below
+ * - `globalHandOrder` defines the global hand sequence that all passers follow,
+ *   e.g., [Right, Left] for alternating patterns or [Right, Right, Left, Left] for 4-handed patterns
  * 
  * the pattern is fundamentally circular and will always repeat over the period end 
  * (with row mapping if needed). it may require multiple iterations to get back to the
@@ -56,42 +56,29 @@ export type Time = number
  * Prefix throws are thrown on times -1, -2 etc. They are ignored for all computations
  * except validity checking, starting hands, and rendering
  * 
- * hand sequence is nontrivial:
- * - each throw indicates the hand it is thrown from and whether it is crossing/straight 
- *   with regards to the first round. note that crossing indicates a throw from a right to a left hand and
- *   vice versa, which makes straight passes be modeled as crossing throws.
- * - a pattern can have a throw from each hand on each beat for fewer (including no throw),
- *   but not multiple throws from the same hand
- * - left and right hand starts can swap for each passer across iterations. This is modeled
- *   with `mapHands`, which indicates for each passer whether the next iteration starts
- *   with the same or the opposite hand. 
- *   For an even period sync patterns, no hands change; for an odd period sync pattern all
- *   hands change; for a four-handed siteswap only the passer with the odd number of throws
- *   changes hands.
- * - To handle crossing and straight passes in four-handed siteswaps, `mapCrossing` indicates
- *   whether straight and flipping should be flipped from what is notated for the first iteration
- *   in the throws (this only applies to passes). For four-handed siteswaps all passers switch 
- *   straight/crossing every period.
- * - Prefix throws are always thrown with the hand indicated in the throw, as if they were
- *   part of the first iteration. No mapping is done before the end of the first period.
+ * hand sequence is fairly simple: by default, there is a global hand-order that
+ * just proceeds through the pattern. The second iteration of the pattern continues
+ * the global hand sequence where the first one left off.
+ * - Throws can intentionally be thrown from the "wrong" hand, such as in 7-club 2 count
+ *   with straight doubles. This is indicated with `fromOppositeHand: true` in the throw.
+ * - To model simultaneous throws from both hands, a pattern can include two throws on the same
+ *   beat, with `fromOppositeHand` set to true for one of the throws.
+ * - A throw from the default hand will land on the default hand of the time it gets rethrown,
+ *   this will automatically handle crossing/straight throws in 4-handed siteswaps. To force
+ *   a throw to the "wrong" hand (as with x in siteswap 4x), set `flipCrossing: true` in the throw.
+ * - Prefix throws follow the same rules, the hand sequence is just propagated back
  * - `isValid` checks that a unique incoming throw and outgoing throw are from the same hand if there
  *   is a throw on a beat from a hand.
- * - There is no assumption built in that indicates whether any specific throw height is straight
- *   or crossing or whether the pattern starts left-handed or right-handed. This is modeled with
- *   information for individual throws.
  *   
  * 
  * This allows us to model:
- * - normal normal even period patterns just alternate left and right in the throws and don't require adjustments (`mapHands = [[false], [false]]`)
- * - normal sync odd period patterns switch left and right every period with `mapHands = [[true], [true]]`
- * - odd period four-handed siteswaps shift the passer's hand of one passer `mapHands = [[true], [false]]`;
- *   left/right starts and straight/crossing passes is modeled directly in the throws
- * - 7-club two count with straight doubles can be modeled as a left-hand start and straight double
- *   passes directly in the throws
- * - Jim's patterns by simply throwing multiple passes with the same hand in a row as modeled
- *   in the throws
- * - All-sync patterns by having both left and right hands throw on the same beat, as modeled in the throws
- * - Walking patterns like Ambled V where hand order switches mid pattern are modeled like Jim's patterns
+ * - normal even period patterns with alternating hands using globalHandOrder = [Right, Left]
+ * - four-handed siteswaps using globalHandOrder = [Right, Right, Left, Left] (or also [Right, Left, Left, Right] for B starting, etc)
+ * - 7-club two count with straight doubles can be modeled with B doing all throws from the opposite
+ *   hand and all passes being marked as flipCrossing: true
+ * - Jim's patterns have many throws from the opposite hand
+ * - All-sync patterns by having both left and right hands throw on the same beat, one of each modeled as `fromOppositeHand: true`
+ * - Walking patterns like Ambled V where hand order switches mid pattern are modeled like Jim's patterns, with the relevant throws being marked as `fromOppositeHand: true`
  * For many of these the difficulty is in parsing the right behavior from a notation, not in modeling this
  * 
  * (this representation does not know about manipulators, positions, or movement; roles are tracked as decoration)
@@ -248,21 +235,21 @@ export interface Pattern {
 
 
     // hand modeling
+    readonly globalHandOrder: Hand[] // global hand sequence, e.g., [Right, Left] or [Right, Right, Left, Left]
+    readonly globalHandOrderOffset: number // number of hands to skip after each iteration
 
     /**
-     * mapping happens at the end of a period, like mapRows
-     * - mapHands = true for a row indicates that the passer next for this row switches left and right hands to be opposite of those of the first period (two trues switch back). If there is an array of n switches, they are only applied every n periods to model longer more complicated sequences
-     * - mapCrossing = true for a row indicates that the next passer switches straight and crossing passes compared to those in the first period (two trues switch back). If there is an array of n switches, they are only applied every n periods to model longer more complicated sequences
-     * - mapCopy = true for a row indicates that the passer keeps the same hands and crossing as the passer in the previous position is starting now (ignores mapCross and mapHands for this row if true)
-     **/
-    readonly mapHands: boolean[][] // swapping of labels for subsequent rounds; false = same hand, true = flipped left/right; one entry per row, entry contains array for n-periods until the pattern repeats (often just 1 or is entirely mirrored)
-    readonly mapCrossing: boolean[][]
-    readonly mapCopy: boolean[]
-    readonly initialHands: Hand[] // initial hands for each passer for the first beat of the pattern (not counting prefix throws); undefined for default for all right-handed
+     * Get default hand on a beat in an iteration using global hand order sequence
+     * 
+     * @param iteration - which iteration of the pattern
+     * @param beat - which beat within the pattern
+     * @returns Hand for this time (same for all passers)
+     */
+    getGlobalHand(iteration: number, beat: number): Hand
 
     /**
-     * computes the actual hand of a throw, based on the hand indicated in `t`
-     * and `flipCrossing` and `swapHands`
+     * computes the actual hand of a throw, based on the hand indicated in the throw
+     * and the global hand order sequence
      * 
      * iterations start with 0, negative iterations are allowed
      * 
@@ -271,8 +258,8 @@ export interface Pattern {
     getThrowHand(t: Throw, iteration: number): Hand
 
     /**
-     * computed hand purely by getThrowHand(t) and t.isCrossing 
-     * adjusted by `mapHands` and `mapCrossing`
+     * computed hand purely by getThrowHand(t) and t.flipCrossing 
+     * using the global hand order system
      * 
      * If it crosses the pattern boundary, it returns to hand of
      * the juggler in the next iteration. To compute the
@@ -285,7 +272,7 @@ export interface Pattern {
 
     getTargetHandFirstIteration(t: Throw): Hand
 
-    isCrossingPass(t: Throw, iteration: number): boolean
+    isStraightPass(t: Throw, iteration: number): boolean
     isSelfThrow(t: Throw): boolean
 
     /** 
@@ -319,15 +306,21 @@ export interface Throw {
     readonly fromPasserIdx: number
 
     /**
-     * hand from which this throw is thrown in the first iteration
+     * whether the throw comes from the opposite hand (relative to the current global hand order)
+     * false means it comes from the default hand (as per global hand order) for this passer at this time
+     * true means it comes from the opposite hand
      */
-    readonly fromHand: Hand
+    readonly fromOppositeHand: boolean
 
     /**
-     * whether the throw is crossing (with regards to hands)
-     * (note that traditional straight passes are crossing from a right to a left hand)
+     * by default, a throw thrown from the default hand (as per global hand order)
+     * arrives at the default hand of the target beat (as per global hand order).
+     * a throw thrown from the opposite hand arrives at the opposite hand of the target beat.
+     * 
+     * if flipCrossing is true, this is reversed and the throw arrives at the opposite hand of what would be expected
+     * (i.e., opposite of default hand when thrown from default hand, default hand when thrown from opposite of the default hand)
      */
-    readonly isCrossing: boolean
+    readonly flipCrossing: boolean
 
     /**
      * the height of the throw in siteswap terminology (3 or 6 is a self depending on whether we use 2 or 4 handed siteswaps as the timing)
@@ -438,16 +431,29 @@ export type CarryAction = {
 
 
 
+export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], globalHandOrder?: Hand[], patternLength?: number, globalHandOrderOffset?: number): Pattern {
+    if (!globalHandOrder) {
+        globalHandOrder = nrHands ===2?[Hand.Right, Hand.Left]:[Hand.Right, Hand.Right, Hand.Left, Hand.Left]
+    }
+    return new PatternImpl(throws, nrHands, mapRows, roles, globalHandOrder, globalHandOrderOffset ?? 0, patternLength)
+}
 
-export function createPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], mapHands?: boolean[][], mapCrossing?: boolean[][], mapCopy?: boolean[], initialHands?: Hand[], patternLength?: number): Pattern {
-    return new PatternImpl(throws, nrHands, mapRows, roles, mapHands, mapCrossing, mapCopy, initialHands, patternLength)
+
+export function createTwoHandedPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], patternLength?: number, prefixLength?: number, globalHandOrderOffset?: number): Pattern {
+    const globalHandOrder = [Hand.Right, Hand.Left]
+    return new PatternImpl(throws, nrHands, mapRows, roles, globalHandOrder, globalHandOrderOffset ?? 0, patternLength, prefixLength)
+}
+
+export function createFourHandedPattern(throws: Throw[], mapRows: number[], roles: Role[] | [Beat, Role[]][], patternLength?: number, globalHandOrderOffset?: number): Pattern {
+    const globalHandOrder = [Hand.Right, Hand.Right, Hand.Left, Hand.Left]
+    return new PatternImpl(throws, 4, mapRows, roles, globalHandOrder, globalHandOrderOffset ?? 0, patternLength)
 }
 
 export function createThrow(
     throwBeat: number,
     fromPasserIdx: number,
-    fromHand: Hand,
-    isCrossing: boolean,
+    fromOppositeHand: boolean,
+    flipCrossing: boolean,
     toPasserIdxAtCausal: number,
     throwLength: number,
     markers?: ThrowMarker[],
@@ -456,8 +462,8 @@ export function createThrow(
     return new ThrowImpl(
         throwBeat,
         fromPasserIdx,
-        fromHand,
-        isCrossing,
+        fromOppositeHand,
+        flipCrossing,
         toPasserIdxAtCausal,
         throwLength,
         markers,

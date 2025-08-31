@@ -195,8 +195,6 @@ app.use(async (ctx, next) => {
             try {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
-
-                   
            
                 if (gp.aidanNotation && gp.aidanNotation[1].length > 0) {
                     svgPlain = prettyPrintThrowsSvg(gp.aidanNotation![0])
@@ -213,7 +211,6 @@ app.use(async (ctx, next) => {
                     rendered = t[0].svg()
                     js = t[1]
                 }
-                console.log(p.prettyPrintThrows())
                 error = p.prettyPrintThrows(false)
                 error = p.getValidationError()
             } catch (e) {
