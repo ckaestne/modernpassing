@@ -392,7 +392,7 @@ export class PatternImpl implements Pattern {
             const to = this.getToPasserIdxOnCausal(t)
             // console.log(`${from}/${hand?"L":"R"} @ ${t.throwBeat} -> ${to}/${targetHand?"L":"R"} @ ${causeBeat} (${this.getThrowCauseTime(t)}, ${iteration})`)
             if (foundCaught[to][targetHandInFirstIteration][causeBeat]) {
-                this.validationError = `more than one catch on beat ${causeBeat} by ${to}/${targetHandInFirstIteration ? "L" : "R"}: \n\t${JSON.stringify(foundCaught[to][causeBeat])} and \n\t${JSON.stringify(t)}`
+                this.validationError = `more than one catch on beat ${causeBeat} by ${to}/${targetHandInFirstIteration ? "L" : "R"}: \n\t${JSON.stringify(foundCaught[to][targetHandInFirstIteration][causeBeat])} and \n\t${JSON.stringify(t)}`
                 return false
             } else
                 foundCaught[to][targetHandInFirstIteration][causeBeat] = t

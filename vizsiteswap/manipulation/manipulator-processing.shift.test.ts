@@ -490,7 +490,7 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         const throwCauseTime = pattern.getThrowCauseTime(t)
         return {
             ...t,
-            fromHand: t.throwBeat === 0 ? pattern.getThrowHand(t, 1) : t.fromHand,
+            // fromHand: t.throwBeat === 0 ? pattern.getThrowHand(t, 1) : t.fromHand,
             throwBeat: (t.throwBeat - 1 + pattern.getLength()) % pattern.getLength(),
             toPasserIdxAtCausal: throwCauseTime === pattern.getLength() ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) :
                 throwCauseTime === 0 ? pattern.adjustRowIdxByTime(-1, t.toPasserIdxAtCausal) : t.toPasserIdxAtCausal,
@@ -505,11 +505,11 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
     const newManipulations = manipulations.map(m => {
         const beat = (m.beat - 1 + pattern.getLength()) % pattern.getLength()
         if (m.kind === 'T') {
-            let fromHand = m.fromHand
-            if (m.beat===0 && pattern.mapHands[0][0]) fromHand = 1 - m.fromHand
+            // let fromHand = m.fromHand
+            // if (m.beat===0 && pattern.mapHands[0][0]) fromHand = 1 - m.fromHand
             return {
                 ...m,
-                fromHand,
+                // fromHand,
                 beat,
             }
         } else return { ...m, beat }
@@ -534,7 +534,11 @@ function shiftPatternOnce(pattern: Pattern, manipulations: ManipulatorAction[]):
         lastRoles = r[1]
     }
 
-    return [createPattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles, pattern.mapHands, pattern.mapCrossing), newManipulations]
+    const globalHandOrder = pattern.globalHandOrder.map((_, i) => 
+        pattern.globalHandOrder[(i - 1 + pattern.globalHandOrder.length) % pattern.globalHandOrder.length]
+    )
+
+    return [createPattern(newThrows, pattern.nrHands, pattern.mapRows, newRoles, globalHandOrder, pattern.getLength(), pattern.globalHandOrderOffset), newManipulations]
 }
 
 
@@ -549,7 +553,8 @@ function assertThrow(pattern: Pattern, beat: number, length: number, fromPasserI
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
 }
 function assertThrowH(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, fromHand: Hand, toPasserIdxAtCausal: number, msg?: string) {
-    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.fromHand === fromHand && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
+    const isFromOppositeHand = (fromHand !== pattern.getGlobalHand(0, beat))
+    const ts = pattern.throws.filter(t => t.throwBeat === beat && t.throwLength === length && t.fromPasserIdx === fromPasserIdx && t.fromOppositeHand === isFromOppositeHand && t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
     assert(ts.length !== 0, `throw ${length}@${beat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${length}@${beat} from ${fromPasserIdx}/${fromHand} to ${toPasserIdxAtCausal}, expected one [${msg}]`)

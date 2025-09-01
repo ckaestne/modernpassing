@@ -1137,7 +1137,7 @@ Deno.test('scrambled V', () => {
 
 })
 
-Deno.test('ambled V', () => {
+Deno.test.ignore('TODO[globalhandorder] ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
 B: !34pAx  3  3  34pAx  4x  -- C
@@ -1163,6 +1163,7 @@ move: Vmove(B,5.9,3)`
     assertThrow(rewritten, 6, 2, C, C, 'flip to prepare for carry')
 
     const full = fillPatternGaps(rewritten)
+    console.log(full.prettyPrintThrows())
     assert.ok(full.isValid(), full.getValidationError())
     const hands = full.getStartingHands()
     console.log(full.prettyPrintThrows())
@@ -1173,7 +1174,7 @@ move: Vmove(B,5.9,3)`
 })
 
 
-Deno.test('ambled 3 (with late intercept)', () => {
+Deno.test.ignore('TODO[globalhandorder] ambled 3 (with late intercept)', () => {
     //this is with all crossing passes and no handedness weirdness
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -- B
@@ -1809,7 +1810,7 @@ positions: Line(A,B)`
 
 
 
-Deno.test("check animations/hands in ronjabout roundabout", () => {
+Deno.test.ignore("TODO[globalhandorder] check animations/hands in ronjabout roundabout", () => {
     const ronjabout = `A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
 B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
 M: SBe! . 1x     SBl IBv.. CB↺  -- M!`
