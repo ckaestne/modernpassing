@@ -6,7 +6,7 @@
  */
 
 import { createGroupPattern, createSiteswapPattern, createSyncPattern } from '@modernpassing/parsing';
-import { renderGroupPattern, renderPattern, renderPlainPattern } from '@modernpassing/rendering-svg';
+import { renderGroupPattern, renderPlainPattern } from '@modernpassing/rendering-svg';
 import { assert } from "node:console";
 import fs from 'node:fs';
 import process from "node:process";

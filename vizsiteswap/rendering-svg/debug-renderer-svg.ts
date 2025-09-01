@@ -22,7 +22,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
 
 
 
-    let result = ""
+    // let result = ""
 
     function getX(beat: number): number {
         return (beat + pattern.getPrefixLength() + 2) * dist
@@ -42,7 +42,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         const markers = t.markers ? t.markers.filter(m => m.kind !== 'B' && m.kind !== 'M') : []
         const printType = markers.length === 0 ? "" : markers.map(m => m.kind).join("")
         const hand = pattern.getThrowHand(t, 0)
-        const isCrossing = pattern.isSelfThrow(t) ? "" : (pattern.isCrossingPass(t, 0) ? "‖" : "X")
+        const isCrossing = pattern.isSelfThrow(t) ? "" : (pattern.isStraightPass(t, 0) ? "‖" : "X")
         const targetFirstIteration = (pattern as PatternImpl).getToPasserIdxOnCausal(t) + (pattern.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + pattern.getThrowCauseBeat(t)
         const str = `${t.throwLength}${toRole}${isCrossing}${(targetFirstIteration)}${printType}`
         return hand === Hand.Left ? (str) : (str)
@@ -51,19 +51,18 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
     const showHeader = true
     // header
     if (showHeader) {
-        svg.text("Beat").move(dist, dist)
+        svg.text("Beat" + (pattern.globalHandOrderOffset !== 0 ? " ::" + pattern.globalHandOrderOffset : "")).move(dist, dist)
 
         for (let beat = -pattern.getPrefixLength(); beat < 0; beat++) {
-            svg.text(beat.toString()).move(getX(beat), dist)
+            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? 'L' : 'R')).move(getX(beat), dist)
         }
         for (let beat = 0; beat < pattern.getLength(); beat++) {
             // const newRoles = pattern.roles.find(r => r[0] === beat)
             // if (beat !== 0 && newRoles)
             //     result += `\t`
             // result += beat + "\t"
-            svg.text(beat.toString()).move(getX(beat), dist)
+            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? 'L' : 'R')).move(getX(beat), dist)
         }
-        result += "\n"
     }
 
 
@@ -91,7 +90,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
                 svg.text(printThrow(t)).move(getX(beat) + 5, getY(rowIdx, hand) + 5).fill(hand ? "green" : "blue")
             }
         }
-        const l = `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]${(pattern as PatternImpl).printMapSymbols(rowIdx)}`
+        const l = `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]`
         svg.text(l).move(getX(pattern.getLength()), getY(rowIdx, 0))
     }
 

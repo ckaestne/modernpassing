@@ -3,7 +3,7 @@
  */
 
 
-import { createSVG } from "../renderer-svg.ts";
+import { createSVG } from "../rendering-svg/renderer-svg.ts";
 
 const w = 300
 const innerR = 100
