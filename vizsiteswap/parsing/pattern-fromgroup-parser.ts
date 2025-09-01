@@ -29,15 +29,14 @@ export type TPatternRow = {
     role: Role | undefined,
     sequence: TSequence,
     relabel?: Role,
-    relabelMapHands?: boolean, 
-    relabelMapCrossing?: boolean,
+    handOrderOffset?: number,
     isManipulator: boolean
 }
 export type THandSwap = "__handswap__"
 export const HandSwap: THandSwap = "__handswap__"
 export type TPipe = "|"
 export type TThrow = string | [string, string] // single throw or sync throw with both hands
-export type TSequence =TBeat[] // one passer's sequence of throws (or other indicators)
+export type TSequence = TBeat[] // one passer's sequence of throws (or other indicators)
 export type TPattern = TSequence[] // a sequence for each passer
 export type TEmpty = "."
 export type THalfEmpty = ","
@@ -46,10 +45,10 @@ export type TBeat = TThrow | THandSwap | TPipe | TEmpty | THalfEmpty
 
 export enum TokenKind {
     Throw,  // 0
-    HalfEmpty, 
-    Arrow, 
+    HalfEmpty,
+    Arrow,
     Empty,
-     Hurry,
+    Hurry,
     LParen,
     RParen,
     Space,
@@ -58,7 +57,8 @@ export enum TokenKind {
     ManipulatorAction, //10
     HandSwap,
     Pipe,
-    MapHands
+    MapHands,
+    Offset
 }
 export const tokenizer = buildLexer<TokenKind>([
     [true, /^([0-9a-y](p)?[A-Z]?(x)?)/g, TokenKind.Throw],
@@ -72,7 +72,7 @@ export const tokenizer = buildLexer<TokenKind>([
     [true, /^\)/g, TokenKind.RParen],
     [true, /^--|→/g, TokenKind.Arrow],
     [true, /^!/g, TokenKind.HandSwap],
-    [true, /^⇆/g, TokenKind.MapHands],
+    [true, /^offset: [0-9]/g, TokenKind.Offset],
     [false, /^\s/g, TokenKind.Space],
 ]);
 
@@ -101,17 +101,17 @@ PHandSwap.setPattern(
 
 
 const anyThrow = alt_sc(
-    PThrow, 
-    PHandSwap, 
-    apply(tok(TokenKind.Empty), () => "."), 
+    PThrow,
+    PHandSwap,
+    apply(tok(TokenKind.Empty), () => "."),
     apply(tok(TokenKind.HalfEmpty), () => ",")
 )
 
 
 PBaseSequence.setPattern(
-   apply(seq(opt(kleft(rep1(anyThrow), tok(TokenKind.Pipe))),    rep1(anyThrow)),
+    apply(seq(opt(kleft(rep1(anyThrow), tok(TokenKind.Pipe))), rep1(anyThrow)),
         v => {
-            const throws: TSequence = v[0] ? [...v[0], "|", ...v[1]] :v[1]
+            const throws: TSequence = v[0] ? [...v[0], "|", ...v[1]] : v[1]
             return throws
         }
     )
@@ -128,41 +128,26 @@ PAtomicManipulatorAction.setPattern(alt_sc(
     apply(str("C"), t => t.text),//needed because a C without modifier is parsed as a role token
 ))
 
-export const PManipulatorAction = rule<TokenKind, (TThrow|THandSwap)>();
+export const PManipulatorAction = rule<TokenKind, (TThrow | THandSwap)>();
 PManipulatorAction.setPattern(
     alt_sc(
         apply(seq(tok(TokenKind.LParen), PAtomicManipulatorAction, PAtomicManipulatorAction, tok(TokenKind.RParen)),
             v => [v[1], v[2]]),
         PAtomicManipulatorAction,
         PHandSwap,
-        apply(tok(TokenKind.Empty), () => "."), 
+        apply(tok(TokenKind.Empty), () => "."),
         apply(tok(TokenKind.HalfEmpty), () => ",")
     )
 )
-export const PManipulatorSequence = rule<TokenKind, (TThrow|THandSwap)[]>();
+export const PManipulatorSequence = rule<TokenKind, (TThrow | THandSwap)[]>();
 PManipulatorSequence.setPattern(rep1(PManipulatorAction))
 
-export const PRelabel = rule<TokenKind, [Role, boolean|undefined, boolean|undefined]>();
+const POffset = rule<TokenKind, number>();
+POffset.setPattern(apply(tok(TokenKind.Offset), (t) => Number(t.text.slice(-1))))
+
+export const PRelabel = rule<TokenKind, [Role, number | undefined]>();
 PRelabel.setPattern(
-    kright(tok(TokenKind.Arrow), alt(
-        // Handle case where role+X got tokenized as manipulator action (e.g. "CX")
-        apply(tok(TokenKind.ManipulatorAction), t => {
-            const match = t.text.match(/^([A-Z])X$/);
-            if (match) {
-                return [match[1], undefined, true] as [Role, boolean|undefined, boolean|undefined];
-            }
-            throw new Error(`Unexpected token in relabel context: ${t.text}`);
-        }),
-        // Normal case: role followed by optional modifiers
-        apply(seq(
-            PRole,
-            opt(alt_sc(
-                apply(seq(str("⇆"),str("⇆")), ()=> false),
-                apply(str("!"), ()=> false),
-                apply(str("⇆"), ()=> true))),
-            opt(apply(str("X"), ()=>  true))
-        ), v => [v[0], v[1], v[2]] as [Role, boolean|undefined, boolean|undefined])
-    ))
+    kright(tok(TokenKind.Arrow), seq(PRole, opt(POffset)))
 )
 
 export const PRow = rule<TokenKind, TPatternRow>();
@@ -170,12 +155,12 @@ PRow.setPattern(
     apply(amb(alt(
         apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PBaseSequence, opt(PRelabel)), createPatternRow(false)),
         apply(seq(opt(kleft(PRole, tok(TokenKind.Colon))), PManipulatorSequence, opt(PRelabel)), createPatternRow(true))
-    )), m=>m[0]) // if it matches both base and manipulator, use base sequence
+    )), m => m[0]) // if it matches both base and manipulator, use base sequence
 )
 
 function createPatternRow(isManipulator: boolean) {
-    return function (v: [Role | undefined, TSequence, [Role, boolean|undefined, boolean|undefined]?]): TPatternRow {
-        return { role: v[0], sequence: v[1], relabel: v[2]?.[0], relabelMapHands: v[2]?.[1], relabelMapCrossing: v[2]?.[2], isManipulator }
+    return function (v: [Role | undefined, TSequence, [Role, number | undefined]?]): TPatternRow {
+        return { role: v[0], sequence: v[1], relabel: v[2]?.[0], handOrderOffset: v[2]?.[1], isManipulator }
     }
 }
 

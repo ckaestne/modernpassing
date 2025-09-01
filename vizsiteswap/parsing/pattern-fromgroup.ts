@@ -237,6 +237,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
     const baseThrows = getBaseThrows()
 
+    // handle handedness
+    const providedHandOrderOffset: number | undefined = rawPattern.find(r => r.handOrderOffset !== undefined)?.handOrderOffset
+
     // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
     // if not, we are doing guessing and brute force trying all combinations
     // const specifiedMapHandsOrCrossing =
@@ -257,10 +260,27 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     //     })
     //     p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, guessedMapHands, guestMapCrossing, undefined, patternLength))
     // }
-    const p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, 0)
+    const p = providedHandOrderOffset !== undefined ?
+        createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, providedHandOrderOffset) :
+        tryHandOrderOffsets(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, 0))
     const m = getManipulatorActions(p)
 
     return [p, m]
+}
+
+/**
+ * brute force approach to try different hand order offsets if the pattern is not valid as is
+ */
+function tryHandOrderOffsets(pattern: Pattern): Pattern {
+    if (pattern.isValid()) return pattern
+
+    for (let offset = 1; offset < pattern.nrHands; offset++) {
+        const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, pattern.globalHandOrder, pattern.getLength(), offset)
+        if (p.isValid()) return p;
+    }
+
+    // nothing worked, so just return the original invalid pattern
+    return pattern
 }
 
 

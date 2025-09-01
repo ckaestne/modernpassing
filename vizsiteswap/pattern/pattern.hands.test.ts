@@ -9,7 +9,7 @@ test("global hand order - basic alternating pattern (sync, length 1)", () => {
         createThrow(0, 1, false, false, 0, 3),
     ]
 
-    const pattern = createTwoHandedPattern(throws, 2, [0, 1], ['A', 'B'])
+    const pattern = createTwoHandedPattern(throws, [0, 1], ['A', 'B'])
 
     for (const iteration of [0, 1, 2, -1, -2]) {
         const expectedHand = iteration % 2 === 0 ? Hand.Right : Hand.Left
@@ -120,6 +120,61 @@ test("global hand order - test offset handling 1", () => {
 
 })
 
+test("global hand order offset -- throw and target hands", () => {
+
+    // the offset should affect the throw hand, but the target hand must be computed with the original hand-order after the throw not affected by the offset
+    let t1:Throw,t2:Throw,t3:Throw
+    const throws = [
+        t1=createThrow(0, 0, false, false, 0, 3),
+        t2=createThrow(1, 1, false, false, 0, 3),
+        t3=createThrow(2, 0, false, false, 1, 3),
+    ]
+    const pattern = createTwoHandedPattern(throws, [1, 0], ['A', 'B'], 3, 0, 1)
+
+    for (const iteration of [0, 1, 2, -1, -2]) {
+        assert.equal(pattern.getThrowHand(t1, iteration), Hand.Right)
+        assert.equal(pattern.getTargetHand(t1, iteration), Hand.Left)
+
+        assert.equal(pattern.getThrowHand(t2, iteration), Hand.Left)
+        assert.equal(pattern.getTargetHand(t2, iteration), Hand.Right)
+
+        assert.equal(pattern.getThrowHand(t3, iteration), Hand.Right)
+        assert.equal(pattern.getTargetHand(t3, iteration), Hand.Left)
+    }
+
+    
+    assert.equal(pattern.iterationsUntilRepeat(), 2)
+
+})
+
+test("global hand order offset -- seven club two count straight", () => {
+
+ // the offset should affect the throw hand, but the target hand must be computed with the original hand-order after the throw not affected by the offset
+    let t1:Throw,t2:Throw
+    const throws = [
+        t1=createThrow(0, 0, false, true, 1, 4),
+        t2=createThrow(0, 1, true, false, 0, 3),
+    ]
+    const pattern = createTwoHandedPattern(throws, [1, 0], ['A', 'B'], 1, 0, 1)
+
+
+    for (const iteration of [0, 1, 2, -1, -2]) {
+        assert.equal(pattern.getThrowHand(t1, iteration), Hand.Right, "iteration "+iteration);
+        assert.equal(pattern.getTargetHand(t1, iteration), Hand.Left, "iteration "+iteration);
+
+        assert.equal(pattern.getThrowHand(t2, iteration), Hand.Left, "iteration "+iteration);
+        assert.equal(pattern.getTargetHand(t2, iteration), Hand.Right, "iteration "+iteration);
+
+    }
+    console.log(pattern.prettyPrintThrows())
+    assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
+
+    
+    assert.equal(pattern.iterationsUntilRepeat(), 2)
+
+})
+
+
 
 Deno.test("hands, four count", () => {
     const pattern = createTwoHandedPattern([
@@ -131,7 +186,7 @@ Deno.test("hands, four count", () => {
         { fromPasserIdx: 1, fromOppositeHand: false, flipCrossing: false, throwBeat: 2, throwLength: 3, toPasserIdxAtCausal: 1 },
         { fromPasserIdx: 0, fromOppositeHand: false, flipCrossing: false, throwBeat: 3, throwLength: 3, toPasserIdxAtCausal: 0 },
         { fromPasserIdx: 1, fromOppositeHand: false, flipCrossing: false, throwBeat: 3, throwLength: 3, toPasserIdxAtCausal: 1 }
-    ], 2, [0, 1], ['A', 'B'])
+    ], [0, 1], ['A', 'B'])
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     for (let iteration = -3; iteration < 5; iteration++) {
@@ -582,7 +637,7 @@ Deno.test("starting hands, various siteswaps", () => {
 })
 
 
-Deno.test.ignore("TODO[globalhandorder] hands, 10 club brunos", () => {
+Deno.test("hands, 10 club brunos", () => {
     function self(from: number, when: number, swapHands: boolean = false): Throw {
         return { fromPasserIdx: from, fromOppositeHand: swapHands, flipCrossing: false, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when + 2 > 20 ? 1 : 0)) % 3 }
     }
@@ -610,7 +665,7 @@ Deno.test.ignore("TODO[globalhandorder] hands, 10 club brunos", () => {
         self(1, 13),
         { fromPasserIdx: 1, fromOppositeHand: false, flipCrossing: false, throwBeat: 15, throwLength: 9, toPasserIdxAtCausal: 0 },
         self(1, 17),
-        { fromPasserIdx: 1, fromOppositeHand: false, flipCrossing: false, throwBeat: 19, throwLength: 7, toPasserIdxAtCausal: 2 },
+        { fromPasserIdx: 1, fromOppositeHand: false, flipCrossing: true, throwBeat: 19, throwLength: 7, toPasserIdxAtCausal: 2 },
 
         self(2, 1, true),
         self(2, 3, true),

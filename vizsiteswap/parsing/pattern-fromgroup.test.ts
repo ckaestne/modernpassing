@@ -247,7 +247,7 @@ function isCrossing(p: Pattern, t: Throw): boolean {
 }
 
 
-test.skip('TODO[globalhandorder] hands: jim\'s three count', async (t) => {
+test('TODO[remove hand inference] hands: jim\'s three count', async (t) => {
     const pattern = `3p  3 3 3p  3 3
                      3px 3 3 3px 3 3`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
@@ -288,7 +288,7 @@ test.skip('TODO[globalhandorder] hands: jim\'s three count', async (t) => {
 
 
 
-test.skip('TODO[globalhandorder] hands: jim\'s three count -- short', async (t) => {
+test.skip('not supported: hands: jim\'s three count -- short', async (t) => {
     const pattern = `A: 3p33--B\nB: 3px33 -- A`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
@@ -366,9 +366,9 @@ test('siteswaps, basics', () => {
 
 })
 
-test.skip('TODO[globalhandorder] hands/crossing complicated: extra club brunos', () => {
+test('hands/crossing complicated: extra club brunos', () => {
     const pattern = `
-        A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
+        A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B offset: 1
         B: , 6   9A  6   6   6   6   6   9A  6   7x   -- C
         C:!, 6   6   6   6   9Ax 6   6   6   6   6   -- A
         positions: Brunos(A,B,C)
@@ -455,7 +455,7 @@ positions: V(A,B,C)`
     assert.equal(p.iterationsUntilRepeat(), 2)
 })
 
-test.skip('TODO[globalhandorder] brunos 10 club -- siteswap walking feed', () => {
+test('brunos 10 club -- siteswap walking feed', () => {
     const pattern = `A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
 B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C
 C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
@@ -475,35 +475,22 @@ move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`
 
 
 
-test.skip('TODO[globalhandorder] test crossing/hands validation: jim\'s three count', async (t) => {
+
+test('test crossing/hands validation: 10c brunos', async (t) => {
     const patterns: [string, boolean][] = [
-        [`3p  3 3 3p  3 3 -- B⇆X
-          3px 3 3 3px 3 3 -- A⇆X`, false],
-        [`3p  3 3 3p  3 3 -- B⇆
-          3px 3 3 3px 3 3 -- A⇆`, true]
-    ]
-    for (const [pattern, expectValid] of patterns) {
-        printAndCheckValidity(pattern, expectValid, 2)
-    }
-
-})
-
-
-test.skip('TODO[globalhandorder] test crossing/hands validation: 10c brunos', async (t) => {
-    const patterns: [string, boolean][] = [
-        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
-B: , 6   9A  6   6   6   6   6   9A  6   7  -- CX
-C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆X
-positions: Brunos(A,B,C)
-move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, false],
-        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
 B: , 6   9A  6   6   6   6   6   9A  6   7  -- C
-C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
+positions: Brunos(A,B,C)
+move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, false],        
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B offset: 0
+B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, false],
-        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B⇆
-B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C⇆
-C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A⇆
+        [`A: 9B  6   6   9Cx 6   6   9B  6   6   9Cx 6 -- B
+B: , 6   9A  6   6   6   6   6   9A  6   7x  -- C
+C: !, 6   6   6   6   9Ax 6   6   6   6   6  -- A
 positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, true]
     ]
@@ -515,23 +502,18 @@ move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`, true]
 
 
 
-test.skip('TODO[globalhandorder] testing crossing/hands validation (shorter): popcorn vs whynot walking feed', async (t) => {
+test('testing crossing/hands validation (shorter): popcorn vs whynot walking feed', async (t) => {
     const patterns: [string, boolean][] = [
         [`A: 7B 6 7Cx 827Cx -- B
-        B: , a67A67 -- C⇆
+        B: , a67A67 -- C
         C: !, 66a67Ax -- A
         positions: V(A,B,C)
         move: Vmove(B, 7, 5)`, false],
         [`A: 7B 6 7Cx 827Cx -- B
-B: , a67A67x -- C!
+B: , a67A67x -- C
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)`, true],
-        [`A: 7B 6 7Cx 827Cx -- B
-B: , a67A67x -- CX
-C: !, 66a67Ax -- A
-positions: V(A,B,C)
-move: Vmove(B, 7, 5)`, false]
     ]
     for (const [pattern, expectValid] of patterns) {
         printAndCheckValidity(pattern, expectValid)
@@ -563,11 +545,11 @@ function printAndCheckValidity(pattern: string, expectValid: boolean, nrHands: n
 }
 
 
-test('**broken:** testing crossing/hands validation: 456about', async (t) => {
+test('testing crossing/hands validation: 456about', async (t) => {
     const patterns: [string, boolean][] = [
-        [`  A: 5 4 6 5 4 -- B⇆X
-            B: ,6 5 4 6 -- AX
-            M: .IA -- MX`, true]
+        [`  A: 5 4 6 5 4 -- B
+            B: ,6 5 4 6 -- A
+            M: .IA -- M`, true]
     ]
     for (const [pattern, expectValid] of patterns) {
         printAndCheckValidity(pattern, expectValid)
@@ -648,7 +630,7 @@ test('testing crossing/hands validation: manege', async (t) => {
 
 
 test('testing crossing/hands validation: 744about', async (t) => {
-    const pattern = `A: 7 4 4 7 4 -- BX
+    const pattern = `A: 7 4 4 7 4 -- B
         B: ,4 7 4 4 -- A
         M: IB, CA -- M`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
@@ -751,9 +733,9 @@ function isJames(p: Pattern, t: Throw, iteration: number): boolean {
 
 
 
-test.skip('TODO[globalhandorder] testing crossing/hands validation: whynot-vs-popcorn walking feed', async (t) => {
+test('testing crossing/hands validation: whynot-vs-popcorn walking feed', async (t) => {
     const pattern = `A: 7B 6 7Cx 827Cx -- B
-B: , a67A67 -- C
+B: , a67A67x -- C
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)`

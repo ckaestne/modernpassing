@@ -9,7 +9,7 @@ Patterns are written as sequences of throws. A throw starts with a digit or lowe
 A `p` after the height indicates a pass; an uppercase letter indicates the role of the receiver at the time the throw is thrown (e.g., `3A` or `3pA` indicates a pass to `A`).
 A trailing `x` indicates a throw that's crossing hands opposite of what would be expected from the siteswap height (e.g. `4x` is a `4` to the other hand, `3px` is a crossing pass).
 
-As special throws `-` indicates a skipped beat.
+As special throws `.` indicates a skipped beat.
 
 Parentheses can be used to express pairs of throws where the first throw in the pair is the right hand and the second the left hand, e.g. `(4p 4x)`.
 
@@ -87,12 +87,25 @@ If the row labels are not provided, rows are implicitly labeled with roles A to 
 If the relabel instruction is not provided, rows are implicitly relabeled to themselves.
 By default all rows start right-handed and have no prefix.
 
-Relabeling instructions can optionally indicate whether to switch left and right hand in the next iteration (`⇆`) or whether to switch straight vs crossing in the next iteration (`X`). Usually these indicators are not needed and are inferred, however for debugging or explicit communication it may be useful to indicate those. If any `⇆` or `X` are indicated, it is assumed that all absence of `⇆` and `X` in other rows means no swap (rather than infer automatically as is the default if none are specified for any row). To explicitly indicate that there are no swaps at all, add a `!` (should rarely be needed).
+The default hand order is [Right, Left] for sync patterns, and [Right, Right, Left, Left] for 4-handed siteswap
+patterns. That is, in 4-handed siteswaps, rows starting on beat 0 are passing straight singles and rows starting
+a beat later on beat 1 are passing crossing singles.
 
-In four-handed siteswaps, rows starting with an empty beat are assumed to throw crossing singles and rows starting with a throw are assumed to throw straight singles.
+To indicate throws that do not match the conventional hand order, an `!` between throws indicates that
+all following throws are from the opposite hand. Multiple `!` per row can be used to switch back and forth.
+To throw to the "wrong" hand, an `x` after the throw can be used as usual (e.g. `4x`, `3px` or `7Ax`).
 
-If pair notation is used for throws, the first throw in the pair is always thrown from the right hand, there is no automated mirroring of hands (e.g., Techno needs to be written out with both sides). Without pair notation, handedness is inferred: By default, a passer starts right-handed and then alternates hands. The `!` can be used to swap the default order, typically before the first throw, but possibly also later in the pattern. Every throw that is forced by a throw in the same iteration (and only in the same iteration!) is thrown from the hand where a pass is caught -- this is usually enough to enable Jim's throws without using `!`.
-It is not a good idea to mix pair notation and single-throw notation in the same pattern.
+If pair notation is used for throws, the first throw in the pair is always thrown from the right hand, there is no automated mirroring of hands (e.g., Techno needs to be written out with both sides). It is probably not a good idea to mix pair notation and single-throw notation in the same pattern.
+
+*Deprecated, will be removed:* Without pair notation, handedness is inferred: By default, a passer starts right-handed and then alternates hands. The `!` can be used to swap the default order, typically before the first throw, but possibly also later in the pattern. Every throw that is forced by a throw in the same iteration (and only in the same iteration!) is thrown from the hand where a pass is caught -- this is usually enough to enable Jim's throws without using `!`.
+
+Relabeling instructions can optionally indicate whether a hand offset is used. A hand offset shifts the hand order
+at the end of the iteration. For example, an odd-period sync pattern would expect to start the next iteration
+with the opposite hand, but an offset of 1 ensures every iteration starts with the same hand. In four-handed siteswaps
+offsets from 1 to 3 are possible to shift an RRLL start into RLLR, LLRR, or LRRL for the next iteration.
+By default 0 offset is used and if that is not a valid pattern, 1, 2, and 3 are tried.
+To explicitly indicate an offset, add `[1]` after any of the relabeling instructions. For debugging, also `[0]` can
+be used to ensure that no alternative offsets are tried.
 
 ## Prefix
 

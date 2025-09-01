@@ -439,9 +439,9 @@ export function createPattern(throws: Throw[], nrHands: number, mapRows: number[
 }
 
 
-export function createTwoHandedPattern(throws: Throw[], nrHands: number, mapRows: number[], roles: Role[] | [Beat, Role[]][], patternLength?: number, prefixLength?: number, globalHandOrderOffset?: number): Pattern {
+export function createTwoHandedPattern(throws: Throw[], mapRows: number[], roles: Role[] | [Beat, Role[]][], patternLength?: number, prefixLength?: number, globalHandOrderOffset?: number): Pattern {
     const globalHandOrder = [Hand.Right, Hand.Left]
-    return new PatternImpl(throws, nrHands, mapRows, roles, globalHandOrder, globalHandOrderOffset ?? 0, patternLength, prefixLength)
+    return new PatternImpl(throws, 2, mapRows, roles, globalHandOrder, globalHandOrderOffset ?? 0, patternLength, prefixLength)
 }
 
 export function createFourHandedPattern(throws: Throw[], mapRows: number[], roles: Role[] | [Beat, Role[]][], patternLength?: number, globalHandOrderOffset?: number): Pattern {

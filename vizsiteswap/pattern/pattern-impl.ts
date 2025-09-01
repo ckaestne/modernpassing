@@ -209,14 +209,16 @@ export class PatternImpl implements Pattern {
             result += "Beat:\t"
 
             for (let beat = -this.getPrefixLength(); beat < 0; beat++) {
-                result += beat + "\t"
+                result += `${beat} ${this.getGlobalHand(0, beat) ? 'L' : 'R'} \t`
             }
             for (let beat = 0; beat < this.getLength(); beat++) {
                 const newRoles = this.roles.find(r => r[0] === beat)
                 if (beat !== 0 && newRoles)
                     result += `\t`
-                result += beat + "\t"
+                result += `${beat} ${this.getGlobalHand(0, beat) ? 'L' : 'R'} \t`
             }
+            if (this.globalHandOrderOffset!==0)
+                result += `:: ${this.globalHandOrderOffset}`
             result += "\n"
         }
 
@@ -535,23 +537,16 @@ export class PatternImpl implements Pattern {
     }
 
     getGlobalHand(iteration: number, beat: number): Hand {
+        return this.globalHandOrder[this.getGlobalHandIdx(iteration, beat)]
+    }
+
+    private getGlobalHandIdx(iteration: number, beat: number): number {
         assert(this.globalHandOrder)
         // Calculate the index into the global hand order
         // All passers start at index 0, then advance by the time progression
         // The offset affects how we transition between iterations
         const timeOffset = iteration * this.getLength() + beat + iteration * this.globalHandOrderOffset
-        const handIndex = ((timeOffset % this.globalHandOrder.length) + this.globalHandOrder.length) % this.globalHandOrder.length
-        
-        return this.globalHandOrder[handIndex]
-    }
-
-    // Helper method to convert old system to new system (for migration)
-    convertToGlobalHandOrder(): { globalHandOrder: Hand[] } {
-        // For now, create a simple [Right, Left] alternating pattern
-        // This is a basic conversion - more sophisticated logic needed for complex patterns
-        const globalHandOrder: Hand[] = [Hand.Right, Hand.Left]
-        
-        return { globalHandOrder }
+        return ((timeOffset % this.globalHandOrder.length) + this.globalHandOrder.length) % this.globalHandOrder.length
     }
 
     getThrowHand(t: Throw, iteration: number): Hand {
@@ -570,21 +565,12 @@ export class PatternImpl implements Pattern {
     }
     getTargetHand(t: Throw, iteration: number): Hand {
         assert(t)
-        
-        // Calculate the landing time and beat
-        let causeTime = this.getThrowCauseTime(t, iteration)
-        let targetIteration = 0
-        while (causeTime >= this.getLength()) {
-            causeTime -= this.getLength()
-            targetIteration++
-        }
-        while (causeTime < 0) {
-            causeTime += this.getLength()
-            targetIteration--
-        }
 
-
-        const defaultTargetHand = this.getGlobalHand(targetIteration, causeTime)
+        // we are computing the target hand with the global hand order while ignoring
+        // the offset. (we only use the offset for the throw hand and then move in the
+        // hand order from there)
+        const throwHandGHIdx = this.getGlobalHandIdx(iteration, t.throwBeat)
+        const defaultTargetHand = this.globalHandOrder[(throwHandGHIdx + t.throwLength) % this.globalHandOrder.length]
 
         // Apply transformations based on throw properties:
         // 1. If thrown from opposite hand, flip the target

@@ -294,9 +294,9 @@ positions: Line(A,B)`
 
 
 Deno.test("walking on siteswap, fixing passing positions", () => {
-    const whynotVsPopcorn = `A: 7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
+    const whynotVsPopcorn = `A: 7B 6 7Cx 82 7B 6 7Cx 827Cx -- B
 B: , 887A66887A67 -- C
-C: !, 66887Ax66887Ax -- A⇆
+C: !, 66887Ax66887Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)`
 
