@@ -534,7 +534,7 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
 
 })
 
-Deno.test.only("check positions roundabout", () => {
+Deno.test("check positions roundabout", () => {
     const manege = `A: 7 6 8 7 6 -- B
          B: ,8 7 6 8 -- A
         M: IBb, CAo -- M`

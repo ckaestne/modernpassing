@@ -41,7 +41,7 @@ export function getThrowsFromPattern(pattern: Pattern, iterations: number, rende
             const toPasserIdx = pattern.adjustRowIdxByTime(iterationTimeOffset, pattern.getToPasserIdxAtThrow(t))
             const targetRoleAtThrow = pattern.getRole(t.throwBeat + iterationTimeOffset, pattern.getToPasserIdxAtThrow(t))
             result.push({
-                throwTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat, t.fromHand),
+                throwTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat, fromHand),
                 rethrowTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + t.throwBeat + t.throwLength, toHand),
                 causeTime: gallopOffset(prefixTimeOffset + iterationTimeOffset + pattern.getThrowCauseTime(t), toHand),
                 fromPasserIdx,
@@ -74,7 +74,7 @@ export function getThrowsFromManipulatorPattern(basePattern: Pattern, manipulato
                 // console.error(existingThrow.label)
             }
             else
-                if (m.kind==='T' && m.throwLength===(basePattern.nrHands/2) && m.isCrossing===false && m.toPasserRole === m.manipulatorRole) { 
+                if (m.kind==='T' && m.throwLength===(basePattern.nrHands/2) && m.flipCrossing===true && m.toPasserRole === m.manipulatorRole) { 
                     // ignore 1x throws from manipulators in rendering, they are not actually thrown just needed for switching hands
                 }
             else

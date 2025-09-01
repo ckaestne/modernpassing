@@ -125,7 +125,7 @@ export function customRendererConfigDefaults(pattern: Pattern): RendererConfig {
     assert(pattern.throws, "Pattern must have throws defined");
     const allSync = pattern.throws.some((value, index, array) => 
         array.findIndex(item => 
-            item.fromHand!==value.fromHand && item.fromPasserIdx===value.fromPasserIdx && item.throwBeat===value.throwBeat
+            item.fromOppositeHand!==value.fromOppositeHand && item.fromPasserIdx===value.fromPasserIdx && item.throwBeat===value.throwBeat
         ) >=0
     )
     return {
