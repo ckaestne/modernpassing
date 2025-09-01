@@ -16,9 +16,6 @@ Deno.test("Pattern from siteswap, 756", () => {
     assert.equal(t7.fromPasserIdx,0)
     assert.equal(t5.fromPasserIdx,1)
     assert.equal(t6.fromPasserIdx,0)
-    assert.equal(t7.fromHand,Hand.Right)
-    assert.equal(t5.fromHand,Hand.Right)
-    assert.equal(t6.fromHand,Hand.Left)
     assert.equal(s756.getThrowHand(t7, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t7, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t7, 2), Hand.Left)
@@ -27,9 +24,6 @@ Deno.test("Pattern from siteswap, 756", () => {
     assert.equal(s756.getThrowHand(t5, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t5, 2), Hand.Left)
     assert.equal(s756.getThrowHand(t5, 3), Hand.Left)
-    assert.equal(t7.isCrossing, true)
-    assert.equal(t5.isCrossing, true)
-    assert.equal(t6.isCrossing, true)
     assert.equal(s756.getTargetHand(t7, 0), 1-Hand.Right)
     assert.equal(s756.getTargetHand(t5, 0), 1-Hand.Right)
     assert.equal(s756.getTargetHand(t7, 1), Hand.Left)
@@ -56,9 +50,6 @@ Deno.test("Pattern from siteswap, 756, B starting", () => {
     assert.equal(t7.fromPasserIdx,1)
     assert.equal(t5.fromPasserIdx,0)
     assert.equal(t6.fromPasserIdx,1)
-    assert.equal(t7.fromHand,Hand.Right)
-    assert.equal(t5.fromHand,Hand.Left)
-    assert.equal(t6.fromHand,Hand.Left)
     assert.equal(s756.getThrowHand(t7, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t7, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t7, 2), Hand.Left)
@@ -67,9 +58,6 @@ Deno.test("Pattern from siteswap, 756, B starting", () => {
     assert.equal(s756.getThrowHand(t5, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t5, 2), Hand.Right)
     assert.equal(s756.getThrowHand(t5, 3), Hand.Left)
-    assert.equal(t7.isCrossing, false)
-    assert.equal(t5.isCrossing, false)
-    assert.equal(t6.isCrossing, true)
     assert.equal(s756.getTargetHand(t7, 0), Hand.Right)
     assert.equal(s756.getTargetHand(t5, 0), 1-Hand.Right)
     assert.equal(s756.getTargetHand(t7, 1), Hand.Left)
@@ -92,13 +80,13 @@ Deno.test("Pattern from siteswap, 77722", () => {
     assert.equal(t1.fromPasserIdx,0)
     assert.equal(t2.fromPasserIdx,1)
     assert.equal(s756.getThrowHand(t1, 0), Hand.Right)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Left) // straight
     assert.equal(s756.getThrowHand(t2, 0), Hand.Right)
+    assert.equal(s756.getTargetHand(t2, 0), Hand.Right) // crossing
     assert.equal(s756.getThrowHand(t1, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t2, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t1, 2), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Left)
-    assert.equal(t1.isCrossing, true)
-    assert.equal(t2.isCrossing, false)
     assert(s756.isValid(), s756.getValidationError())
 
 })
@@ -112,13 +100,13 @@ Deno.test("Pattern from siteswap, 77722, B starting", () => {
     assert.equal(t1.fromPasserIdx,1)
     assert.equal(t2.fromPasserIdx,0)
     assert.equal(s756.getThrowHand(t1, 0), Hand.Right)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Right) // crossing
     assert.equal(s756.getThrowHand(t2, 0), Hand.Left)
+    assert.equal(s756.getTargetHand(t2, 0), Hand.Right) // straight
     assert.equal(s756.getThrowHand(t1, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t1, 2), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Right)
-    assert.equal(t1.isCrossing, false)
-    assert.equal(t2.isCrossing, true)
 })
 
 
@@ -133,7 +121,7 @@ Deno.test("Pattern from siteswap, 7", () => {
     assert.equal(s756.getThrowHand(t1, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t1, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t1, 2), Hand.Left)
-    assert.equal(t1.isCrossing, true)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Left) // straight
 })
 
 
@@ -152,7 +140,7 @@ Deno.test("Pattern from siteswap, 75", () => {
     assert.equal(s756.getThrowHand(t2, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t2, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Right)
-    assert.equal(t1.isCrossing, true)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Left) // straight
     assert(s756.isValid(), s756.getValidationError())
 })
 
@@ -172,7 +160,7 @@ Deno.test("Pattern from siteswap, 7575", () => {
     assert.equal(s756.getThrowHand(t2, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t2, 1), Hand.Right)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Right)
-    assert.equal(t1.isCrossing, true)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Left) // straight
 })
 
 
@@ -191,7 +179,7 @@ Deno.test("Pattern from siteswap, 756756", () => {
     assert.equal(s756.getThrowHand(t2, 0), Hand.Right)
     assert.equal(s756.getThrowHand(t2, 1), Hand.Left)
     assert.equal(s756.getThrowHand(t2, 2), Hand.Right)
-    assert.equal(t1.isCrossing, true)
+    assert.equal(s756.getTargetHand(t1, 0), Hand.Left) // straight
 })
 
 

@@ -151,7 +151,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
 
     // for hands and crossing also the two roles swap, that is the *role* in a different row continues with
     // the same hand sequences 
-    pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat)
+    // pattern = swapHands(pattern, iBeat, manipulatedRowIdxAfterIBeat, manipulatorRowIdxAfterIBeat) // TODO: is this still needed?
 
 
 
@@ -244,7 +244,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let toPasserIdxAtCausal = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdxAtCausal
             let markers = t.markers || []
-            let isCrossing = t.isCrossing
+            let flipCrossing = false
             let throwLength = t.throwLength
             if (isInterceptThrow) {
                 const newMarker: InterceptMarker = { kind: 'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
@@ -255,19 +255,19 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             }
             if (isSkippedCarry) {
                 markers = [...markers, filledMarker]
-                isCrossing = false
+                // flipCrossing = false
                 throwLength = pattern.nrHands
             }
             if (isInterceptThrow && isEarlyIntercept) {
                 throwLength = pattern.nrHands / 2
-                isCrossing = true
+                // flipCrossing = true
                 toPasserIdxAtCausal = pattern.samePasserNBeatsLater(toPasserIdxAtCausal, pattern.getThrowCauseBeat(t), throwLength - t.throwLength)
             }
             newThrow = {
                 ...t,
                 fromPasserIdx,
                 toPasserIdxAtCausal: isSkippedCarry ? fromPasserIdx : toPasserIdxAtCausal,
-                isCrossing,
+                flipCrossing,
                 throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
@@ -275,18 +275,20 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             pattern = pattern.addThrow(newThrow)
             // skipped carry: we already introduced a 2 at the unchanged source (the new manipulator), now we also introduce
             // a 2 at the target of that skipped throw
-            if (isSkippedCarry)
-                // if (fromPasserIdx !== toPasserIdx)
+            if (isSkippedCarry) {
+                // if (fromPasserIdx !== toPasserIdx)    
+                const beat = Math.floor(pattern.getThrowCauseTime(t) / pattern.getLength())
                 pattern = pattern.addThrow({
                     fromPasserIdx: toPasserIdxAtCausal,
                     toPasserIdxAtCausal,
-                    fromHand: pattern.getTargetHand(t, Math.floor(pattern.getThrowCauseTime(t) / pattern.getLength())), // where the skipped carry would have landed 
-                    isCrossing: false,
+                    fromOppositeHand: pattern.getGlobalHand(0, beat) !== pattern.getTargetHand(t, beat), // where the skipped carry would have landed 
+                    flipCrossing: false,
                     throwLength: pattern.nrHands,
                     throwBeat: pattern.getThrowCauseBeat(t),
                     markers: [filledMarker],
                     note: '2'
                 })
+            }
             // // intercept: add 0 at target if there is no throw there yet
             // if (isInterceptThrow) {
             //     // const manipulatorThrowOn0Beat = pattern.findThrow(pattern.getThrowCauseBeat(newThrow), newThrow.toPasserIdx)
@@ -359,7 +361,8 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
         toPasserIdxAtCausal: manipulatorRowIdxOnPelfArrival,
-        isCrossing: pelfLength % pattern.nrHands !== 0,
+        // isCrossing: pelfLength % pattern.nrHands !== 0,
+        flipCrossing: false,
         throwLength: pelfLength,
         markers: [...originalMarkers, newMarkerP],
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
@@ -368,13 +371,13 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
     const handinThrowBeat = (substitutedThrow.throwBeat + placementDelay) % pattern.getLength()
     // we assume alternating hands, so for delayed throws we need to adjust the hand
-    let handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
-    // in the unusual case that we cross the pattern boundary, we need to check whether we need to map hands -- this is a bit hacky
-    const handinCrossesPatternBoundary = Math.floor((substitutedThrow.throwBeat + placementDelay) / pattern.getLength())
-    assert(handinThrowHand <= 1, "cannot handle delay that wraps around the pattern multiple times")
-    if (handinCrossesPatternBoundary > 0)
-        handinThrowHand = pattern.mapHands[substitutedThrow.fromPasserIdx][0] ? 1 - handinThrowHand : handinThrowHand
-    const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
+    // let handinThrowHand = (substitutedThrow.fromHand + placementDelay) % 2
+    // // in the unusual case that we cross the pattern boundary, we need to check whether we need to map hands -- this is a bit hacky
+    // const handinCrossesPatternBoundary = Math.floor((substitutedThrow.throwBeat + placementDelay) / pattern.getLength())
+    // assert(handinThrowHand <= 1, "cannot handle delay that wraps around the pattern multiple times")
+    // if (handinCrossesPatternBoundary > 0)
+    //     handinThrowHand = pattern.mapHands[substitutedThrow.fromPasserIdx][0] ? 1 - handinThrowHand : handinThrowHand
+    // const handinIsCrossing = substitutedThrow.isCrossing != (placementDelay % 2 === 1)
     // the substitution is always thrown by the same physical person as who stole the incoming pass, even if the role has changed,
     // however, the row may have changed if the pattern wraps around
     const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
@@ -384,8 +387,10 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     pattern = pattern.addThrow({
         ...substitutedThrow,
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,
-        fromHand: handinThrowHand,
-        isCrossing: handinIsCrossing,
+        // fromHand: handinThrowHand,
+        // isCrossing: handinIsCrossing,
+        fromOppositeHand: false, // TODO check and update these 
+        flipCrossing: false,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
         markers: [...originalMarkers, newMarkerS],
@@ -432,8 +437,8 @@ export function applyManipulatorThrow(pattern: Pattern, t: ThrowAction): Pattern
     pattern = pattern.addThrow({
         fromPasserIdx: manipulatorRowIdx,
         toPasserIdxAtCausal,
-        fromHand: t.fromHand,
-        isCrossing: t.isCrossing,
+        fromOppositeHand: t.fromOppositeHand,
+        flipCrossing: t.flipCrossing,
         throwBeat: t.beat,
         throwLength: t.throwLength,
         markers: [baseManipulatorMarker],
@@ -604,8 +609,8 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
 
         const potentialThrow = {
             fromPasserIdx: rowIdx,
-            fromHand: hand,
-            isCrossing: true,
+            fromOppositeHand: pattern.getGlobalHand(0,beat)!==hand,
+            flipCrossing: false,
             toPasserIdxAtCausal: rowIdx1BeatsEarlier,
             throwLength: pattern.nrHands / 2,
             throwBeat: beat,
@@ -630,7 +635,8 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         if (foundCaught2[rowIdx][hand][beat] && !foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx2BeatsEarlier][hand][beat2BeatEarlier]) {
             const newThrow = {
                 fromPasserIdx: rowIdx,
-                fromHand: hand, isCrossing: false,
+                fromOppositeHand: pattern.getGlobalHand(0,beat)!==hand,
+                flipCrossing: false,
                 toPasserIdxAtCausal: rowIdx2BeatsEarlier,
                 throwLength: 0,
                 throwBeat: beat,
@@ -697,7 +703,8 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
         if (!foundThrown2[rowIdx][hand][beat] && !foundCaught2[rowIdx][hand][beat]) {
             const newThrow = {
                 fromPasserIdx: rowIdx,
-                fromHand: hand, isCrossing: false,
+                fromOppositeHand: pattern.getGlobalHand(0,beat)!==hand,
+                flipCrossing: false,
                 toPasserIdxAtCausal: rowIdx,
                 throwLength: pattern.nrHands,
                 throwBeat: beat,
@@ -737,28 +744,28 @@ export function fillPatternGaps(pattern: Pattern): Pattern {
 }
 
 
-function swapHands(pattern: Pattern, beat: number, rowA: number, rowB: number): Pattern {
-    // const oldMapCrossingA = pattern.mapCrossing[rowA]
-    // const oldMapHandsA = pattern.mapHands[rowA]
-    // Swap crossing and hands maps between rows
-    const newMapCrossing = [...pattern.mapCrossing];
-    newMapCrossing[rowA] = pattern.mapCrossing[rowB]
-    newMapCrossing[rowB] = pattern.mapCrossing[rowA]
-    const newMapHands = [...pattern.mapHands];
-    newMapHands[rowA] = pattern.mapHands[rowB]
-    newMapHands[rowB] = pattern.mapHands[rowA]
+// function swapHands(pattern: Pattern, beat: number, rowA: number, rowB: number): Pattern {
+//     // const oldMapCrossingA = pattern.mapCrossing[rowA]
+//     // const oldMapHandsA = pattern.mapHands[rowA]
+//     // Swap crossing and hands maps between rows
+//     const newMapCrossing = [...pattern.mapCrossing];
+//     newMapCrossing[rowA] = pattern.mapCrossing[rowB]
+//     newMapCrossing[rowB] = pattern.mapCrossing[rowA]
+//     const newMapHands = [...pattern.mapHands];
+//     newMapHands[rowA] = pattern.mapHands[rowB]
+//     newMapHands[rowB] = pattern.mapHands[rowA]
 
-    // Return pattern with updated mappings
-    return createPattern(
-        pattern.throws,
-        pattern.nrHands,
-        pattern.mapRows,
-        pattern.roles,
-        newMapHands,
-        newMapCrossing,
-        pattern.initialHands,
-        pattern.getLength()
+//     // Return pattern with updated mappings
+//     return createPattern(
+//         pattern.throws,
+//         pattern.nrHands,
+//         pattern.mapRows,
+//         pattern.roles,
+//         newMapHands,
+//         newMapCrossing,
+//         pattern.initialHands,
+//         pattern.getLength()
 
-    );
+//     );
 
-}
+// }

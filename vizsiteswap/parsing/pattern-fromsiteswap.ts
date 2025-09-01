@@ -1,4 +1,4 @@
-import { createPattern, Pattern, Throw } from "@modernpassing/pattern";
+import { createFourHandedPattern, createPattern, Hand, Pattern, Throw } from "@modernpassing/pattern";
 import { FourHandedSiteswap } from "./siteswap.ts";
 import assert from "node:assert";
 
@@ -31,35 +31,33 @@ function createSiteswapPatternImpl(sw: FourHandedSiteswap, config: Partial<Sites
         startingJuggler
     } = { ...defaultSiteswapPatternConfig, ...config }
 
-    let startingHands = sw.getStartingHands();
-    if (startingJuggler === 1)
-        startingHands = [[startingHands[1][1],startingHands[1][0]],startingHands[0] ];
+    // let startingHands = sw.getStartingHands();
+    // if (startingJuggler === 1)
+    //     startingHands = [[startingHands[1][1],startingHands[1][0]],startingHands[0] ];
 
 
     const ts: Throw[] = [];
     for (let beat = 0; beat < sw.length(); beat++) {
         const passerIdx = beat % 2;
-        const isCrossing = ((passerIdx+ startingJuggler)%2===0 ? [2,3] : [1,2]).includes(sw.throwAt(beat)%4)
+        // const isCrossing = ((passerIdx+ startingJuggler)%2===0 ? [2,3] : [1,2]).includes(sw.throwAt(beat)%4)
         const t: Throw = {
             throwBeat: beat,
             throwLength: sw.throwAt(beat),
             fromPasserIdx: (passerIdx+ startingJuggler) % 2,
             toPasserIdxAtCausal: (sw.jugglerAt((sw.causes(beat)+sw.length()) % sw.length())+ startingJuggler) % 2,
-            fromHand: (beat + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
-            isCrossing,
+            // fromHand: (beat + startingJuggler) % 4 < 2 ? 0 /*R*/ : 1 /*L*/,
+            // isCrossing,
+            fromOppositeHand: false,
+            flipCrossing: false,
             note: sw.throwLetterAt(beat)
         }
         ts.push(t);
     }
 
+    const handOrder = startingJuggler===0 ? [Hand.Right, Hand.Right, Hand.Left, Hand.Left] : [Hand.Right, Hand.Left, Hand.Left, Hand.Right]
 
     const swapSides = sw.length()%2==1
-    const o =sw.length()%4
-    const aSwapHands = (o===2) || o===1// ((startingJuggler === 0) && (o===1)) || ((startingJuggler === 1) && (o===3))
-    const bSwapHands = (o===2) || o===3// ((startingJuggler === 0) && (o===3)) || ((startingJuggler === 1) && (o===1))
-    const mapHands = [[aSwapHands],[bSwapHands]]
-    const mapCrossing = [[swapSides],[swapSides]]
 
-    return createPattern(ts, 4, swapSides?[1,0]:[0,1],['A','B'],mapHands, mapCrossing)
+    return createPattern(ts, 4, swapSides?[1,0]:[0,1],['A','B'],handOrder, sw.length())
 
 }

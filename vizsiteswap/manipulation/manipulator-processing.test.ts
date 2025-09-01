@@ -213,6 +213,7 @@ Deno.test('intercept rewrite: basic two beat carry', () => {
     assertThrow(rewritten, 2, 2, M, M, 'carry-induced flip at old manipulator')
 
     const full = fillPatternGaps(rewritten)
+    console.log(full.prettyPrintThrows())
     assert.ok(full.isValid(), full.getValidationError())
 
 })
@@ -1522,17 +1523,20 @@ export function assertThrow(pattern: Pattern, beat: number, length: number, from
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(t => `${t.throwLength}p to ${t.toPasserIdxAtCausal}`).join(', ')}`)
     assert(ts.length <= 1, `multiple throws found for ${beat} ${length} ${fromPasserIdx} ${toPasserIdxAtCausal}, expected one [${msg}]`)
 }
-export function assertThrowH(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, fromHand: Hand, toPasserIdxAtCausal: number, isCrossing?: boolean, msg?: string) {
+export function assertThrowH(pattern: Pattern, beat: number, length: number, fromPasserIdx: number, fromHand: Hand, toPasserIdxAtCausal: number, expectCrossing?: boolean, msg?: string) {
     // automated relabel of rows past the end of the pattern
     let toTime = pattern.getThrowCauseTime_(beat, length)
     toPasserIdxAtCausal = pattern.adjustRowIdxByTime(toTime, toPasserIdxAtCausal)
+    const isFromOppositeHand = (fromHand !== pattern.getGlobalHand(0, beat))
+    const isCrossingByDefault = pattern.getGlobalHand(0, beat) !== pattern.getGlobalHand(0, beat+length)
+    const isFlipCrossing = isCrossingByDefault !== expectCrossing
 
     const ts = pattern.throws.filter(t => 
         t.throwBeat === beat && 
         t.throwLength === length && 
         t.fromPasserIdx === fromPasserIdx && 
-        t.fromHand === fromHand &&
-        (isCrossing===undefined || t.isCrossing === isCrossing) &&
+        t.fromOppositeHand === isFromOppositeHand &&
+        t.flipCrossing == isFlipCrossing &&
         t.toPasserIdxAtCausal === toPasserIdxAtCausal)
 
     assert(ts.length !== 0, `throw {beat: ${beat}, length: ${length}, from: ${fromPasserIdx}, to: ${toPasserIdxAtCausal}} not found [${msg}] -- other throws from ${fromPasserIdx} on ${beat}: ${pattern.throws.filter(t => t.throwBeat === beat && t.fromPasserIdx === fromPasserIdx).map(x=>JSON.stringify(x)).join(', ')}`)
@@ -1822,7 +1826,8 @@ M: SBe! . 1x     SBl IBv.. CB↺  -- M!`
 
     // first throw is substituted (right handed)
     assertThrowH(full, 0, 1, A, Hand.Right, M, true, 'sub pass -- steal')
-    const firstThrow = full.throws.find(t => t.throwBeat === 0 && t.fromPasserIdx === A && t.fromHand === Hand.Right)!
+    const firstThrow = full.throws.find(t => t.throwBeat === 0 && t.fromPasserIdx === A)!
+    assert(full.getThrowHand(firstThrow, 0) === Hand.Right, 'first throw should be right handed')
     assert(full.getThrowHand(firstThrow, 1) === Hand.Right, 'first throw should be right handed also in the second iteration')
 
 })

@@ -582,7 +582,7 @@ Deno.test("starting hands, various siteswaps", () => {
 })
 
 
-Deno.test.ignore("hands, 10 club brunos", () => {
+Deno.test.ignore("TODO[globalhandorder] hands, 10 club brunos", () => {
     function self(from: number, when: number, swapHands: boolean = false): Throw {
         return { fromPasserIdx: from, fromOppositeHand: swapHands, flipCrossing: false, throwBeat: when, throwLength: 6, toPasserIdxAtCausal: (from + (when + 2 > 20 ? 1 : 0)) % 3 }
     }

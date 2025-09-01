@@ -36,7 +36,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     const [pattern, manipulatorActions] = createPatternFromRaw(rows, nrHands)
 
     // apply manipulations
-    let rewritten = skipRewrite ? pattern : tryHandMapping(applyManipulations(pattern, manipulatorActions))
+    let rewritten = skipRewrite ? pattern : applyManipulations(pattern, manipulatorActions)
     rewritten = skipRewrite || skipFillDuringRewrite ? rewritten : fillPatternGaps(rewritten)
 
     // infer basic layouts (heuristic)
@@ -92,6 +92,7 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
             rawPattern,
             nrHands)
+    const globalHandOrder: Hand[] = nrHands === 2 ? [Hand.Right, Hand.Left] : [Hand.Right, Hand.Right, Hand.Left, Hand.Left]
     const prefixHandSequence: Hand[/*rowIdx*/][/*-beat*/] = altHands(handSequence.map(v => 1 - v[0]), prefixLength, rawPattern.length, nrHands)
     // for now let's assume that everybody starting on even beats is James (straight singles); any other adjustments are doing with `x` for passes
     const isJames: boolean[] = nrHands === 4 ? getJames(rawPattern) : []
@@ -130,13 +131,13 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         for (let wrap = 0; wrap > Math.floor(causeTime / patternLength); wrap--)
             toPasserIdxAtCausal = fullRelabel.indexOf(toPasserIdxAtCausal)
 
-
+        const fromOppositeHand = globalHandOrder[mod(when, globalHandOrder.length)] !== fromHand
 
         return createThrow(
             when,
             who,
-            fromHand,
-            isCrossing,
+            fromOppositeHand,
+            flipCrossing, // if directly indicated in the notation with an x
             toPasserIdxAtCausal,
             throwLength,
             [baseMarker],
@@ -207,8 +208,8 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                     kind: 'T',
                     throwLength: t.throwLength,
                     toPasserRole: roles[pattern.getToPasserIdxAtThrow(t)],
-                    fromHand: t.fromHand,
-                    isCrossing: t.isCrossing,
+                    fromOppositeHand: t.fromOppositeHand,
+                    flipCrossing: t.flipCrossing,
                     beat: t.throwBeat,
                     manipulatorRole: who,
                     modifiers
@@ -238,74 +239,75 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
     // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
     // if not, we are doing guessing and brute force trying all combinations
-    const specifiedMapHandsOrCrossing =
-        rawPattern.filter(r => r.relabelMapHands !== undefined || r.relabelMapCrossing !== undefined).length > 0
+    // const specifiedMapHandsOrCrossing =
+    //     rawPattern.filter(r => r.relabelMapHands !== undefined || r.relabelMapCrossing !== undefined).length > 0
 
-    let p: Pattern
-    if (specifiedMapHandsOrCrossing) {
-        const mapHands: boolean[][] = rawPattern.map(r => [r.relabelMapHands === true])
-        const mapCrossing: boolean[][] | undefined = rawPattern.map(r => [r.relabelMapCrossing === true])
-        p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength)
-    } else {
-        const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
-            : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
-        // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
-        const guestMapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
-            const toRow = baseIdxRelabel[idx]
-            return [isJames[idx] !== isJames[toRow]]
-        })
-        p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, guessedMapHands, guestMapCrossing, undefined, patternLength))
-    }
+    // let p: Pattern
+    // if (specifiedMapHandsOrCrossing) {
+    //     const mapHands: boolean[][] = rawPattern.map(r => [r.relabelMapHands === true])
+    //     const mapCrossing: boolean[][] | undefined = rawPattern.map(r => [r.relabelMapCrossing === true])
+    //     p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, mapHands, mapCrossing, undefined, patternLength)
+    // } else {
+    //     const guessedMapHands: boolean[][] = nrHands === 2 ? baseRoles.map((_r) => [patternLength % 2 === 1])
+    //         : baseRoles.map((_r, roleIdx) => [baseThrows.filter(t => t.fromPasserIdx === roleIdx).length % 2 === 1])
+    //     // mapCrossing -- let's guess that somebody going from a James row to a not-James row and vice versa needs to swap crossing and everybody else does not (if this does not work, we try brute force all combinations below)
+    //     const guestMapCrossing: boolean[][] | undefined = nrHands === 2 ? undefined : baseRoles.map((_r, idx) => {
+    //         const toRow = baseIdxRelabel[idx]
+    //         return [isJames[idx] !== isJames[toRow]]
+    //     })
+    //     p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, guessedMapHands, guestMapCrossing, undefined, patternLength))
+    // }
+    const p = createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, 0)
     const m = getManipulatorActions(p)
 
     return [p, m]
 }
 
 
-/**
- * brute force approach to try different hand mappings if the pattern is not valid as is
- */
-function tryHandMapping(pattern: Pattern): Pattern {
-    if (pattern.isValid()) return pattern
+// /**
+//  * brute force approach to try different hand mappings if the pattern is not valid as is
+//  */
+// function tryHandMapping(pattern: Pattern): Pattern {
+//     if (pattern.isValid()) return pattern
 
-    // for 4hsw with 3 or more passers, we also try [true, false] as hand mapping, which is sometimes needed
-    // we avoid it otherwise to not explode the search space
-    const tryTrueFalseMapping = pattern.nrRows > 2 && pattern.nrHands === 4
+//     // for 4hsw with 3 or more passers, we also try [true, false] as hand mapping, which is sometimes needed
+//     // we avoid it otherwise to not explode the search space
+//     const tryTrueFalseMapping = pattern.nrRows > 2 && pattern.nrHands === 4
 
-    let results: Pattern[] = []
-    // aggressively try all combinations, brute force
-    const combinations = (length: number, tryTrueFalseMapping: boolean): boolean[][][] => {
-        if (length === 0) return [[]];
-        const smaller = combinations(length - 1, tryTrueFalseMapping);
-        if (tryTrueFalseMapping)
-            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]]), c.concat([[true, false]])/*, c.concat([[false, true]])*/]);
-        else
-            return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]])]);
-    };
+//     let results: Pattern[] = []
+//     // aggressively try all combinations, brute force
+//     const combinations = (length: number, tryTrueFalseMapping: boolean): boolean[][][] => {
+//         if (length === 0) return [[]];
+//         const smaller = combinations(length - 1, tryTrueFalseMapping);
+//         if (tryTrueFalseMapping)
+//             return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]]), c.concat([[true, false]])/*, c.concat([[false, true]])*/]);
+//         else
+//             return smaller.flatMap(c => [c.concat([[true]]), c.concat([[false]])]);
+//     };
 
-    const mapCrossingCombinations = combinations(pattern.nrRows, false)
-    const mapHandsCombinations = combinations(pattern.nrRows, tryTrueFalseMapping)
-    for (const mapCrossing of mapCrossingCombinations) {
-        for (const mapHands of mapHandsCombinations) {
-            const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
-            if (p.isValid()) {
-                // if (results.length > 0 && results[0].iterationsUntilRepeat() > p.iterationsUntilRepeat()) results = []
-                // if (results.length > 0 && results[0].iterationsUntilRepeat() < p.iterationsUntilRepeat()) continue
-                results.push(p);
-            }
-        }
-    }
+//     const mapCrossingCombinations = combinations(pattern.nrRows, false)
+//     const mapHandsCombinations = combinations(pattern.nrRows, tryTrueFalseMapping)
+//     for (const mapCrossing of mapCrossingCombinations) {
+//         for (const mapHands of mapHandsCombinations) {
+//             const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, mapHands, mapCrossing, pattern.initialHands);
+//             if (p.isValid()) {
+//                 // if (results.length > 0 && results[0].iterationsUntilRepeat() > p.iterationsUntilRepeat()) results = []
+//                 // if (results.length > 0 && results[0].iterationsUntilRepeat() < p.iterationsUntilRepeat()) continue
+//                 results.push(p);
+//             }
+//         }
+//     }
 
-    assert(results.length <= 1, `multiple valid patterns found when trying hand/crossing mapping: ${results.map(r => JSON.stringify(r.mapHands) + "/" + JSON.stringify(r.mapCrossing) + "@" + r.iterationsUntilRepeat() + "h" + (r as any).countHurries()).join('; ')}`)
-    if (results.length === 1) return results[0]
-    if (results.length > 1) {
-        console.error(`multiple valid patterns found when trying hand/crossing mapping; returning first one`)
-        return results[0]
-    }
+//     assert(results.length <= 1, `multiple valid patterns found when trying hand/crossing mapping: ${results.map(r => JSON.stringify(r.mapHands) + "/" + JSON.stringify(r.mapCrossing) + "@" + r.iterationsUntilRepeat() + "h" + (r as any).countHurries()).join('; ')}`)
+//     if (results.length === 1) return results[0]
+//     if (results.length > 1) {
+//         console.error(`multiple valid patterns found when trying hand/crossing mapping; returning first one`)
+//         return results[0]
+//     }
 
-    // I guess nothing worked, so just return the original invalid pattern
-    return pattern
-}
+//     // I guess nothing worked, so just return the original invalid pattern
+//     return pattern
+// }
 
 
 
@@ -591,4 +593,13 @@ function inferDefaultLayout(rows: TPatternRow[], movement: TMovement | undefined
         return { type: 'standard', shape: 'Line', roles: baseRoles }
     }
     return undefined
+}
+
+
+function mod(va: number, len: number): number {
+    let v = va;
+    while (v < 0) {
+        v += len;
+    }
+    return v % len;
 }

@@ -281,11 +281,11 @@ export class PatternImpl implements Pattern {
 
     addThrow(newThrow: Throw): Pattern {
         const newThrows = [...this.throws, newThrow]
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.globalHandOrder, this.length)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.globalHandOrder, this.globalHandOrderOffset, this.length, this.prefixLength)
     }
     removeThrow(thatThrow: Throw): Pattern {
         const newThrows = this.throws.filter(t => t !== thatThrow)
-        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.globalHandOrder, this.length)
+        return new PatternImpl(newThrows, this.nrHands, this.mapRows, this.roles, this.globalHandOrder, this.globalHandOrderOffset, this.length, this.prefixLength)
     }
 
     /** 
@@ -300,7 +300,7 @@ export class PatternImpl implements Pattern {
         // All passers follow the same global hand order sequence
 
         return new PatternImpl(this.throws, this.nrHands, [...this.mapRows, newRowIdx], this.roles.map(r => [r[0], [...r[1], newRole]] as [number, Role[]]),
-            this.globalHandOrder, this.length)
+            this.globalHandOrder, this.globalHandOrderOffset, this.length, this.prefixLength)
     }
 
     hasRole(manipulatorRole: string): boolean {
@@ -359,7 +359,7 @@ export class PatternImpl implements Pattern {
 
         const mapRows = labelsOnly ? this.mapRows : this.mapRows.map((r, i) => i === rowIdxA ? this.mapRows[rowIdxB] : i === rowIdxB ? this.mapRows[rowIdxA] : r)
 
-        return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.globalHandOrder, this.length)
+        return new PatternImpl(this.throws, this.nrHands, mapRows, roles, this.globalHandOrder, this.globalHandOrderOffset, this.length, this.prefixLength)
     }
 
     private validationError: string | undefined = undefined

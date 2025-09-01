@@ -413,8 +413,8 @@ export type ThrowAction = {
     throwLength: number,
     toPasserRole: Role, // at throw time
     manipulatorRole: Role,
-    fromHand: Hand,
-    isCrossing: boolean,
+    fromOppositeHand: boolean,
+    flipCrossing: boolean,
     modifiers: string
     kind: 'T'
 }
