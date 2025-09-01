@@ -244,7 +244,6 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let toPasserIdxAtCausal = needRedirectTarget ? manipulatorRowIdxAfterIBeat :
                 needRedirectTargetWrap ? manipulatorRowIdxAfterWrap : t.toPasserIdxAtCausal
             let markers = t.markers || []
-            let flipCrossing = false
             let throwLength = t.throwLength
             if (isInterceptThrow) {
                 const newMarker: InterceptMarker = { kind: 'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
@@ -267,7 +266,6 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 ...t,
                 fromPasserIdx,
                 toPasserIdxAtCausal: isSkippedCarry ? fromPasserIdx : toPasserIdxAtCausal,
-                flipCrossing,
                 throwLength,
                 markers,
                 // note: isInterceptThrow ? 'I' + intercept.manipulatorRole : isFirstCarryableThrow ? 'C' : t.note,
@@ -281,7 +279,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 pattern = pattern.addThrow({
                     fromPasserIdx: toPasserIdxAtCausal,
                     toPasserIdxAtCausal,
-                    fromOppositeHand: pattern.getGlobalHand(0, beat) !== pattern.getTargetHand(t, beat), // where the skipped carry would have landed 
+                    fromOppositeHand: pattern.getGlobalHand(0, beat) !== pattern.getThrowHand(t, beat), // where the skipped carry would have landed 
                     flipCrossing: false,
                     throwLength: pattern.nrHands,
                     throwBeat: pattern.getThrowCauseBeat(t),
@@ -389,8 +387,6 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,
         // fromHand: handinThrowHand,
         // isCrossing: handinIsCrossing,
-        fromOppositeHand: false, // TODO check and update these 
-        flipCrossing: false,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
         markers: [...originalMarkers, newMarkerS],

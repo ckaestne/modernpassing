@@ -100,7 +100,7 @@ test("advanced sync patterns", async (t) => {
 
 
 
-test.skip("TODO[globalhandorder] jims and galloped sync patterns", async (t) => {
+test("jims and galloped sync patterns", async (t) => {
     const patterns: [any, string][] = [
         [{ showLines: true, lineKind: "causal", "emphasizeThrows": [2, 9, 14, 21], xDist: 80, yDist: 80 }, '3p33 3p33,3px33 3px33'],
         [{ "emphasizeThrows": [2, 7, 10, 15] }, '3p3 3p3,3px3 3px3'],

@@ -1137,11 +1137,11 @@ Deno.test('scrambled V', () => {
 
 })
 
-Deno.test.ignore('TODO[globalhandorder] ambled V', () => {
+Deno.test('ambled V', () => {
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4pBx3  4pCx3  4pBx3  4pCx -- B
 B: !34pAx  3  3  34pAx  4x  -- C
-C: !2 33 4pAx 3  3  3   -- A!
+C: !2 33 4pAx 3  3  3   -- A
 M: C  !1x z  SB z  IC 
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)`
@@ -1149,6 +1149,8 @@ move: Vmove(B,5.9,3)`
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
     console.log(p.prettyPrintThrows() + prettyPrintManipulatorActions(p, manipulations))
+    assert.ok(p.isValid(), p.getValidationError())
+
     let rewritten = applyManipulations(p, manipulations)
     console.log(rewritten.prettyPrintThrows())
     // assert.ok(rewritten.isValid(), rewritten.getValidationError())
@@ -1174,7 +1176,7 @@ move: Vmove(B,5.9,3)`
 })
 
 
-Deno.test.ignore('TODO[globalhandorder] ambled 3 (with late intercept)', () => {
+Deno.test('ambled 3 (with late intercept)', () => {
     //this is with all crossing passes and no handedness weirdness
     const [p, manipulations] = createPatternFromRaw(parseGroupSyncPattern(
         `A: 4B 3  4C 3  4B 3  4C -- B
@@ -1185,6 +1187,8 @@ Deno.test.ignore('TODO[globalhandorder] ambled 3 (with late intercept)', () => {
     )[0], 2)
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
+    assert.ok(p.isValid(), p.getValidationError())
+
     let rewritten = applyManipulations(p, manipulations)
     console.log(rewritten.prettyPrintThrows())
 
@@ -1810,10 +1814,10 @@ positions: Line(A,B)`
 
 
 
-Deno.test.ignore("TODO[globalhandorder] check animations/hands in ronjabout roundabout", () => {
+Deno.test("check animations/hands in ronjabout roundabout", () => {
     const ronjabout = `A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
 B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
-M: SBe! . 1x     SBl IBv.. CB↺  -- M!`
+M: SBe! . 1x     SBl IBv.. CB↺  -- M`
 
     const r = parseGroupSyncPattern(ronjabout)
     const [t, m] = createPatternFromRaw(r[0], 2)
