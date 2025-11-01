@@ -8,7 +8,7 @@
 
 <siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
 A: 7B 6 7Cx 827Cx -- B
-B: , a67A67x -- C!
+B: , a67A67x -- C
 C: !, 66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
@@ -25,7 +25,7 @@ Notes:
 
 <pre>
 A: 7B 6 7Cx 827Cx -- B
-B: , a 6 7A 6 7x -- C!
+B: , a 6 7A 6 7x -- C
 C: !, 6 6 a 6 7Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 5)
@@ -38,9 +38,9 @@ move: Vmove(B, 7, 5)
 This longer version has a left and a right side (starting left handed and right handed) and is thus much longer.
 
 <siteswap-group  style='{"emphasizeThrows":[[1,19]],"components":["pattern","turntable"]}'>
-A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, a67A66a67A67x -- C⇆
-C: , 66a67Ax66a67Ax -- A⇆
+A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B
+B: !, a67A66a67A67x -- C
+C: , 66a67Ax66a67Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
 </siteswap-group>
@@ -50,9 +50,9 @@ Same notes as for the shorter version above.
 
 
 <pre>
-A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B⇆
-B: !, 8 8 7A 6 6 8 8 7A 6 7x -- C⇆
-C: ,  6 6 8 8 7Ax 6 6 8 8 7Ax -- A⇆
+A: !7B 6 7Cx 82 7B 6 7Cx 827Cx -- B
+B: !, 8 8 7A 6 6 8 8 7A 6 7x -- C
+C: ,  6 6 8 8 7Ax 6 6 8 8 7Ax -- A
 positions: V(A,B,C)
 move: Vmove(B, 17, 1)
 </pre>
@@ -63,7 +63,7 @@ move: Vmove(B, 17, 1)
 
 <siteswap-group style='{"emphasizeThrows":[[2,19]],"components":["pattern","turntable"]}'>
 A: 7B 6 7Cx 8 2 7B 6 6 8 8 7B -- C
-B: , 88 7A 6 6 8 8 7A 6 6 -- A!
+B: , 88 7A 6 6 8 8 7A 6 6 -- A
 C: !, 6 6 8 8 7Ax 6 6 6 6 7 -- B
 positions: VL(A,B,C)
 move: Vmove(C, 11, 5)
@@ -72,7 +72,7 @@ move: Vmove(C, 11, 5)
 <siteswap-group style='{"emphasizeThrows":[[1,19]],"components":["pattern","turntable"]}'>
 A: !7C 6 7Bx 8 2 7C 6 6 8 8 7C -- B
 B: !, 6 6 8 8 7A 6 6 6 6 7x -- C
-C: , 88 7Ax 6 6 8 8 7Ax 6 6 -- A!
+C: , 88 7Ax 6 6 8 8 7Ax 6 6 -- A
 positions: V(A,B,C)
 move: Vmove(B, 11, 5)
 </siteswap-group>
@@ -82,7 +82,7 @@ move: Vmove(B, 11, 5)
 
 <siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
 A: !7B 7Cx 7B 7Cx 2 7Cx -- B
-B: !, 8 2 7A 6 7x -- C!
+B: !, 8 2 7A 6 7x -- C
 C: , 7Ax 8 2 7Ax 6  -- A
 positions: V(A,B,C)
 move: Vmove(B, 7, 2)
@@ -91,15 +91,15 @@ move: Vmove(B, 7, 2)
 
 
 <siteswap-group>
-A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 7Cx -- B⇆
-B: !, 8 2 7A 6 7A 8 2 7A 6 7x -- C⇆
-C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A⇆
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 7Cx -- B
+B: !, 8 2 7A 6 7A 8 2 7A 6 7x -- C
+C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6  -- A
 positions: V(A,B,C)
 move: Vmove(B, 17, 2)
 </siteswap-group>
 
 <siteswap-group>
-A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 6 7Cx -- B!
+A: !7B 7Cx 7B 7Cx 2 7B 7Cx 7B 7Cx 2 6 7Cx -- B
 B: !, 8 2 7A 6 7A 8 2 7A 6 6 7x  -- C
 C: , 7Ax 8 2 7Ax 6 7Ax 8 2 7Ax 6 6  -- A
 positions: V(A,B,C)
@@ -112,7 +112,7 @@ move: Vmove(B, 17, 4)
 
 <siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["aidan","turntable"]    }'>
 A: 7B 6 7Cx 827Cx -- B
-B: , 887A67x -- C!
+B: , 887A67x -- C
 C: !, 66887Ax -- A
 M: IB,C
 positions: V(A,B,C)
@@ -140,7 +140,7 @@ positions: V(A,B,C)
 <siteswap-group style='{"emphasizeThrows":[[1,13]],"components":["pattern","turntable"]    }'>
 A: 7B7Cx267B7Cx66 -- B
 B: , 7A667A467x -- C
-C: !, 67Ax667Ax46 -- A!
+C: !, 67Ax667Ax46 -- A
 positions: V(A,B,C)
 </siteswap-group>
 

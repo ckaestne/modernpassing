@@ -6,8 +6,8 @@ import { get } from "node:http";
 
 
 
-function getRelabelSpec(pattern: Pattern): RelabelSpec[] {
-     const layoutRelabel: RelabelSpec[] = []
+function getRelabelSpec(pattern: Pattern): RelabelSpec {
+     const layoutRelabel: RelabelSpec = {initial: pattern.getInitialRoles(), relabelActions: []}
 
     let lastLabels: Role[] = []
     for (const [beat, labels] of pattern.roles) {
@@ -20,7 +20,7 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec[] {
                     labelChanges.push([from, to])
             }
             if (labelChanges.length > 0) {
-                layoutRelabel.push({
+                layoutRelabel.relabelActions.push({
                     onBeat: beat,
                     mod: pattern.getLength(),
                     changes: labelChanges,
@@ -38,7 +38,7 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec[] {
             finalLabelChanges.push([from, to])
     }
     if (finalLabelChanges.length > 0) {
-        layoutRelabel.push({
+        layoutRelabel.relabelActions.push({
             onBeat: 0,
             mod: pattern.getLength(),
             changes: finalLabelChanges,

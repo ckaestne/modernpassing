@@ -7,12 +7,11 @@
  */
 
 import assert from "node:assert";
-import { Hand, Role } from "../pattern/pattern.ts";
+import type { Hand, Role } from "../pattern/pattern.ts";
 import type { AnimationPlan, DirectMovementAnimation, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "./animation-plan.ts";
-import type { AnimationSpec, BetweenPositionSpec, MovementTriggerSpec, PassSpec, RelabelSpec, RelativeMovementSpec } from "./animation-spec.ts";
-import { MovementSegmentSpec } from "./layout.ts";
-import { createSVG } from "../svg-utils/svg-utils.ts";
-import { Path, Svg } from "@svgdotjs/svg.js";
+import type { AnimationSpec, BetweenPositionSpec, PassSpec, RelabelSpec, RelativeMovementSpec } from "./animation-spec.ts";
+import type { MovementSegmentSpec } from "./layout.ts";
+import { genPath, helperSvg } from "./location-manager/helpers.ts";
 
 
 
@@ -38,7 +37,7 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
     const segmentMovementAnimations: SegmentMovementAnimation[] = convertBaseMovement(locationMgr, animationSpec)
 
     // relative movements add manipulator movements; creating animations and also adding computed manipulator positions to the location manager
-    const [directMovementAnimations, updateLocationMgr]: [DirectMovementAnimation[], LocationMgr] = computeRelativeMovements(animationSpec.relativeMovements, locationMgr, animationSpec.passAnimations)
+    const [directMovementAnimations, updateLocationMgr]: [DirectMovementAnimation[], LocationMgr] = computeRelativeMovements(animationSpec.relativeMovements, locationMgr)
 
     const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(updateLocationMgr, canvasSizeByPasserCircle))
     const relabeling: RelabelAnimation[] = convertRelabeling(locationMgr, animationSpec.relabeling)
@@ -64,7 +63,7 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
 }
 
 function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle: number): (passSpec: PassSpec) => PassAnimation[] {
-    const relativeArmLength = 1/ canvasSizeByPasserCircle *.9
+    const relativeArmLength = 1 / canvasSizeByPasserCircle * .9
     return (passSpec: PassSpec): PassAnimation[] => {
 
         const result: PassAnimation[] = []
@@ -72,18 +71,23 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
             const [fromX, fromY] = locationMgr.getLocationByRole(time, passSpec.pass.fromRole)
             // get location for the "to" position, at the beat that the pass arrives (role may have changed, we use the role at the time the pass is thrown to identify the target passer)
             // for zaps (pelfs in takeouts), we use the location where the passer starts, not the location where they will be when the arrow is no longer shown
-            const arrivalTime = passSpec.throwLength <= 2 ? time : time + passSpec.displayDuration
-            const [toX, toY] = locationMgr.getFutureLocationByRole(arrivalTime % locationMgr.mod, time, passSpec.pass.toRole)
+            const passArrivalTime = passSpec.throwLength <= 2 ? time : time + passSpec.displayDuration
+            const toRoleAtThrow = passSpec.pass.toRole
+            const [toX, toY] = locationMgr.getFutureLocationByRole(passArrivalTime % locationMgr.mod, time, toRoleAtThrow)
+
+            if (passSpec.onBeat === 3 && passSpec.pass.toRole === "M") {
+                console.log("debug-pass", { time, passArrivalTime, from: [fromX, fromY], to: [toX, toY] })
+            }
 
             // in the first iteration, a walking passer might start in the wrong space, we need to handle this separately
             // TODO for now let's just assume the passer is not also walking immediately on beat 0 and is not walking longer to deal with passes on other beats
             let firstIteration = undefined
             if (time == 0) {
-                const [r, initialX, initialY] = locationMgr.initialPositions.find(i => i[0] === passSpec.pass.toRole)!
+                const [, initialX, initialY] = locationMgr.initialPositions.find(i => i[0] === passSpec.pass.toRole)!
                 if (Math.abs(initialX - toX) > 0.001 || Math.abs(initialY - toY) > 0.001) {
                     firstIteration = false
                     const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
-                        computePass(fromX, toX, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, relativeArmLength, 0.01)
+                        computePass(fromX, fromY, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, relativeArmLength, 0.01)
                     result.push({
                         onBeat: time,
                         duration: passSpec.displayDuration,
@@ -95,12 +99,18 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
                         toY: toHandY,
                         labelX: labelHandX,
                         labelY: labelHandY,
-                        label: passSpec.pass.label
+                        label: passSpec.pass.label,
+                        debug_center: {
+                            fromX: fromX,
+                            fromY: fromY,
+                            toX: initialX,
+                            toY: initialY,
+                        }
                     })
                 }
             }
 
-            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = 
+            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
                 computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
             result.push({
                 onBeat: time,
@@ -113,7 +123,13 @@ function convertPassAnimation(locationMgr: LocationMgr, canvasSizeByPasserCircle
                 toY: toHandY,
                 labelX: labelHandX,
                 labelY: labelHandY,
-                label: passSpec.pass.label
+                label: passSpec.pass.label,
+                debug_center: {
+                    fromX,
+                    toX,
+                    fromY,
+                    toY
+                }
             })
         }
         return result
@@ -138,12 +154,12 @@ function convertBaseMovement(locationMgr: LocationMgr, animationSpec: AnimationS
     return result
 }
 
-function convertRelabeling(locationMgr: LocationMgr, relabelingSpecs: RelabelSpec[]): RelabelAnimation[] {
-    assert(locationMgr.roles[0][0] === 0, "Relabeling must start at beat 0.");
+function convertRelabeling(locationMgr: LocationMgr, relabelingSpecs: RelabelSpec): RelabelAnimation[] {
+    assert(locationMgr.basePatternRoles[0][0] === 0, "Relabeling must start at beat 0.");
 
     const result: RelabelAnimation[] = [];
     for (let time = 0; time < locationMgr.mod; time++) {
-        for (const relabel of relabelingSpecs) {
+        for (const relabel of relabelingSpecs.relabelActions) {
             if (time % relabel.mod === Math.floor(relabel.onBeat)) {
                 result.push({
                     onBeat: time,
@@ -188,12 +204,14 @@ export class LocationMgr {
     mod: number
     movements: LocationMgrMovement[]
     manipulatorPositions: Map<Role, [number, number, number][]> // this is used to track manipulator positions that are not part of the base roles: [time, x, y]
-    roles: [number/*onBeat*/, Role[]][]
-    constructor(initialPositions: [Role, number, number][], mod: number, movements: LocationMgrMovement[], roles: [number/*onBeat*/, Role[]][], manipulatorPositions: Map<Role, [number, number, number][]> = new Map()) {
+    basePatternRoles: [number/*onBeat*/, Role[]][]
+    fullPatternRoles: [number/*onBeat*/, Role[]][]
+    constructor(initialPositions: [Role, number, number][], mod: number, movements: LocationMgrMovement[], basePatternRoles: [number/*onBeat*/, Role[]][], fullPatternRoles: [number/*onBeat*/, Role[]][], manipulatorPositions: Map<Role, [number, number, number][]> = new Map()) {
         this.initialPositions = initialPositions;
         this.mod = mod;
         this.movements = movements;
-        this.roles = roles;
+        this.basePatternRoles = basePatternRoles;
+        this.fullPatternRoles = fullPatternRoles;
         this.manipulatorPositions = manipulatorPositions;
     }
 
@@ -231,9 +249,14 @@ export class LocationMgr {
             throw new Error(`No manipulator positions found for role ${role} at time ${time}.`);
         }
         // find the last location before the time
-        let lastLocation = locations.findLast(([onBeat]) => onBeat <= time % this.mod);
-        if (!lastLocation)
-            lastLocation = locations[locations.length - 1]; // if no location is found, return the last one (assuming they are sorted)
+    const lastLocation = locations.findLast(([onBeat]) => onBeat <= time % this.mod);
+        if (!lastLocation) {
+            const initial = this.initialPositions.find(([r]) => r === role);
+            if (!initial) {
+                throw new Error(`No initial position found for manipulator role ${role}.`);
+            }
+            return [initial[1], initial[2]];
+        }
         return [lastLocation[1], lastLocation[2]];
     }
 
@@ -243,7 +266,7 @@ export class LocationMgr {
      * but possibly also when going over the mod boundary)
      */
     private getBasePasserIdx(time: number, role: Role): number {
-        const rolesAtTime = this.roles.findLast(r => r[0] <= time % this.mod)![1]
+        const rolesAtTime = this.basePatternRoles.findLast(r => r[0] <= time % this.mod)![1]
         const passerIdx = rolesAtTime.indexOf(role);
         assert(passerIdx !== -1, `Role ${role} not found at time ${time} in animation mod ${this.mod}.`);
         return passerIdx;
@@ -308,38 +331,51 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
 
     const currentSequences = animationSpec.baseMovementSequences.slice()
     const initialRoles = animationSpec.initialPositions.map(p => p.role);
-    let currentRoles = initialRoles
-    let roles: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
+    let basePatternCurrentRoles = initialRoles
+    let fullPatternCurrentRoles = initialRoles
+    let basePatternRoles: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
+    let fullPatternRoles: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
     let time = 0
     while (true) {
         // relabeling
-        for (const relabel of animationSpec.basePatternRelabeling) {
+        for (const relabel of animationSpec.basePatternRelabeling.relabelActions) {
             if (time !== 0 && time % relabel.mod === Math.floor(relabel.onBeat)) {
-                currentRoles = currentRoles.map(r => {
+                basePatternCurrentRoles = basePatternCurrentRoles.map(r => {
                     const change = relabel.changes.find(c => c[0] === r);
                     if (change) return change[1]; else return r
                 })
-                roles.push([time, currentRoles]);
+                basePatternRoles.push([time, basePatternCurrentRoles]);
+            }
+        }
+        for (const relabel of animationSpec.relabeling.relabelActions) {
+            if (time !== 0 && time % relabel.mod === Math.floor(relabel.onBeat)) {
+                fullPatternCurrentRoles = fullPatternCurrentRoles.map(r => {
+                    const change = relabel.changes.find(c => c[0] === r);
+                    if (change) return change[1]; else return r
+                })
+                fullPatternRoles.push([time, fullPatternCurrentRoles]);
             }
         }
 
-        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles))
+        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(basePatternCurrentRoles, initialRoles))
             break
 
 
         for (const movementTrigger of animationSpec.baseMovementTriggers) {
             if (time % movementTrigger.mod === Math.floor(movementTrigger.onBeat)) {
-                const passerIdx = currentRoles.indexOf(movementTrigger.role);
-                const nextSegment = currentSequences[passerIdx][0]
-                currentSequences[passerIdx] = currentSequences[passerIdx].slice(1)
-                currentSequences[passerIdx].push(nextSegment)
-                movements.push({
-                    passerIdx, // passerId
-                    role: movementTrigger.role,
-                    onBeat: time + movementTrigger.onBeat % 1, // onBeat
-                    duration: movementTrigger.duration,
-                    segment: animationSpec.baseMovementSegments[nextSegment] // the actual movement spec
-                })
+                const passerIdx = basePatternCurrentRoles.indexOf(movementTrigger.role);
+                if (currentSequences[passerIdx]) {
+                    const nextSegment = currentSequences[passerIdx][0]
+                    currentSequences[passerIdx] = currentSequences[passerIdx].slice(1)
+                    currentSequences[passerIdx].push(nextSegment)
+                    movements.push({
+                        passerIdx, // passerId
+                        role: movementTrigger.role,
+                        onBeat: time + movementTrigger.onBeat % 1, // onBeat
+                        duration: movementTrigger.duration,
+                        segment: animationSpec.baseMovementSegments[nextSegment] // the actual movement spec
+                    })
+                }
             }
         }
 
@@ -351,13 +387,14 @@ export function computeBaseAnimations(animationSpec: AnimationSpec): LocationMgr
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
 
-    roles = roles.filter(r => r[0] < time);
+    basePatternRoles = basePatternRoles.filter(r => r[0] < time);
+    fullPatternRoles = fullPatternRoles.filter(r => r[0] < time);
     movements = movements.filter(m => m.onBeat < time);
 
     return new LocationMgr(
         animationSpec.initialPositions.map(p => [p.role, p.x, p.y]),
         time,
-        movements, roles
+        movements, basePatternRoles, fullPatternRoles
     )
 
 }
@@ -439,17 +476,7 @@ function same2(a: Role[], b: Role[]): boolean {
     return true;
 }
 
-const helperSvg = createSVG()
-
-function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
-    let p = []
-    if (segment.path.length === 0) p = ['M', segment.fromX, segment.fromY, 'L', segment.toX, segment.toY]
-    else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]
-    return canvas.path(p.join(' '))
-}
-
-
-function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], locationMgr: LocationMgr, passSpecs: PassSpec[]): [DirectMovementAnimation[], LocationMgr] {
+function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], locationMgr: LocationMgr): [DirectMovementAnimation[], LocationMgr] {
 
     const directMovementAnimations: DirectMovementAnimation[] = [];
     for (let startTime = 0; startTime < locationMgr.mod; startTime++) {
@@ -459,6 +486,7 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
                 let toX: number, toY: number;
                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % locationMgr.mod);
                 const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
+                // const roleAtArrival = pattern
 
                 // console.log("computeRelativeMovement", time, locationTime, relativeMovementSpec)
                 let takeRelativeMovementFrom: [number, Role] | undefined = undefined
@@ -474,7 +502,8 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
 
                 directMovementAnimations.push({
                     onBeat: startTime + relativeMovementSpec.onBeat % 1, // onBeat
-                    role: relativeMovementSpec.role,
+                    role: relativeMovementSpec.role,//TODO this is the role when the passer is leaving. we need the role when they arrive, because that's what we are tracking here
+                    roleAtArrival: relativeMovementSpec.roleAtMovementEnd,
                     duration: relativeMovementSpec.duration,
                     toX,
                     toY,
@@ -496,7 +525,7 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
     const manipulatorPositions = new Map<Role, [number, number, number][]>()
     // initial position of the manipulator is where their first movement ended (starting there, not moving to there from another position)
     for (const role of newRoles) {
-        const roleMovementsByArrival = directMovementAnimations.filter(anim => anim.role === role).slice().sort((a, b) => (a.onBeat + a.duration) % locationMgr.mod - (b.onBeat + b.duration) % locationMgr.mod)
+        const roleMovementsByArrival = directMovementAnimations.filter(anim => anim.roleAtArrival === role).slice().sort((a, b) => (a.onBeat + a.duration) % locationMgr.mod - (b.onBeat + b.duration) % locationMgr.mod)
         // get the first position as starting position
         const firstArrival = roleMovementsByArrival[0]
         newInitialPositions.push([role, firstArrival.toX, firstArrival.toY])
@@ -508,7 +537,8 @@ function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], loc
         newInitialPositions,
         locationMgr.mod,
         locationMgr.movements,
-        locationMgr.roles,
+        locationMgr.basePatternRoles,
+        locationMgr.fullPatternRoles,
         manipulatorPositions
     )]
 }

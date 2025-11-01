@@ -591,8 +591,8 @@ export function genLayout(layout: TLayout, movement: TMovement | undefined, patt
             baseMovementSequences,
             baseMovementTriggers,
             relativeMovements: [],
-            basePatternRelabeling: [],
-            relabeling: [],
+            basePatternRelabeling: {initial:pattern.getInitialRoles(), relabelActions: []},
+            relabeling: {initial:pattern.getInitialRoles(), relabelActions: []},
             // speed: pattern.nrHands === 4 ? 2 : 1
         },
         background

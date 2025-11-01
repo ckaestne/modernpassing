@@ -42,6 +42,8 @@
     "npm:livereload@~0.9.3": "0.9.3",
     "npm:nodemon@^3.1.7": "3.1.10",
     "npm:path-to-regexp@^6.3.0": "6.3.0",
+    "npm:svg-path-properties@*": "1.0.3",
+    "npm:svg-path-properties@1.0.3": "1.0.3",
     "npm:svgdom@~0.1.19": "0.1.19",
     "npm:typescript-parsec@*": "0.3.4",
     "npm:typescript-parsec@~0.3.4": "0.3.4",
@@ -636,6 +638,9 @@
       "dependencies": [
         "has-flag"
       ]
+    },
+    "svg-path-properties@1.0.3": {
+      "integrity": "sha512-kwwWZZdquF+qqxOUSYKETY2sa9M7TmEWDBkhhuBcns33b4na3EFpIz5VEBnXvSKy5pyCSEjiBh4HRH/gYJDzgA=="
     },
     "svgdom@0.1.19": {
       "integrity": "sha512-gBvlZ74RECaG9VyPrj9OdakOarEKKvaXh5NVkbx9oWfAo4XnQehk75b14iOW2UjFHyZThczZ1NrPV9rDrecOVg==",

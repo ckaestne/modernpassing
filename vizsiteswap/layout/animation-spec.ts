@@ -29,27 +29,34 @@ import type { Hand, Role } from "@modernpassing/pattern";
 /**
  * all animations run on a timer that's continuously counting up
  * animations are triggered at a time identified by `onBeat` and `mod` 
- * when `(time % mod) == onBeat`. In many cases, `mod` is the number of beats in a pattern
- * (which is also the default if mod is not provided)
+ * when `(time % mod) == onBeat`. In many cases, `mod` is the number of beats in a pattern,
  * so onBeat identifies triggers that happen at every iteration. However movement may
  * happen distributed across many iterations, so larger mods are possible to express that.
  * OnBeat does not have to be an integer, fractional values are allowed
  * 
- * relabeling is always performed first, so a passer on beat x is the 
+ * relabeling must be on a full beat and is always performed first, 
+ * so a passer on beat x is the 
  * person who has that role after the relabeling on beat x.
  * 
  * animations of movement may be much longer than the number of beats in a pattern
- * 
  */
 export type AnimationSpec = {
     initialPositions: PositionSpec[],
+
+    // passes
     passAnimations: PassSpec[],
+
+    // movements for base roles
     baseMovementSegments: MovementSegmentSpec[],
-    baseMovementSequences: MovementSequenceSpec[], // segment indices for each jugger (not role), by the order of initial roles
+    baseMovementSequences: MovementSequenceSpec[], // segment indices for each juggler (not role), by the order of initial roles
     baseMovementTriggers: MovementTriggerSpec[],
+    basePatternRelabeling: RelabelSpec, // relabeling of base roles, ignoring manipulators -- this is needed to determine the proper movement of the base roles
+
+    // additional manipulator movements, if any
     relativeMovements: RelativeMovementSpec[], // for manipulators, relative to other roles
-    basePatternRelabeling: RelabelSpec[], // relabeling of base roles, ignoring manipulators -- this is needed to determine the proper movement of the base roles
-    relabeling: RelabelSpec[],
+
+    // relabeling (same as basePatternRelabeling if no manipulators)
+    relabeling: RelabelSpec,
 }
 
 
@@ -132,7 +139,8 @@ export type MovementTriggerSpec = {
 export type RelativeMovementSpec = {
     onBeat: number,
     mod: number,
-    role: Role, // the manipulator role that is moving, identified on beat onBeat (not arrival beat)
+    role: Role, // the manipulator role that is moving, identified on beat onBeat (not arrival beat) (may not yet be manipulator)
+    roleAtMovementEnd: Role, // the manipulator's role who is moving at the time of arrival (may no longer be manipulator)
     duration: number, // length of the movement
     positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
     targetRoleTime: "onBeat" | "arrival" // whether a passer is identified by their roles given RelativeMovementSpec is identified at the start of the movement (onBeat) or at the end of the movement (onBeat + duration)
@@ -157,8 +165,12 @@ export type InFrontOfPositionSpec = {
 }
 
 
-
 export type RelabelSpec = {
+    initial: Role[],
+    relabelActions: RelabelActionSpec[]
+}
+
+export type RelabelActionSpec = {
     onBeat: number,
     mod: number,
     changes: [Role, Role][] // oldRole, newRole

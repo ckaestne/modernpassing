@@ -11,11 +11,11 @@ Just like four-handed siteswaps, they are truly ambidextrous. Each passer cycles
 
 For passers with a stable *[756](4e-4hsw-zaps.md)* (on both sides, straight and crossing singles), *567-about* is probably the best entry into siteswap takeouts. It is fairly easy to learn and a good foundation for many others. (Passers without stable zaps might find *Catch the carrot* described below more approachable.)
 
-<TODO-siteswap-group video="https://www.youtube.com/watch?v=c0eQDUlhovU">
+<siteswap-group video="https://www.youtube.com/watch?v=c0eQDUlhovU">
 A: 7 6 5 7 6 -- B
 B:, 5 7 6 5  -- A
 M:, . IAb,Co
-</TODO-siteswap-group>
+</siteswap-group>
 
 The manipulator starts behind A and catches the second pass from B over A's shoulder, starting 756 with a self afterward. A becomes the new manipulator after their first zap and carries their next single pass to the same hand of B where they just threw their zap. Afterward, they walk behind B to intercept the next pass on the opposite side of where they just placed their carry. For the carry, it is common to always carry with the inside hand (i.e. left hand when walking to the right and vice versa) independent of which hand would have thrown the pass, and it is common to only flip one club or no club at all.
 

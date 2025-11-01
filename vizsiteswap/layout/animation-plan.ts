@@ -51,7 +51,13 @@ export type PassAnimation = {
     toY: number,
     labelX: number,
     labelY: number,
-    label: string
+    label: string,
+    debug_center: {
+        fromX: number,
+        toX: number,
+        fromY: number,
+        toY: number,
+    }
 }
 
 
@@ -67,6 +73,7 @@ export type SegmentMovementAnimation = {
 export type DirectMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
     role: Role,
+    roleAtArrival: Role,
     duration: number,
     bend?: "↻"|"↺"
 

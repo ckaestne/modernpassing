@@ -1836,3 +1836,6 @@ M: SBe! . 1x     SBl IBv.. CB↺  -- M`
     assert(full.getThrowHand(firstThrow, 1) === Hand.Right, 'first throw should be right handed also in the second iteration')
 
 })
+
+
+

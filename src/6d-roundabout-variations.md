@@ -128,7 +128,7 @@ M: SBe z SBl IBvo .. CB↺ z
 <sync-group video="https://passing.zone/ronjabout/" style='{"emphasizeThrows":[[0,0],[1,3]]}'>
 A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B
 B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
-M: SBe! . 1x     SBl IBv.. CB↺  -- M!
+M: SBe! . 1x     SBl IBv.. CB↺  -- M
 </sync-group>
 
 

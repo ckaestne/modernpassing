@@ -223,6 +223,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     role: manipulatorRole,
                     duration: duration,
                     targetRoleTime: "arrival",
+                    roleAtMovementEnd: manipulatorRole,
                     positionSpec
                 });
             }
@@ -231,7 +232,6 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
         // intercepts
         if (t.markers?.some(m => m.kind === "I")) {
             const marker: InterceptMarker = t.markers!.find(m => m.kind === "I") as InterceptMarker;
-            const manipulatorRole = pattern.getToPasserRole(t);
 
             // // for an intercept it is sufficient to be there on the causal beat of the intercept
             // // so typically, we can move on the intercept beat, unless we are intercepting something really short?
@@ -240,6 +240,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
 
             // TODO for now let's just assume standard 2-beat patterns, where we can move 1 beat before the intercept beat to arrive on the intercept beat (not when the intercept arrives), even though we could move a beat later
             const moveToInterceptDuration = pattern.nrHands/2 // let's just assume a short movement for now
+
+            const moveToIntercept_intercepteeRoleAtThrow = pattern.getToPasserRole(t);
+            const moveToIntercept_intercepteeRoleAtMovementStart = pattern.getRole(t.throwBeat-moveToInterceptDuration, pattern.getToPasserIdxAtThrow(t))
 
 
             const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b") && differentThrowOrTargetHandAcrossIterations(pattern, t)
@@ -298,7 +301,8 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 relativeMovements.push({
                     onBeat: leavingTime,
                     mod: mod,
-                    role: manipulatorRole,
+                    role: moveToIntercept_intercepteeRoleAtMovementStart,
+                    roleAtMovementEnd: moveToIntercept_intercepteeRoleAtThrow,
                     duration: moveToInterceptDuration,
                     targetRoleTime: "arrival",
                     positionSpec
@@ -311,17 +315,18 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
             // figuring out the right role in the base pattern(!) to go to. it is usually the role of the interceptee, but we are moving one beat later
             // so at that time there may have been relabeling already. however, we cannot use relabeling from `pattern` here since
             // this already includes switches with the manipulator
-            const roleOfIntercepteeOnMovementStart = basePattern.samePasserOtherTimeByRole(marker.originalToRoleAtThrow, t.throwBeat, t.throwBeat + marker.originalThrowLength - landingOffset)
+            const moveAfterIntercept_roleOfIntercepteeOnMovementStart = basePattern.samePasserOtherTimeByRole(marker.originalToRoleAtThrow, t.throwBeat, t.throwBeat + marker.originalThrowLength - landingOffset)
             // console.log(`After intercept on ${t.throwBeat} by ${manipulatorRole}, is now ${marker.originalToRoleAtThrow} moving on ${when} to ${marker.originalToRoleAtThrow}'s position`);
             relativeMovements.push({
                 onBeat: when,
                 mod: pattern.getLength(),
                 duration: moveAfterInterceptDuration,
-                role: roleOfIntercepteeOnMovementStart, // this is after the role swap
+                role: moveAfterIntercept_roleOfIntercepteeOnMovementStart, // this is after the role swap
+                roleAtMovementEnd: moveAfterIntercept_roleOfIntercepteeOnMovementStart, // we don't expect it to change 
                 targetRoleTime: "onBeat",
                 positionSpec: {
                     type: "take",
-                    toRole: roleOfIntercepteeOnMovementStart // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
+                    toRole: moveAfterIntercept_roleOfIntercepteeOnMovementStart // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
                 },
                 bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
             });
@@ -331,7 +336,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
         if (t.markers?.some(m => m.kind === "C")) {
             const marker: CarryMarker = t.markers!.find(m => m.kind === "C") as CarryMarker;
             const manipulatorRole = pattern.getFromPasserRole(t)
-            const duration = pattern.nrHands/2 // let's just assume a quick movement for now
+            const duration = Math.min(pattern.getThrowCauseLength(t),  pattern.nrHands/2) 
             //TODO this should probably be timed relative to the intercept, not the carry pass, but for now, let's just move the beat before the carry
             const actionBeat = t.throwBeat
             const movementBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
@@ -353,7 +358,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 let offset = 0
                 if (marker.modifiers.includes("o")) {
                     // console.log('o'+ pattern.getTargetHand(t, iteration))
-                    offset = .2 //pattern.getTargetHand(t, iteration) === Hand.Left ? 0.2 : -0.2
+                    offset = pattern.getTargetHand(t, iteration) === Hand.Left ? 0.2 : -0.2
                 }
 
 
@@ -361,8 +366,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 relativeMovements.push({
                     onBeat: leavingTime,
                     role: roleOnMovementStart,
+                    roleAtMovementEnd: manipulatorRole,
                     duration: actualDuration,
-                    mod: pattern.getLength(),
+                    mod,
                     targetRoleTime: "arrival",
                     positionSpec: {
                         type: "between",

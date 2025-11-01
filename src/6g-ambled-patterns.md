@@ -14,7 +14,7 @@ Ambeled patterns are extra-club versions of scrambled patterns, juggled on doubl
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B
 B: !34pAx  3  3  34pAx  4x  -- C
 C: !2 33 4pAx 3  3  3   -- A
-M: CB↺ 1 !1x    SB . IC↺ ..  -- M!
+M: CB↺ 1 !1x    SB . IC↺ ..  -- M
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </sync-group>
@@ -32,7 +32,7 @@ The double passes, timing differences, and the extra beat create some challenges
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B
 B: !34pAx  3  3  34pAx  4x  -- C
 C: !2 33 4pAx 3  3  3   -- A
-M: !.  C  z ! (SCAd 3) IABe --M!
+M: !.  C  z ! (SCAd 3) IABe --M
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
 </TODO-manipulator-sync>
@@ -51,7 +51,7 @@ Just as multiple scrambled manipulators can be combined in the same pattern, the
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B
 B: !34pAx  3  3  34pAx  4x  -- C
 C: !2 33 4pAx 3  3  3   -- A
-M: CB↺ 1 !1x    SB . IC↺ ..  -- M!
+M: CB↺ 1 !1x    SB . IC↺ ..  -- M
 N: .  C  z  (SCAd 3) IABe 
 positions: V(A,B,C)
 move: Vmove(B,5.9,3)
