@@ -9,7 +9,7 @@ import { AnimationSpec, MovementSegmentSpec } from "../animation-spec.ts";
 import assert from "node:assert";
 import { createPasserIdx, genPath, getAnimationMod, helperSvg, same, same2 } from "./helpers.ts";
 import type { PasserIdx } from "./helpers.ts";
-import type { LocationMgrMovement } from "./location-manager.ts";
+import { MovementSegment, MovementTracker, ResolvedMovementSegment, RoleTracker, TeleportMovementSegment } from "./relative-movement.ts";
 
 
 
@@ -17,7 +17,7 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
     const overallMod = getAnimationMod(animationSpec, true);
 
 
-    let movements: LocationMgrMovement[] = []
+    let movements: MovementSegment[] = []
 
     const currentSequences = animationSpec.baseMovementSequences.slice()
     const initialRoles = animationSpec.basePatternRelabeling.initial
@@ -27,6 +27,14 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
 
     let currentRoles = initialRoles
     let roleMapping: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
+
+    // initial positions modeled as teleportations at time 0
+    for (let i = 0; i < animationSpec.initialPositions.length; i++) {
+        const pos = animationSpec.initialPositions[i];
+        assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} must be in the same order as base pattern roles ${initialRoles}`);
+        movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y));
+    }
+
     let time = 0
     while (true) {
         // track relabeling and create a map from passerRole to Role over time
@@ -53,12 +61,11 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
                 const nextSegment = currentSequences[passerIdx][0]
                 currentSequences[passerIdx] = currentSequences[passerIdx].slice(1)
                 currentSequences[passerIdx].push(nextSegment)
-                movements.push({
-                    passerIdx, // passerId
-                    onBeat: time + movementTrigger.onBeat % 1, // onBeat
-                    duration: movementTrigger.duration,
-                    segment: animationSpec.baseMovementSegments[nextSegment] // the actual movement spec
-                })
+                movements.push(new ResolvedMovementSegment(passerIdx,
+                    time + movementTrigger.onBeat % 1, // onBeat
+                    movementTrigger.duration,
+                    animationSpec.baseMovementSegments[nextSegment], // the actual movement spec
+                ))
             }
         }
 
@@ -73,145 +80,58 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
     roleMapping = roleMapping.filter(r => r[0] < time);
     movements = movements.filter(m => m.onBeat < time);
 
-    return new LocationManager(initialRoles,
-        animationSpec.initialPositions.map(p => [p.role, p.x, p.y]),
-        time,
-        movements, roleMapping
-    )
+    const roleTracker = new RoleTracker(initialRoles, time, roleMapping);
+    const movementTracker = new MovementTracker(time, movements);
+
+    return new LocationManager(roleTracker, movementTracker)
 
 }
 
 
+/**
+ * location manager is a unifying interface for the movement and role trackers
+ * so that locations can be accessed through roles
+ */
 export class LocationManager {
-    readonly initialPositions: [Role, number, number][]
+    readonly roleTracker: RoleTracker
+    readonly movementTracker: MovementTracker
     readonly mod: number
-    readonly movements: LocationMgrMovement[]
-    readonly roleMapping: [number/*onBeat*/, Role[]][]
-    readonly roles: Role[]
+
     readonly doNotStartPassersMidWalk: boolean
-    constructor(roles: Role[], initialPositions: [Role, number, number][], mod: number, movements: LocationMgrMovement[], roleMapping: [number/*onBeat*/, Role[]][], doNotStartPassersMidWalk: boolean = true) {
-        this.roles = roles;
-        this.initialPositions = initialPositions;
-        this.mod = mod;
-        this.movements = movements;
-        this.roleMapping = roleMapping;
+    constructor(roleTracker: RoleTracker, movementTracker: MovementTracker, doNotStartPassersMidWalk: boolean = true) {
+        this.roleTracker = roleTracker;
+        assert(roleTracker.mod === movementTracker.mod, `Role tracker mod ${roleTracker.mod} and movement tracker mod ${movementTracker.mod} must be the same.`)
+        this.mod = roleTracker.mod;
+        this.movementTracker = movementTracker//.resolve();
+        // assert(!this.movementTracker.hasUnresolvedMovements(), "Location manager cannot resolve all movements.");
         this.doNotStartPassersMidWalk = doNotStartPassersMidWalk;
     }
 
     getFutureLocationByRole(timeOfLocation: number, timeOfRoleIdentification: number, role: Role): [number, number] {
-        assert(role in this.roles, `Role ${role} not found in roles ${this.roles}`)
-        const passerIdx = this._getPasserIdx(timeOfRoleIdentification, role);
-        return this._getLocation(timeOfLocation, passerIdx);
+        assert(role in this.roleTracker.roles, `Role ${role} not found in roles ${this.roleTracker.roles}`)
+        const passerIdx = this.roleTracker._getPasserIdx(timeOfRoleIdentification, role);
+        return this.movementTracker._getLocation(timeOfLocation, passerIdx);
     }
 
     getLocationByRole(time: number, role: Role): [number, number] {
-        const passerIdx = this._getPasserIdx(time, role);
-        return this._getLocation(time, passerIdx);
+        const passerIdx = this.roleTracker._getPasserIdx(time, role);
+        return this.movementTracker._getLocation(time, passerIdx, this.doNotStartPassersMidWalk);
     }
 
-    findOngoingAnimationByRole(time: number, role: Role): LocationMgrMovement | undefined {
-        const passerIdx = this._getPasserIdx(time, role);
-        return this.findOngoingAnimation(time, passerIdx);
+    findOngoingAnimationByRole(time: number, role: Role): MovementSegment | undefined {
+        const passerIdx = this.roleTracker._getPasserIdx(time, role);
+        return this.movementTracker.findOngoingAnimation(time, passerIdx);
     }
 
 
 
-    /**
-     * indexes are only used internally, when figuring out the base locations of roles
-     * -- this is not necessarily indexing a passer in a real pattern (especially with manipulators,
-     * but possibly also when going over the mod boundary)
-     */
-    _getPasserIdx(time: number, role: Role): PasserIdx {
-        const rolesAtTime = this.roleMapping.findLast(r => r[0] <= time % this.mod)![1]
-        const passerIdx = rolesAtTime.indexOf(role);
-        assert(passerIdx !== -1, `Role ${role} not found at time ${time} in animation mod ${this.mod}.`);
-        return createPasserIdx(passerIdx);
-    }
 
-    /**
-     * computing the actual location, whether stationary or currently moving for a passer (not role)
-     * at a given time (0<=time).
-     * 
-     * If `doNotStartPassersMidWalk` is true, all passers start at the position from where
-     * they first walk. -- That is, if a passer would have been walking at time 0, they start
-     * at the position where they would have arrived after that walk.
-     * 
-     * 
-     * @param time Time at which to get the location (0<=time)
-     * @param passerIdx Id of a physical passer, can be looked up by role at a given time if needed
-     * @returns location [x,y]
-     */
-    _getLocation(time: number, passerIdx: PasserIdx): [number, number] {
-        // let's find the last movement before the time of interest
+    // getMovementByRole(time: number, role: Role): LocationMgrMovement | undefined {
+    //     const passerIdx = this.roleTracker._getPasserIdx(time, role);
+    //     return this.movementTracker._getMovement(time, passerIdx);
+    // }
 
-        // while movement can potentially overlap, whenever a new movement starts, the previous one is aborted, 
-        // so we only need to look at the one that started the most recently.
-        // Also movements are on fixed paths in the base pattern, so we don't care where an aborted walk was aborted
-
-        const lastMoveBeforeTime = this.findLastMovementBeforeTime(time, passerIdx);
-        // if this passer never moves, return the initial position
-        if (!lastMoveBeforeTime)
-            return this.initialPositions[passerIdx].slice(1) as [number, number];
-
-
-        const segment = lastMoveBeforeTime!.segment;
-        const timeSinceMoveStart = (time - lastMoveBeforeTime!.onBeat + this.mod) % this.mod;
-        if (timeSinceMoveStart >= lastMoveBeforeTime!.duration) {
-            // the last move has completed, so we know where we are
-            return [segment.toX, segment.toY]
-        } else {
-            // we are currently moving, so we need to find where on the path we are
-            const progress = timeSinceMoveStart / lastMoveBeforeTime!.duration;
-            const path = genPath(helperSvg, segment); // create the path in the helper SVG to get the length
-            const p = path.pointAt(progress * path.length());
-            return [p.x, p.y]
-        }
-    }
-
-    getMovementByRole(time: number, role: Role): LocationMgrMovement | undefined {
-        const passerIdx = this._getPasserIdx(time, role);
-        return this._getMovement(time, passerIdx);
-    }
-
-    _getMovementByRole(time: number, role: Role): LocationMgrMovement | undefined {
-        const passerIdx = this._getPasserIdx(time, role);
-        return this._getMovement(time, passerIdx);
-    }
-
-    _getMovement(time: number, passerIdx: PasserIdx): LocationMgrMovement | undefined {
-        return this.movements.find(m => m.passerIdx === passerIdx && m.onBeat === time);
-    }
-
-    private findLastMovementBeforeTime(time: number, passerIdx: PasserIdx): LocationMgrMovement | undefined {
-        const lastMoveBeforeTime = this.movements.findLast(m => m.passerIdx === passerIdx && m.onBeat <= time % this.mod);
-        // if we have a fragmented movement from the previous round that should be skipped, teleport to the end
-        if (lastMoveBeforeTime?.skipInFirstIteration && this.doNotStartPassersMidWalk && time < this.mod)
-            return {
-                ...lastMoveBeforeTime,
-                duration: 0,
-                segment: {
-                    toX: lastMoveBeforeTime.segment.toX,
-                    toY: lastMoveBeforeTime.segment.toY
-                }
-            }
-        if (!lastMoveBeforeTime && (!this.doNotStartPassersMidWalk || time >= this.mod))
-            return this.movements.findLast(m => m.passerIdx === passerIdx)
-        return lastMoveBeforeTime
-    }
-
-    private findOngoingAnimation(time: number, passerIdx: PasserIdx): LocationMgrMovement | undefined {
-        // find the last movement before the time
-        const lastMoveBeforeTime = this.findLastMovementBeforeTime(time, passerIdx);
-        if (!lastMoveBeforeTime) return undefined; // no prior or current animation at all
-
-        // if the last move has completed, no ongoing animation
-        const timeSinceMoveStart = (time - lastMoveBeforeTime!.onBeat + this.mod) % this.mod;
-        if (timeSinceMoveStart >= lastMoveBeforeTime!.duration) {
-            return undefined
-        } else {
-            // we are currently moving, return that movement
-            return lastMoveBeforeTime;
-        }
-    }
 
 }
+
+

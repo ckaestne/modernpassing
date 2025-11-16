@@ -2,8 +2,8 @@ import type { Role } from "@modernpassing/pattern";
 import { createSVG } from "@modernpassing/svg-utils";
 import type { Svg } from "@svgdotjs/svg.js";
 import type { AnimationSpec, MovementSegmentSpec } from "../animation-spec.ts";
-import type { TeleportSpec } from "./location-manager.ts";
 import PathProp from "npm:svg-path-properties"
+import { assert } from "node:console";
 
 type Brand<T, B> = T & { __brand: B }
 
@@ -11,11 +11,9 @@ export type PasserIdx = Brand<number, 'PasserIndex'>
 
 export const createPasserIdx = (value: number): PasserIdx => value as PasserIdx
 
-export function genPathStr(segment: MovementSegmentSpec | TeleportSpec): string {
-    if (!('path' in segment)) {
-        return ['M', segment.toX, segment.toY,  'L', segment.toX, segment.toY].join(' ');
-    }
 
+
+export function genPathStr(segment: MovementSegmentSpec): string {
     let p = []
     if (segment.path.length === 0) p = ['M', segment.fromX, segment.fromY, 'L', segment.toX, segment.toY]
     else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]
@@ -27,7 +25,7 @@ export type PathLike = {
     pointAt(distance: number): { x: number; y: number }
 }
 
-export function genPath(_: Svg, segment: MovementSegmentSpec | TeleportSpec): PathLike {
+export function genPath(_: Svg, segment: MovementSegmentSpec): PathLike {
     const properties = new PathProp.svgPathProperties(genPathStr(segment))
     return {
         length: () => properties.getTotalLength(),

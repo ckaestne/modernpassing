@@ -41,7 +41,7 @@ import type { Hand, Role } from "@modernpassing/pattern";
  * animations of movement may be much longer than the number of beats in a pattern
  */
 export type AnimationSpec = {
-    initialPositions: PositionSpec[],
+    initialPositions: PositionSpec[], // if movement is provided, this value is ignored and the initial position is computed from movement instead for all passers that move
 
     // passes
     passAnimations: PassSpec[],

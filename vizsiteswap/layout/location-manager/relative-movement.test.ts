@@ -1,24 +1,15 @@
 import assert from "node:assert"
 import { createPasserIdx, genPath, helperSvg } from "./helpers.ts"
 import test from "node:test";
-import { MovementSpec, MovementTracker } from "./relative-movement.ts";
+import { MovementSegment, MovementTracker, ResolvedMovementSegment, TeleportMovementSegment, UnresolvedMovementSegment } from "./relative-movement.ts";
 
 
 const A = createPasserIdx(0);
 const B = createPasserIdx(1);
 
-const AB_initial: MovementSpec[] = [{
-    passerIdx: A,
-    onBeat: 0,
-    duration: 0,
-    action: { toX: 0, toY: 0, type: "teleport" }    
-},
-{
-    passerIdx: B,
-    onBeat: 0,
-    duration: 0,
-    action: { toX: 1, toY: 1, type: "teleport" }
-},
+const AB_initial: MovementSegment[] = [
+    new TeleportMovementSegment(A, 0, 0, 0),
+    new TeleportMovementSegment(B, 0, 1, 1),
 ]
 
 test("basic setup, stationary", () => {
@@ -37,18 +28,10 @@ test("basic setup, stationary", () => {
 
 });
 
-const A_simpleWalk: MovementSpec[] = [{
-    passerIdx: A,
-    onBeat: 2,
-    duration: 2,
-    action: { fromX: 0, fromY: 0, toX: .5, toY: 0, path: [], type: "resolved" },
-},
-{
-    passerIdx: A,
-    onBeat: 4,
-    duration: 2,
-    action: { fromX: .5, fromY: 0, toX: 0, toY: 0, path: [], type: "resolved" },
-}]
+const A_simpleWalk: MovementSegment[] = [
+    new ResolvedMovementSegment(A, 2, 2, { fromX: 0, fromY: 0, toX: .5, toY: 0, path: [] }),
+    new ResolvedMovementSegment(A, 4, 2, { fromX: .5, fromY: 0, toX: 0, toY: 0, path: [] }),
+]
 
 test("basic setup, simple walk", () => {
     // two passers, teleport for initial positions, A walks back and forth
@@ -70,8 +53,8 @@ test("resolve takePosition without further dependencies", () => {
     // B takes A's position and then walks back
     let movementTracker = new MovementTracker(6, [
         ...AB_initial, ...A_simpleWalk,
-        { passerIdx: B, onBeat: 3, duration: 0, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" } },
-        { passerIdx: B, onBeat: 4, duration: 1, action: { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [], type: "resolved" } }
+        new UnresolvedMovementSegment(B, 3, 0, { positionSpec: { type: "take", toPasserIdx: A } }),
+        new ResolvedMovementSegment(B, 4, 1, { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [] })
     ])
 
     assert(movementTracker.hasUnresolvedMovements());
@@ -100,8 +83,8 @@ test("resolve takePosition with a walk without further dependencies", () => {
     // B takes A's position and then walks back
     let movementTracker = new MovementTracker(6, [
         ...AB_initial, ...A_simpleWalk,
-        { passerIdx: B, onBeat: 2, duration: 1, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" }},
-        { passerIdx: B, onBeat: 4, duration: 1, action: { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [], type: "resolved" } }
+        new UnresolvedMovementSegment(B, 2, 1, { positionSpec: { type: "take", toPasserIdx: A } }),
+        new ResolvedMovementSegment(B, 4, 1, { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [] })
     ])
 
     assert(movementTracker.hasUnresolvedMovements());
@@ -131,9 +114,9 @@ test("resolve takePosition with indirect dependencies", () => {
     // B takes A's position and then walks back
     let movementTracker = new MovementTracker(6, [
         ...AB_initial, ...A_simpleWalk,
-        { passerIdx: B, onBeat: 2, duration: 1, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" } }, // walk to where A is at 3
-        { passerIdx: B, onBeat: 3, duration: 1, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" } }, // then walk from there to where A is at 4; this requires resolving the first walk
-        { passerIdx: B, onBeat: 4, duration: 1, action: { fromX: .5, fromY: 0, toX: 1, toY: 1, path: [], type: "resolved" } }  // walk back to original position
+        new UnresolvedMovementSegment(B, 2, 1, { positionSpec: { type: "take", toPasserIdx: A } }),
+        new UnresolvedMovementSegment(B, 3, 1, { positionSpec: { type: "take", toPasserIdx: A } }),
+        new ResolvedMovementSegment(B, 4, 1, { fromX: .5, fromY: 0, toX: 1, toY: 1, path: [] })
     ])
 
 
@@ -170,9 +153,9 @@ test("resolve takePosition with reverse-order indirect dependencies", () => {
     // B takes A's position and then walks back
     let movementTracker = new MovementTracker(6, [
         ...AB_initial, ...A_simpleWalk,
-        { passerIdx: B, onBeat: 2, duration: 1, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" } }, // walk to where A is at 3 from the end of the previous walk on 5
-        { passerIdx: B, onBeat: 4, duration: 1, action: { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [], type: "resolved" } }, // walk back to original position
-        { passerIdx: B, onBeat: 5, duration: 3, action: { positionSpec: { type: "take", toPasserIdx: A }, type: "unresolved" } }, // 
+        new UnresolvedMovementSegment(B, 2, 1, { positionSpec: { type: "take", toPasserIdx: A } }),
+        new ResolvedMovementSegment(B, 4, 1, { fromX: .25, fromY: 0, toX: 1, toY: 1, path: [] }),
+        new UnresolvedMovementSegment(B, 5, 3, { positionSpec: { type: "take", toPasserIdx: A } }),
     ])
 
 

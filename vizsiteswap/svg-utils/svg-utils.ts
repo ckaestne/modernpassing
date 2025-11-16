@@ -99,8 +99,7 @@ export function scaler(scalex: (x: number) => number, scaley: (y: number) => num
         scaleDirectMovement(spec: DirectMovementAnimation): DirectMovementAnimation {
             return {
                 ...spec,
-                toX: scalex(spec.toX),
-                toY: scaley(spec.toY),
+                movementSpec: o.scaleSegment(spec.movementSpec),
             }
         }
 

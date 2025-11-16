@@ -6,12 +6,9 @@
  * 
  * An animation repeats all the way back to the original positions.
  * 
- * Animations are expressed for roles, always referring to the role at the
- * start of an animation (onBeat). Relabeling always happens before animations,
- * an animation for role X on beat Y is always for the passer who has role X
- * after relabeling on beat Y (if any).
- * 
- * 
+ * Animations are expressed for passers, not roles. Roles are indicated as labels
+ * for passers. Passers are identified by ids, corresponding to the index in 
+ * initialPositions.
  */
 
 
@@ -19,6 +16,7 @@
 
 import type { Role } from "@modernpassing/pattern";
 import type { MovementSegmentSpec } from "./animation-spec.ts";
+import { PasserIdx } from "./location-manager/helpers.ts";
 
 export type AnimationPlan = {
     mod: number, // the length of the animation in beats 
@@ -33,7 +31,6 @@ export type AnimationPlan = {
 
 
 export type InitialPosition = {
-    passerId: number, // unique id for this passer (base or manipulator) in the animation
     x: number,
     y: number,
     initialRole: Role // initial label in the first frame
@@ -63,7 +60,7 @@ export type PassAnimation = {
 
 export type SegmentMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
-    role: Role,
+    passerIdx: PasserIdx,
     duration: number,
 
     segmentIdx: number,
@@ -72,20 +69,14 @@ export type SegmentMovementAnimation = {
 
 export type DirectMovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
-    role: Role,
-    roleAtArrival: Role,
+    passerIdx: PasserIdx,
     duration: number,
-    bend?: "↻"|"↺"
-
-    toX: number,
-    toY: number,
-
-    takeRelativeMovementFrom: [number, Role] | undefined // if defined, continue on an animation path from another passer (identified by beat and role at the start of the animation) after arriving
+    movementSpec: MovementSegmentSpec,
+    skipInFirstIteration?: boolean
 }
 
 
 export type RelabelAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
-
-    changes: [Role, Role][] // previous role, new role
+    changes: [PasserIdx, Role][] // assignment of new roles for all or some passers
 }
