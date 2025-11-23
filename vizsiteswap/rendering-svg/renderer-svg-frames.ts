@@ -76,15 +76,15 @@ export function renderAnimationFrames(
     config: RenderLayoutConfig
 ): G[] {
 
-    return [
-        renderAnimationFrame(layout, 0, svg, width, height, config),
-        renderAnimationFrame(layout, 2, svg, width, height, config),
-        renderAnimationFrame(layout, 4, svg, width, height, config),
-        renderAnimationFrame(layout, 5, svg, width, height, config),
-        renderAnimationFrame(layout, 5.5, svg, width, height, config),
-        renderAnimationFrame(layout, 6, svg, width, height, config),
-        renderAnimationFrame(layout, 8, svg, width, height, config),
-    ]
+    const timesOfInterest : Set<number> = new Set([0, layout.mod])
+    for (const move of layout.directMovementAnimations) 
+        timesOfInterest.add(move.onBeat)
+    for (const pass of layout.passAnimations) 
+        timesOfInterest.add(pass.onBeat)
+
+    return Array.from(timesOfInterest).sort((a, b) => a - b).map(t=>
+        renderAnimationFrame(layout, t, svg, width, height, config),
+    )
 }
 const strokeWidth = 3
 

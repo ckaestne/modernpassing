@@ -19,6 +19,7 @@ move: Vmove(B,4.9,3)`
 
     const svg = createSVG(200,1200)
     const frames = renderGroupPatternLayoutFrames(gp, {showAnimationCounter:true, animateRoleColors: true}, svg)
+    svg.height(220*frames.length)
     for (let i = 0; i < frames.length; i++) {
       frames[i].y(220*i)
     }
