@@ -155,14 +155,14 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     const roleTracker = new RoleTracker(initialRoles, time, roleMapping);
 
     // and now add all the relative movements
-    movements.push(...convertRelativeMovements(time, animationSpec.relativeMovements, roleTracker))
+    movements.push(...convertRelativeMovements(time, animationSpec.relativeMovements, roleTracker, baseLocationManager))
     movements.sort((a, b) => a.onBeat - b.onBeat);
 
     const movementTracker = new MovementTracker(time, movements);
-    // const resolvedMovementTracker = movementTracker.resolve();
-    // assert(!resolvedMovementTracker.hasUnresolvedMovements(), "All relative movements must be resolved in full location manager.");
+    const resolvedMovementTracker = movementTracker.resolve();
+    assert(!resolvedMovementTracker.hasUnresolvedMovements(), "All relative movements must be resolved in full location manager.");
 
-    return new LocationManager(roleTracker, movementTracker)
+    return new LocationManager(roleTracker, resolvedMovementTracker)
 
 }
 
@@ -173,48 +173,62 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
  * 
  * actual resolution of locations happens later in the movement tracker
  */
-function convertRelativeMovements(mod: number, relativeMovements: RelativeMovementSpec[], roleTracker: RoleTracker): UnresolvedMovementSegment[] {
+function convertRelativeMovements(mod: number, relativeMovements: RelativeMovementSpec[], roleTracker: RoleTracker, baseLocationManager: LocationManager): UnresolvedMovementSegment[] {
 
     const unresolvedRelativeMovementSpecs: UnresolvedMovementSegment[] = [];
     for (let startTime = 0; startTime < mod; startTime++) {
         for (const relativeMovementSpec of relativeMovements) {
             if (startTime % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
                 // we need to compute the position of the manipulator at this time
-                let toX: number, toY: number;
                 const leaveTime = startTime + relativeMovementSpec.onBeat % 1
                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % mod);
                 const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
                 const passerIdx = roleTracker._getPasserIdx(roleTime, relativeMovementSpec.role);
 
-                const convertedPositionSpec: UnresolvedTakePositionSpec | UnresolvedBetweenPositionSpec | UnresolvedInFrontOfPositionSpec =
-                    relativeMovementSpec.positionSpec.type === "take" ?
+                if (relativeMovementSpec.positionSpec.type === "take") {
+                    // look up the target position in the base pattern(!)
+                    let targetLocation = baseLocationManager.getFutureLocationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
+                    // directly go to end position if the target person is still moving at this point
+                    const ongoingAnimation = baseLocationManager.findFutureOngoingAnimationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
+                    if (ongoingAnimation) 
+                        targetLocation = ongoingAnimation.getTargetLocation()
+                    unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
+                        passerIdx,
+                        leaveTime,
+                        relativeMovementSpec.duration,
                         {
-                            type: "take",
-                            toPasserIdx: roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.positionSpec.toRole)
-                        } :
+                            positionSpec: { type: "take" },
+                            bend: relativeMovementSpec.bend,
+                        }, undefined, targetLocation)
+                    )
+                } else {
+                    const roleIdentificationTime = relativeMovementSpec.targetRoleTime === "arrival" ? arrivalTime : leaveTime;
+                    const convertedPositionSpec: UnresolvedBetweenPositionSpec | UnresolvedInFrontOfPositionSpec =
+
                         relativeMovementSpec.positionSpec.type === "between" ?
                             {
                                 ...relativeMovementSpec.positionSpec,
                                 type: "between",
                                 between: [
-                                    roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.positionSpec.between[0]),
-                                    roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.positionSpec.between[1])
+                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.between[0]),
+                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.between[1])
                                 ]
                             } :
                             {
                                 type: "infront",
-                                toPasserIdx: roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.positionSpec.toRole)
+                                toPasserIdx: roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.toRole)
                             };
 
-                unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
-                    passerIdx,
-                    leaveTime, // onBeat
-                    relativeMovementSpec.duration,
-                    {
-                        positionSpec: convertedPositionSpec,
-                        bend: relativeMovementSpec.bend,
-                    }
-                ))
+                    unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
+                        passerIdx,
+                        leaveTime, // onBeat
+                        relativeMovementSpec.duration,
+                        {
+                            positionSpec: convertedPositionSpec,
+                            bend: relativeMovementSpec.bend,
+                        }
+                    ))
+                }
             }
         }
     }

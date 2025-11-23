@@ -10,6 +10,7 @@ import assert from "node:assert";
 import { createPasserIdx, genPath, getAnimationMod, helperSvg, same, same2 } from "./helpers.ts";
 import type { PasserIdx } from "./helpers.ts";
 import { MovementSegment, MovementTracker, ResolvedMovementSegment, RoleTracker, TeleportMovementSegment } from "./relative-movement.ts";
+import { DirectMovementAnimation } from "../animation-plan.ts";
 
 
 
@@ -108,23 +109,34 @@ export class LocationManager {
     }
 
     getFutureLocationByRole(timeOfLocation: number, timeOfRoleIdentification: number, role: Role): [number, number] {
-        assert(role in this.roleTracker.roles, `Role ${role} not found in roles ${this.roleTracker.roles}`)
+        assert(this.roleTracker.roles.includes(role), `Role ${role} not found in roles ${this.roleTracker.roles}`)
         const passerIdx = this.roleTracker._getPasserIdx(timeOfRoleIdentification, role);
         return this.movementTracker._getLocation(timeOfLocation, passerIdx);
     }
 
     getLocationByRole(time: number, role: Role): [number, number] {
-        const passerIdx = this.roleTracker._getPasserIdx(time, role);
-        return this.movementTracker._getLocation(time, passerIdx, this.doNotStartPassersMidWalk);
+        return this.getFutureLocationByRole(time, time, role);
     }
 
     findOngoingAnimationByRole(time: number, role: Role): MovementSegment | undefined {
-        const passerIdx = this.roleTracker._getPasserIdx(time, role);
-        return this.movementTracker.findOngoingAnimation(time, passerIdx);
+        return this.findFutureOngoingAnimationByRole(time, time, role);
     }
 
+    findFutureOngoingAnimationByRole(timeOfLocation: number, timeOfRoleIdentification: number, role: Role): MovementSegment | undefined {
+        const passerIdx = this.roleTracker._getPasserIdx(timeOfRoleIdentification, role);
+        return this.movementTracker.findOngoingAnimation(timeOfLocation, passerIdx);
+    }
 
-
+    getInitialPositions(): [PasserIdx, number, number, Role][] {
+        return this.roleTracker.roles.map(role => {
+            const passerIdx = this.roleTracker._getPasserIdx(0, role);
+            const [x, y] = this.movementTracker._getLocation(0, passerIdx)
+            return [passerIdx, x, y, role]
+        });
+    }
+    getAnimations(): DirectMovementAnimation[] {
+      return this.movementTracker.movements.map(movement => movement.getAnimation())
+    }
 
     // getMovementByRole(time: number, role: Role): LocationMgrMovement | undefined {
     //     const passerIdx = this.roleTracker._getPasserIdx(time, role);

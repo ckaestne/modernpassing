@@ -244,14 +244,16 @@ export abstract class MovementSegment {
         this.skipInFirstIteration = skipInFirstIteration;
     }
 
-    abstract isResolved(): boolean 
+    abstract isResolved(): boolean
     abstract isTeleport(): boolean
 
     /**
      * function that produces the format used for animations, where
      * all paths are resolved
      */
-    abstract getDirectMovementAnimation(): DirectMovementAnimation
+    abstract getAnimation(): DirectMovementAnimation
+
+    abstract getTargetLocation(): [number, number]
 }
 
 export class ResolvedMovementSegment extends MovementSegment {
@@ -263,7 +265,7 @@ export class ResolvedMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return true }
     isTeleport(): boolean { return false }
-    getDirectMovementAnimation(): DirectMovementAnimation {
+    getAnimation(): DirectMovementAnimation {
         return {
             passerIdx: this.passerIdx,
             onBeat: this.onBeat,
@@ -272,12 +274,15 @@ export class ResolvedMovementSegment extends MovementSegment {
             skipInFirstIteration: this.skipInFirstIteration
         }
     }
+    getTargetLocation(): [number, number] {
+        return [this.seg.toX, this.seg.toY];
+    }
 }
 
 export class UnresolvedMovementSegment extends MovementSegment {
     readonly spec: UnresolvedRelativeMovementSpec
-    readonly fromPosition: [number, number]|undefined
-    readonly toPosition: [number, number]|undefined
+    readonly fromPosition: [number, number] | undefined
+    readonly toPosition: [number, number] | undefined
 
     constructor(passerIdx: PasserIdx, onBeat: number, duration: number, spec: UnresolvedRelativeMovementSpec, fromPosition?: [number, number], toPosition?: [number, number], skipInFirstIteration?: boolean) {
         super(passerIdx, onBeat, duration, skipInFirstIteration);
@@ -287,8 +292,12 @@ export class UnresolvedMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return false; }
     isTeleport(): boolean { return false; }
-    getDirectMovementAnimation(): DirectMovementAnimation {
+    getAnimation(): DirectMovementAnimation {
         throw new Error("UnresolvedMovementSegment cannot produce MovementSpec until resolved");
+    }
+    getTargetLocation(): [number, number] {
+        if (!this.toPosition) throw new Error("UnresolvedMovementSegment does not have target position resolved yet");
+        return this.toPosition;
     }
 }
 
@@ -303,7 +312,7 @@ export class TeleportMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return true; }
     isTeleport(): boolean { return true; }
-    getDirectMovementAnimation(): DirectMovementAnimation {
+    getAnimation(): DirectMovementAnimation {
         return {
             passerIdx: this.passerIdx,
             onBeat: this.onBeat,
@@ -317,28 +326,11 @@ export class TeleportMovementSegment extends MovementSegment {
             }
         }
     }
+    getTargetLocation(): [number, number] {
+        return [this.toX, this.toY];
+    }
 }
 
-// export type MovementSpec = {
-//     passerIdx: PasserIdx,
-//     onBeat: number,
-//     duration: number,
-//     action: MovementSegmentSpec,
-//     skipInFirstIteration?: boolean // usually false/undefined; if true, skip this movement in the first iteration if also doNotStartPassersMidWalk, like movement from the previous round
-// }
-
-// // Teleport is used temporarily, internally before modeling the manipulator's movement
-// // -- in the base pattern, we assume that they always teleport to the manipulatee's
-// // position on the intercept
-// export type TeleportSpec = {
-//     toX: number,
-//     toY: number,
-//     type: "teleport"
-// }
-
-// export type ResolvedMovementSpec = MovementSegmentSpec & {
-//     type: "resolved"
-// }
 
 export type UnresolvedRelativeMovementSpec = {
     positionSpec: UnresolvedTakePositionSpec | UnresolvedBetweenPositionSpec | UnresolvedInFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
@@ -346,10 +338,12 @@ export type UnresolvedRelativeMovementSpec = {
 }
 
 
-
+// take is unusual in that it is depending on a position in the base pattern, not the current pattern
+// hence, the target position in the base pattern can be looked up and resolved when creating the spec
 export type UnresolvedTakePositionSpec = {
     type: "take",
-    toPasserIdx: PasserIdx,
+    // toX: number,
+    // toY: number
 }
 export type UnresolvedBetweenPositionSpec = {
     type: "between",
@@ -391,7 +385,7 @@ export class MovementTracker {
             const mov = this.movements[i];
             if (!mov.isResolved()) {
                 const resolvedMovement = this._tryResolveMovement(mov as UnresolvedMovementSegment);
-                if (resolvedMovement!==mov) {
+                if (resolvedMovement !== mov) {
                     const newMovements = this.movements.slice();
                     newMovements[i] = resolvedMovement
                     return new MovementTracker(this.mod, newMovements);
@@ -413,35 +407,33 @@ export class MovementTracker {
         // get start position
         if (!mov.fromPosition) {
             const startLocation = this._resolveLocation(mov.onBeat, mov.passerIdx);
-            if (startLocation) 
+            if (startLocation)
                 mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, startLocation, mov.toPosition, mov.skipInFirstIteration);
         }
 
         if (!mov.toPosition) {
-        const endTime = (mov.onBeat + mov.duration) % this.mod;
-        if (mov.spec.positionSpec.type === "take") {
-            const endLocation = this._resolveLocation(endTime, mov.spec.positionSpec.toPasserIdx);
-            if (endLocation) 
-                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, endLocation, mov.skipInFirstIteration);
-        }
-        else if (mov.spec.positionSpec.type === "between") {
-            const loc0 = this._resolveLocation(endTime, mov.spec.positionSpec.between[0]);
-            const loc1 = this._resolveLocation(endTime, mov.spec.positionSpec.between[1]);
-            if (loc0 && loc1)
-                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInBetween(loc0, loc1, mov.spec.positionSpec), mov.skipInFirstIteration);
-        } else if (mov.spec.positionSpec.type === "infront") {
-            const refLocation = this._resolveLocation(endTime, mov.spec.positionSpec.toPasserIdx);
-            if (refLocation)
-                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInFrontOf(refLocation), mov.skipInFirstIteration);
-        } 
+            const endTime = (mov.onBeat + mov.duration) % this.mod;
+            if (mov.spec.positionSpec.type === "take") {
+                assert(mov.toPosition !== undefined, "assuming end position is always defined for Take position spec, as it comes from the base pattern");
+            }
+            else if (mov.spec.positionSpec.type === "between") {
+                const loc0 = this._resolveLocation(endTime, mov.spec.positionSpec.between[0]);
+                const loc1 = this._resolveLocation(endTime, mov.spec.positionSpec.between[1]);
+                if (loc0 && loc1)
+                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInBetween(loc0, loc1, mov.spec.positionSpec), mov.skipInFirstIteration);
+            } else if (mov.spec.positionSpec.type === "infront") {
+                const refLocation = this._resolveLocation(endTime, mov.spec.positionSpec.toPasserIdx);
+                if (refLocation)
+                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInFrontOf(refLocation), mov.skipInFirstIteration);
+            }
         }
 
-        if (mov.fromPosition && mov.toPosition) 
+        if (mov.fromPosition && mov.toPosition)
             return new ResolvedMovementSegment(
                 mov.passerIdx,
                 mov.onBeat,
                 mov.duration,
-                createStraightMovementAction(mov.fromPosition, mov.toPosition, mov.spec.bend),
+                createDirectMovementSpec(mov.fromPosition, mov.toPosition, mov.spec.bend),
                 mov.skipInFirstIteration
             )
         return mov
@@ -460,7 +452,7 @@ export class MovementTracker {
      * @param passerIdx Id of a physical passer, can be looked up by role at a given time if needed
      * @returns location [x,y]
      */
-    _getLocation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = false): [number, number] {
+    _getLocation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = true): [number, number] {
         const mov = this._getOngoingOrPriorMovement(time, passerIdx);
 
         const timeSinceMoveStart = (time - mov.onBeat + this.mod) % this.mod;
@@ -486,7 +478,7 @@ export class MovementTracker {
         // if we have resolved only the end of the prior movement, but the movement is over, we can use that
         if (!mov.isResolved()) {
             const m = mov as UnresolvedMovementSegment;
-            if (m.toPosition && timeSinceMoveStart >= mov.duration) 
+            if (m.toPosition && timeSinceMoveStart >= mov.duration)
                 return m.toPosition;
         }
         throw new Error("Unexpected return from _getOngoingOrPriorMovement");
@@ -592,12 +584,18 @@ export class RoleTracker {
 
 }
 
-function createStraightMovementAction(startLocation: [number, number], endLocation: [number, number], bend: string | undefined): MovementSegmentSpec {
-    assert(bend === undefined, "Bend not yet implemented in createStraightMovementAction");
+function createDirectMovementSpec(startLocation: [number, number], endLocation: [number, number], bend: string | undefined): MovementSegmentSpec {
+    let path: (string | number)[] = []
+    if (bend) {
+        const distance = Math.sqrt((endLocation[0] - startLocation[0]) ** 2 + (endLocation[1] - startLocation[1]) ** 2)
+        const r = distance * 1
+        path = ['A', r, r, 0, 0, bend === "↻" ? 1 : 0]
+    }
+
     return {
         fromX: startLocation[0],
         fromY: startLocation[1],
-        path: [],
+        path,
         toX: endLocation[0],
         toY: endLocation[1],
     }
@@ -608,7 +606,7 @@ function computeLocationInFrontOf(loc0: [number, number]): [number, number] {
     return computeLocationInBetween(loc0, loc0, {
         type: "between",
         between: [createPasserIdx(0), createPasserIdx(0)],
-        side: 0.4,
+        side: 0.6,
         offset: 0,
         direction: 0
     })

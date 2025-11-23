@@ -4,7 +4,7 @@ import assert from "node:assert";
 import test from "node:test";
 import { Hand } from "@modernpassing/pattern";
 import { createFullLocationManager } from "./location-manager.ts";
-import { assertEqualLocation } from "../location-test-helpers.ts";
+import { assertEqualLocation, assertLocationBetween } from "../location-test-helpers.ts";
 import { createBaseLocationManager, LocationManager } from "./base-location-manager.ts";
 import { createPasserIdx, PasserIdx } from "./helpers.ts";
 import { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.ts";
@@ -113,29 +113,76 @@ move: Vmove(B,4.9,3)`
     assertMovement(4.9 + 6 * 3, createPasserIdx(2), 'B');
 
     // now let's try locations
-    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), [0.5, 0]); // should be at start
+    const initialC: [number, number] = [0.25, 0.933]
+    const initialA: [number, number] = [0.5, 0];
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), initialA); // should be at start
     assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0.75, 0.933]); // should be at start
-    assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), [0.25, 0.933]); // should be at start, skipping the initial mid-walk start
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), initialC); // should be at start, skipping the initial mid-walk start
+    // in the second round, C is still moving for the first few beats
     assertEqualLocation(locationMgr.getLocationByRole(locationMgr.mod, 'C'), [0, 0.53]); // should be at the start again, but this time mid-walk
     assertEqualLocation(locationMgr.getLocationByRole(1 + locationMgr.mod, 'C'), [0.08, 0.77]);
-    // let's worry about M's initial position later
-
-    // once M becomes C on beat 5, they teleport to C's old spot
-    assert.equal(locationMgr.roleTracker._getPasserIdx(4.9, 'M'), locationMgr.roleTracker._getPasserIdx(5, 'C'));
-    assert.equal(locationMgr.roleTracker._getPasserIdx(5, 'C'), createPasserIdx(3));
-    assertEqualLocation(locationMgr.getLocationByRole(5, 'C'), [0.25, 0.933]);
-    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), locationMgr.getLocationByRole(5, 'C')); // stay there and come A
-
     assertEqualLocation(locationMgr.getLocationByRole(1.5 + locationMgr.mod, 'C'), [0.17, 0.87]);
 
-
+    // B is moving, not affected by manipulation
     assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), locationMgr.getLocationByRole(3.8, 'B')); // not moving yet
     assertEqualLocation(locationMgr.getLocationByRole(8, 'C'), [.933, .25]); // B fully moved (and is now C)
     assertEqualLocation(locationMgr.getLocationByRole(5, 'B'), [0.77, 0.919]); // moved only a bit
     assertEqualLocation(locationMgr.getLocationByRole(7.8, 'C'), [0.9455, 0.273]); // almost arrived
 
+
+    // once M becomes C on beat 5, they move to C's old spot for 1 beat
+    assert.equal(locationMgr.roleTracker._getPasserIdx(4.9, 'M'), locationMgr.roleTracker._getPasserIdx(5, 'C')); // relabel, nothing else changes
+    assert.equal(locationMgr.roleTracker._getPasserIdx(4.9, 'C'), locationMgr.roleTracker._getPasserIdx(5, 'M')); // relabel, nothing else changes
+    assert.equal(locationMgr.roleTracker._getPasserIdx(5, 'C'), createPasserIdx(3)); // former M is now C
+    assert.equal(locationMgr.roleTracker._getPasserIdx(6, 'A'), createPasserIdx(3)); // former M is A in the next cycle
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), initialC);
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), locationMgr.getLocationByRole(4.9, 'C')); // stay there and come A
+
+
+    // so, now let's track what M is doing
+    // M starts with a carry, between A and B
+    assertLocationBetween(locationMgr.getLocationByRole(0, 'M'), locationMgr.getLocationByRole(0, 'A'), locationMgr.getLocationByRole(0, 'B'));
+    // after that M moves to stand in front of B
+    assertLocationBetween(locationMgr.getLocationByRole(2, 'M'), locationMgr.getLocationByRole(2, 'B'), [.5, .5]);
+    // then M stands in front of C to intercept a self
+    const inFrontOfC = locationMgr.getLocationByRole(4, 'M');
+    assertLocationBetween(inFrontOfC, locationMgr.getLocationByRole(4, 'C'), [.5, .5]);
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'C'), initialC); // C still moving, not switched roles yet
+    assert.equal(locationMgr.roleTracker._getPasserIdx(4, 'C'), 2)
+    // afterward M becomes C, still in old position about to walk
+    assert.equal(locationMgr.roleTracker._getPasserIdx(5, 'C'), 3)
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'M'), initialC); // new C
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'C'), inFrontOfC);
+    // now C and M both walk
+    assertLocationBetween(locationMgr.getLocationByRole(5.5, 'C'), initialC, inFrontOfC); // prior M, now C
+    assertLocationBetween(locationMgr.getLocationByRole(5.5, 'M'), initialC, initialA); // prior M, now C
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), initialC); // prior M, was briefly C, is now A
+    assertLocationBetween(locationMgr.getLocationByRole(6, 'M'), locationMgr.getLocationByRole(6, 'A'), locationMgr.getLocationByRole(6, 'B'));// prior C as M between A and B
 })
 
+
+Deno.test("locationMgr for scrambled v, with bend in take", () => {
+
+    const pattern = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: CB↺.SBl z ICl↺  
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+    // everything same as above
+    const initialC: [number, number] = [0.25, 0.933]
+
+    // now C and M both walk, but both walk on a curve
+    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'C'), [0.30,0.73]); // prior M, now C
+    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'M'), [0.4,0.67]); // prior M, now C
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), initialC); // prior M, was briefly C, is now A
+    assertLocationBetween(locationMgr.getLocationByRole(6, 'M'), locationMgr.getLocationByRole(6, 'A'), locationMgr.getLocationByRole(6, 'B'));// prior C as M between A and B
+
+})
 
 // Deno.test("locationMgr for wankel engine (mid-walk swap with manipulator", () => {
 
@@ -247,7 +294,7 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
         if (mov.isResolved()) {
             svg.line(x(mov.onBeat), y(mov.passerIdx), x(mov.onBeat + mov.duration), y(mov.passerIdx))
                 .stroke({ color: 'black', width: 8, linecap: 'round' });
-        } 
+        }
         // dashed lines for unresolved movements
         if (!mov.isResolved()) {
             const m = mov as UnresolvedMovementSegment
@@ -260,7 +307,7 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
             else {
 
                 // arrow for dependency
-                if (m.spec.positionSpec.type === "take" || m.spec.positionSpec.type === "infront") {
+                if (m.spec.positionSpec.type === "infront") {
                     const targetPasserIdx = m.spec.positionSpec.toPasserIdx;
                     const targetTime = mov.onBeat + mov.duration;
                     const line = svg.line(x(targetTime), y(mov.passerIdx), x(targetTime), y(targetPasserIdx))

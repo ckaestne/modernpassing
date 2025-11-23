@@ -15,3 +15,5 @@ tmp/
 CLAUDE.md
 tmp_mdbook*
 *.bak
+vizsiteswap/AGENTS.md
+.github/copilot-instructions.md

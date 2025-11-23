@@ -620,7 +620,7 @@ export function renderAnimation(
         // positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
         // addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[])
-        javascript += `addPosition(data, ${pos.passerId}, '${pos.initialRole}', ${x}, ${y}, '#${g.id()}', '#${l.id()}');\n`
+        javascript += `addPosition(data, ${roleIdx}, '${pos.initialRole}', ${x}, ${y}, '#${g.id()}', '#${l.id()}');\n`
     }
 
     // TODO: scale all coordinates
@@ -723,7 +723,7 @@ type PatternRenderSize = {
     throwCircleSize: number
     throwCircleSeparation: number
 }
-function getRenderPatternSize(p: Pattern, config: RendererConfig): PatternRenderSize {
+export function getRenderPatternSize(p: Pattern, config: RendererConfig): PatternRenderSize {
     const xMargin = config.xMargin
 
     const roleLabelX = xMargin
