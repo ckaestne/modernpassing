@@ -7,9 +7,9 @@
  */
 
 import type { Hand, Role } from "../pattern/pattern.ts";
-import type { AnimationPlan, DirectMovementAnimation, PassAnimation, RelabelAnimation } from "./animation-plan.ts";
+import type { AnimationPlan, MovementAnimation, PassAnimation, RelabelAnimation } from "./animation-plan.ts";
 import type { AnimationSpec, PassSpec, RelabelSpec } from "./animation-spec.ts";
-import type { LocationManager } from "./location-manager/base-location-manager.ts";
+import type { LocationManager } from "./location-manager/location-manager.ts";
 import type { PasserIdx } from "./location-manager/helpers.ts";
 import { createFullLocationManager } from "./location-manager/location-manager.ts";
 
@@ -32,12 +32,8 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
 
 
 
-    const movementSegments = animationSpec.baseMovementSegments
-    // // segments are already computed as a side effect of indexing locations in the locationMgr
-    // const segmentMovementAnimations: SegmentMovementAnimation[] = convertBaseMovement(locationMgr, animationSpec)
-
     // relative movements add manipulator movements; creating animations and also adding computed manipulator positions to the location manager
-    const directMovementAnimations: DirectMovementAnimation[] = locationMgr.getAnimations();
+    const movementAnimations: MovementAnimation[] = locationMgr.getAnimations();
 
     const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(locationMgr, canvasSizeByPasserCircle))
     const relabeling: RelabelAnimation[] = convertRelabeling(locationMgr, animationSpec.relabeling)
@@ -53,9 +49,7 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
         mod: locationMgr.mod,
         initialPositions,
         passAnimations,
-        movementSegments: [], // no longer using segments, all encoded as directMovementAnimation
-        segmentMovementAnimations: [], // no longer using segments, all encoded as directMovementAnimation
-        directMovementAnimations,
+        movementAnimations,
         relabeling
     }
 
@@ -137,21 +131,6 @@ function convertPassAnimation(locationMgr: LocationManager, canvasSizeByPasserCi
 }
 
 
-// function convertBaseMovement(locationMgr: LocationMgr, animationSpec: AnimationSpec): SegmentMovementAnimation[] {
-//     const result: SegmentMovementAnimation[] = [];
-//     for (const m of locationMgr.movements) {
-//         result.push({
-//             onBeat: m.onBeat % locationMgr.mod,
-//             role: m.role,//TODO this probably needs to change for animations
-//             duration: m.duration,
-
-//             segmentIdx: animationSpec.baseMovementSegments.indexOf(m.segment),
-//             fraction: 1
-//         })
-//     }
-
-//     return result
-// }
 
 function convertRelabeling(locationMgr: LocationManager, relabelingSpecs: RelabelSpec): RelabelAnimation[] {
     const result: RelabelAnimation[] = [];

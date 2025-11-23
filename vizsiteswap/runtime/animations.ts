@@ -3,7 +3,7 @@
  */
 
 import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner, Circle } from "@svgdotjs/svg.js";
-import type { DirectMovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
+import type { MovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
 import { assert } from "node:console";
 import { posix } from "node:path";
 
@@ -187,7 +187,7 @@ export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAn
     }
 }
 
-export function setDirectMovements(data: Data, directMovementAnimations: DirectMovementAnimation[]): void {
+export function setDirectMovements(data: Data, directMovementAnimations: MovementAnimation[]): void {
     for (const spec of directMovementAnimations) {
         schedule(data, spec.onBeat, (delay: number) => {
             const pos = getPositionByRole(data, spec.role)

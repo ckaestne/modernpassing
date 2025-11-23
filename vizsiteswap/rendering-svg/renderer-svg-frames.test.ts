@@ -15,17 +15,31 @@ C: 33   3pA3 33   -- A
 M: CB↺.SBl z ICl↺  
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
-    const gp: GroupPattern = createSyncGroupPattern(pattern)
-
-    const svg = createSVG(200,1200)
-    const frames = renderGroupPatternLayoutFrames(gp, {showAnimationCounter:true, animateRoleColors: true}, svg)
-    svg.height(220*frames.length)
-    for (let i = 0; i < frames.length; i++) {
-      frames[i].y(220*i)
-    }
-    console.log(`rendered ${frames.length} frames`)
-
-
-    fs.writeFileSync("test/scrambled-v-frames.svg", svg.svg())
+  renderFrames(pattern, "test/scrambled-v-frames.svg")
 
 })
+
+test("render wankel engine", async (t) => {
+  const pattern = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: IC . CA. SC 
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+  renderFrames(pattern, "test/wankel-engine-frames.svg")
+})
+
+function renderFrames(pattern: string, filename: string) {
+  const gp: GroupPattern = createSyncGroupPattern(pattern)
+
+  const svg = createSVG(200, 1200)
+  const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true }, svg)
+  svg.height(220 * frames.length)
+  for (let i = 0; i < frames.length; i++) {
+    frames[i].y(220 * i)
+  }
+  console.log(`rendered ${frames.length} frames`)
+
+
+  fs.writeFileSync(filename, svg.svg())
+}

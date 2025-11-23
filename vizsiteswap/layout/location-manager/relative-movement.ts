@@ -1,221 +1,13 @@
-import { MovementSegmentSpec, RelativeMovementSpec } from "../animation-spec.ts";
-import { DirectMovementAnimation } from "@modernpassing/layout";
-import { Role } from "@modernpassing/pattern";
-import { createPasserIdx, genPath, helperSvg, PasserIdx } from "./helpers.ts";
-import assert from "node:assert";
-import { create } from "node:domain";
-
-
 /**
- * To handle relative movements, we translate a RelativeMovementSpec into a concrete movement path (DirectMovementAnimation)
- * and update the location manager
- * 
- * Without relative movements, the location manager knows about the positions of baseline passers and only approximates
- * manipulators with teleports. Here, we compute additional movements that update locations. This affects the locations 
- * of the manipulator (obviously), but also the locations of the baseline passer if they still move to their real position
- * after the intercept.
- * 
- * In theory, positions can be expressed relative to other manipulators and even to base locations that will still be updated.
- * For simplicity, we do not perform fixpoint computations if locations depend on each other. If manipulator M depends on the 
- * location of N, we compute N first, but don't support circular dependencies.
+ * Tracks and resolves movement segments within the location manager through a dedicated LocationTracker class
  */
 
+import type { MovementSegmentSpec } from "../animation-spec.ts";
+import type { MovementAnimation } from "@modernpassing/layout";
+import type { Role } from "@modernpassing/pattern";
+import { createPasserIdx, genPath, helperSvg, type PasserIdx } from "./helpers.ts";
+import assert from "node:assert";;
 
-
-// function _getRelevantTargetRoles(relMove: RelativeMovementSpec): Role[] {
-//     if (relMove.positionSpec.type === "take" || relMove.positionSpec.type === "infront") {
-//         return [relMove.positionSpec.toRole];
-//     } else if (relMove.positionSpec.type === "between") {
-//         return relMove.positionSpec.between;
-//     } else {
-//         throw new Error(`Unknown position spec type: ${relMove.positionSpec}`);
-//     }
-// }
-
-
-// function computeRelativeMovements(relativeMovements: RelativeMovementSpec[], roleMgr: RoleTracker, baseMovements: MovementTracker): [DirectMovementAnimation[], ResolvedMovementTracker] {
-
-//     //TODO model initial positions as teleportation
-//     assert(roleMgr.mod === baseMovements.mod, "Role tracker and movement tracker must have the same mod");
-
-//     // first let's create a movement tracker with all relative movements marked as unresolved
-//     const allMovements: MovementSpec[] = baseMovements.movements.slice();
-//     for (let startTime = 0; startTime < baseMovements.mod; startTime++) {
-//         for (const relMove of relativeMovements) {
-//             if (startTime % relMove.mod === Math.floor(relMove.onBeat)) {
-//                 const passerIdx = roleMgr._getPasserIdx(relMove.onBeat, relMove.role);
-//                 const targetBeat = (relMove.onBeat + relMove.duration) % relMove.mod;
-//                 const unresolvedSpec = createUnresolvedRelativeMovementSpec(relMove, startTime + relMove.onBeat % 1, roleMgr);
-//                 allMovements.push(unresolvedSpec);
-//             }
-//         }
-//     }
-//     let movementTracker = new MovementTracker(roleMgr.mod, allMovements);
-
-//     while (movementTracker.hasUnresolvedMovements()) {
-//         const newMovementTracker = movementTracker.resolveNextMovement();
-//         if (newMovementTracker === movementTracker)
-//             throw new Error(`Could not resolve all relative movements, likely due to circular dependencies.`);
-//     }
-
-//     throw new Error("Not yet implemented");
-
-//     // // translate relative movements from roles to passer indices
-//     // const relativeMovementsByPasserIdx: MovementSpec[][] = roleMgr.roles.map(_ => [])
-//     // const unresolvedSpecs: UnresolvedRelativeMovementSpec[] = []
-//     // for (const relMove of relativeMovements) {
-//     //     const passerIdx = roleMgr._getPasserIdx(relMove.onBeat, relMove.role);
-//     //     const targetBeat = (relMove.onBeat + relMove.duration) % relMove.mod;
-//     //     const unresolvedSpec: UnresolvedRelativeMovementSpec = {
-//     //         passerIdx,
-//     //         onBeat: relMove.onBeat,
-//     //         dependencies: _getRelevantTargetRoles(relMove).map(role => [roleMgr._getPasserIdx(relMove.onBeat, role), targetBeat]),
-//     //         spec: relMove
-//     //     }
-//     //     relativeMovementsByPasserIdx[passerIdx].push(unresolvedSpec);
-//     //     unresolvedSpecs.push(unresolvedSpec);
-//     // }
-//     // // add the base movements for each passer
-//     // for (const movement of baseMovements.movements) {
-//     //     const passerIdx = movement.passerIdx;
-//     //     relativeMovementsByPasserIdx[passerIdx].push(movement);
-//     // }
-//     // // sort each array in relativeMovementsByPasserIdx by onBeat
-//     // relativeMovementsByPasserIdx.forEach(movements => movements.sort((a, b) => a.onBeat - b.onBeat))
-
-
-//     // for (let maxIterations = unresolvedSpecs.length; maxIterations > 0; maxIterations--) {
-
-//     //     for (const unresolvedSpec of unresolvedSpecs.slice()) {
-//     //         // check if all dependencies are resolved
-//     //         const dependencies: MovementSpec[] = _getDependentSpecs(unresolvedSpec, relativeMovementsByPasserIdx);
-//     //         if (dependencies.every(dep => "segment" in dep )) {
-//     //             const resolvedSpec = resolveRelativeMovementSpec(unresolvedSpec, dependencies, relativeMovementsByPasserIdx);
-//     //             unresolvedSpecs.splice(unresolvedSpecs.indexOf(unresolvedSpec), 1);
-//     //             // replace in relativeMovementsByPasserIdx
-//     //             const movements = relativeMovementsByPasserIdx[unresolvedSpec.passerIdx];
-//     //             movements[movements.indexOf(unresolvedSpec)] = resolvedSpec;
-//     //         }
-//     // }
-//     // }
-
-//     // if (unresolvedSpecs.length > 0) {
-//     //     throw new Error(`Could not resolve all relative movements, likely due to circular dependencies: ${unresolvedSpecs}`);
-//     // }
-
-
-
-
-
-
-// }
-
-// // function _computeRelativeMovements(relativeMovements: RelativeMovementSpec[], locationMgr: LocationManager): [DirectMovementAnimation[], LocationManager] {
-// //     const directMovementAnimations: DirectMovementAnimation[] = [];
-// //     for (let startTime = 0; startTime < locationMgr.mod; startTime++) {
-// //         for (const relativeMovementSpec of relativeMovements) {
-// //             if (startTime % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
-// //                 // we need to compute the position of the manipulator at this time
-// //                 let toX: number, toY: number;
-// //                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % locationMgr.mod);
-// //                 const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
-// //                 // const roleAtArrival = pattern
-
-// //                 // console.log("computeRelativeMovement", time, locationTime, relativeMovementSpec)
-// //                 let takeRelativeMovementFrom: [number, Role] | undefined = undefined
-// //                 if (relativeMovementSpec.positionSpec.type === "take") {
-// //                     [toX, toY] = locationMgr.getFutureLocationByRole(arrivalTime, roleTime, relativeMovementSpec.positionSpec.toRole)
-// //                     // after we "take" a position, we continue that animation if it is moving on an animation -- we record the role+beat of that animation to find it in the frontend
-// //                     takeRelativeMovementFrom = locationMgr.findOngoingAnimationByRole(roleTime, relativeMovementSpec.positionSpec.toRole)
-// //                 } else if (relativeMovementSpec.positionSpec.type === "between") {
-// //                     [toX, toY] = computePositionBetween(locationMgr, arrivalTime, roleTime, relativeMovementSpec.positionSpec)
-// //                 } else if (relativeMovementSpec.positionSpec.type === "infront") {
-// //                     [toX, toY] = computePositionInFrontOf(locationMgr, arrivalTime, roleTime, relativeMovementSpec.positionSpec.toRole)
-// //                 } else { throw new Error(`Unknown position spec type: ${relativeMovementSpec.positionSpec}`); }
-
-// //                 directMovementAnimations.push({
-// //                     onBeat: startTime + relativeMovementSpec.onBeat % 1, // onBeat
-// //                     role: relativeMovementSpec.role,//TODO this is the role when the passer is leaving. we need the role when they arrive, because that's what we are tracking here
-// //                     roleAtArrival: relativeMovementSpec.roleAtMovementEnd,
-// //                     duration: relativeMovementSpec.duration,
-// //                     toX,
-// //                     toY,
-// //                     bend: relativeMovementSpec.bend,
-// //                     takeRelativeMovementFrom
-// //                 })
-// //             }
-// //         }
-// //     }
-
-// //     // get the set of distinct roles in directMovementAnimations.role that are not yet included in locationMgr.initialPositions
-// //     const existingRoles = new Set(locationMgr.initialPositions.map(pos => pos[0]));
-// //     const newRoles = new Set(
-// //         directMovementAnimations
-// //             .map(anim => anim.role)
-// //             .filter(role => !existingRoles.has(role))
-// //     )
-// //     const newInitialPositions: [Role, number, number][] = [...locationMgr.initialPositions]
-// //     const manipulatorPositions = new Map<Role, [number, number, number][]>()
-// //     // initial position of the manipulator is where their first movement ended (starting there, not moving to there from another position)
-// //     for (const role of newRoles) {
-// //         const roleMovementsByArrival = directMovementAnimations.filter(anim => anim.roleAtArrival === role).slice().sort((a, b) => (a.onBeat + a.duration) % locationMgr.mod - (b.onBeat + b.duration) % locationMgr.mod)
-// //         // get the first position as starting position
-// //         const firstArrival = roleMovementsByArrival[0]
-// //         newInitialPositions.push([role, firstArrival.toX, firstArrival.toY])
-// //         // store all other positions for later lookup
-// //         manipulatorPositions.set(role, roleMovementsByArrival.map(anim => [(anim.onBeat + anim.duration) % locationMgr.mod, anim.toX, anim.toY]))
-// //     }
-
-// //     return [directMovementAnimations, new LocationMgr(
-// //         newInitialPositions,
-// //         locationMgr.mod,
-// //         locationMgr.movements,
-// //         locationMgr.basePatternRoles,
-// //         locationMgr.fullPatternRoles,
-// //         manipulatorPositions
-// //     )]
-// // }
-
-
-
-// function createUnresolvedRelativeMovementSpec(relMove: RelativeMovementSpec, onBeat: number, roleMgr: RoleTracker): MovementSpec {
-//     const passerIdentificationBeat = relMove.targetRoleTime === "onBeat" ? onBeat : (onBeat + relMove.duration) % relMove.mod;
-//     const passerIdx = roleMgr._getPasserIdx(passerIdentificationBeat, relMove.role);
-//     const targetBeat = (onBeat + relMove.duration) % relMove.mod;
-//     let positionSpec;
-//     if (relMove.positionSpec.type === "take") {
-//         positionSpec = {
-//             type: "take",
-//             toPasserIdx: roleMgr._getPasserIdx(targetBeat, relMove.positionSpec.toRole)
-//         } as UnresolvedTakePositionSpec;
-//     } else if (relMove.positionSpec.type === "between") {
-//         positionSpec = {
-//             type: "between",
-//             between: [
-//                 roleMgr._getPasserIdx(targetBeat, relMove.positionSpec.between[0]),
-//                 roleMgr._getPasserIdx(targetBeat, relMove.positionSpec.between[1])
-//             ],
-//             side: relMove.positionSpec.side,
-//             offset: relMove.positionSpec.offset,
-//             direction: relMove.positionSpec.direction
-//         } as UnresolvedBetweenPositionSpec;
-//     } else if (relMove.positionSpec.type === "infront") {
-//         positionSpec = {
-//             type: "infront",
-//             toPasserIdx: roleMgr._getPasserIdx(targetBeat, relMove.positionSpec.toRole)
-//         } as UnresolvedInFrontOfPositionSpec;
-//     } else throw new Error(`Unknown position spec type: ${relMove.positionSpec}`);
-//     return {
-//         passerIdx,
-//         onBeat,
-//         duration: relMove.duration,
-//         action: {
-//             type: "unresolved",
-//             bend: relMove.bend,
-//             positionSpec
-//         }
-//     }
-// }
 
 
 /**
@@ -235,13 +27,13 @@ export abstract class MovementSegment {
     readonly passerIdx: PasserIdx
     readonly onBeat: number
     readonly duration: number
-    readonly skipInFirstIteration?: boolean // usually false/undefined; if true, skip this movement in the first iteration if also doNotStartPassersMidWalk, like movement from the previous round
+    readonly firstIteration?: boolean // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations
 
-    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, skipInFirstIteration?: boolean) {
+    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, firstIteration?: boolean) {
         this.passerIdx = passerIdx;
         this.onBeat = onBeat;
         this.duration = duration;
-        this.skipInFirstIteration = skipInFirstIteration;
+        this.firstIteration = firstIteration;
     }
 
     abstract isResolved(): boolean
@@ -251,7 +43,7 @@ export abstract class MovementSegment {
      * function that produces the format used for animations, where
      * all paths are resolved
      */
-    abstract getAnimation(): DirectMovementAnimation
+    abstract getAnimation(): MovementAnimation
 
     abstract getTargetLocation(): [number, number]
 }
@@ -265,13 +57,13 @@ export class ResolvedMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return true }
     isTeleport(): boolean { return false }
-    getAnimation(): DirectMovementAnimation {
+    getAnimation(): MovementAnimation {
         return {
             passerIdx: this.passerIdx,
             onBeat: this.onBeat,
             duration: this.duration,
             movementSpec: this.seg,
-            skipInFirstIteration: this.skipInFirstIteration
+            firstIteration: this.firstIteration
         }
     }
     getTargetLocation(): [number, number] {
@@ -292,7 +84,7 @@ export class UnresolvedMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return false; }
     isTeleport(): boolean { return false; }
-    getAnimation(): DirectMovementAnimation {
+    getAnimation(): MovementAnimation {
         throw new Error("UnresolvedMovementSegment cannot produce MovementSpec until resolved");
     }
     getTargetLocation(): [number, number] {
@@ -312,7 +104,7 @@ export class TeleportMovementSegment extends MovementSegment {
     }
     isResolved(): boolean { return true; }
     isTeleport(): boolean { return true; }
-    getAnimation(): DirectMovementAnimation {
+    getAnimation(): MovementAnimation {
         return {
             passerIdx: this.passerIdx,
             onBeat: this.onBeat,
@@ -384,11 +176,14 @@ export class MovementTracker {
         for (let i = 0; i < this.movements.length; i++) {
             const mov = this.movements[i];
             if (!mov.isResolved()) {
-                const resolvedMovement = this._tryResolveMovement(mov as UnresolvedMovementSegment);
-                if (resolvedMovement !== mov) {
-                    const newMovements = this.movements.slice();
-                    newMovements[i] = resolvedMovement
-                    return new MovementTracker(this.mod, newMovements);
+                const resolvedMovements = this._tryResolveMovement(mov as UnresolvedMovementSegment);
+                if (resolvedMovements.length!==1 || resolvedMovements[0] !== mov) {
+                    const newMovements = [
+                        ...this.movements.slice(0, i),
+                        ...resolvedMovements,
+                        ...this.movements.slice(i + 1)
+                    ]
+                    return new MovementTracker(this.mod, newMovements)
                 }
             }
         }
@@ -399,16 +194,42 @@ export class MovementTracker {
         return !this.movements.every(mov => mov.isResolved());
     }
 
+
+    // private _resolveLocationAndUpdateMov(mov: UnresolvedMovementSegment, time: number, passerIdx: PasserIdx, update: (loc: [number, number]) => [number, number]): MovementSegment[] {
+
+    //     if (mov.firstIteration === false) time += this.mod
+
+
+    //     const firstIterationLoc = this._resolveLocation(time, passerIdx)
+    //     // find possibly different location in second iteration
+    //     const secondIterationLoc = mov.firstIteration===undefined && time< this.mod ? this._resolveLocation(time + this.mod, passerIdx): firstIterationLoc
+
+    //     [1].flatMap(iteration => {
+
+
+    //     const targetLocation = update(firstIterationLoc)
+
+    //      if (time < this.mod && firstIterationLoc) {
+    //                 const altRefLocation = this._resolveLocation(time + this.mod, passerIdx);
+    //                 if (altRefLocation && (firstIterationLoc[0] !== altRefLocation[0] || firstIterationLoc[1] !== altRefLocation[1])) {
+    //                     throw new Error("InFrontOf position cannot be resolved uniquely because the reference passer is not moving between iterations");
+    //                 }
+    //             }
+    // }
+
     /**
      * need to resolve the position where we start and the position where we are going. if any of that fails, 
-     * because those are not resolved yet, we return undefined and expect them to be resolved first
+     * because those are not resolved yet, we return the unmodified object
+     * 
+     * to handle the first-round starting positions, we may sometimes resolve to two different movement segments
+     * with different values for firstIteration
      */
-    private _tryResolveMovement(mov: UnresolvedMovementSegment): MovementSegment {
+    private _tryResolveMovement(mov: UnresolvedMovementSegment): MovementSegment[] {
         // get start position
         if (!mov.fromPosition) {
             const startLocation = this._resolveLocation(mov.onBeat, mov.passerIdx);
             if (startLocation)
-                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, startLocation, mov.toPosition, mov.skipInFirstIteration);
+                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, startLocation, mov.toPosition, mov.firstIteration);
         }
 
         if (!mov.toPosition) {
@@ -420,23 +241,28 @@ export class MovementTracker {
                 const loc0 = this._resolveLocation(endTime, mov.spec.positionSpec.between[0]);
                 const loc1 = this._resolveLocation(endTime, mov.spec.positionSpec.between[1]);
                 if (loc0 && loc1)
-                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInBetween(loc0, loc1, mov.spec.positionSpec), mov.skipInFirstIteration);
+                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInBetween(loc0, loc1, mov.spec.positionSpec), mov.firstIteration);
             } else if (mov.spec.positionSpec.type === "infront") {
+
+
                 const refLocation = this._resolveLocation(endTime, mov.spec.positionSpec.toPasserIdx);
+
+               
+
                 if (refLocation)
-                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInFrontOf(refLocation), mov.skipInFirstIteration);
+                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInFrontOf(refLocation), mov.firstIteration);
             }
         }
 
         if (mov.fromPosition && mov.toPosition)
-            return new ResolvedMovementSegment(
+            return [new ResolvedMovementSegment(
                 mov.passerIdx,
                 mov.onBeat,
                 mov.duration,
                 createDirectMovementSpec(mov.fromPosition, mov.toPosition, mov.spec.bend),
-                mov.skipInFirstIteration
-            )
-        return mov
+                mov.firstIteration
+            )]
+        return [mov]
     }
 
     /**

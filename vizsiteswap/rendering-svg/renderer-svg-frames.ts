@@ -1,4 +1,4 @@
-import type { BackgroundLayout, DirectMovementAnimation, GroupPattern, MovementSegmentSpec } from "@modernpassing/layout";
+import type { BackgroundLayout, MovementAnimation, GroupPattern, MovementSegmentSpec } from "@modernpassing/layout";
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 import { Hand, ManipulatorAction, Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
@@ -77,7 +77,7 @@ export function renderAnimationFrames(
 ): G[] {
 
     const timesOfInterest : Set<number> = new Set([0, layout.mod])
-    for (const move of layout.directMovementAnimations) 
+    for (const move of layout.movementAnimations) 
         timesOfInterest.add(move.onBeat)
     for (const pass of layout.passAnimations) 
         timesOfInterest.add(pass.onBeat)
@@ -215,9 +215,9 @@ function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, role
 }
 
 function findPosition(layout: AnimationPlan, jugglerIdx: number, time: number): [number, number] {
-    assert(layout.segmentMovementAnimations.length === 0, "segment movement animations not implemented yet in findPosition")
-    const lastMovement = layout.directMovementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx) ??
-        layout.directMovementAnimations.findLast(m => m.passerIdx === jugglerIdx)
+    const firstIteration = time < layout.mod
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
+        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
     if (!lastMovement) {
         const pos = layout.initialPositions[jugglerIdx]
         return [pos.x, pos.y]
@@ -234,10 +234,10 @@ function findPosition(layout: AnimationPlan, jugglerIdx: number, time: number): 
 
 }
 
-function findOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): DirectMovementAnimation | undefined {
-    assert(layout.segmentMovementAnimations.length === 0, "segment movement animations not implemented yet in findPosition")
-    const lastMovement = layout.directMovementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx) ??
-        layout.directMovementAnimations.findLast(m => m.passerIdx === jugglerIdx)
+function findOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): MovementAnimation | undefined {
+    const firstIteration = time < layout.mod
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
+        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
     if (!lastMovement) return undefined
 
     const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;

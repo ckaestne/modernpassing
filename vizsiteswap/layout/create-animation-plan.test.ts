@@ -151,22 +151,22 @@ move: Vmove(B,4.9,3)`
     // assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationA, startLocationB, "M at start");
 
     // on beat 1 M moves toward B for substitution on beat 2
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
     assert(m1, "M movement on beat 1 exists")
     assertLocationBetween(xy(m1), startLocationB, centerLocation, "M in front of B on beat 2");
 
     // on beat 3 or 4 M moves near C to intercept a throw form C
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && (m.onBeat === 3 || m.onBeat === 4))
+    const m2 = plan.movementAnimations.find(m => m.role === 'M' && (m.onBeat === 3 || m.onBeat === 4))
     assert(m2, "M movement on beat 3 or 4 exists")
     assertLocationBetween(xy(m2), startLocationC, centerLocation, "M near C on beat 3 or 4");
 
     // beat 5 is the iBeat (when the intercept lands and the roles swap)
     // now we expect the previous M, now C, to move to C's original position
-    const m3 = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 5)
+    const m3 = plan.movementAnimations.find(m => m.role === 'C' && m.onBeat === 5)
     assert(m3, "C movement on beat 5 exists")
     assertEqualLocation(xy(m3), startLocationC, "C at original position on beat 5");
     // at the same time, M, the previous C, should start moving toward A for the carry
-    const m4 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 5)
+    const m4 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 5)
     assert(m4, "M movement on beat 5 exists")
     assertLocationBetween(xy(m4), startLocationC, startLocationA, "M moving toward A on beat 5");
 
@@ -180,22 +180,22 @@ move: Vmove(B,4.9,3)`
     assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), startLocationC, "C is now A");
 
     // on beat 1 M now moves to substitute the new B in originalA position
-    const m5 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 7)
+    const m5 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 7)
     assert(m5, "M movement on beat 7 exists")
     assertLocationBetween(xy(m5), startLocationA, centerLocation, "M moving toward B (former A) on beat 7");
 
     // now we are moving to intercept again on beat 3 or 4
-    const m6 = plan.directMovementAnimations.find(m => m.role === 'M' && (m.onBeat === 9 || m.onBeat === 10))
+    const m6 = plan.movementAnimations.find(m => m.role === 'M' && (m.onBeat === 9 || m.onBeat === 10))
     assert(m6, "M movement on beat 9 or 10 exists")
     assertLocationBetween(xy(m6), moveLocationB, centerLocation, "M near B on beat 9 or 10");
 
     // then M moves to C's original position on beat 11 (where B moved to)
-    const m7 = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 11)
+    const m7 = plan.movementAnimations.find(m => m.role === 'C' && m.onBeat === 11)
     assert(m7, "M movement on beat 11 exists")
     assertEqualLocation(xy(m7), moveLocationB, "M at C's original position on beat 11");
 
     // and the new M moves to carry to A 
-    const m8 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
+    const m8 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
     assert(m8, "third M's movement on beat 11 exists")
     assertLocationBetween(xy(m8), moveLocationB, startLocationC, "M moving toward A on beat 11");
 
@@ -227,17 +227,17 @@ positions: Line(A,B)`
     // assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationA, startLocationB, "M at start");
 
     // on beat 1 M moves toward B for substitution on beat 2
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
     assert(m1, "M movement on beat 1 exists")
     assertLocationBetween(xy(m1), startLocationB, centerLocation, "M in front of B on beat 2");
 
     // on beat 3 M moves near A to intercept the pass early
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    const m2 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
     assert(m2, "M movement on beat 3 or 4 exists")
     assertLocationBetween(xy(m2), startLocationA, centerLocation, "M near C on beat 3 or 4");
 
     // after the intercept on beat 5, M is now B and should go to B's original position
-    const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 5)
+    const m3 = plan.movementAnimations.find(m => m.role === 'B' && m.onBeat === 5)
     assert(m3, "B movement on beat 5 exists")
     assertEqualLocation(xy(m3), startLocationB, "B at original position on beat 5");
 
@@ -266,17 +266,17 @@ positions: Line(A,B)`
     assertEqualLocation(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), centerLocation, "M at start");
  
     // on beat 1 M moves toward B for the intercept in front of B on beat 2
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 1)
     assert(m1, "M movement on beat 1 exists")
     assertLocationBetween(xy(m1), centerLocation, startLocationB, "M in front of B on beat 2");
 
     // on beat 3, M is now B and go to B's original position
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 3)
+    const m2 = plan.movementAnimations.find(m => m.role === 'B' && m.onBeat === 3)
     assert(m2, "B movement on beat 3 exists")
     assertEqualLocation(xy(m2), startLocationB, "B at original position on beat 3");
 
     // new new manipulator may need to move somewhat early to do the carry on beat 3, so leaving on beat 2, when they are still B
-    const m3 = plan.directMovementAnimations.find(m => m.role === 'B' && m.onBeat === 2.5)
+    const m3 = plan.movementAnimations.find(m => m.role === 'B' && m.onBeat === 2.5)
     assert(m3, "B movement on beat 2 exists")
     assertLocationBetween(xy(m3), startLocationA, centerLocation, "B moving toward A on beat 2");
 
@@ -374,22 +374,22 @@ M: SBlo z   zf  SBlo z   .   IBvb CA  . `
     assertLocationSouthOf(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), centerLocation, "M at start");
 
     // on beat 1 M moves north on beat 2
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 2)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 2)
     assert(m1, "M movement on beat 2 exists")
     assertLocationNorthOf(xy(m1), centerLocation, "M north of the pass on beat 3");
 
     // on beat 8 M moves south to the starting point for the second iteration
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 8)
+    const m2 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 8)
     assert(m2, "M movement on beat 8 exists")
     assertLocationSouthOf(xy(m2), centerLocation, "M south of the pass on beat 9");
 
     // then we move north again on beat 11
-    const m3 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
+    const m3 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 11)
     assert(m3, "M movement on beat 11 exists")
     assertLocationNorthOf(xy(m3), centerLocation, "M north of the pass on beat 11");
 
     // now we are back to the start, moving south on beat 17
-    const m4 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 17)
+    const m4 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 17)
     assert(m4, "M movement on beat 17 exists")
     assertLocationSouthOf(xy(m4), centerLocation, "M south of the pass on beat 17"); 
 
@@ -416,12 +416,12 @@ M: SBezSBlz IBv CBz`
     assertLocationBetween(xy(plan.initialPositions.find(p => p.initialRole === 'M')!), startLocationA, startLocationB, "M at start");
 
     // first intercept on beat 4, start moving on beat 3
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
     assert(m1, "M movement on beat 3 exists")
     assertLocationSouthOf(xy(m1), startLocationB, "M south of the intercepted passer on beat 4");
 
     // in the second iteration, the intercept is on beat 11, start moving on 10
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 10)
+    const m2 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 10)
     assert(m2, "M movement on beat 10 exists")
     assertLocationSouthOf(xy(m2), startLocationA, "M south of the intercepted passer on beat 11");
     
@@ -502,23 +502,23 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
     assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), aAfterMovingLocation, "A, now B after moving");
 
     // the carry starts on beat 5.5 and should arrive on beat 6. M should now be between A and B
-    const carryPlan = plan.directMovementAnimations.find(m => m.role === 'C' && m.onBeat === 5.5)
+    const carryPlan = plan.movementAnimations.find(m => m.role === 'C' && m.onBeat === 5.5)
     assertLocationBetween(xy(carryPlan!), cAfterMovingLocation/*now A*/,aAfterMovingLocation/*now B*/, "Carry movement is between A and B on beat 5.5");
 
     // the beat after the intercept (0), M is now C, relabeled to A and should move toward A's position (cAfterMovingLocation), where they should arrive on beat 1
     assertEqualLocation(locationMgr.getLocationByRole(7, 'A'), cAfterMovingLocation, "A at a beat after the start of the second iteration");
-    const mFinalMovePlan = plan.directMovementAnimations.find(m => m.role === 'A' && m.onBeat === 6)
+    const mFinalMovePlan = plan.movementAnimations.find(m => m.role === 'A' && m.onBeat === 6)
     assert(mFinalMovePlan, "Final movement plan for A exists");
     assertEqualLocation(xy(mFinalMovePlan), cAfterMovingLocation, "A moving toward A's position on beat 6");
 
 
     // M walks on 3 for the substitution on 4
-    const m1 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
+    const m1 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 3)
     assert(m1, "M movement on beat 3 exists")
     assertLocationBetween(xy(m1), startLocationB, cAfterMovingLocation, "M in between B and C when arriving on 4");
 
     // M then walks again on 4 for the intercept on 5
-    const m2 = plan.directMovementAnimations.find(m => m.role === 'M' && m.onBeat === 4)
+    const m2 = plan.movementAnimations.find(m => m.role === 'M' && m.onBeat === 4)
     assert(m2, "M movement on beat 4 exists")
     assertLocationBetween(xy(m2), cAfterMovingLocation, centerLocation, "M in front of C on beat 5");
 

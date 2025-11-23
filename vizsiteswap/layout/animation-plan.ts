@@ -16,15 +16,13 @@
 
 import type { Role } from "@modernpassing/pattern";
 import type { MovementSegmentSpec } from "./animation-spec.ts";
-import { PasserIdx } from "./location-manager/helpers.ts";
+import type { PasserIdx } from "./location-manager/helpers.ts";
 
 export type AnimationPlan = {
     mod: number, // the length of the animation in beats 
     initialPositions: InitialPosition[],
     passAnimations: PassAnimation[],
-    movementSegments: MovementSegmentSpec[],
-    segmentMovementAnimations: SegmentMovementAnimation[],
-    directMovementAnimations: DirectMovementAnimation[], // for manipulators, relative to other roles
+    movementAnimations: MovementAnimation[], // for manipulators, relative to other roles
     relabeling: RelabelAnimation[],
 }
 
@@ -58,21 +56,13 @@ export type PassAnimation = {
 }
 
 
-export type SegmentMovementAnimation = {
-    onBeat: number, // the entire animation has a length (mod), this is relative to that
-    passerIdx: PasserIdx,
-    duration: number,
 
-    segmentIdx: number,
-    fraction: number // if < 1 only part of the segment is animated (e.g., when the passer is replaced mid-walk)
-}
-
-export type DirectMovementAnimation = {
+export type MovementAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
     passerIdx: PasserIdx,
     duration: number,
     movementSpec: MovementSegmentSpec,
-    skipInFirstIteration?: boolean
+    firstIteration?: boolean, // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations
 }
 
 

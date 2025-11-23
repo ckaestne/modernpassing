@@ -1,6 +1,6 @@
 import { registerWindow, type Svg, SVG } from "@svgdotjs/svg.js";
 import { createSVGWindow } from "svgdom";
-import { DirectMovementAnimation, MovementSegmentSpec, PassAnimation } from "@modernpassing/layout";
+import { MovementAnimation, MovementSegmentSpec, PassAnimation } from "@modernpassing/layout";
 
 export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow();
@@ -22,7 +22,7 @@ type Scaler = {
     scaleSegment(seg: MovementSegmentSpec): MovementSegmentSpec
     scalePath(path: (number | string)[]): (number | string)[]
     scalePass(pass: PassAnimation): PassAnimation
-    scaleDirectMovement(spec: DirectMovementAnimation): DirectMovementAnimation
+    scaleDirectMovement(spec: MovementAnimation): MovementAnimation
 }
 
 export function scaleup(left: number, top: number, s: number): Scaler {
@@ -96,7 +96,7 @@ export function scaler(scalex: (x: number) => number, scaley: (y: number) => num
                 labelY: scaley(pass.labelY),
             }
         },
-        scaleDirectMovement(spec: DirectMovementAnimation): DirectMovementAnimation {
+        scaleDirectMovement(spec: MovementAnimation): MovementAnimation {
             return {
                 ...spec,
                 movementSpec: o.scaleSegment(spec.movementSpec),
