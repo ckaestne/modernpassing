@@ -61,69 +61,25 @@ function convertPassAnimation(locationMgr: LocationManager, canvasSizeByPasserCi
 
         const result: PassAnimation[] = []
         for (let time = passSpec.onBeat; time < locationMgr.mod; time += passSpec.mod) {
+            // getting locations for first and second iteration, in case they are different
+
             const [fromX, fromY] = locationMgr.getLocationByRole(time, passSpec.pass.fromRole)
+            const [fromX2, fromY2] = locationMgr.getLocationByRole(time + locationMgr.mod, passSpec.pass.fromRole)
             // get location for the "to" position, at the beat that the pass arrives (role may have changed, we use the role at the time the pass is thrown to identify the target passer)
             // for zaps (pelfs in takeouts), we use the location where the passer starts, not the location where they will be when the arrow is no longer shown
             const passArrivalTime = passSpec.throwLength <= 2 ? time : time + passSpec.displayDuration
             const toRoleAtThrow = passSpec.pass.toRole
-            const [toX, toY] = locationMgr.getFutureLocationByRole(passArrivalTime % locationMgr.mod, time, toRoleAtThrow)
+            const [toX, toY] = locationMgr.getFutureLocationByRole(passArrivalTime, time, toRoleAtThrow)
+            const [toX2, toY2] = locationMgr.getFutureLocationByRole(passArrivalTime + locationMgr.mod, time + locationMgr.mod, toRoleAtThrow)
 
-            if (passSpec.onBeat === 3 && passSpec.pass.toRole === "M") {
-                console.log("debug-pass", { time, passArrivalTime, from: [fromX, fromY], to: [toX, toY] })
+
+            if (fromX !== fromX2 || fromY !== fromY2 || toX !== toX2 || toY !== toY2) {
+                result.push(createPassAnimationInstance(fromX, fromY, toX, toY, passSpec, time, relativeArmLength, true))
+                result.push(createPassAnimationInstance(fromX2, fromY2, toX2, toY2, passSpec, time, relativeArmLength, false))
             }
+            else
+                result.push(createPassAnimationInstance(fromX, fromY, toX, toY, passSpec, time, relativeArmLength, undefined))
 
-            // in the first iteration, a walking passer might start in the wrong space, we need to handle this separately
-            // TODO for now let's just assume the passer is not also walking immediately on beat 0 and is not walking longer to deal with passes on other beats
-            let firstIteration = undefined
-            if (time == 0) {
-                const [, initialX, initialY,] = locationMgr.getInitialPositions().find(i => i[3] === passSpec.pass.toRole)!
-                if (Math.abs(initialX - toX) > 0.001 || Math.abs(initialY - toY) > 0.001) {
-                    firstIteration = false
-                    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
-                        computePass(fromX, fromY, passSpec.pass.fromHand, initialX, initialY, passSpec.pass.toHand, relativeArmLength, 0.01)
-                    result.push({
-                        onBeat: time,
-                        duration: passSpec.displayDuration,
-                        firstIteration: true,
-
-                        fromX: fromHandX,
-                        toX: toHandX,
-                        fromY: fromHandY,
-                        toY: toHandY,
-                        labelX: labelHandX,
-                        labelY: labelHandY,
-                        label: passSpec.pass.label,
-                        debug_center: {
-                            fromX: fromX,
-                            fromY: fromY,
-                            toX: initialX,
-                            toY: initialY,
-                        }
-                    })
-                }
-            }
-
-            const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
-                computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
-            result.push({
-                onBeat: time,
-                duration: passSpec.displayDuration,
-                firstIteration,
-
-                fromX: fromHandX,
-                toX: toHandX,
-                fromY: fromHandY,
-                toY: toHandY,
-                labelX: labelHandX,
-                labelY: labelHandY,
-                label: passSpec.pass.label,
-                debug_center: {
-                    fromX,
-                    toX,
-                    fromY,
-                    toY
-                }
-            })
         }
         return result
     }
@@ -205,3 +161,28 @@ function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number
     return [x3, y3, x4, y4, labelX, labelY]
 }
 
+
+function createPassAnimationInstance(fromX: number, fromY: number, toX: number, toY: number, passSpec: PassSpec, time: number, relativeArmLength: number, firstIteration: boolean | undefined): PassAnimation {
+
+    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
+        computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
+    return {
+        onBeat: time,
+        duration: passSpec.displayDuration,
+        firstIteration,
+
+        fromX: fromHandX,
+        toX: toHandX,
+        fromY: fromHandY,
+        toY: toHandY,
+        labelX: labelHandX,
+        labelY: labelHandY,
+        label: passSpec.pass.label,
+        debug_center: {
+            fromX,
+            toX,
+            fromY,
+            toY
+        }
+    }
+}

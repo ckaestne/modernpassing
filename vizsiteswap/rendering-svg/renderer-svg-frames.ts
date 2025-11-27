@@ -128,7 +128,8 @@ export function renderAnimationFrame(
     // render passes
     for (const pass of layout.passAnimations)
         if (pass.onBeat <= time%layout.mod && time%layout.mod <= pass.onBeat + pass.duration) 
-            renderPass(canvas, scale.scalePass(pass))
+            if (pass.firstIteration===undefined || pass.firstIteration === (time < layout.mod))
+              renderPass(canvas, scale.scalePass(pass))
 
 
     return canvas
