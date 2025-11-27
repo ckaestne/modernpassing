@@ -82,9 +82,11 @@ export function renderAnimationFrames(
     for (const pass of layout.passAnimations) 
         timesOfInterest.add(pass.onBeat)
 
-    return Array.from(timesOfInterest).sort((a, b) => a - b).map(t=>
+    return [...Array.from(timesOfInterest).sort((a, b) => a - b).map(t=>
         renderAnimationFrame(layout, t, svg, width, height, config),
-    )
+    ) , ...Array.from(timesOfInterest).sort((a, b) => a - b).map(t=>
+        renderAnimationFrame(layout, t+layout.mod, svg, width, height, config),
+    )]
 }
 const strokeWidth = 3
 
@@ -125,7 +127,7 @@ export function renderAnimationFrame(
 
     // render passes
     for (const pass of layout.passAnimations)
-        if (pass.onBeat <= time && time <= pass.onBeat + pass.duration) 
+        if (pass.onBeat <= time%layout.mod && time%layout.mod <= pass.onBeat + pass.duration) 
             renderPass(canvas, scale.scalePass(pass))
 
 
@@ -216,8 +218,8 @@ function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, role
 
 function findPosition(layout: AnimationPlan, jugglerIdx: number, time: number): [number, number] {
     const firstIteration = time < layout.mod
-    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
-        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration)) ??
+        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration))
     if (!lastMovement) {
         const pos = layout.initialPositions[jugglerIdx]
         return [pos.x, pos.y]
@@ -236,7 +238,7 @@ function findPosition(layout: AnimationPlan, jugglerIdx: number, time: number): 
 
 function findOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): MovementAnimation | undefined {
     const firstIteration = time < layout.mod
-    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
         layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
     if (!lastMovement) return undefined
 
@@ -250,7 +252,7 @@ function findOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: nu
 function getRole(layout: AnimationPlan, passerIdx: number, time: number): Role {
     let role = layout.initialPositions[passerIdx].initialRole
     for (const relabel of layout.relabeling) {
-        if (relabel.onBeat <= time)
+        if (relabel.onBeat <= time%layout.mod)
             for (const change of relabel.changes) {
                 if (change[0] === passerIdx) {
                     role = change[1]
