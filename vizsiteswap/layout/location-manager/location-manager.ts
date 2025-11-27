@@ -78,7 +78,7 @@ export class LocationManager {
 
     /** export all resolved movements as Animation objects */
     getAnimations(): MovementAnimation[] {
-      return this.movementTracker.movements.map(movement => movement.getAnimation())
+        return this.movementTracker.movements.filter(movement => !movement.isTeleport()).map(movement => movement.getAnimation())
     }
 
 }
@@ -211,15 +211,19 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                         if (!ongoingAnimation)
                             movements.push(new TeleportMovementSegment(createPasserIdx(currentRoles.indexOf(toRole)), relabelTime, baseLocationManager.getLocationByRole(time, toRole)[0], baseLocationManager.getLocationByRole(time, toRole)[1]))
                         else {
-                            const skipAnimationBeginning = (relabelTime - ongoingAnimation.onBeat + baseLocationManager.mod) % baseLocationManager.mod;
-                            assert(ongoingAnimation.isResolved(), "Ongoing animation must be resolved");
-                            movements.push(new ResolvedMovementSegment(
-                                createPasserIdx(currentRoles.indexOf(toRole)),
-                                relabelTime,
-                                ongoingAnimation.duration - skipAnimationBeginning,
-                                truncateAnimation((ongoingAnimation as ResolvedMovementSegment).seg, skipAnimationBeginning / ongoingAnimation.duration),
-                                ongoingAnimation.onBeat > time,
-                            ))
+                            // let's just assume that manipulators do not complete the previous path
+                            // but rather start walking directly to the target location through other 
+                            // computations
+
+                            // const skipAnimationBeginning = (relabelTime - ongoingAnimation.onBeat + baseLocationManager.mod) % baseLocationManager.mod;
+                            // assert(ongoingAnimation.isResolved(), "Ongoing animation must be resolved");
+                            // movements.push(new ResolvedMovementSegment(
+                            //     createPasserIdx(currentRoles.indexOf(toRole)),
+                            //     relabelTime,
+                            //     ongoingAnimation.duration - skipAnimationBeginning,
+                            //     truncateAnimation((ongoingAnimation as ResolvedMovementSegment).seg, skipAnimationBeginning / ongoingAnimation.duration),
+                            //     ongoingAnimation.onBeat > time,
+                            // ))
                         }
                     }
                 })
@@ -254,11 +258,12 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                 const nextSegment = currentSequences[basePasserIdx][0]
                 currentSequences[basePasserIdx] = currentSequences[basePasserIdx].slice(1)
                 currentSequences[basePasserIdx].push(nextSegment)
+                // if it crosses the segment boundary, skip in the first iteration
                 movements.push(new ResolvedMovementSegment(
                     currPasserIdx, // passerId
                     time + movementTrigger.onBeat % 1, // onBeat
                     movementTrigger.duration,
-                    animationSpec.baseMovementSegments[nextSegment]
+                    animationSpec.baseMovementSegments[nextSegment],
                 ))
             }
         }
@@ -278,6 +283,7 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
 
 
 
+    movements = skipMidwalkStartInFirstIteration(movements, time)
 
 
     roleMapping = roleMapping.filter(r => r[0] < time);
@@ -321,7 +327,7 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                     let targetLocation = baseLocationManager.getFutureLocationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
                     // directly go to end position if the target person is still moving at this point
                     const ongoingAnimation = baseLocationManager.findFutureOngoingAnimationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
-                    if (ongoingAnimation) 
+                    if (ongoingAnimation)
                         targetLocation = ongoingAnimation.getTargetLocation()
                     unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
                         passerIdx,
@@ -365,5 +371,35 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
     }
 
     return unresolvedRelativeMovementSpecs
+
+}
+
+function skipMidwalkStartInFirstIteration(movements: MovementSegment[], mod: number): MovementSegment[] {
+    return movements.flatMap(movement => {
+        // add teleportation to target location for the first round for those special cases crossing the boundary
+        if (movement.onBeat + movement.duration > mod && movement.onBeat < mod && movement.isResolved() && movement.firstIteration === undefined) {
+            const seg = (movement as ResolvedMovementSegment).seg
+
+            return [
+                new ResolvedMovementSegment( // same but marked as firstIteration=false
+                    movement.passerIdx,
+                    movement.onBeat,
+                    movement.duration,
+                    seg,
+                    false),
+                new ResolvedMovementSegment( // teleport to final location at time 0
+                    movement.passerIdx,
+                    0, 0, {
+                    fromX: seg.toX,
+                    fromY: seg.toY,
+                    path: [],
+                    toX: seg.toX,
+                    toY: seg.toY,
+                }, true
+                )
+            ]
+
+        } else return movement
+    })
 
 }

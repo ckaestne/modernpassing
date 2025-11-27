@@ -9,6 +9,7 @@ import { createPasserIdx, PasserIdx } from "./helpers.ts";
 import { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.ts";
 import { Svg } from "@svgdotjs/svg.js";
 import { createSVG } from "@modernpassing/svg-utils";
+import { createAnimationPlan } from "../create-animation-plan.ts";
 
 
 Deno.test("baseLocationMgr for moving feed (V)", () => {
@@ -201,26 +202,44 @@ move: Vmove(B,4.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
 
     const locationMgr = createFullLocationManager(gp.layout!.animation)
+    const plan = createAnimationPlan(gp.layout!.animation, .1);
 
     assert.deepEqual(locationMgr.roleTracker.roles, ['A', 'B', 'C', 'M']);
 
+    assert.equal(locationMgr.mod, 72);
 
     // now let's try locations
     const initialC: [number, number] = [0.25, 0.933]
     const walkingCStart: [number, number] = [0, 0.53];
     const initialA: [number, number] = [0.5, 0];
     const center: [number, number] = [0.5, 0.5];
-     assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), initialA); // should be at start
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), initialA); // should be at start
     assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0.75, 0.933]); // should be at start
     assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), initialC); // should be at start, skipping the initial mid-walk start
     assertEqualLocation(locationMgr.getLocationByRole(locationMgr.mod, 'C'), walkingCStart); // should be at the start again, but this time mid-walk
+    assertEqualLocation(locationMgr.getLocationByRole(71.999, 'B'), walkingCStart); // just before the start, walking position, both in first and later iterations
+    assertEqualLocation(locationMgr.getLocationByRole(71.999+72, 'B'), walkingCStart); // just before the start, walking position, both in first and later iterations
+    const cMoving = plan.movementAnimations.filter(m => m.passerIdx === 2 && m.onBeat===70.9)
+    assert(cMoving.length === 1, "Expected one movement for C at 70.9");
 
-    // 0: IC
     assertLocationBetween(locationMgr.getLocationByRole(0, 'M'), center, initialC);
     const inFrontOfC = locationMgr.getLocationByRole(0, 'M');
+    assertLocationBetween(locationMgr.getLocationByRole(72, 'M'), center, walkingCStart);
+    const inFrontOfWalkingC = locationMgr.getLocationByRole(72, 'M');
+    
+    // 0: IC
     assertLocationBetween(locationMgr.getLocationByRole(locationMgr.mod, 'M'), center, walkingCStart);
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'C'), locationMgr.roleTracker._getPasserIdx(0, 'M'))
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'M'), locationMgr.roleTracker._getPasserIdx(0, 'C'))
+    
+    console.log("inFrontOfC:", inFrontOfC);
+    console.log("inFrontOfWalkingC:", inFrontOfWalkingC);
+    const firstMoveMFirstRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration===true);
+    const firstMoveMSecondRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration===false);
+    assertEqualLocation([firstMoveMFirstRound!.movementSpec.fromX, firstMoveMFirstRound!.movementSpec.fromY], inFrontOfC);
+    assertEqualLocation([firstMoveMFirstRound!.movementSpec.toX, firstMoveMFirstRound!.movementSpec.toY], initialC);
+    assertEqualLocation([firstMoveMSecondRound!.movementSpec.toX, firstMoveMSecondRound!.movementSpec.toY], initialC);
+    assertEqualLocation([firstMoveMSecondRound!.movementSpec.fromX, firstMoveMSecondRound!.movementSpec.fromY], inFrontOfWalkingC);
     // M takes C's position
     assertEqualLocation(locationMgr.getLocationByRole(1, 'C'), inFrontOfC);
     assertLocationBetween(locationMgr.getLocationByRole(1.5, 'C'), inFrontOfC, initialC);

@@ -2,7 +2,7 @@
  * Tracks and resolves movement segments within the location manager through a dedicated LocationTracker class
  */
 
-import type { MovementSegmentSpec } from "../animation-spec.ts";
+import type { BetweenPositionSpec, MovementSegmentSpec } from "../animation-spec.ts";
 import type { MovementAnimation } from "@modernpassing/layout";
 import type { Role } from "@modernpassing/pattern";
 import { createPasserIdx, genPath, helperSvg, type PasserIdx } from "./helpers.ts";
@@ -51,8 +51,8 @@ export abstract class MovementSegment {
 export class ResolvedMovementSegment extends MovementSegment {
     readonly seg: MovementSegmentSpec
 
-    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, seg: MovementSegmentSpec, skipInFirstIteration?: boolean) {
-        super(passerIdx, onBeat, duration, skipInFirstIteration);
+    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, seg: MovementSegmentSpec, firstIteration?: boolean) {
+        super(passerIdx, onBeat, duration, firstIteration);
         this.seg = seg;
     }
     isResolved(): boolean { return true }
@@ -76,8 +76,8 @@ export class UnresolvedMovementSegment extends MovementSegment {
     readonly fromPosition: [number, number] | undefined
     readonly toPosition: [number, number] | undefined
 
-    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, spec: UnresolvedRelativeMovementSpec, fromPosition?: [number, number], toPosition?: [number, number], skipInFirstIteration?: boolean) {
-        super(passerIdx, onBeat, duration, skipInFirstIteration);
+    constructor(passerIdx: PasserIdx, onBeat: number, duration: number, spec: UnresolvedRelativeMovementSpec, fromPosition?: [number, number], toPosition?: [number, number], firstIteration?: boolean) {
+        super(passerIdx, onBeat, duration, firstIteration);
         this.spec = spec;
         this.fromPosition = fromPosition;
         this.toPosition = toPosition;
@@ -177,7 +177,7 @@ export class MovementTracker {
             const mov = this.movements[i];
             if (!mov.isResolved()) {
                 const resolvedMovements = this._tryResolveMovement(mov as UnresolvedMovementSegment);
-                if (resolvedMovements.length!==1 || resolvedMovements[0] !== mov) {
+                if (resolvedMovements.length !== 1 || resolvedMovements[0] !== mov) {
                     const newMovements = [
                         ...this.movements.slice(0, i),
                         ...resolvedMovements,
@@ -217,6 +217,38 @@ export class MovementTracker {
     //             }
     // }
 
+    private _resolveLocationWithIteration(beat: number, passerIdx: PasserIdx, firstIteration?: boolean): [[number, number]?, boolean?][] {
+        if (firstIteration !== undefined)
+            return [[this._resolveLocation(beat, passerIdx, firstIteration), firstIteration]]
+
+        const loc0 = this._resolveLocation(beat, passerIdx, true)
+        const loc1 = this._resolveLocation(beat, passerIdx, false)
+        const same = (loc0 === loc1) || (loc0 && loc1 && loc0[0] === loc1[0] && loc0[1] === loc1[1])
+        if (same)
+            return [[loc0, undefined]]
+        else
+            return [[loc0, true], [loc1, false]];
+    }
+    private _resolveLocationPairWithIteration(beatA: number, passerIdxA: PasserIdx, beatB: number, passerIdxB: PasserIdx, firstIteration?: boolean): [[[number, number], [number, number]]?, boolean?][] {
+        if (firstIteration !== undefined) {
+            const locA = this._resolveLocation(beatA, passerIdxA, firstIteration)
+            const locB = this._resolveLocation(beatB, passerIdxB, firstIteration)
+            return [[locA && locB ? [locA, locB] : undefined, firstIteration]]
+        }
+
+
+        const locA0 = this._resolveLocation(beatA, passerIdxA, true)
+        const locA1 = this._resolveLocation(beatA, passerIdxA, false)
+        const locB0 = this._resolveLocation(beatB, passerIdxB, true)
+        const locB1 = this._resolveLocation(beatB, passerIdxB, false)
+        const same = ((locA0 === locA1) || (locA0 && locA1 && locA0[0] === locA1[0] && locA0[1] === locA1[1])) &&
+            ((locB0 === locB1) || (locB0 && locB1 && locB0[0] === locB1[0] && locB0[1] === locB1[1]))
+        if (same)
+            return [[locA0 && locB0 ? [locA0, locB0] : undefined, undefined]]
+        else
+            return [[locA0 && locB0 ? [locA0, locB0] : undefined, true], [locA1 && locB1 ? [locA1, locB1] : undefined, false]];
+    }
+
     /**
      * need to resolve the position where we start and the position where we are going. if any of that fails, 
      * because those are not resolved yet, we return the unmodified object
@@ -224,45 +256,55 @@ export class MovementTracker {
      * to handle the first-round starting positions, we may sometimes resolve to two different movement segments
      * with different values for firstIteration
      */
-    private _tryResolveMovement(mov: UnresolvedMovementSegment): MovementSegment[] {
-        // get start position
-        if (!mov.fromPosition) {
-            const startLocation = this._resolveLocation(mov.onBeat, mov.passerIdx);
-            if (startLocation)
-                mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, startLocation, mov.toPosition, mov.firstIteration);
-        }
+    private _tryResolveMovement(m: UnresolvedMovementSegment): MovementSegment[] {
+        let mov: UnresolvedMovementSegment[] = [m];
 
-        if (!mov.toPosition) {
+        // get start position
+        const updateStartLocation = (mov: UnresolvedMovementSegment): UnresolvedMovementSegment[] => {
+            if (mov.fromPosition) return [mov];
+            const startLocations: [[number, number]?, boolean?][] = this._resolveLocationWithIteration(mov.onBeat, mov.passerIdx, mov.firstIteration);
+            if (startLocations.length === 1 && !startLocations[0][0] && startLocations[0][1] === mov.firstIteration) return [mov]
+            return startLocations.flatMap(([startLocation, isFirstIteration]: [[number, number]?, boolean?]) =>
+                new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, startLocation, mov.toPosition, isFirstIteration))
+        }
+        mov = mov.flatMap(updateStartLocation)
+
+        // update end positions
+        mov = mov.flatMap<UnresolvedMovementSegment>(mov => {
+            if (mov.toPosition) return [mov];
             const endTime = (mov.onBeat + mov.duration) % this.mod;
             if (mov.spec.positionSpec.type === "take") {
                 assert(mov.toPosition !== undefined, "assuming end position is always defined for Take position spec, as it comes from the base pattern");
             }
             else if (mov.spec.positionSpec.type === "between") {
-                const loc0 = this._resolveLocation(endTime, mov.spec.positionSpec.between[0]);
-                const loc1 = this._resolveLocation(endTime, mov.spec.positionSpec.between[1]);
-                if (loc0 && loc1)
-                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInBetween(loc0, loc1, mov.spec.positionSpec), mov.firstIteration);
+                const locationPairs = this._resolveLocationPairWithIteration(endTime, mov.spec.positionSpec.between[0], endTime, mov.spec.positionSpec.between[1], mov.firstIteration);
+                if (locationPairs.length === 1 && !locationPairs[0][0] && locationPairs[0][1] === mov.firstIteration) return [mov]
+                return locationPairs.flatMap<UnresolvedMovementSegment>(([locationPair, isFirstIteration]: [[[number, number], [number, number]]?, boolean?]) =>
+                    new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition,
+                        locationPair ? computeLocationInBetween(locationPair[0], locationPair[1], mov.spec.positionSpec as UnresolvedBetweenPositionSpec) : undefined,
+                        isFirstIteration))
             } else if (mov.spec.positionSpec.type === "infront") {
-
-
-                const refLocation = this._resolveLocation(endTime, mov.spec.positionSpec.toPasserIdx);
-
-               
-
-                if (refLocation)
-                    mov = new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition, computeLocationInFrontOf(refLocation), mov.firstIteration);
+                const refLocations: [[number, number]?, boolean?][] = this._resolveLocationWithIteration(endTime, mov.spec.positionSpec.toPasserIdx, mov.firstIteration);
+                if (refLocations.length === 1 && !refLocations[0][0] && refLocations[0][1] === mov.firstIteration) return [mov]
+                return refLocations.flatMap<UnresolvedMovementSegment>(([refLocation, isFirstIteration]: [[number, number]?, boolean?]) =>
+                    new UnresolvedMovementSegment(mov.passerIdx, mov.onBeat, mov.duration, mov.spec, mov.fromPosition,
+                        refLocation ? computeLocationInFrontOf(refLocation) : undefined,
+                        isFirstIteration))
             }
-        }
+            throw new Error("Unknown positionSpec type in UnresolvedMovementSegment")
+        })
 
-        if (mov.fromPosition && mov.toPosition)
-            return [new ResolvedMovementSegment(
-                mov.passerIdx,
-                mov.onBeat,
-                mov.duration,
-                createDirectMovementSpec(mov.fromPosition, mov.toPosition, mov.spec.bend),
-                mov.firstIteration
-            )]
-        return [mov]
+        return mov.map<MovementSegment>(mov => {
+            if (mov.fromPosition && mov.toPosition)
+                return new ResolvedMovementSegment(
+                    mov.passerIdx,
+                    mov.onBeat,
+                    mov.duration,
+                    createDirectMovementSpec(mov.fromPosition, mov.toPosition, mov.spec.bend),
+                    mov.firstIteration
+                )
+            return mov
+        })
     }
 
     /**
@@ -271,7 +313,8 @@ export class MovementTracker {
      * 
      * If `doNotStartPassersMidWalk` is true, all passers start at the position from where
      * they first walk. -- That is, if a passer would have been walking at time 0, they start
-     * at the position where they would have arrived after that walk.
+     * at the position where they would have arrived after that walk. This is 
+     * modeled internally with distinct "firstIteration" movements 
      * 
      * 
      * @param time Time at which to get the location (0<=time)
@@ -279,7 +322,7 @@ export class MovementTracker {
      * @returns location [x,y]
      */
     _getLocation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = true): [number, number] {
-        const mov = this._getOngoingOrPriorMovement(time, passerIdx);
+        const mov = this._getOngoingOrPriorMovement(time, passerIdx, doNotStartPassersMidWalk);
 
         const timeSinceMoveStart = (time - mov.onBeat + this.mod) % this.mod;
         if (mov.isTeleport())
@@ -291,9 +334,9 @@ export class MovementTracker {
                 // the last move has completed, so we know where we are
                 return [spec.toX, spec.toY]
             } else {
-                // if we are mid-walk in the first iteration from a walk that would have started in the prior iteration, we start at the end position of that walk
-                if (doNotStartPassersMidWalk && time < this.mod && mov.onBeat > time)
-                    return [spec.toX, spec.toY]
+                // // if we are mid-walk in the first iteration from a walk that would have started in the prior iteration, we start at the end position of that walk
+                // if (time < this.mod && mov.onBeat > time)
+                //     return [spec.toX, spec.toY]
                 // we are currently moving, so we need to find where on the path we are
                 const progress = timeSinceMoveStart / mov.duration;
                 const path = genPath(helperSvg, spec); // create the path in the helper SVG to get the length
@@ -310,8 +353,8 @@ export class MovementTracker {
         throw new Error("Unexpected return from _getOngoingOrPriorMovement");
     }
 
-    findOngoingAnimation(time: number, passerIdx: PasserIdx): MovementSegment | undefined {
-        const mov = this._getOngoingOrPriorMovement(time, passerIdx);
+    findOngoingAnimation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = true): MovementSegment | undefined {
+        const mov = this._getOngoingOrPriorMovement(time, passerIdx, doNotStartPassersMidWalk);
         if (mov.isResolved()) {
             const timeSinceMoveStart = (time - mov.onBeat + this.mod) % this.mod;
             if (timeSinceMoveStart < mov.duration)
@@ -320,10 +363,8 @@ export class MovementTracker {
         return undefined
     }
 
-    _getOngoingOrPriorMovement(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = false): MovementSegment {
 
-        assert(!doNotStartPassersMidWalk, "doNotStartPassersMidWalk not yet implemented in MovementTracker");
-
+    _getOngoingOrPriorMovement(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean): MovementSegment {
 
         // let's find the last movement before the time of interest
 
@@ -358,14 +399,22 @@ export class MovementTracker {
             if (mov.isTeleport())
                 continue
             assert(mov.isResolved(), "Movement must be resolved here");
+
+            //special handling for first iteration
+            const movAcrossIterations = mov.onBeat + mov.duration > this.mod
+            const isFirstIerationMovement = movAcrossIterations ? time < mov.onBeat : time< this.mod
+            if (doNotStartPassersMidWalk && (mov.firstIteration === !isFirstIerationMovement) 
+             || !doNotStartPassersMidWalk && mov.firstIteration===true)
+                continue
+
             return mov
         }
         throw new Error("Could not find prior movement to determine location");
     }
 
-    private _resolveLocation(time: number, passerIdx: PasserIdx): [number, number] | undefined {
+    private _resolveLocation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = true): [number, number] | undefined {
         try {
-            return this._getLocation(time, passerIdx);
+            return this._getLocation(time, passerIdx, doNotStartPassersMidWalk);
         } catch (e) {
             return undefined;
         }

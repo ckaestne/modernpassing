@@ -1,4 +1,4 @@
-import { computeBaseAnimations, createAnimationPlan } from "./create-animation-plan.ts";
+import { createAnimationPlan } from "./create-animation-plan.ts";
 import { createShapeLayout, GroupPattern } from "./layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
@@ -14,7 +14,7 @@ Deno.test("locationMgr for moving feed (V)", () => {
     move: Vmove(B,3.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
 
-    const baseAnimations = computeBaseAnimations(gp.layout!.animation)
+    const baseAnimations = createAnimationPlan(gp.layout!.animation)
 
     // check basic internal structures
     assert.equal(baseAnimations.mod, 72);

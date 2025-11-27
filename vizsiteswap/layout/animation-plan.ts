@@ -62,7 +62,7 @@ export type MovementAnimation = {
     passerIdx: PasserIdx,
     duration: number,
     movementSpec: MovementSegmentSpec,
-    firstIteration?: boolean, // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations
+    firstIteration?: boolean, // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations; first iteration refers to the time that this movement ENDs (e.g., one at the very end going into the next round is considered firstIteration)
 }
 
 
