@@ -190,7 +190,7 @@ move: Vmove(B,4.9,3)`
 
 })
 
-Deno.test.only("locationMgr for wankel engine (mid-walk swap with manipulator", () => {
+Deno.test("locationMgr for wankel engine (mid-walk swap with manipulator)", () => {
     // here we expect to see differences between the first and later iterations
 
     const pattern = `A: 3pB3 3pC3 3pB3 -- B
@@ -253,7 +253,7 @@ move: Vmove(B,4.9,3)`
 })
 
 
-Deno.test("plot locationMgr for scrambled v", () => {
+Deno.test.ignore("plot location dependencies in locationMgr for scrambled v", () => {
 
     const pattern = `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C

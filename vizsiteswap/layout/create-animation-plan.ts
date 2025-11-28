@@ -183,6 +183,6 @@ function createPassAnimationInstance(fromX: number, fromY: number, toX: number, 
             toX,
             fromY,
             toY
-        }
+        },
     }
 }

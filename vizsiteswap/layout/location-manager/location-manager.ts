@@ -151,8 +151,11 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
 
+    movements = skipMidwalkStartInFirstIteration(movements, time)
+
     roleMapping = roleMapping.filter(r => r[0] < time);
     movements = movements.filter(m => m.onBeat < time);
+    movements.sort((a, b) => a.onBeat - b.onBeat);
 
     const roleTracker = new RoleTracker(initialRoles, time, roleMapping);
     const movementTracker = new MovementTracker(time, movements);
