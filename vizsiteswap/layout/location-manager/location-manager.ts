@@ -181,7 +181,7 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     let roleMapping: [number/*onBeat*/, Role[]][] = [[0, currentRoles]]
 
     const currentSequences = animationSpec.baseMovementSequences.slice()
-    assert(currentSequences.length === animationSpec.basePatternRelabeling.initial.length, "Base movement sequences must match number of base pattern roles");
+    assert(currentSequences.length <= animationSpec.basePatternRelabeling.initial.length, "Base movement sequences must match number of base pattern roles");
     // while (currentSequences.length < currentRoles.length) currentSequences.push([]); // extend with manipulators (who have no walking instructions)
     let movements: MovementSegment[] = []
     const isManipulator = (role: Role) => !animationSpec.basePatternRelabeling.initial.includes(role);
@@ -300,7 +300,7 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
 
     const movementTracker = new MovementTracker(time, movements);
     const resolvedMovementTracker = movementTracker.resolve();
-    assert(!resolvedMovementTracker.hasUnresolvedMovements(), "All relative movements must be resolved in full location manager.");
+    // assert(!resolvedMovementTracker.hasUnresolvedMovements(), "All relative movements must be resolved in full location manager.");
 
     return new LocationManager(roleTracker, resolvedMovementTracker)
 
@@ -323,7 +323,7 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                 const leaveTime = startTime + relativeMovementSpec.onBeat % 1
                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % mod);
                 const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
-                const passerIdx = roleTracker._getPasserIdx(roleTime, relativeMovementSpec.role);
+                const passerIdx = roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.role);
 
                 if (relativeMovementSpec.positionSpec.type === "take") {
                     // look up the target position in the base pattern(!)

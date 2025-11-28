@@ -29,6 +29,16 @@ move: Vmove(B,4.9,3)`
   renderFrames(pattern, "test/wankel-engine-frames.svg")
 })
 
+
+test("opernball", async (t) => {
+  const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
+  renderFrames(pattern, "test/opernball.svg")
+})
+
 function renderFrames(pattern: string, filename: string) {
   const gp: GroupPattern = createSyncGroupPattern(pattern)
 

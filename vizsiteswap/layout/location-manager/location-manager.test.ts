@@ -2,7 +2,7 @@ import { createShapeLayout, GroupPattern } from "../layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 import test from "node:test";
-import { Hand } from "@modernpassing/pattern";
+import { Hand, Role } from "@modernpassing/pattern";
 import { assertEqualLocation, assertLocationBetween } from "../location-test-helpers.ts";
 import { createBaseLocationManager, createFullLocationManager, LocationManager } from "./location-manager.ts";
 import { createPasserIdx, PasserIdx } from "./helpers.ts";
@@ -10,6 +10,8 @@ import { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.
 import { Svg } from "@svgdotjs/svg.js";
 import { createSVG } from "@modernpassing/svg-utils";
 import { createAnimationPlan } from "../create-animation-plan.ts";
+import { log } from "node:console";
+import path from "node:path";
 
 
 Deno.test("baseLocationMgr for moving feed (V)", () => {
@@ -96,7 +98,7 @@ move: Vmove(B,4.9,3)`
         // assert.equal(locationMgr._getMovementByRole(time, asRole), movementLookupByPasserIdx, `Expected movement lookup by role ${asRole} to match that by passerIdx ${passerIdx}`);
     }
 
-        // original B walks first
+    // original B walks first
     assertMovement(4.9, createPasserIdx(1), 'B');
     // next previous A, now B walks
     assertMovement(4.9 + 6, createPasserIdx(0), 'B');
@@ -183,8 +185,8 @@ move: Vmove(B,4.9,3)`
     const initialC: [number, number] = [0.25, 0.933]
 
     // now C and M both walk, but both walk on a curve
-    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'C'), [0.30,0.73]); // prior M, now C
-    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'M'), [0.4,0.67]); // prior M, now C
+    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'C'), [0.30, 0.73]); // prior M, now C
+    assertEqualLocation(locationMgr.getLocationByRole(5.5, 'M'), [0.4, 0.67]); // prior M, now C
     assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), initialC); // prior M, was briefly C, is now A
     assertLocationBetween(locationMgr.getLocationByRole(6, 'M'), locationMgr.getLocationByRole(6, 'A'), locationMgr.getLocationByRole(6, 'B'));// prior C as M between A and B
 
@@ -218,24 +220,24 @@ move: Vmove(B,4.9,3)`
     assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), initialC); // should be at start, skipping the initial mid-walk start
     assertEqualLocation(locationMgr.getLocationByRole(locationMgr.mod, 'C'), walkingCStart); // should be at the start again, but this time mid-walk
     assertEqualLocation(locationMgr.getLocationByRole(71.999, 'B'), walkingCStart); // just before the start, walking position, both in first and later iterations
-    assertEqualLocation(locationMgr.getLocationByRole(71.999+72, 'B'), walkingCStart); // just before the start, walking position, both in first and later iterations
-    const cMoving = plan.movementAnimations.filter(m => m.passerIdx === 2 && m.onBeat===70.9)
+    assertEqualLocation(locationMgr.getLocationByRole(71.999 + 72, 'B'), walkingCStart); // just before the start, walking position, both in first and later iterations
+    const cMoving = plan.movementAnimations.filter(m => m.passerIdx === 2 && m.onBeat === 70.9)
     assert(cMoving.length === 1, "Expected one movement for C at 70.9");
 
     assertLocationBetween(locationMgr.getLocationByRole(0, 'M'), center, initialC);
     const inFrontOfC = locationMgr.getLocationByRole(0, 'M');
     assertLocationBetween(locationMgr.getLocationByRole(72, 'M'), center, walkingCStart);
     const inFrontOfWalkingC = locationMgr.getLocationByRole(72, 'M');
-    
+
     // 0: IC
     assertLocationBetween(locationMgr.getLocationByRole(locationMgr.mod, 'M'), center, walkingCStart);
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'C'), locationMgr.roleTracker._getPasserIdx(0, 'M'))
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'M'), locationMgr.roleTracker._getPasserIdx(0, 'C'))
-    
+
     console.log("inFrontOfC:", inFrontOfC);
     console.log("inFrontOfWalkingC:", inFrontOfWalkingC);
-    const firstMoveMFirstRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration===true);
-    const firstMoveMSecondRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration===false);
+    const firstMoveMFirstRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration === true);
+    const firstMoveMSecondRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration === false);
     assertEqualLocation([firstMoveMFirstRound!.movementSpec.fromX, firstMoveMFirstRound!.movementSpec.fromY], inFrontOfC);
     assertEqualLocation([firstMoveMFirstRound!.movementSpec.toX, firstMoveMFirstRound!.movementSpec.toY], initialC);
     assertEqualLocation([firstMoveMSecondRound!.movementSpec.toX, firstMoveMSecondRound!.movementSpec.toY], initialC);
@@ -245,13 +247,26 @@ move: Vmove(B,4.9,3)`
     assertLocationBetween(locationMgr.getLocationByRole(1.5, 'C'), inFrontOfC, initialC);
     assertEqualLocation(locationMgr.getLocationByRole(2, 'C'), initialC); // should be at start, skipping the initial mid-walk start
 
-    
+
 
 
 
 
 })
 
+Deno.test("opernball", async (t) => {
+  const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+    const svg = plotRelativeDependencies(locationMgr.movementTracker)
+    Deno.writeFileSync("opernball-relative-movements.svg", new TextEncoder().encode(svg.svg()), { create: true, append: false });
+
+})
 
 Deno.test.ignore("plot location dependencies in locationMgr for scrambled v", () => {
 
@@ -270,7 +285,7 @@ move: Vmove(B,4.9,3)`
 })
 
 function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
-    const w = 30
+    const w = 50
     const svg = createSVG(200 + w * movementTracker.mod, 600);
     const x = (t: number): number => t * w + 20;
     const y = (p: PasserIdx): number => 80 + p * 30;
@@ -350,3 +365,81 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
 
     return svg;
 }
+
+
+
+const regressionTestsJsonFile =path.join(import.meta.dirname! , "regression-tests.json")
+
+Deno.test("location mgr regression tests", () => {
+
+    const regressionTests: Array<[string, string, Array<[number, Role, number, number, number]>]> =
+        JSON.parse(Deno.readTextFileSync(regressionTestsJsonFile));
+    for (const t of regressionTests) {
+        console.log(`### Running regression test: ${t[0]}`);
+
+        const gp: GroupPattern = createSyncGroupPattern(t[1])
+        const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+        const expected: Array<[number, Role, number, number, number]> = t[2]
+        for (let time = 0; time < locationMgr.mod + 10; time += 0.5)
+            for (const role of locationMgr.roleTracker.roles) {
+                const passerIdx = locationMgr.roleTracker._getPasserIdx(time, role);
+                const expectedLoc = expected.find(e => e[0] === time && e[1] === role);
+                if (!expectedLoc) {
+                    throw new Error(`Missing expected location for time ${time} role ${role}`);
+                }
+                const [locX1, locY1] = locationMgr.getLocationByRole(time, role);
+                assert.equal(passerIdx, expectedLoc[2], `passerIdx mismatch at time ${time} role ${role}`);
+                assert(locX1 - expectedLoc[3] < 0.001, `x mismatch at time ${time} role ${role}`);
+                assert(locY1 - expectedLoc[4] < 0.001, `y mismatch at time ${time} role ${role}`);
+            }
+    }
+})
+
+Deno.test.ignore("create location mgr regression tests", () => {
+
+
+    const patterns = [[
+        "moving feed (V)",
+        `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    ],[
+        "scrambled v",
+        `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: CB.SBl z ICl 
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    ],
+[
+    "wankel engine",
+    `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: IC . CA. SC 
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+]]
+    const result: [string, string, Array<[number, Role, number, number, number]>][] = []
+    for (const p of patterns) {
+        console.log(`### Generating regression test for pattern: ${p[0]}`);
+
+        const gp: GroupPattern = createSyncGroupPattern(p[1])
+        const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+        const log: Array<[number, Role, PasserIdx, number, number]> = []
+        for (let time = 0; time < locationMgr.mod + 10; time += 0.5)
+            for (const role of locationMgr.roleTracker.roles) {
+                const passerIdx = locationMgr.roleTracker._getPasserIdx(time, role);
+                const [locX1, locY1] = locationMgr.getLocationByRole(time, role);
+                log.push([time, role, passerIdx, locX1, locY1]);
+            }
+
+        result.push([p[0], p[1], log])
+    }
+    Deno.writeTextFileSync(regressionTestsJsonFile, JSON.stringify(result, null, 2));
+})

@@ -216,9 +216,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                 }
 
-
+                const onBeat = (t.throwBeat - duration + iteration * pattern.getLength() + mod) % mod
                 relativeMovements.push({
-                    onBeat: (t.throwBeat - duration + iteration * pattern.getLength() + mod) % mod,
+                    onBeat,
                     mod: mod,
                     role: manipulatorRole,
                     duration: duration,
