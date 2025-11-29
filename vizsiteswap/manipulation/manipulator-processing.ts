@@ -246,7 +246,15 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let markers = t.markers || []
             let throwLength = t.throwLength
             if (isInterceptThrow) {
-                const newMarker: InterceptMarker = { kind: 'I', fromRole: pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx), originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
+                const fromRole = pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx)
+                // special handling of originalFromRole in case of substitutions on the intercepted beat (needed to track positions for animations correctly)
+                let originalFromRole = fromRole
+                assert((interceptedThrow.markers?.filter(m => m.kind === 'S').length??0) <= 1, `not sure what to do with multiple substitution markers on intercepted throw ${interceptedThrow}`)
+                if (interceptedThrow.markers?.filter(m => m.kind === 'S').length===1) {
+                    const subMarker = interceptedThrow.markers!.find(m => m.kind === 'S') as SubstitutionMarker
+                    originalFromRole = subMarker.fromRole
+                }                
+                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
             }
             if (isCarry) {
@@ -355,6 +363,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
 
     // adding the throw (pelf) to be stolen
     const newMarkerP: SubstitutionMarker = { kind: 'S', throw: 'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
+    const newMarkersP = [...originalMarkers.filter(m=>m.kind!=='I'), newMarkerP] // remove any intercepts, we intercept only the substituted throw
     pattern = pattern.addThrow({
         ...substitutedThrow,
         // toPasserRole: intercept.manipulatorRole,
@@ -362,7 +371,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         // isCrossing: pelfLength % pattern.nrHands !== 0,
         flipCrossing: false,
         throwLength: pelfLength,
-        markers: [...originalMarkers, newMarkerP],
+        markers: newMarkersP,
         note: 'P' + substitution.toPasserRole + ">" + manipulatorRowIdxOnPelfArrival,
     })
 
@@ -381,7 +390,15 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     const manipulatorRowIdxOnHandinThrow = pattern.samePasserNBeatsLater(manipulatorRowIdxOnPelfArrival, pelfArrivalBeat, 0 - pattern.getThrowCauseTime_(0, pelfLength) + placementDelay)
 
     // putting in another club to replace the stolen one
+    const updateInterceptMarker = (m: ThrowMarker): ThrowMarker => {
+        if (m.kind === 'I') {
+            const im = m as InterceptMarker
+            return { ...im, fromRole: substitution.manipulatorRole } as InterceptMarker
+        }
+        return m
+    }
     const newMarkerS: SubstitutionMarker = { kind: 'S', throw: 'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
+    const newMarkersS = [...originalMarkers.map(updateInterceptMarker), newMarkerS] // update the origin of the throw in any intercept markers
     pattern = pattern.addThrow({
         ...substitutedThrow,
         fromPasserIdx: manipulatorRowIdxOnHandinThrow,
@@ -389,7 +406,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         // isCrossing: handinIsCrossing,
         throwLength: substitutedThrow.throwLength - placementDelay,
         throwBeat: handinThrowBeat,
-        markers: [...originalMarkers, newMarkerS],
+        markers: newMarkersS,
         note: 'S' + substitution.toPasserRole + ">" + substitutedThrow.toPasserIdxAtCausal,
     })
 

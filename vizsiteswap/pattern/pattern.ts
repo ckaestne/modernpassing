@@ -376,6 +376,7 @@ export interface SubstitutionMarker extends ThrowMarker {
 export interface InterceptMarker extends ThrowMarker {
     kind: 'I',
     fromRole: Role,
+    originalFromRole: Role, // usually same as fromRole unless the intercepted throw is substituted -- needed to track the original origin of the throw for position computations
     originalToRoleAtThrow: Role, // actually to manipulator
     originalThrowLength: number,
     modifiers: string

@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import test from "node:test";
 import { applyInterceptCarry, applyManipulations, applyManipulatorThrow, applySubstitution, prettyPrintManipulatorActions, fillPatternGaps } from "./manipulator-processing.ts";
-import { CarryAction, Hand, InterceptAction, type Pattern, SubstitutionAction, ThrowMarker } from "@modernpassing/pattern";
+import { CarryAction, Hand, InterceptAction, InterceptMarker, type Pattern, SubstitutionAction, SubstitutionMarker, ThrowMarker } from "@modernpassing/pattern";
 import { assertEqualPattern, createPatternFromRaw, parseGroupSyncPattern } from "./testutils.ts";
 
 
@@ -1059,8 +1059,34 @@ Deno.test('opernball', () => {
     assertSub(rewritten, 0, 3, B, N, A, 'sub south')
 
     assertSub(rewritten, 3, 3, O, B, N, 'sub north to intercept 2')
-    // assertThrow(rewritten, 4, 0, N, N, 'empty hand to catch intercept 2')
     assertSub(rewritten, 3, 3, A, M, O, 'sub south 2')
+    // check markers on those throws
+    const _t3O = rewritten.findThrow(3, O, B)
+    assert.ok(_t3O && _t3O.markers, 'throw 3 O->B should exist and have markers')
+    assert.ok(_t3O!.markers!.find(m => m.kind==='S' && (m as SubstitutionMarker).throw==='P' && (m as SubstitutionMarker).fromRole==='B'  && (m as SubstitutionMarker).toRoleAtThrow==='N' ), "unexpected substitution marker: "+JSON.stringify(_t3O!.markers!.find(m => m.kind==='S')))
+    assert.equal(rewritten.getFromPasserRole(_t3O!),'B')
+    assert.equal(rewritten.getToPasserRole(_t3O!),'O')
+    assert.ok(!_t3O!.markers!.find(m => m.kind==='I'), "throw 3 O->B should not have an intercept marker, found: "+JSON.stringify(_t3O!.markers!.find(m => m.kind==='I')))
+    const _t3N = rewritten.findThrow(3, B, N)
+    assert.ok(_t3N && _t3N.markers, 'throw 3 B->N should exist and have markers')
+    assert.ok(_t3N!.markers!.find(m => m.kind==='S' && (m as SubstitutionMarker).throw==='S' && (m as SubstitutionMarker).fromRole==='B'  && (m as SubstitutionMarker).toRoleAtThrow==='N' ), "unexpected substitution marker: "+JSON.stringify(_t3N!.markers!.find(m => m.kind==='S')))
+    assert.equal(rewritten.getFromPasserRole(_t3N!),'O')
+    assert.equal(rewritten.getToPasserRole(_t3N!),'N')
+    assert.ok(_t3N!.markers!.find(m => m.kind==='I' && (m as InterceptMarker).fromRole==='O' && (m as InterceptMarker).originalFromRole==='B'  && (m as InterceptMarker).originalToRoleAtThrow==='A'), "unexpected intercept marker: "+JSON.stringify(_t3N!.markers!.find(m => m.kind==='I')))
+    
+    const _t3M = rewritten.findThrow(3, A, M)
+    assert.ok(_t3M && _t3M.markers, 'throw 3 A->M should exist and have markers')
+    assert.ok(_t3M!.markers!.find(m => m.kind==='S' && (m as SubstitutionMarker).throw==='P' && (m as SubstitutionMarker).fromRole==='A'  && (m as SubstitutionMarker).toRoleAtThrow==='B' ), "unexpected substitution marker: "+JSON.stringify(_t3M!.markers!.find(m => m.kind==='S')))
+    assert.equal(rewritten.getFromPasserRole(_t3M!),'A')
+    assert.equal(rewritten.getToPasserRole(_t3M!),'M')
+    assert.ok(!_t3M!.markers!.find(m => m.kind==='I'), "throw 3 A->M should not have an intercept marker, found: "+JSON.stringify(_t3M!.markers!.find(m => m.kind==='I')))
+    const _t3B = rewritten.findThrow(3, M, O)
+    assert.ok(_t3B && _t3B.markers, 'throw 3 M->B should exist and have markers')
+    assert.ok(_t3B!.markers!.find(m => m.kind==='S' && (m as SubstitutionMarker).throw==='S' && (m as SubstitutionMarker).fromRole==='A'  && (m as SubstitutionMarker).toRoleAtThrow==='B' ), "unexpected substitution marker: "+JSON.stringify(_t3B!.markers!.find(m => m.kind==='S')))
+    assert.equal(rewritten.getFromPasserRole(_t3B!),'M')
+    assert.equal(rewritten.getToPasserRole(_t3B!),'B')
+    assert.ok(!_t3B!.markers!.find(m => m.kind==='I'), "throw 3 M->O should not have an intercept marker, found: "+JSON.stringify(_t3B!.markers!.find(m => m.kind==='I')))
+
 
     assertSub(rewritten, 6, 3, N, A, M, 'sub north to intercept 3')
     // assertThrow(rewritten, 7, 0, M, M, 'empty hand to catch intercept 3')

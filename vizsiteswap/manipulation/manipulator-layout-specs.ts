@@ -289,7 +289,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                     positionSpec = {
                         type: "between",
-                        between: [marker.fromRole, marker.originalToRoleAtThrow],
+                        between: [marker.originalFromRole, marker.originalToRoleAtThrow],
                         side,
                         offset,
                         direction,
