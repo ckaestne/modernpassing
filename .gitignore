@@ -17,3 +17,6 @@ tmp_mdbook*
 *.bak
 vizsiteswap/AGENTS.md
 .github/copilot-instructions.md
+vizsiteswap/*.svg
+vizsiteswap/layout/*.svg
+vizsiteswap/layout/location-manager/*.svg

@@ -29,13 +29,21 @@ move: Vmove(B,4.9,3)`
   renderFrames(pattern, "test/wankel-engine-frames.svg")
 })
 
+test.only("phonecian waltz", async (t) => {
+  const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+positions: Line(A, B, 0.143) `
+  renderFrames(pattern, "test/phonecian-waltz.svg")
+})
 
-test("opernball", async (t) => {
+test.only("opernball", async (t) => {
   const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
 N: SAloz   .   IAvb CB  .   SBloz   zf  
-O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
+O: IBvb CA  .   SAlo z   zf  SAlo z   . 
+positions: Line(A, B, 0.2) `
   renderFrames(pattern, "test/opernball.svg")
 })
 
@@ -43,14 +51,18 @@ function renderFrames(pattern: string, filename: string) {
   const gp: GroupPattern = createSyncGroupPattern(pattern)
 
   const svg = createSVG(420, 1200)
-  const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true }, svg)
+  const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true, positionCircle: 25, roleLabelFontSize: 14 }, svg)
   svg.height(220 * frames.length/2)
   for (let i = 0; i < frames.length/2; i++) {
     frames[i].y(220 * i)
+    frames[i].width(200)
+    frames[i].height(200)
   }
   for (let i = frames.length/2; i < frames.length; i++) {
     frames[i].y(220 * (i - frames.length/2))
     frames[i].x(220)
+    frames[i].width(200)
+    frames[i].height(200)
   }
   console.log(`rendered ${frames.length} frames`)
 

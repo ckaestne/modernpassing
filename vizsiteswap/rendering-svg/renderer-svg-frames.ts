@@ -17,14 +17,14 @@ import { PassAnimation } from "../layout/animation-plan.ts";
 export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig>, svg: Svg): G[] {
 
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig & RenderLayoutConfig = { ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
     // there are three parts that we may render: the pattern, the aidan notation, and the layout
     // not every pattern has aidan notation, and not every group pattern has a layout
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
-    const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
-    return renderAnimationFrames(animationPlan, svg, size.height, size.height, { ...defaultRenderLayoutConfig, ...renderConfig })
+    const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
+    return renderAnimationFrames(animationPlan, svg, size.height, size.height, renderConfig)
 
 }
 
@@ -49,25 +49,6 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = {
 }
 
 
-export function renderBackground(layouts: BackgroundLayout[], width: number, height: number, canvas: Container, config: RenderLayoutConfig) {
-    const w = width - config.positionCircle
-    const h = height - config.positionCircle
-    const left = config.positionCircle / 2
-    const top = config.positionCircle / 2
-    // console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
-    const scale = scaleup(left, top, w)
-
-    for (const layout of layouts) {
-        if (layout.type === "circle") {
-            canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scale.scalex(layout.x), scale.scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
-        } else if (layout.type === "line") {
-            canvas.line(scale.scalex(layout.x1), scale.scaley(layout.y1), scale.scalex(layout.x2), scale.scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
-        } else if (layout.type === "path") {
-            canvas.path(scale.scalePath(layout.segments).join(" ")).fill('none').stroke({ color: layout.stroke, width: layout.strokeWidth })
-        } else
-            throw new Error(`unknown background layout type ${layout}`)
-    }
-}
 
 
 export function renderAnimationFrames(
@@ -127,7 +108,7 @@ export function renderAnimationFrame(
 
     // render passes
     for (const pass of layout.passAnimations)
-        if (pass.onBeat <= time%layout.mod && time%layout.mod <= pass.onBeat + pass.duration) 
+        if (pass.onBeat <= time%layout.mod && time%layout.mod < pass.onBeat + pass.duration) 
             if (pass.firstIteration===undefined || pass.firstIteration === (time < layout.mod))
               renderPass(canvas, scale.scalePass(pass))
 
