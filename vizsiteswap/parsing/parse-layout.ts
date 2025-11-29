@@ -53,9 +53,16 @@ export function parseLayout(input: string): TLayout {
     } else {
         //standard layout
         const shape = parts[0] as TShape
-        const roles = parts.slice(1)
-        roles.map(r => assert(/^[A-Z_]$/.test(r), "role names must be single uppercase letters"))
-        return { type: 'standard', shape, roles }
+        const i = parts.findLastIndex((p, idx) => idx > 0 && /^[A-Z_]$/.test(p)) + 1
+        const roles: Role[] = parts.slice(1, i)
+        const args: number[] = parts.slice(i).map(p => {
+            const num = Number(p)
+            assert(!isNaN(num), `argument must be a number, but found ${p}`)
+            return num
+        })
+        
+        assert(roles.length > 0, "at least one role must be specified")
+        return { type: 'standard', shape, roles, args }
     }
 
 }

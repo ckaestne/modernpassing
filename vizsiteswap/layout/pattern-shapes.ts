@@ -9,7 +9,7 @@ import type { BackgroundLayout } from "./layout.ts";
 
 
 export type TLayout =
-    { type: "standard", shape: TShape, roles: Role[] } |
+    { type: "standard", shape: TShape, roles: Role[], args?: number[] } |
     { type: "free", pos: [Role, number, number][] } |
     { type: "svg", segments: MovementSegmentSpec[], roles: [Role, number][] }
 export type TShape = string
@@ -484,11 +484,12 @@ factories.push({
     },
     createLayout: function (patternRoles: Role[], layout: TLayout, movement: TMovement): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
         const positions: PositionSpec[] = []
-
         assert(layout.type === 'standard')
+
+        const margin = layout.args?.[0] || 0
         const roles = layout.roles
-        positions.push({ role: roles[0], x: 0, y: .5 })
-        positions.push({ role: roles[1], x: 1, y: .5 })
+        positions.push({ role: roles[0], x: 0+margin, y: .5 })
+        positions.push({ role: roles[1], x: 1-margin, y: .5 })
 
         return [positions, [], [], []]
     }
