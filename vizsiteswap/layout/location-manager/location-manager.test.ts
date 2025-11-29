@@ -270,7 +270,8 @@ positions: Line(A, B, 0.2) `
     
     const lA :[number, number] = [0.2,0.5]
     const lB :[number, number] = [0.8,0.5]
-    const lM :[number, number] = [0.5,0.7]
+    const lMleft :[number, number] = [.44,0.7]
+    const lMright :[number, number] = [.56,0.7]
     const lN :[number, number] = [0.5,0.3]
     const lO :[number, number] = [.92,0.5]
     const lOM :[number, number] = [.08,0.5]
@@ -284,7 +285,7 @@ positions: Line(A, B, 0.2) `
     assertEqualLocation(mt._getLocation(0,pA),lA)
     assertEqualLocation(mt._getLocation(0,pB),lB)
     // M starts south in the middle and N north
-    assertEqualLocation(mt._getLocation(0,pM),lM)
+    assertEqualLocation(mt._getLocation(0,pM),lMright)
     assertEqualLocation(mt._getLocation(0,pN),lN)
     // O starts behind B
     assertEqualLocation(mt._getLocation(0,pO),lO)
@@ -295,14 +296,33 @@ positions: Line(A, B, 0.2) `
     assertLocationBetween(mt._getLocation(1,pB),lB,lA)
     // on beat 1, O moves into B's position
     assertEqualLocation(mt._getLocation(2,pO),lB)
-    // on beat 2, M moves to N's position, N moves behind A, O moves to M's position
+    // on beat 2, M moves to N's position, N moves behind A, O moves to M's position -- O is a bit offset here, because they stand between O and N (the passer behind A), not A
     assertEqualLocation(mt._getLocation(3,pM),lN)
     assertEqualLocation(mt._getLocation(3,pN),lOM)
     const _OsmoveAfterCarry = plan.movementAnimations.filter(m=>m.passerIdx===pB && m.onBeat===2)
-    console.log(_OsmoveAfterCarry)
     assert(_OsmoveAfterCarry.length===1, "Expected one movement for B at 2 (to M's initial position)")
-    assertEqualLocation(mt._getLocation(3,pB),lM)
+    assertEqualLocation(mt._getLocation(3,pB),lMleft)
+
+    // now A moved to the middle for the carry on 4
+    assertLocationBetween(mt._getLocation(4,pA),lA,lB)
+    // on beat 5, N has moved into A's position
+    assertEqualLocation(mt._getLocation(5,pN),lA)
+    // on beat 6, M has moved to O's initial position, O moved to N's position, A moved to M's position
+    assertEqualLocation(mt._getLocation(6,pM),lO)
+    assertEqualLocation(mt._getLocation(6,pB),lN)
+    assertEqualLocation(mt._getLocation(6,pA),lMright)
         
+    // now O moved to the middle for the carry on 7
+    assertLocationBetween(mt._getLocation(7,pO),lB,lA)
+    // on beat 8, M has moved into O's position
+    assertEqualLocation(mt._getLocation(8,pM),lB)
+    // on beat 9, N has moved to A's position, B to N's position, O to M's position
+    assertEqualLocation(mt._getLocation(9,pN),lA)
+    assertEqualLocation(mt._getLocation(9,pB),lOM)
+    const _MsmoveAfterCarry = plan.movementAnimations.filter(m=>m.passerIdx===pO && m.onBeat===8)
+    assert(_MsmoveAfterCarry.length===1, "Expected one movement for O at 8 (to M's initial position)")
+    console.log(_MsmoveAfterCarry)
+    assertEqualLocation(mt._getLocation(9,pO),lMleft)
 
 
 })
