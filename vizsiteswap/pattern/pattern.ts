@@ -372,6 +372,7 @@ export interface SubstitutionMarker extends ThrowMarker {
     fromRole: Role, // actually from fromRole to manipulator and from manipulator to toRoleAtThrow
     toRoleAtThrow: Role,
     modifiers: string
+    uniqueKey: number // links two SubstitutionActions (pelf and sub) together -- they share the same key if they originate from the same action
 }
 export interface InterceptMarker extends ThrowMarker {
     kind: 'I',

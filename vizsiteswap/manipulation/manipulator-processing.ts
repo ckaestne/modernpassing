@@ -252,7 +252,20 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 assert((interceptedThrow.markers?.filter(m => m.kind === 'S').length??0) <= 1, `not sure what to do with multiple substitution markers on intercepted throw ${interceptedThrow}`)
                 if (interceptedThrow.markers?.filter(m => m.kind === 'S').length===1) {
                     const subMarker = interceptedThrow.markers!.find(m => m.kind === 'S') as SubstitutionMarker
+                    assert(subMarker.throw === 'S', `expected to intercept the substituted throw, not the pelf of a substitution, found marker: ${JSON.stringify(subMarker)}`)
                     originalFromRole = subMarker.fromRole
+                    const newSubMarker = { ...subMarker, toRoleAtThrow: intercept.manipulatorRole }
+                    markers = markers.filter(m => m.kind !== 'S').concat([newSubMarker]) // update sub marker to point to the new target role
+                    // unfortuntately, we also need to modify the other sub action (pelf) marker. since the intercept does not affect that throw, we are going to do a somewhat hacky direct replacement here
+                    const pelfThrow = pattern.throws.find(t=> t.markers?.find(m => m.kind === 'S' && (m as SubstitutionMarker).throw === 'P' && (m as SubstitutionMarker).uniqueKey === subMarker.uniqueKey))
+                    assert(pelfThrow, `could not find pelf throw for intercepted substitution: ${JSON.stringify(subMarker)}`)
+                    pattern = pattern.removeThrow(pelfThrow!)
+                    const newPelfMarker = { ...(pelfThrow!.markers!.find(m => m.kind === 'S') as SubstitutionMarker), toRoleAtThrow: intercept.manipulatorRole }
+                    const newPelfMarkers = pelfThrow!.markers!.filter(m => m.kind !== 'S').concat([newPelfMarker])
+                    pattern = pattern.addThrow({
+                        ...pelfThrow!,
+                        markers: newPelfMarkers
+                    })
                 }                
                 const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
@@ -320,9 +333,10 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
     return pattern
 }
 
-
-
-
+let uniqueMarkerKeyCounter = 0;
+function createUniqueMarkerKey(): number {
+    return uniqueMarkerKeyCounter++;
+}
 
 export function applySubstitution(pattern: Pattern, substitution: SubstitutionAction): Pattern {
     // if the pattern does not already have the manipulator role's row -- add it
@@ -346,6 +360,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     const pelfArrivalBeat = pattern.getThrowCauseBeat_(substitution.beat, pelfLength)
     const manipulatorRowIdxOnPelfArrival = pattern.getRowIdxByRole(pelfArrivalBeat, substitution.manipulatorRole)
 
+    const uniqueMarkerKey = createUniqueMarkerKey();
 
     // replace old throw with new substitution throws
     pattern = pattern.removeThrow(substitutedThrow)
@@ -362,7 +377,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
     }
 
     // adding the throw (pelf) to be stolen
-    const newMarkerP: SubstitutionMarker = { kind: 'S', throw: 'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
+    const newMarkerP: SubstitutionMarker = { kind: 'S', throw: 'P', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers, uniqueKey: uniqueMarkerKey }
     const newMarkersP = [...originalMarkers.filter(m=>m.kind!=='I'), newMarkerP] // remove any intercepts, we intercept only the substituted throw
     pattern = pattern.addThrow({
         ...substitutedThrow,
@@ -397,7 +412,7 @@ export function applySubstitution(pattern: Pattern, substitution: SubstitutionAc
         }
         return m
     }
-    const newMarkerS: SubstitutionMarker = { kind: 'S', throw: 'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers }
+    const newMarkerS: SubstitutionMarker = { kind: 'S', throw: 'S', fromRole: originalFromRole, toRoleAtThrow: originalToRole, modifiers: substitution.modifiers, uniqueKey: uniqueMarkerKey }
     const newMarkersS = [...originalMarkers.map(updateInterceptMarker), newMarkerS] // update the origin of the throw in any intercept markers
     pattern = pattern.addThrow({
         ...substitutedThrow,
