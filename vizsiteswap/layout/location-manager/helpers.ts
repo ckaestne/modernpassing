@@ -46,7 +46,7 @@ export function same(a: number[][], b: number[][]): boolean {
     return true
 }
 
-export function same2(a: Role[], b: Role[]): boolean {
+export function same2<T>(a: T[], b: T[]): boolean {
     if (a.length !== b.length) return false
     for (let i = 0; i < a.length; i++) {
         if (a[i] !== b[i]) return false

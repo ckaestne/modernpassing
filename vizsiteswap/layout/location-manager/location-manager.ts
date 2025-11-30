@@ -185,13 +185,12 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     const isManipulator = (role: Role) => !animationSpec.basePatternRelabeling.initial.includes(role);
 
     // initial positions modeled as teleportations at time 0
-    const initialLoc: [number, number][] = []
     for (let i = 0; i < animationSpec.initialPositions.length; i++) {
         const pos = animationSpec.initialPositions[i];
         assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} must be in the same order as base pattern roles ${initialRoles}`);
         movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y))
-        initialLoc.push([pos.x, pos.y]);
     }
+    const initialLoc: number[] = currentRoles.map((_role, idx) => idx)
     const currentLoc = initialLoc.slice();
 
     let time = 0
@@ -211,7 +210,10 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                         const relabelTime = time + relabel.onBeat % 1;
                         const ongoingAnimation = baseLocationManager.findOngoingAnimationByRole(relabelTime + baseLocationManager.mod, toRole);
 
-                        currentLoc[createPasserIdx(currentRoles.indexOf(toRole))] = baseLocationManager.getLocationByRole(relabelTime, toRole);
+                        // switching location index between manipulator and manipulated
+                        const lIdx = currentLoc[createPasserIdx(currentRoles.indexOf(fromRole))];
+                        currentLoc[createPasserIdx(currentRoles.indexOf(fromRole))] = currentLoc[createPasserIdx(currentRoles.indexOf(toRole))];
+                        currentLoc[createPasserIdx(currentRoles.indexOf(toRole))] = lIdx;
 
                         //TODO: this is probably broken. teleport is not needed but okay; however, the remaining walk below may be overwritten with some other relative move and it's not currently considered
                         if (!ongoingAnimation)
@@ -246,7 +248,7 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
         }
 
         // check after relabeling, but before moving on that beat
-        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles) && same3(currentLoc, initialLoc))
+        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles) && same2(currentLoc, initialLoc))
             break
 
         // collect a list of movements
