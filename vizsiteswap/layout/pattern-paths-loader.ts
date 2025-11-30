@@ -1,7 +1,7 @@
 import { createSVG, scaledown } from "@modernpassing/svg-utils";
 import assert from "node:assert";
 import type { PatternPath } from "./pattern-paths.ts";
-import { MovementSegmentSpec } from "./animation-spec.ts";
+import type { MovementSegmentSpec } from "./animation-spec.ts";
 
 /**
  * loading movement paths from an SVG file

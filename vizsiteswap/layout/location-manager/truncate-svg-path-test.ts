@@ -1,6 +1,4 @@
-import { expect } from "jsr:@std/expect";
 import assert from "node:assert"
-import { createSVG } from "@modernpassing/svg-utils"
 import { genPath, helperSvg } from "./helpers.ts"
 import { truncateAnimation } from "./truncate-svg-path.ts"
 import type { MovementSegmentSpec } from "../animation-spec.ts"
@@ -79,7 +77,7 @@ Deno.test("truncateAnimation trims with curved paths not yet supported", () => {
 		}
 		const startTrim = 0.3
 		const endTrim = 0.1
-		expect(() => expectTrimmedSegment(segment, startTrim, endTrim)).toThrow()
+		assert.throws(() => expectTrimmedSegment(segment, startTrim, endTrim))
         
 	
 })

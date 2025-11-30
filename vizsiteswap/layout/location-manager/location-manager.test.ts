@@ -1,16 +1,15 @@
-import { createShapeLayout, GroupPattern } from "../layout.ts";
+import type { GroupPattern } from "../layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 import test from "node:test";
-import { Hand, Role } from "@modernpassing/pattern";
+import type { Role } from "@modernpassing/pattern";
 import { assertEqualLocation, assertLocationBetween } from "../location-test-helpers.ts";
-import { createBaseLocationManager, createFullLocationManager, LocationManager } from "./location-manager.ts";
-import { createPasserIdx, PasserIdx } from "./helpers.ts";
-import { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.ts";
-import { Svg } from "@svgdotjs/svg.js";
+import { createBaseLocationManager, createFullLocationManager, type LocationManager } from "./location-manager.ts";
+import { createPasserIdx, type PasserIdx } from "./helpers.ts";
+import type { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.ts";
+import type { Svg } from "@svgdotjs/svg.js";
 import { createSVG } from "@modernpassing/svg-utils";
 import { createAnimationPlan } from "../create-animation-plan.ts";
-import { log } from "node:console";
 import path from "node:path";
 
 
@@ -256,7 +255,7 @@ move: Vmove(B,4.9,3)`
 
 
 
-Deno.test("location manager for opernball", async (t) => {
+Deno.test("location manager for opernball", () => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
@@ -327,8 +326,8 @@ positions: Line(A, B, 0.2) `
 
 })
 
-test("location manager for 567-about", async (t) => {
-  const pattern = `A: 7 6 5 7 6 -- B
+test("location manager for 567-about", () => {
+    const pattern = `A: 7 6 5 7 6 -- B
 B:, 5 7 6 5  -- A
 M:, . IAb,Co
 positions: Line(A, B, 0.2) `
@@ -339,12 +338,12 @@ positions: Line(A, B, 0.2) `
     const lA: [number, number] = [0.2, 0.5]
     const lB: [number, number] = [0.8, 0.5]
     const carryOffset = .012
-    const lCarryTL : [number, number] = [.5-carryOffset, 0.3]
-    const lCarryTR : [number, number] = [.5+carryOffset, 0.3]
-    const lCarryBL : [number, number] = [.5-carryOffset, 0.7]
-    const lCarryBR : [number, number] = [.5+carryOffset, 0.7]
-    const lBehindA : [number, number] = [.08, 0.5]
-    const lBehindB : [number, number] = [.92, 0.5]
+    const lCarryTL: [number, number] = [.5 - carryOffset, 0.3]
+    const lCarryTR: [number, number] = [.5 + carryOffset, 0.3]
+    const lCarryBL: [number, number] = [.5 - carryOffset, 0.7]
+    const lCarryBR: [number, number] = [.5 + carryOffset, 0.7]
+    const lBehindA: [number, number] = [.08, 0.5]
+    const lBehindB: [number, number] = [.92, 0.5]
     const pA = locationMgr.roleTracker._getPasserIdx(0, 'A')
     const pB = locationMgr.roleTracker._getPasserIdx(0, 'B')
     const pM = locationMgr.roleTracker._getPasserIdx(0, 'M')
@@ -355,38 +354,61 @@ positions: Line(A, B, 0.2) `
     // assertEqualLocation(mt._getLocation(0, pM), lBehindA)
 
     // M intercepts pass on 3, arriving on 6
-    assert.ok(gp.pattern.findThrow(3, pB, pM)!.markers?.find(m=>m.kind==='I'), "expected intercepted pass on 3")
+    assert.ok(gp.pattern.findThrow(3, pB, pM)!.markers?.find(m => m.kind === 'I'), "expected intercepted pass on 3")
     assertEqualLocation(mt._getLocation(6, pM), lBehindA)
 
     // next A carries on 6, arriving for the intercept behind B on 9+6, M steps in arriving on 7
-    assert.ok(gp.pattern.findThrow(6, pA)!.markers?.find(m=>m.kind==='C'), "expected carry on 6")
+    assert.ok(gp.pattern.findThrow(6, pA)!.markers?.find(m => m.kind === 'C'), "expected carry on 6")
     assertEqualLocation(mt._getLocation(9, pA), lCarryTR)
     assertEqualLocation(mt._getLocation(15, pA), lBehindB)
     assertEqualLocation(mt._getLocation(7, pM), lA)
 
     // next B carries on 9+6, arriving behind M on 9*2+6, A steps in arriving on 9+7
-    assertEqualLocation(mt._getLocation(9+6, pB), lCarryTL)
-    assertEqualLocation(mt._getLocation(9*2+6, pB), lBehindA)
-    assertEqualLocation(mt._getLocation(9+7, pA), lB)
+    assertEqualLocation(mt._getLocation(9 + 6, pB), lCarryTL)
+    assertEqualLocation(mt._getLocation(9 * 2 + 6, pB), lBehindA)
+    assertEqualLocation(mt._getLocation(9 + 7, pA), lB)
 
     // next M carries on 9*2+6, arriving behind A on 9*3+6, B steps in arriving on 9*2+7
-    assertEqualLocation(mt._getLocation(9*2+6, pM), lCarryBR)
-    assertEqualLocation(mt._getLocation(9*3+6, pM), lBehindB)
-    assertEqualLocation(mt._getLocation(9*2+7, pB), lA)
+    assertEqualLocation(mt._getLocation(9 * 2 + 6, pM), lCarryBR)
+    assertEqualLocation(mt._getLocation(9 * 3 + 6, pM), lBehindB)
+    assertEqualLocation(mt._getLocation(9 * 2 + 7, pB), lA)
 
     // next A carries on 9*3+6, arriving for the intercept behind B on 9*4+6, M steps in arriving on 9*3+7
-    assertEqualLocation(mt._getLocation(9*3+6, pA), lCarryBL)
-    assertEqualLocation(mt._getLocation(9*4+6, pA), lBehindA)
-    assertEqualLocation(mt._getLocation(9*3+7, pM), lB)
+    assertEqualLocation(mt._getLocation(9 * 3 + 6, pA), lCarryBL)
+    assertEqualLocation(mt._getLocation(9 * 4 + 6, pA), lBehindA)
+    assertEqualLocation(mt._getLocation(9 * 3 + 7, pM), lB)
 
     // repeat with shifted roles
-    assertEqualLocation(mt._getLocation(9*4+6, pB), lCarryTR)
-    assertEqualLocation(mt._getLocation(9*5+6, pB), lBehindB)
-    assertEqualLocation(mt._getLocation(9*4+7, pA), lA)
+    assertEqualLocation(mt._getLocation(9 * 4 + 6, pB), lCarryTR)
+    assertEqualLocation(mt._getLocation(9 * 5 + 6, pB), lBehindB)
+    assertEqualLocation(mt._getLocation(9 * 4 + 7, pA), lA)
 })
 
+Deno.test("locationMgr for brunos", () => {
 
-Deno.test.ignore("debugging: plot location dependencies for opernball", async (t) => {
+    const pattern = `A: 3pB 3pC 3pB -- B
+B: 3pA 3   3pA -- C
+C: 3   3pA 3   -- A
+positions: Brunos(A,B,C)
+move: Bmove(B,1,1.9)Bmove(B,2.9,1.5)Bmove(C,1.4,1.5)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), [0, .8])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [1, .8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'B'), [.69, .80])
+    assertEqualLocation(locationMgr.getLocationByRole(2.9, 'B'), [.5, .6])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'C'), [.48, .58])
+    assertEqualLocation(locationMgr.getLocationByRole(3.1, 'C'), [.45, .55])
+
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'A'), [0, .8])
+    assertEqualLocation(locationMgr.getLocationByRole(2.9, 'A'), [0, .8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'B'), [0, .8])
+    assertEqualLocation(locationMgr.getLocationByRole(3.1, 'B'), [0, .8])
+})
+
+Deno.test.ignore("debugging: plot location dependencies for opernball", () => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
@@ -528,7 +550,7 @@ Deno.test("location mgr regression tests", () => {
     }
 })
 
-Deno.test("create location mgr regression tests", () => {
+Deno.test.ignore("create location mgr regression tests", () => {
 
 
     const patterns: [string, string, number?][] = [[
@@ -569,13 +591,13 @@ M: SBloz   zf  SBloz   .   IBvb CA  .
 N: SAloz   .   IAvb CB  .   SBloz   zf  
 O: IBvb CA  .   SAlo z   zf  SAlo z   . 
 positions: Line(A, B, 0.2) `],
-        ["567-about",
-            `A: 7 6 5 7 6 -- B
+    ["567-about",
+        `A: 7 6 5 7 6 -- B
 B:, 5 7 6 5  -- A
 M:, . IAb,Co
 positions: Line(A, B, 0.2) `,
-            4
-        ]
+        4
+    ]
     ]
     const result: RegressionData[] = []
     for (const p of patterns) {
@@ -592,7 +614,7 @@ positions: Line(A, B, 0.2) `,
                 log.push([time, role, passerIdx, locX1, locY1]);
             }
 
-        result.push({name: p[0], pattern: p[1], nrHands: p[2] ?? 2, expectedPositions: log})
+        result.push({ name: p[0], pattern: p[1], nrHands: p[2] ?? 2, expectedPositions: log })
     }
     Deno.writeTextFileSync(regressionTestsJsonFile, JSON.stringify(result, null, 2));
 })

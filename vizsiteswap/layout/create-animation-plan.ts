@@ -7,7 +7,7 @@
  */
 
 import type { Hand, Role } from "../pattern/pattern.ts";
-import type { AnimationPlan, MovementAnimation, PassAnimation, RelabelAnimation } from "./animation-plan.ts";
+import { apFindPosition, apGetRole, type AnimationPlan, type MovementAnimation, type PassAnimation, type RelabelAnimation } from "./animation-plan.ts";
 import type { AnimationSpec, PassSpec, RelabelSpec } from "./animation-spec.ts";
 import type { LocationManager } from "./location-manager/location-manager.ts";
 import type { PasserIdx } from "./location-manager/helpers.ts";
@@ -23,11 +23,8 @@ import { createFullLocationManager } from "./location-manager/location-manager.t
  *      While all animations are rendered on relative locations from 0 to 1, this is needed to scale animations to the circle size, especially the length of arms for passes
  * @returns 
  */
-export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number): AnimationPlan {
+export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number = 200 / 40): AnimationPlan {
     // all roles, this is used to create ids
-    const roles = animationSpec.initialPositions.map(pos => pos.role)
-    function passerId(role: Role): number { return roles.indexOf(role) }
-
     const locationMgr = createFullLocationManager(animationSpec);
 
 
@@ -93,7 +90,7 @@ function convertRelabeling(locationMgr: LocationManager, relabelingSpecs: Relabe
     for (let time = 0; time < locationMgr.mod; time++) {
         for (const relabel of relabelingSpecs.relabelActions) {
             if (time % relabel.mod === Math.floor(relabel.onBeat)) {
-                const changes: [PasserIdx, Role][] = relabel.changes.map(([fromRole, toRole]) => {
+                const changes: [PasserIdx, Role][] = relabel.changes.map(([_fromRole, toRole]) => {
                     return [locationMgr.roleTracker._getPasserIdx(time, toRole), toRole];
                 });
                 result.push({ onBeat: time, changes })
@@ -185,4 +182,33 @@ function createPassAnimationInstance(fromX: number, fromY: number, toX: number, 
             toY
         },
     }
+}
+
+
+
+
+
+
+/** infrastructure for compatibility with old tests for convenient operation on AnimationPlans */
+
+
+
+class AnimationPlanMgr {
+    constructor(public plan: AnimationPlan) { }
+
+
+    // inefficient implementation, use for testing/debugging only
+    getLocationByRole(time: number, role: string): [number, number] {
+        for (let passerIdx = 0; passerIdx < this.plan.initialPositions.length; passerIdx++) {
+            if (apGetRole(this.plan, passerIdx, time) === role) {
+                return apFindPosition(this.plan, passerIdx, time)
+            }
+        }
+        throw new Error(`Role ${role} not found at time ${time}`)
+    }
+}
+
+export function computeBaseAnimations(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number = 200 / 40): AnimationPlanMgr {
+    const plan = createAnimationPlan(animationSpec, canvasSizeByPasserCircle);
+    return new AnimationPlanMgr(plan)
 }

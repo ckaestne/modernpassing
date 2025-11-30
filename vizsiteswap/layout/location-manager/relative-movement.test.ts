@@ -1,7 +1,7 @@
-import assert from "node:assert"
-import { createPasserIdx, genPath, helperSvg } from "./helpers.ts"
+import assert from "node:assert";
 import test from "node:test";
-import { MovementSegment, MovementTracker, ResolvedMovementSegment, TeleportMovementSegment, UnresolvedMovementSegment } from "./relative-movement.ts";
+import { createPasserIdx } from "./helpers.ts";
+import { type MovementSegment, MovementTracker, ResolvedMovementSegment, TeleportMovementSegment } from "./relative-movement.ts";
 
 
 const A = createPasserIdx(0);

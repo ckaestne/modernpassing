@@ -3,7 +3,7 @@
  */
 
 import assert from "node:assert"
-import PathProp from "npm:svg-path-properties"
+import PathProp from "svg-path-properties" 
 
 import type { MovementSegmentSpec } from "../animation-spec.ts"
 

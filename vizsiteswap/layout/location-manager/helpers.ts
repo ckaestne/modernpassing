@@ -1,9 +1,8 @@
 import type { Role } from "@modernpassing/pattern";
 import { createSVG } from "@modernpassing/svg-utils";
 import type { Svg } from "@svgdotjs/svg.js";
+import { svgPathProperties } from "svg-path-properties";
 import type { AnimationSpec, MovementSegmentSpec } from "../animation-spec.ts";
-import PathProp from "npm:svg-path-properties"
-import { assert } from "node:console";
 
 type Brand<T, B> = T & { __brand: B }
 
@@ -26,7 +25,7 @@ export type PathLike = {
 }
 
 export function genPath(_: Svg, segment: MovementSegmentSpec): PathLike {
-    const properties = new PathProp.svgPathProperties(genPathStr(segment))
+    const properties = new svgPathProperties(genPathStr(segment))
     return {
         length: () => properties.getTotalLength(),
         pointAt: (distance: number) => properties.getPointAtLength(distance)
@@ -54,6 +53,19 @@ export function same2(a: Role[], b: Role[]): boolean {
     }
     return true
 }
+
+export function same3(a: number[][], b: number[][]): boolean {
+    if (a.length < b.length) return false
+    for (let i = 0; i < b.length; i++) {
+        if (a[i].length !== b[i].length) return false
+        for (let j = 0; j < a[i].length; j++) {
+            if (a[i][j] !== b[i][j]) return false
+        }
+    }
+    return true
+}
+
+
 
 export const helperSvg = createSVG()
 

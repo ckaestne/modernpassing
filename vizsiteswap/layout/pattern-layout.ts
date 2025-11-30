@@ -1,22 +1,21 @@
-import { type Pattern, type Role } from "@modernpassing/pattern";
-import { PassSpec, RelabelSpec } from "./animation-spec.ts";
+import type { Pattern, Role } from "@modernpassing/pattern";
+import type { PassSpec, RelabelSpec } from "./animation-spec.ts";
 import type { GroupPatternLayoutSpec } from "./layout.ts";
-import { get } from "node:http";
 
 
 
 
 function getRelabelSpec(pattern: Pattern): RelabelSpec {
-     const layoutRelabel: RelabelSpec = {initial: pattern.getInitialRoles(), relabelActions: []}
+    const layoutRelabel: RelabelSpec = { initial: pattern.getInitialRoles(), relabelActions: [] }
 
     let lastLabels: Role[] = []
     for (const [beat, labels] of pattern.roles) {
-        if (beat!==0) {
-            const labelChanges: [Role,Role][] = []
+        if (beat !== 0) {
+            const labelChanges: [Role, Role][] = []
             for (let rowIdx = 0; rowIdx < labels.length; rowIdx++) {
                 const from = lastLabels[rowIdx]
                 const to = labels[rowIdx]
-                if (from !== to) 
+                if (from !== to)
                     labelChanges.push([from, to])
             }
             if (labelChanges.length > 0) {
@@ -30,11 +29,11 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec {
         lastLabels = labels
     }
     const firstLabels = pattern.getInitialRoles()
-    const finalLabelChanges: [Role,Role][] = []
+    const finalLabelChanges: [Role, Role][] = []
     for (let rowIdx = 0; rowIdx < lastLabels.length; rowIdx++) {
         const from = lastLabels[rowIdx]
         const to = firstLabels[pattern.mapRows[rowIdx]]
-        if (from !== to) 
+        if (from !== to)
             finalLabelChanges.push([from, to])
     }
     if (finalLabelChanges.length > 0) {
@@ -51,7 +50,7 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec {
 
 export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, basePattern: Pattern, manipulatorPattern: Pattern): GroupPatternLayoutSpec {
     //TODO extend for manipulator actions
-   
+
     return {
         ...layout,
         animation: {
@@ -61,11 +60,8 @@ export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, basePattern:
         }
     }
 }
-  
+
 export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Pattern): GroupPatternLayoutSpec {
-    // console.log(throws)
-    const passesToRender: Map<[number/*from*/, number/*fromHand*/, number/*to*/, number/*toHand*/], PassSpec> = new Map()
-    const passesPerBeat: Map<number, PassSpec[]> = new Map()
     const passAnimations: PassSpec[] = []
     const nrIterations = pattern.iterationsUntilRepeat()
     const completePatternLength = pattern.getLength() * nrIterations
@@ -75,18 +71,6 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
         for (const t of pattern.throws)
             if (t.fromPasserIdx !== pattern.getToPasserIdxAtThrow(t)) {
                 const timeOffset = iteration * pattern.getLength()
-                // // update passes for overall static layout (no movement, no role adjustments)
-                // const p = getOrUpdate4(passesToRender, t.fromPasserIdx, t.fromHand, t.toPasserIdx, t.toHand, () => {
-                //     const x = pass(t)
-                //     x.label = ""
-                //     return x
-                // })
-                // if (p.label !== "") p.label += ", "
-                // p.label += (t.throwTime + 1)
-
-                // // updated passes for individual frames
-                // const passesOnBeat = getOrUpdate(passesPerBeat, t.throwTime, () => [])
-                // passesOnBeat.push(pass(t))
 
                 // passes for animations
                 const fromPasserRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
@@ -107,7 +91,6 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
                     displayDuration,
                     throwLength: t.throwLength,
                 })
-                // console.log(t.throwBeat, fromPasserRole, toPasserRoleAtThrow)
             }
 
     return {

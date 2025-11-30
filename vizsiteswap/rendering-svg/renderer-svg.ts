@@ -1,9 +1,9 @@
 import type { BackgroundLayout, GroupPattern } from "@modernpassing/layout";
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
-import { Hand, ManipulatorAction, Role, type Pattern } from "@modernpassing/pattern";
-import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
+import { Hand, type ManipulatorAction, type Role, type Pattern } from "@modernpassing/pattern";
+import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, type RendererConfig } from "@modernpassing/rendering-core";
 import { scaleup } from "@modernpassing/svg-utils";
-import { type Containable, type Container, Element, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
+import { type Container, type G, type Line, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
 import { assert } from "node:console";
 import { createSVGWindow } from 'svgdom';
 

@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { loadPathsFromSvg } from "./pattern-paths-loader.ts";
+import type { loadPathsFromSvg } from "./pattern-paths-loader.ts";
 import { type PatternPath, PatternPaths } from "./pattern-paths.ts";
 import type { Role } from "../pattern/pattern.ts";
 import type { MovementSegmentSpec, MovementSequenceSpec, PositionSpec } from "./animation-spec.ts";
@@ -375,6 +375,7 @@ factories.push({
 
 
 // -- weave layout and movement
+// A is the feeder
 factories.push({
     supportedShapes: ['Weave'],
     supportedMovement: ['move'],
@@ -388,15 +389,15 @@ factories.push({
 
         assert(layout.type === 'standard')
         const roles = layout.roles
-        for (let i = 0; i < 3; i++) {
-            const s = PatternPaths.weave.movementSegments[PatternPaths.weave.initialPositions[i]]
-            positions.push({ role: roles[i + 1], x: s.fromX, y: s.fromY })
-        }
         positions.push({
             x: .5,
             y: .05,
             role: roles[0]
         })
+        for (let i = 0; i < 3; i++) {
+            const s = PatternPaths.weave.movementSegments[PatternPaths.weave.initialPositions[i]]
+            positions.push({ role: roles[i + 1], x: s.fromX, y: s.fromY })
+        }
 
 
 
@@ -416,8 +417,8 @@ factories.push({
 
         //         // get the movement path of each initial position, moving by 90 degree each
 
-        const segments: MovementSegmentSpec[] = PatternPaths.weave.movementSegments//.map(s => { return { fromX: s.fromX, fromY: s.fromY, path: s.path, toX: s.toX, toY: s.toY } })
-        const sequences: MovementSequenceSpec[] = PatternPaths.weave.movementSequences
+        const segments: MovementSegmentSpec[] = PatternPaths.weave.movementSegments
+        const sequences: MovementSequenceSpec[] = [[], ...PatternPaths.weave.movementSequences]
 
 
 
@@ -544,8 +545,8 @@ function fromPath(name: string, path: PatternPath): PatternShapeFactory {
 
 
 
-export const supportedShapes = factories.map(f => f.supportedShapes).flat()
-export const supportedMovement = factories.map(f => f.supportedMovement).flat()
+export const supportedShapes: TShape[] = factories.map(f => f.supportedShapes).flat()
+export const supportedMovement: TMovementType[] = factories.map(f => f.supportedMovement).flat()
 
 export function createShapeLayout(roles: Role[], parsedLayoutInstructions: TLayout, parsedMovementInstructions: TMovement | undefined): [PositionSpec[], MovementSegmentSpec[], MovementSequenceSpec[], BackgroundLayout[]] {
     for (const f of factories)

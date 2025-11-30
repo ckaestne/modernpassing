@@ -1,5 +1,8 @@
 {
   "name": "@modernpassing/layout",
   "version": "0.1.0",
-  "exports": "./layout.ts"
+  "exports": "./layout.ts",
+  "imports": {
+    "svg-path-properties": "npm:svg-path-properties@2.0.0"
+  }
 }

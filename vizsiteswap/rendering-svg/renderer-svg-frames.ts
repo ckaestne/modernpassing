@@ -1,16 +1,10 @@
-import type { BackgroundLayout, MovementAnimation, GroupPattern, MovementSegmentSpec } from "@modernpassing/layout";
-import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
-import { Hand, ManipulatorAction, Role, type Pattern } from "@modernpassing/pattern";
-import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, RendererConfig } from "@modernpassing/rendering-core";
-import { scaleup } from "@modernpassing/svg-utils";
-import { type Containable, type Container, Element, type G, type Line, Path, registerWindow, SVG, type Svg, type Text } from '@svgdotjs/svg.js';
-import { assert } from "node:console";
-import { createSVGWindow } from 'svgdom';
+import type { GroupPattern, MovementSegmentSpec } from "@modernpassing/layout";
+import { type AnimationPlan, createAnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, type PassAnimation } from "@modernpassing/layout";
+import type { Role } from "@modernpassing/pattern";
+import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core";
 import { getRenderPatternSize } from "@modernpassing/rendering-svg";
-import { Dir } from "node:fs";
-import { MovementSegment } from "../layout/location-manager/relative-movement.ts";
-import { helperSvg } from "../layout/location-manager/helpers.ts";
-import { PassAnimation } from "../layout/animation-plan.ts";
+import { scaleup } from "@modernpassing/svg-utils";
+import type { Containable, G, Line, Path, Svg, Text } from '@svgdotjs/svg.js';
 
 
 
@@ -93,16 +87,16 @@ export function renderAnimationFrame(
 
     // if somebody is walking, render the path
     for (let jugglerIdx = 0; jugglerIdx < layout.initialPositions.length; jugglerIdx++) {
-        const mov = findOngoingMovement(layout, jugglerIdx, time)
+        const mov = apFindOngoingMovement(layout, jugglerIdx, time)
         if (mov) renderMovePath(canvas, scale.scaleSegment(mov.movementSpec))
 
     }
 
     // render jugglers
     for (let jugglerIdx = 0; jugglerIdx < layout.initialPositions.length; jugglerIdx++) {
-        const pos = findPosition(layout, jugglerIdx, time);
+        const pos = apFindPosition(layout, jugglerIdx, time);
         const loc = scale.scalep(pos)
-        const role = getRole(layout, jugglerIdx, time);
+        const role = apGetRole(layout, jugglerIdx, time);
         renderJuggler(canvas, loc, jugglerIdx, role, config);
     }
 
@@ -196,52 +190,6 @@ function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, role
     //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
     l.children()[0].attr({ x: null })
     return g
-}
-
-function findPosition(layout: AnimationPlan, jugglerIdx: number, time: number): [number, number] {
-    const firstIteration = time < layout.mod
-    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration)) ??
-        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration))
-    if (!lastMovement) {
-        const pos = layout.initialPositions[jugglerIdx]
-        return [pos.x, pos.y]
-    }
-
-    const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
-    if (timeSinceMoveStart >= lastMovement.duration)
-        return [lastMovement.movementSpec.toX, lastMovement.movementSpec.toY];
-
-    const progress = timeSinceMoveStart / lastMovement.duration;
-    const path = genPath(helperSvg, lastMovement.movementSpec); // create the path in the helper SVG to get the length
-    const p = path.pointAt(progress * path.length());
-    return [p.x, p.y]
-
-}
-
-function findOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): MovementAnimation | undefined {
-    const firstIteration = time < layout.mod
-    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
-        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
-    if (!lastMovement) return undefined
-
-    const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
-    if (timeSinceMoveStart > lastMovement.duration)
-        return undefined
-
-    return lastMovement
-}
-
-function getRole(layout: AnimationPlan, passerIdx: number, time: number): Role {
-    let role = layout.initialPositions[passerIdx].initialRole
-    for (const relabel of layout.relabeling) {
-        if (relabel.onBeat <= time%layout.mod)
-            for (const change of relabel.changes) {
-                if (change[0] === passerIdx) {
-                    role = change[1]
-                }
-            }
-    }
-    return role
 }
 
 

@@ -15,8 +15,8 @@
 
 
 import type { Role } from "@modernpassing/pattern";
-import type { MovementSegmentSpec } from "./animation-spec.ts";
-import type { PasserIdx } from "./location-manager/helpers.ts";
+import type { AnimationSpec, MovementSegmentSpec } from "./animation-spec.ts";
+import { genPath, helperSvg, type PasserIdx } from "./location-manager/helpers.ts";
 
 export type AnimationPlan = {
     mod: number, // the length of the animation in beats 
@@ -70,3 +70,52 @@ export type RelabelAnimation = {
     onBeat: number, // the entire animation has a length (mod), this is relative to that
     changes: [PasserIdx, Role][] // assignment of new roles for all or some passers
 }
+
+
+
+export function apFindPosition(layout: AnimationPlan, jugglerIdx: number, time: number): [number, number] {
+    const firstIteration = time < layout.mod
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration)) ??
+        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration))
+    if (!lastMovement) {
+        const pos = layout.initialPositions[jugglerIdx]
+        return [pos.x, pos.y]
+    }
+
+    const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
+    if (timeSinceMoveStart >= lastMovement.duration)
+        return [lastMovement.movementSpec.toX, lastMovement.movementSpec.toY];
+
+    const progress = timeSinceMoveStart / lastMovement.duration;
+    const path = genPath(helperSvg, lastMovement.movementSpec); // create the path in the helper SVG to get the length
+    const p = path.pointAt(progress * path.length());
+    return [p.x, p.y]
+
+}
+
+export function apFindOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): MovementAnimation | undefined {
+    const firstIteration = time < layout.mod
+    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration) ??
+        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && m.firstIteration !== !firstIteration)
+    if (!lastMovement) return undefined
+
+    const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
+    if (timeSinceMoveStart > lastMovement.duration)
+        return undefined
+
+    return lastMovement
+}
+
+export function apGetRole(layout: AnimationPlan, passerIdx: number, time: number): Role {
+    let role = layout.initialPositions[passerIdx].initialRole
+    for (const relabel of layout.relabeling) {
+        if (relabel.onBeat <= time%layout.mod)
+            for (const change of relabel.changes) {
+                if (change[0] === passerIdx) {
+                    role = change[1]
+                }
+            }
+    }
+    return role
+}
+

@@ -2,11 +2,12 @@
  * Tracks and resolves movement segments within the location manager through a dedicated LocationTracker class
  */
 
-import type { BetweenPositionSpec, MovementSegmentSpec } from "../animation-spec.ts";
 import type { MovementAnimation } from "@modernpassing/layout";
 import type { Role } from "@modernpassing/pattern";
+import assert from "node:assert";
+import type { MovementSegmentSpec } from "../animation-spec.ts";
 import { createPasserIdx, genPath, helperSvg, type PasserIdx } from "./helpers.ts";
-import assert from "node:assert";;
+;
 
 
 
@@ -415,7 +416,7 @@ export class MovementTracker {
     private _resolveLocation(time: number, passerIdx: PasserIdx, doNotStartPassersMidWalk: boolean = true): [number, number] | undefined {
         try {
             return this._getLocation(time, passerIdx, doNotStartPassersMidWalk);
-        } catch (e) {
+        } catch (_) {
             return undefined;
         }
     }
@@ -505,7 +506,7 @@ function computeLocationInBetween(loc0: [number, number], loc1: [number, number]
 
     const angle = Math.atan2(toY - fromY, toX - fromX)
     const angleDegrees = angle * (180 / Math.PI)
-    const absoluteRotation = (angleDegrees + betweenSpec.direction) % 360
+    // const absoluteRotation = (angleDegrees + betweenSpec.direction) % 360
 
     //  Compute perpendicular direction for the offset
     const perpendicularAngle = angleDegrees + 90
