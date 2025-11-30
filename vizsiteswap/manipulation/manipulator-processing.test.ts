@@ -821,7 +821,7 @@ Deno.test('apply substitution: substituting right person after relabel', () => {
     let rewritten = applyInterceptCarry(p, manipulations[0], manipulations[1])
     rewritten = applySubstitution(rewritten, manipulations[2])
     rewritten = applyManipulatorThrow(rewritten, manipulations[3])
-    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
+    assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten)//, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
     console.log(rewritten.prettyPrintThrows())

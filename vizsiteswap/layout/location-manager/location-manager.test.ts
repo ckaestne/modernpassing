@@ -256,8 +256,8 @@ move: Vmove(B,4.9,3)`
 
 
 
-Deno.test.only("location manager for opernball", async (t) => {
-  const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+Deno.test("location manager for opernball", async (t) => {
+    const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
 N: SAloz   .   IAvb CB  .   SBloz   zf  
@@ -267,68 +267,68 @@ positions: Line(A, B, 0.2) `
 
     const locationMgr = createFullLocationManager(gp.layout!.animation)
     const plan = createAnimationPlan(gp.layout!.animation, .1);
-    
-    const lA :[number, number] = [0.2,0.5]
-    const lB :[number, number] = [0.8,0.5]
-    const lMleft :[number, number] = [.44,0.7]
-    const lMright :[number, number] = [.56,0.7]
-    const lN :[number, number] = [0.5,0.3]
-    const lO :[number, number] = [.92,0.5]
-    const lOM :[number, number] = [.08,0.5]
-    const pA = locationMgr.roleTracker._getPasserIdx(0,'A')
-    const pB = locationMgr.roleTracker._getPasserIdx(0,'B')
-    const pM = locationMgr.roleTracker._getPasserIdx(0,'M')
-    const pN = locationMgr.roleTracker._getPasserIdx(0,'N')
-    const pO = locationMgr.roleTracker._getPasserIdx(0,'O')
+
+    const lA: [number, number] = [0.2, 0.5]
+    const lB: [number, number] = [0.8, 0.5]
+    const lMleft: [number, number] = [.44, 0.7]
+    const lMright: [number, number] = [.56, 0.7]
+    const lN: [number, number] = [0.5, 0.3]
+    const lO: [number, number] = [.92, 0.5]
+    const lOM: [number, number] = [.08, 0.5]
+    const pA = locationMgr.roleTracker._getPasserIdx(0, 'A')
+    const pB = locationMgr.roleTracker._getPasserIdx(0, 'B')
+    const pM = locationMgr.roleTracker._getPasserIdx(0, 'M')
+    const pN = locationMgr.roleTracker._getPasserIdx(0, 'N')
+    const pO = locationMgr.roleTracker._getPasserIdx(0, 'O')
 
     const mt = locationMgr.movementTracker
-    assertEqualLocation(mt._getLocation(0,pA),lA)
-    assertEqualLocation(mt._getLocation(0,pB),lB)
+    assertEqualLocation(mt._getLocation(0, pA), lA)
+    assertEqualLocation(mt._getLocation(0, pB), lB)
     // M starts south in the middle and N north
-    assertEqualLocation(mt._getLocation(0,pM),lMright)
-    assertEqualLocation(mt._getLocation(0,pN),lN)
+    assertEqualLocation(mt._getLocation(0, pM), lMright)
+    assertEqualLocation(mt._getLocation(0, pN), lN)
     // O starts behind B
-    assertEqualLocation(mt._getLocation(0,pO),lO)
+    assertEqualLocation(mt._getLocation(0, pO), lO)
 
     // original B starts moving to carry pass on 1; 
-    const carry = plan.movementAnimations.filter(m=>m.passerIdx===pB && m.onBeat===0.5)
-    assert(carry.length===1, "Expected one carry movement for B at 0.5")
-    assertLocationBetween(mt._getLocation(1,pB),lB,lA)
+    const carry = plan.movementAnimations.filter(m => m.passerIdx === pB && m.onBeat === 0.5)
+    assert(carry.length === 1, "Expected one carry movement for B at 0.5")
+    assertLocationBetween(mt._getLocation(1, pB), lB, lA)
     // on beat 1, O moves into B's position
-    assertEqualLocation(mt._getLocation(2,pO),lB)
+    assertEqualLocation(mt._getLocation(2, pO), lB)
     // on beat 2, M moves to N's position, N moves behind A, O moves to M's position -- O is a bit offset here, because they stand between O and N (the passer behind A), not A
-    assertEqualLocation(mt._getLocation(3,pM),lN)
-    assertEqualLocation(mt._getLocation(3,pN),lOM)
-    const _OsmoveAfterCarry = plan.movementAnimations.filter(m=>m.passerIdx===pB && m.onBeat===2)
-    assert(_OsmoveAfterCarry.length===1, "Expected one movement for B at 2 (to M's initial position)")
-    assertEqualLocation(mt._getLocation(3,pB),lMleft)
+    assertEqualLocation(mt._getLocation(3, pM), lN)
+    assertEqualLocation(mt._getLocation(3, pN), lOM)
+    const _OsmoveAfterCarry = plan.movementAnimations.filter(m => m.passerIdx === pB && m.onBeat === 2)
+    assert(_OsmoveAfterCarry.length === 1, "Expected one movement for B at 2 (to M's initial position)")
+    assertEqualLocation(mt._getLocation(3, pB), lMleft)
 
     // now A moved to the middle for the carry on 4
-    assertLocationBetween(mt._getLocation(4,pA),lA,lB)
+    assertLocationBetween(mt._getLocation(4, pA), lA, lB)
     // on beat 5, N has moved into A's position
-    assertEqualLocation(mt._getLocation(5,pN),lA)
+    assertEqualLocation(mt._getLocation(5, pN), lA)
     // on beat 6, M has moved to O's initial position, O moved to N's position, A moved to M's position
-    assertEqualLocation(mt._getLocation(6,pM),lO)
-    assertEqualLocation(mt._getLocation(6,pB),lN)
-    assertEqualLocation(mt._getLocation(6,pA),lMright)
-        
+    assertEqualLocation(mt._getLocation(6, pM), lO)
+    assertEqualLocation(mt._getLocation(6, pB), lN)
+    assertEqualLocation(mt._getLocation(6, pA), lMright)
+
     // now O moved to the middle for the carry on 7
-    assertLocationBetween(mt._getLocation(7,pO),lB,lA)
+    assertLocationBetween(mt._getLocation(7, pO), lB, lA)
     // on beat 8, M has moved into O's position
-    assertEqualLocation(mt._getLocation(8,pM),lB)
+    assertEqualLocation(mt._getLocation(8, pM), lB)
     // on beat 9, N has moved to A's position, B to N's position, O to M's position
-    assertEqualLocation(mt._getLocation(9,pN),lA)
-    assertEqualLocation(mt._getLocation(9,pB),lOM)
-    const _MsmoveAfterCarry = plan.movementAnimations.filter(m=>m.passerIdx===pO && m.onBeat===8)
-    assert(_MsmoveAfterCarry.length===1, "Expected one movement for O at 8 (to M's initial position)")
+    assertEqualLocation(mt._getLocation(9, pN), lA)
+    assertEqualLocation(mt._getLocation(9, pB), lOM)
+    const _MsmoveAfterCarry = plan.movementAnimations.filter(m => m.passerIdx === pO && m.onBeat === 8)
+    assert(_MsmoveAfterCarry.length === 1, "Expected one movement for O at 8 (to M's initial position)")
     console.log(_MsmoveAfterCarry)
-    assertEqualLocation(mt._getLocation(9,pO),lMleft)
+    assertEqualLocation(mt._getLocation(9, pO), lMleft)
 
 
 })
 
 Deno.test("opernball", async (t) => {
-  const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+    const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
 N: SAloz   .   IAvb CB  .   SBloz   zf  
@@ -441,9 +441,9 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
 
 
 
-const regressionTestsJsonFile =path.join(import.meta.dirname! , "regression-tests.json")
+const regressionTestsJsonFile = path.join(import.meta.dirname!, "regression-tests.json")
 
-Deno.test.only("location mgr regression tests", () => {
+Deno.test("location mgr regression tests", () => {
 
     const regressionTests: Array<[string, string, Array<[number, Role, number, number, number]>]> =
         JSON.parse(Deno.readTextFileSync(regressionTestsJsonFile));
@@ -469,7 +469,7 @@ Deno.test.only("location mgr regression tests", () => {
     }
 })
 
-Deno.test("create location mgr regression tests", () => {
+Deno.test.ignore("create location mgr regression tests", () => {
 
 
     const patterns = [[
@@ -479,7 +479,7 @@ B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
-    ],[
+    ], [
         "scrambled v",
         `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
@@ -488,21 +488,29 @@ M: CB.SBl z ICl
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
     ],
-[
-    "wankel engine",
-    `A: 3pB3 3pC3 3pB3 -- B
+    [
+        "wankel engine",
+        `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
 M: IC . CA. SC 
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
-],
-     ["phonecian waltz", 
-     `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+    ],
+    ["phonecian waltz",
+        `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
+positions: Line(A, B, 0.2) `],
+    [
+        "opernball",
+        `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
+B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
+M: SBloz   zf  SBloz   .   IBvb CA  . 
+N: SAloz   .   IAvb CB  .   SBloz   zf  
+O: IBvb CA  .   SAlo z   zf  SAlo z   . 
 positions: Line(A, B, 0.2) `]
-]
+    ]
     const result: [string, string, Array<[number, Role, number, number, number]>][] = []
     for (const p of patterns) {
         console.log(`### Generating regression test for pattern: ${p[0]}`);

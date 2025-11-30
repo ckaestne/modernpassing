@@ -427,7 +427,7 @@ M: SBezSBlz IBv CBz`
     
 })
 
-test.only("compute animation plan for Opernball", () => {
+test("compute animation plan for Opernball", () => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 

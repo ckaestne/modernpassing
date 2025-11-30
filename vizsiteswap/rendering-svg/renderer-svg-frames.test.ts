@@ -29,7 +29,7 @@ move: Vmove(B,4.9,3)`
   renderFrames(pattern, "test/wankel-engine-frames.svg")
 })
 
-test.only("phonecian waltz", async (t) => {
+test("phonecian waltz", async (t) => {
   const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
@@ -37,7 +37,7 @@ positions: Line(A, B, 0.143) `
   renderFrames(pattern, "test/phonecian-waltz.svg")
 })
 
-test.only("opernball", async (t) => {
+test("opernball", async (t) => {
   const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
