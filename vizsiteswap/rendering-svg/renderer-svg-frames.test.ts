@@ -2,7 +2,7 @@
 import { GroupPattern } from "@modernpassing/layout";
 import fs from "node:fs";
 import test from "node:test";
-import { createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
+import { createGroupPattern, createSyncGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import { renderGroupPatternLayoutFrames } from "./renderer-svg-frames.ts";
 import { createSVG } from "@modernpassing/svg-utils";
 
@@ -47,8 +47,18 @@ positions: Line(A, B, 0.2) `
   renderFrames(pattern, "test/opernball.svg")
 })
 
-function renderFrames(pattern: string, filename: string) {
-  const gp: GroupPattern = createSyncGroupPattern(pattern)
+test.only("567 about", async (t) => {
+  const pattern = `A: 7 6 5 7 6 -- B
+B:, 5 7 6 5  -- A
+M:, . IAb,Co
+positions: Line(A, B, 0.1) `
+  renderFrames(pattern, "test/567-about.svg", 4)
+})
+
+
+
+function renderFrames(pattern: string, filename: string, nrHands: number = 2) {
+  const gp: GroupPattern = createGroupPattern(pattern, nrHands)
 
   const svg = createSVG(420, 1200)
   const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true, positionCircle: 25, roleLabelFontSize: 14 }, svg)

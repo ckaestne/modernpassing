@@ -327,7 +327,66 @@ positions: Line(A, B, 0.2) `
 
 })
 
-Deno.test("opernball", async (t) => {
+test("location manager for 567-about", async (t) => {
+  const pattern = `A: 7 6 5 7 6 -- B
+B:, 5 7 6 5  -- A
+M:, . IAb,Co
+positions: Line(A, B, 0.2) `
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+    const mt = locationMgr.movementTracker
+
+    const lA: [number, number] = [0.2, 0.5]
+    const lB: [number, number] = [0.8, 0.5]
+    const carryOffset = .012
+    const lCarryTL : [number, number] = [.5-carryOffset, 0.3]
+    const lCarryTR : [number, number] = [.5+carryOffset, 0.3]
+    const lCarryBL : [number, number] = [.5-carryOffset, 0.7]
+    const lCarryBR : [number, number] = [.5+carryOffset, 0.7]
+    const lBehindA : [number, number] = [.08, 0.5]
+    const lBehindB : [number, number] = [.92, 0.5]
+    const pA = locationMgr.roleTracker._getPasserIdx(0, 'A')
+    const pB = locationMgr.roleTracker._getPasserIdx(0, 'B')
+    const pM = locationMgr.roleTracker._getPasserIdx(0, 'M')
+
+    // initial positions
+    assertEqualLocation(mt._getLocation(0, pA), lA)
+    assertEqualLocation(mt._getLocation(0, pB), lB)
+    // assertEqualLocation(mt._getLocation(0, pM), lBehindA)
+
+    // M intercepts pass on 3, arriving on 6
+    assert.ok(gp.pattern.findThrow(3, pB, pM)!.markers?.find(m=>m.kind==='I'), "expected intercepted pass on 3")
+    assertEqualLocation(mt._getLocation(6, pM), lBehindA)
+
+    // next A carries on 6, arriving for the intercept behind B on 9+6, M steps in arriving on 7
+    assert.ok(gp.pattern.findThrow(6, pA)!.markers?.find(m=>m.kind==='C'), "expected carry on 6")
+    assertEqualLocation(mt._getLocation(9, pA), lCarryTR)
+    assertEqualLocation(mt._getLocation(15, pA), lBehindB)
+    assertEqualLocation(mt._getLocation(7, pM), lA)
+
+    // next B carries on 9+6, arriving behind M on 9*2+6, A steps in arriving on 9+7
+    assertEqualLocation(mt._getLocation(9+6, pB), lCarryTL)
+    assertEqualLocation(mt._getLocation(9*2+6, pB), lBehindA)
+    assertEqualLocation(mt._getLocation(9+7, pA), lB)
+
+    // next M carries on 9*2+6, arriving behind A on 9*3+6, B steps in arriving on 9*2+7
+    assertEqualLocation(mt._getLocation(9*2+6, pM), lCarryBR)
+    assertEqualLocation(mt._getLocation(9*3+6, pM), lBehindB)
+    assertEqualLocation(mt._getLocation(9*2+7, pB), lA)
+
+    // next A carries on 9*3+6, arriving for the intercept behind B on 9*4+6, M steps in arriving on 9*3+7
+    assertEqualLocation(mt._getLocation(9*3+6, pA), lCarryBL)
+    assertEqualLocation(mt._getLocation(9*4+6, pA), lBehindA)
+    assertEqualLocation(mt._getLocation(9*3+7, pM), lB)
+
+    // repeat with shifted roles
+    assertEqualLocation(mt._getLocation(9*4+6, pB), lCarryTR)
+    assertEqualLocation(mt._getLocation(9*5+6, pB), lBehindB)
+    assertEqualLocation(mt._getLocation(9*4+7, pA), lA)
+})
+
+
+Deno.test.ignore("debugging: plot location dependencies for opernball", async (t) => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
@@ -341,7 +400,7 @@ O: IBvb CA  .   SAlo z   zf  SAlo z   .  `
 
 })
 
-Deno.test.ignore("plot location dependencies in locationMgr for scrambled v", () => {
+Deno.test.ignore("debugging: plot location dependencies in locationMgr for scrambled v", () => {
 
     const pattern = `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
@@ -445,15 +504,15 @@ const regressionTestsJsonFile = path.join(import.meta.dirname!, "regression-test
 
 Deno.test("location mgr regression tests", () => {
 
-    const regressionTests: Array<[string, string, Array<[number, Role, number, number, number]>]> =
+    const regressionTests: RegressionData[] =
         JSON.parse(Deno.readTextFileSync(regressionTestsJsonFile));
     for (const t of regressionTests) {
-        console.log(`### Running regression test: ${t[0]}`);
+        console.log(`### Running regression test: ${t.name}`);
 
-        const gp: GroupPattern = createSyncGroupPattern(t[1])
+        const gp: GroupPattern = createGroupPattern(t.pattern, t.nrHands)
         const locationMgr = createFullLocationManager(gp.layout!.animation)
 
-        const expected: Array<[number, Role, number, number, number]> = t[2]
+        const expected: Array<[number, Role, number, number, number]> = t.expectedPositions
         for (let time = 0; time < locationMgr.mod + 10; time += 0.5)
             for (const role of locationMgr.roleTracker.roles) {
                 const passerIdx = locationMgr.roleTracker._getPasserIdx(time, role);
@@ -469,10 +528,10 @@ Deno.test("location mgr regression tests", () => {
     }
 })
 
-Deno.test.ignore("create location mgr regression tests", () => {
+Deno.test("create location mgr regression tests", () => {
 
 
-    const patterns = [[
+    const patterns: [string, string, number?][] = [[
         "moving feed (V)",
         `A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
@@ -509,13 +568,20 @@ B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
 N: SAloz   .   IAvb CB  .   SBloz   zf  
 O: IBvb CA  .   SAlo z   zf  SAlo z   . 
-positions: Line(A, B, 0.2) `]
+positions: Line(A, B, 0.2) `],
+        ["567-about",
+            `A: 7 6 5 7 6 -- B
+B:, 5 7 6 5  -- A
+M:, . IAb,Co
+positions: Line(A, B, 0.2) `,
+            4
+        ]
     ]
-    const result: [string, string, Array<[number, Role, number, number, number]>][] = []
+    const result: RegressionData[] = []
     for (const p of patterns) {
         console.log(`### Generating regression test for pattern: ${p[0]}`);
 
-        const gp: GroupPattern = createSyncGroupPattern(p[1])
+        const gp: GroupPattern = createGroupPattern(p[1], p[2] ?? 2)
         const locationMgr = createFullLocationManager(gp.layout!.animation)
 
         const log: Array<[number, Role, PasserIdx, number, number]> = []
@@ -526,7 +592,14 @@ positions: Line(A, B, 0.2) `]
                 log.push([time, role, passerIdx, locX1, locY1]);
             }
 
-        result.push([p[0], p[1], log])
+        result.push({name: p[0], pattern: p[1], nrHands: p[2] ?? 2, expectedPositions: log})
     }
     Deno.writeTextFileSync(regressionTestsJsonFile, JSON.stringify(result, null, 2));
 })
+
+type RegressionData = {
+    name: string;
+    pattern: string;
+    nrHands: number;
+    expectedPositions: Array<[number, Role, number, number, number]>;
+}
