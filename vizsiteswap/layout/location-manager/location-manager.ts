@@ -17,14 +17,13 @@
  * would be in the base pattern.
  */
 
-import { Pattern, Role } from "@modernpassing/pattern";
-import { AnimationSpec, MovementSegmentSpec, RelativeMovementSpec } from "../animation-spec.ts";
+import type { Role } from "@modernpassing/pattern";
+import type { AnimationSpec, RelativeMovementSpec } from "../animation-spec.ts";
 import assert from "node:assert";
-import { createPasserIdx, genPath, getAnimationMod, helperSvg, same, same2 } from "./helpers.ts";
+import { createPasserIdx, getAnimationMod, same, same2, same3 } from "./helpers.ts";
 import type { PasserIdx } from "./helpers.ts";
-import { MovementSegment, MovementTracker, ResolvedMovementSegment, RoleTracker, TeleportMovementSegment, UnresolvedBetweenPositionSpec, UnresolvedInFrontOfPositionSpec, UnresolvedMovementSegment } from "./relative-movement.ts";
-import { MovementAnimation } from "../animation-plan.ts";
-import { truncateAnimation } from "./truncate-svg-path.ts";
+import { type MovementSegment, MovementTracker, ResolvedMovementSegment, RoleTracker, TeleportMovementSegment, type UnresolvedBetweenPositionSpec, type UnresolvedInFrontOfPositionSpec, UnresolvedMovementSegment } from "./relative-movement.ts";
+import type { MovementAnimation } from "../animation-plan.ts";
 
 
 
@@ -105,7 +104,6 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
     // initial positions modeled as teleportations at time 0
     for (let i = 0; i < animationSpec.initialPositions.length; i++) {
         const pos = animationSpec.initialPositions[i];
-        assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} must be in the same order as base pattern roles ${initialRoles}`);
         movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y));
     }
 
@@ -187,11 +185,14 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     const isManipulator = (role: Role) => !animationSpec.basePatternRelabeling.initial.includes(role);
 
     // initial positions modeled as teleportations at time 0
+    const initialLoc: [number, number][] = []
     for (let i = 0; i < animationSpec.initialPositions.length; i++) {
         const pos = animationSpec.initialPositions[i];
         assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} must be in the same order as base pattern roles ${initialRoles}`);
         movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y))
+        initialLoc.push([pos.x, pos.y]);
     }
+    const currentLoc = initialLoc.slice();
 
     let time = 0
     while (true) {
@@ -209,6 +210,8 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                     if (isManipulator(fromRole) && !isManipulator(toRole)) {
                         const relabelTime = time + relabel.onBeat % 1;
                         const ongoingAnimation = baseLocationManager.findOngoingAnimationByRole(relabelTime + baseLocationManager.mod, toRole);
+
+                        currentLoc[createPasserIdx(currentRoles.indexOf(toRole))] = baseLocationManager.getLocationByRole(relabelTime, toRole);
 
                         //TODO: this is probably broken. teleport is not needed but okay; however, the remaining walk below may be overwritten with some other relative move and it's not currently considered
                         if (!ongoingAnimation)
@@ -242,6 +245,9 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
             }
         }
 
+        // check after relabeling, but before moving on that beat
+        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles) && same3(currentLoc, initialLoc))
+            break
 
         // collect a list of movements
         for (const movementTrigger of animationSpec.baseMovementTriggers) {
@@ -271,13 +277,12 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
             }
         }
 
-
-        if (time % overallMod === 0 && time > 0 && same(currentSequences, animationSpec.baseMovementSequences) && same2(currentRoles, initialRoles))
-            break
-
-
-
         time++;
+
+        
+
+
+
 
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
@@ -322,7 +327,7 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                 // we need to compute the position of the manipulator at this time
                 const leaveTime = startTime + relativeMovementSpec.onBeat % 1
                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % mod);
-                const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
+                // const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
                 const passerIdx = roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.role);
 
                 if (relativeMovementSpec.positionSpec.type === "take") {
