@@ -82,6 +82,16 @@ positions: Line(A,B)`
   renderFrames(pattern, "test/roundabout.svg", 2)
 })
 
+test("minied", () => {
+  const pattern = `A: 3pB 3pC 3  3pB 3   3 -- B
+B: 3pA 3   3  3pA 3pC 3 -- C
+C: 3   3pA 3  3   3pB 3 -- A
+M: CB  .   SBe .   SCl  IC 
+positions: VL(A,B,C)
+move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
+  renderFrames(pattern, "test/minied.svg", 2)
+})
+
 
 
 function renderFrames(pattern: string, filename: string, nrHands: number = 2) {

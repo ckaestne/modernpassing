@@ -1,7 +1,11 @@
 import assert from "node:assert";
+import { MovementAnimation } from "./animation-plan.ts";
 
 
-export function xy(pos: { x: number, y: number } | { toX: number, toY: number }): [number, number] {
+export function xy(pos: { x: number, y: number } | { toX: number, toY: number } | MovementAnimation): [number, number] {
+    if ('movementSpec' in pos) {
+        return [pos.movementSpec.toX, pos.movementSpec.toY]
+    }
     if ('toX' in pos) {
         return [pos.toX, pos.toY]
     }
