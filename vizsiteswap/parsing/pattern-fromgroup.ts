@@ -24,7 +24,7 @@ import { parseLayout } from "./parse-layout.ts";
 export function createSyncGroupPattern(patternStr: string): GroupPattern {
     return createGroupPattern(patternStr, 2)
 }
-export function createGroupPattern(patternStr: string, nrHands: number, skipRewrite: boolean = false, skipFillDuringRewrite: boolean = false): GroupPattern {
+export function createGroupPattern(patternStr: string, nrHands: number, skipRewrite: boolean = false, skipFillDuringRewrite: boolean = false, skipLayout: boolean = false): GroupPattern {
 
     let [rows, layout, movement] = parseGroupPattern(patternStr)
 
@@ -42,7 +42,7 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     // infer basic layouts (heuristic)
     layout = layout ?? inferDefaultLayout(rows, movement)
 
-    const patternLayout = !layout ? undefined :
+    const patternLayout = !layout || skipLayout ? undefined :
         setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten, pattern), pattern, rewritten)
 
 

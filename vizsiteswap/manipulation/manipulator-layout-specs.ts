@@ -165,7 +165,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
 
             //for a substitution, I want to be there on the substitution beat, so let's move one beat earlier
             //since it's a substitution, we also assume that the manipulator role has not changed since the one beat before
-            const duration = pattern.nrHands/2
+            const duration = pattern.nrHands / 2
 
             const needToConsiderHandedness = (marker.modifiers.includes("o") || marker.modifiers.includes("x") || marker.modifiers.includes("o")) && differentThrowOrTargetHandAcrossIterations(pattern, t)
             const iterations = needToConsiderHandedness ? pattern.iterationsUntilRepeat() : 1
@@ -215,6 +215,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                         direction,
                     }
                 }
+                // skip movement prior to substitution if prior action was in the previous iteration
+                const skipInFirstIteration = iteration === 0 &&
+                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat
 
                 const onBeat = (t.throwBeat - duration + iteration * pattern.getLength() + mod) % mod
                 relativeMovements.push({
@@ -224,7 +227,8 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     duration: duration,
                     targetRoleTime: "arrival",
                     roleAtMovementEnd: manipulatorRole,
-                    positionSpec
+                    positionSpec,
+                    skipInFirstIteration
                 });
             }
         }
@@ -239,10 +243,10 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
             // const moveToInterceptDuration = pattern.getThrowCauseLength(t)-.01 // let's arrive a tiny moment before the actual intercept so that we don't change roles yet
 
             // TODO for now let's just assume standard 2-beat patterns, where we can move 1 beat before the intercept beat to arrive on the intercept beat (not when the intercept arrives), even though we could move a beat later
-            const moveToInterceptDuration = pattern.nrHands/2 // let's just assume a short movement for now
+            const moveToInterceptDuration = pattern.nrHands / 2 // let's just assume a short movement for now
 
             const moveToIntercept_intercepteeRoleAtThrow = pattern.getToPasserRole(t);
-            const moveToIntercept_intercepteeRoleAtMovementStart = pattern.getRole(t.throwBeat-moveToInterceptDuration, pattern.getToPasserIdxAtThrow(t))
+            const moveToIntercept_intercepteeRoleAtMovementStart = pattern.getRole(t.throwBeat - moveToInterceptDuration, pattern.getToPasserIdxAtThrow(t))
 
 
             const needToConsiderHandedness = !marker.modifiers.includes("e") && !marker.modifiers.includes("l") && !marker.modifiers.includes("b") && differentThrowOrTargetHandAcrossIterations(pattern, t)
@@ -295,6 +299,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                         direction,
                     }
                 }
+                // skip movement prior to intercept if prior action was in the previous iteration
+                const skipInFirstIteration = iteration === 0 &&
+                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat
 
 
                 // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
@@ -305,19 +312,25 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     roleAtMovementEnd: moveToIntercept_intercepteeRoleAtThrow,
                     duration: moveToInterceptDuration,
                     targetRoleTime: "arrival",
-                    positionSpec
+                    positionSpec,
+                    skipInFirstIteration
                 });
             }
             // once the intercepted throw would have landed, the prior manipulator (now in its new role) will go to the position of the manipulated
             const landingOffset = pattern.nrHands;
             const moveAfterInterceptDuration = 1 // let's just assume a short movement to the position
             const when = (t.throwBeat + marker.originalThrowLength - landingOffset + pattern.getLength()) % pattern.getLength()
+            const arrivalTime = (t.throwBeat + moveAfterInterceptDuration) % pattern.getLength()
+
+
+            // skip movement AFTER the intercept if the intercepted throw was thrown in the last cycle
+            const skipInFirstIteration = t.throwBeat > arrivalTime
             // figuring out the right role in the base pattern(!) to go to. it is usually the role of the interceptee, but we are moving one beat later
             // so at that time there may have been relabeling already. however, we cannot use relabeling from `pattern` here since
             // this already includes switches with the manipulator
             const moveAfterIntercept_roleOfIntercepteeOnMovementStart = basePattern.samePasserOtherTimeByRole(marker.originalToRoleAtThrow, t.throwBeat, t.throwBeat + marker.originalThrowLength - landingOffset)
             // console.log(`After intercept on ${t.throwBeat} by ${manipulatorRole}, is now ${marker.originalToRoleAtThrow} moving on ${when} to ${marker.originalToRoleAtThrow}'s position`);
-            relativeMovements.push({
+            const moveAfterIntercept: RelativeMovementSpec = {
                 onBeat: when,
                 mod: pattern.getLength(),
                 duration: moveAfterInterceptDuration,
@@ -328,15 +341,18 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     type: "take",
                     toRole: moveAfterIntercept_roleOfIntercepteeOnMovementStart // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
                 },
-                bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
-            });
+                bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined,
+                skipInFirstIteration
+            }
+            relativeMovements.push(moveAfterIntercept)
+
         }
 
         // carry
         if (t.markers?.some(m => m.kind === "C")) {
             const marker: CarryMarker = t.markers!.find(m => m.kind === "C") as CarryMarker;
             const manipulatorRole = pattern.getFromPasserRole(t)
-            const duration = Math.min(pattern.getThrowCauseLength(t),  pattern.nrHands/2) 
+            const duration = Math.min(pattern.getThrowCauseLength(t), pattern.nrHands / 2)
             //TODO this should probably be timed relative to the intercept, not the carry pass, but for now, let's just move the beat before the carry
             const actionBeat = t.throwBeat
             const movementBeat = (t.throwBeat - duration + pattern.getLength()) % pattern.getLength();
@@ -361,6 +377,10 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     offset = pattern.getTargetHand(t, iteration) === Hand.Left ? 0.2 : -0.2
                 }
 
+                const arrivalTime = (t.throwBeat + actualDuration) % pattern.getLength()
+                // skip movement prior to carry if the corresponding prior intercept was in the previous cycle
+                const skipInFirstIteration = iteration === 0 &&
+                    findPriorIntercept(pattern, t).throwBeat > arrivalTime
 
                 // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
                 relativeMovements.push({
@@ -377,7 +397,8 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                         offset,
                         direction: 0 // face the receiver
                     },
-                    bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined
+                    bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined,
+                    skipInFirstIteration
                 });
             }
         }
@@ -404,4 +425,76 @@ function differentThrowOrTargetHandAcrossIterations(pattern: Pattern, t: Throw):
     }
     return false;
 
+}
+
+function isSubstitutedThrow(t: Throw): boolean {
+    return t.markers?.some(m => m.kind === "S" && (m as SubstitutionMarker).throw === 'P') ?? false
+}
+function isInterceptedThrow(t: Throw): boolean {
+    return t.markers?.some(m => m.kind === "I") ?? false
+}
+function isCarriedThrow(t: Throw): boolean {
+    return t.markers?.some(m => m.kind === "C") ?? false
+}   
+
+/**
+ * given a throw with a manipulator action (substitution or intercept), find the throw with the prior
+ * manipulator action of the same passer (there has to be at least one carry before to start the 
+ * manipulator sequence).
+ * 
+ * note that the prior action may be in a prior iteration of the pattern in a different row
+ * 
+ * @param pattern 
+ * @param t throw with a substitution or intercept marker 
+ * @returns throw with a substitution or carry marker
+ */
+export function findPriorSubstitutionOrCarryAction(pattern: Pattern, t: Throw): Throw {
+    assert(isSubstitutedThrow(t) || isInterceptedThrow(t), "throw must have substitution or intercept marker");
+
+    const manipulatorPasserIdx = pattern.getToPasserIdxAtThrow(t)
+    const beat = t.throwBeat
+    const priorIterationManipulatorPasserIdx = pattern.samePasserNBeatsLater(manipulatorPasserIdx, beat, -pattern.getLength())
+
+    for (let offset = 1; offset < pattern.getLength(); offset++) {
+        const priorBeat = (beat - offset + pattern.getLength()) % pattern.getLength()
+        const passerIdx = priorBeat > beat ? priorIterationManipulatorPasserIdx : manipulatorPasserIdx
+        const priors = pattern.findThrows(priorBeat)
+        for (const priorThrow of priors) {
+            if (isSubstitutedThrow(priorThrow) && pattern.getToPasserIdxAtThrow(priorThrow) === passerIdx) return priorThrow
+            if (isCarriedThrow(priorThrow) && priorThrow.fromPasserIdx === passerIdx) return priorThrow
+        }
+    }
+    throw new Error(`Could not find prior substitution or carry action for throw at beat ${t.throwBeat} by passer idx ${manipulatorPasserIdx}`)
+}
+
+/**
+ * similar to findPriorSubstitutionOrCarryAction, but now we receive a carry throw
+ * and need to find the intercept that triggered this carry. this is a bit more complicated
+ * since the carry comes from the original target of the intercepted throw
+ * 
+ * again, we need to handle wrapping around the pattern length
+ * 
+ * @param pattern 
+ * @param t carry throw
+ * @returns throw with intercept marker that triggered this carry
+ */
+export function findPriorIntercept(pattern: Pattern, t: Throw): Throw {
+    assert(isCarriedThrow(t), "throw must have carry marker")
+
+    const manipulatorPasserIdx = t.fromPasserIdx
+    const priorIterationManipulatorPasserIdx = pattern.samePasserNBeatsLater(manipulatorPasserIdx, t.throwBeat, -pattern.getLength())
+    for (let offset = 1; offset < pattern.getLength(); offset++) {
+        const priorBeat = (t.throwBeat - offset + pattern.getLength()) % pattern.getLength()
+        const passerIdx = priorBeat > t.throwBeat ? priorIterationManipulatorPasserIdx : manipulatorPasserIdx
+        // find a throw TO the manipulator
+        const interceptThrows = pattern.findThrows(priorBeat).filter(tt => tt.markers?.some(m => m.kind === "I"))
+        for (const interceptThrow of interceptThrows) {
+            const interceptMarker = interceptThrow.markers!.find(m => m.kind === "I") as InterceptMarker
+            const intercepteeRoleAtThrow = interceptMarker.originalToRoleAtThrow
+            const intercepteePasserIdxAtThrow = pattern.getRowIdxByRole(interceptThrow.throwBeat, intercepteeRoleAtThrow)
+            if (intercepteePasserIdxAtThrow === passerIdx)
+                return interceptThrow
+        }
+    }
+    throw new Error(`Could not find prior intercept for carry throw at beat ${t.throwBeat} by passer idx ${manipulatorPasserIdx}`)
 }
