@@ -22,8 +22,11 @@ import type { AnimationSpec, RelativeMovementSpec } from "../animation-spec.ts";
 import assert from "node:assert";
 import { createPasserIdx, getAnimationMod, same, same2, same3 } from "./helpers.ts";
 import type { PasserIdx } from "./helpers.ts";
-import { type MovementSegment, MovementTracker, ResolvedMovementSegment, RoleTracker, TeleportMovementSegment, type UnresolvedBetweenPositionSpec, type UnresolvedInFrontOfPositionSpec, UnresolvedMovementSegment } from "./relative-movement.ts";
+import { createResolvedMovementSegmentFromSegmentSpec, createUnresolvedMovementSegment, MovementSegment, MovementTracker, RoleTracker, type UnresolvedBetweenPositionSpec, type UnresolvedInFrontOfPositionSpec } from "./relative-movement.ts";
 import type { MovementAnimation } from "../animation-plan.ts";
+import { truncateAnimation } from "./truncate-svg-path.ts";
+import { time } from "node:console";
+import { A } from "@svgdotjs/svg.js";
 
 
 
@@ -77,7 +80,7 @@ export class LocationManager {
 
     /** export all resolved movements as Animation objects */
     getAnimations(): MovementAnimation[] {
-        return this.movementTracker.movements.filter(movement => !movement.isTeleport()).map(movement => movement.getAnimation())
+        return this.movementTracker.movements.flatMap(movement => movement.getAnimations())
     }
 
 }
@@ -102,9 +105,11 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
     let roleMapping: [number/*onBeat*/, Role[]][] = [[0, initialRoles]]
 
     // initial positions modeled as teleportations at time 0
+    const startingPositions: [number, number][] = []
     for (let i = 0; i < animationSpec.initialPositions.length; i++) {
         const pos = animationSpec.initialPositions[i];
-        movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y));
+        // movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y));
+        startingPositions.push([pos.x, pos.y]);
     }
 
     let time = 0
@@ -133,10 +138,12 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
                 const nextSegment = currentSequences[passerIdx][0]
                 currentSequences[passerIdx] = currentSequences[passerIdx].slice(1)
                 currentSequences[passerIdx].push(nextSegment)
-                movements.push(new ResolvedMovementSegment(passerIdx,
+
+                movements.push(createResolvedMovementSegmentFromSegmentSpec(passerIdx,
                     time + movementTrigger.onBeat % 1, // onBeat
                     movementTrigger.duration,
                     animationSpec.baseMovementSegments[nextSegment], // the actual movement spec
+                    false
                 ))
             }
         }
@@ -149,14 +156,13 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
         if (time > 10000) throw new Error("Animation length computation exceeded 10,000 iterations, likely infinite loop.");
     }
 
-    movements = skipMidwalkStartInFirstIteration(movements, time)
-
     roleMapping = roleMapping.filter(r => r[0] < time);
     movements = movements.filter(m => m.onBeat < time);
     movements.sort((a, b) => a.onBeat - b.onBeat);
+    movements = movements.map(skipMovementsAcrossIterationBoundaries(time))
 
     const roleTracker = new RoleTracker(initialRoles, time, roleMapping);
-    const movementTracker = new MovementTracker(time, movements);
+    const movementTracker = new MovementTracker(time, movements, startingPositions);
 
     return new LocationManager(roleTracker, movementTracker)
 
@@ -184,12 +190,7 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     let movements: MovementSegment[] = []
     const isManipulator = (role: Role) => !animationSpec.basePatternRelabeling.initial.includes(role);
 
-    // initial positions modeled as teleportations at time 0
-    for (let i = 0; i < animationSpec.initialPositions.length; i++) {
-        const pos = animationSpec.initialPositions[i];
-        assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} must be in the same order as base pattern roles ${initialRoles}`);
-        movements.push(new TeleportMovementSegment(createPasserIdx(i), 0, pos.x, pos.y))
-    }
+
     const initialLoc: number[] = currentRoles.map((_role, idx) => idx)
     const currentLoc = initialLoc.slice();
 
@@ -214,25 +215,6 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                         const lIdx = currentLoc[createPasserIdx(currentRoles.indexOf(fromRole))];
                         currentLoc[createPasserIdx(currentRoles.indexOf(fromRole))] = currentLoc[createPasserIdx(currentRoles.indexOf(toRole))];
                         currentLoc[createPasserIdx(currentRoles.indexOf(toRole))] = lIdx;
-
-                        //TODO: this is probably broken. teleport is not needed but okay; however, the remaining walk below may be overwritten with some other relative move and it's not currently considered
-                        if (!ongoingAnimation)
-                            movements.push(new TeleportMovementSegment(createPasserIdx(currentRoles.indexOf(toRole)), relabelTime, baseLocationManager.getLocationByRole(time, toRole)[0], baseLocationManager.getLocationByRole(time, toRole)[1]))
-                        else {
-                            // let's just assume that manipulators do not complete the previous path
-                            // but rather start walking directly to the target location through other 
-                            // computations
-
-                            // const skipAnimationBeginning = (relabelTime - ongoingAnimation.onBeat + baseLocationManager.mod) % baseLocationManager.mod;
-                            // assert(ongoingAnimation.isResolved(), "Ongoing animation must be resolved");
-                            // movements.push(new ResolvedMovementSegment(
-                            //     createPasserIdx(currentRoles.indexOf(toRole)),
-                            //     relabelTime,
-                            //     ongoingAnimation.duration - skipAnimationBeginning,
-                            //     truncateAnimation((ongoingAnimation as ResolvedMovementSegment).seg, skipAnimationBeginning / ongoingAnimation.duration),
-                            //     ongoingAnimation.onBeat > time,
-                            // ))
-                        }
                     }
                 })
             }
@@ -270,18 +252,19 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
                 currentSequences[basePasserIdx] = currentSequences[basePasserIdx].slice(1)
                 currentSequences[basePasserIdx].push(nextSegment)
                 // if it crosses the segment boundary, skip in the first iteration
-                movements.push(new ResolvedMovementSegment(
+                movements.push(createResolvedMovementSegmentFromSegmentSpec(
                     currPasserIdx, // passerId
                     time + movementTrigger.onBeat % 1, // onBeat
                     movementTrigger.duration,
                     animationSpec.baseMovementSegments[nextSegment],
+                    false
                 ))
             }
         }
 
         time++;
 
-        
+
 
 
 
@@ -293,36 +276,66 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
 
 
 
-    movements = skipMidwalkStartInFirstIteration(movements, time)
-
-
     roleMapping = roleMapping.filter(r => r[0] < time);
     movements = movements.filter(m => m.onBeat < time);
 
     const roleTracker = new RoleTracker(initialRoles, time, roleMapping);
 
+    const startingPositions: ([number, number] | undefined)[] = Array(initialRoles.length).fill(undefined);
+    for (let i = 0; i < animationSpec.initialPositions.length; i++) {
+        const pos = animationSpec.initialPositions[i];
+        const passerIdx = roleTracker._getPasserIdx(0, pos.role);
+        // assert(initialRoles.indexOf(pos.role) === i, `Initial position role ${pos.role} in ${initialRoles} must be in the same order as base pattern roles ${animationSpec.initialPositions.map(p => p.role)}`);
+        // movements.push(new TeleportMovementSegment(createPasserIdx(initialRoles.indexOf(pos.role)), 0, pos.x, pos.y))
+        startingPositions[passerIdx] = [pos.x, pos.y]
+    }
+
+
     // and now add all the relative movements
     movements.push(...convertRelativeMovements(time, animationSpec.relativeMovements, roleTracker, baseLocationManager))
     movements.sort((a, b) => a.onBeat - b.onBeat);
 
-    const movementTracker = new MovementTracker(time, movements);
+    movements = truncateInterruptedMovements(movements, time);
+    movements = movements.map(skipMovementsAcrossIterationBoundaries(time))
+
+    const movementTracker = new MovementTracker(time, movements, startingPositions);
     const resolvedMovementTracker = movementTracker.resolve();
-    // assert(!resolvedMovementTracker.hasUnresolvedMovements(), "All relative movements must be resolved in full location manager.");
+    resolvedMovementTracker.resolve();
+    assert(!resolvedMovementTracker.hasUnresolvedMovements(), "Unresolved movements in full location manager: " + JSON.stringify(resolvedMovementTracker.movements.filter(m => !m.isResolved())));
+    assert(!resolvedMovementTracker.hasJumpsInMovement(), "Resolved movements must not have jumps in movement.");
 
     return new LocationManager(roleTracker, resolvedMovementTracker)
 
 }
 
+function skipMovementsAcrossIterationBoundaries(mod: number): (mov: MovementSegment) => MovementSegment {
+    return (mov: MovementSegment) => {
+        if (mov.onBeat + mov.duration > mod)
+            return mov.doSkipInFirstIteration()
+        return mov;
+    }
+}
 
+function getTakeTargetPosition(baseLocationManager: LocationManager, timeOfLocation: number, timeOfRoleIdentification: number, role: Role, mod: number): [number, number] {
+    // directly go to end position if the target person is still moving at this point
+    const ongoingAnimation = baseLocationManager.findFutureOngoingAnimationByRole(timeOfLocation, timeOfRoleIdentification, role);
+    if (ongoingAnimation) {
+        return ongoingAnimation.isFirstIterationAt(timeOfLocation, mod) ?
+            ongoingAnimation.toPositionFirstIteration! :
+            ongoingAnimation.toPositionNextIteration!;
+    }
+    // else get wherever we are
+    return baseLocationManager.getFutureLocationByRole(timeOfLocation, timeOfRoleIdentification, role);
+}
 
 /**
  * aligns the mod and converts roles to passerIdx
  * 
  * actual resolution of locations happens later in the movement tracker
  */
-function convertRelativeMovements(mod: number, relativeMovements: RelativeMovementSpec[], roleTracker: RoleTracker, baseLocationManager: LocationManager): UnresolvedMovementSegment[] {
+function convertRelativeMovements(mod: number, relativeMovements: RelativeMovementSpec[], roleTracker: RoleTracker, baseLocationManager: LocationManager): MovementSegment[] {
 
-    const unresolvedRelativeMovementSpecs: UnresolvedMovementSegment[] = [];
+    const unresolvedRelativeMovementSpecs: MovementSegment[] = [];
     for (let startTime = 0; startTime < mod; startTime++) {
         for (const relativeMovementSpec of relativeMovements) {
             if (startTime % relativeMovementSpec.mod === Math.floor(relativeMovementSpec.onBeat)) {
@@ -331,27 +344,30 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                 const arrivalTime = Math.floor((startTime + relativeMovementSpec.onBeat % 1 + relativeMovementSpec.duration) % mod);
                 // const roleTime = relativeMovementSpec.targetRoleTime === "onBeat" ? startTime : arrivalTime
                 const passerIdx = roleTracker._getPasserIdx(leaveTime, relativeMovementSpec.role);
+                const crossesIterationBoundary = (leaveTime + relativeMovementSpec.duration) > mod;
 
                 if (relativeMovementSpec.positionSpec.type === "take") {
                     // look up the target position in the base pattern(!)
-                    let targetLocation = baseLocationManager.getFutureLocationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
-                    // directly go to end position if the target person is still moving at this point
-                    const ongoingAnimation = baseLocationManager.findFutureOngoingAnimationByRole(arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole);
-                    if (ongoingAnimation)
-                        targetLocation = ongoingAnimation.getTargetLocation()
-                    unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
+                    const targetLocationFirstIteration = getTakeTargetPosition(baseLocationManager, arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole, mod);
+                    const targetLocationNextIteration = getTakeTargetPosition(baseLocationManager, arrivalTime + mod, leaveTime + mod, relativeMovementSpec.positionSpec.toRole, mod);
+                    const skipInFirst = (relativeMovementSpec.skipInFirstIteration || crossesIterationBoundary) && (startTime + relativeMovementSpec.duration) % mod < relativeMovementSpec.mod
+                    unresolvedRelativeMovementSpecs.push(createUnresolvedMovementSegment(
                         passerIdx,
                         leaveTime,
                         relativeMovementSpec.duration,
+                        skipInFirst,
                         {
                             positionSpec: { type: "take" },
                             bend: relativeMovementSpec.bend,
-                        }, undefined, targetLocation)
-                    )
+                        },
+                        targetLocationFirstIteration,
+                        targetLocationNextIteration,
+                        targetLocationFirstIteration // TODO: check if this is correct
+                    ))
                 } else {
+                    const skipInFirst = (relativeMovementSpec.skipInFirstIteration || crossesIterationBoundary) && (startTime + relativeMovementSpec.duration) % mod < relativeMovementSpec.mod
                     const roleIdentificationTime = relativeMovementSpec.targetRoleTime === "arrival" ? arrivalTime : leaveTime;
                     const convertedPositionSpec: UnresolvedBetweenPositionSpec | UnresolvedInFrontOfPositionSpec =
-
                         relativeMovementSpec.positionSpec.type === "between" ?
                             {
                                 ...relativeMovementSpec.positionSpec,
@@ -366,10 +382,11 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                                 toPasserIdx: roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.toRole)
                             };
 
-                    unresolvedRelativeMovementSpecs.push(new UnresolvedMovementSegment(
+                    unresolvedRelativeMovementSpecs.push(createUnresolvedMovementSegment(
                         passerIdx,
                         leaveTime, // onBeat
                         relativeMovementSpec.duration,
+                        skipInFirst,
                         {
                             positionSpec: convertedPositionSpec,
                             bend: relativeMovementSpec.bend,
@@ -384,32 +401,30 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
 
 }
 
-function skipMidwalkStartInFirstIteration(movements: MovementSegment[], mod: number): MovementSegment[] {
-    return movements.flatMap(movement => {
-        // add teleportation to target location for the first round for those special cases crossing the boundary
-        if (movement.onBeat + movement.duration > mod && movement.onBeat < mod && movement.isResolved() && movement.firstIteration === undefined) {
-            const seg = (movement as ResolvedMovementSegment).seg
 
-            return [
-                new ResolvedMovementSegment( // same but marked as firstIteration=false
-                    movement.passerIdx,
-                    movement.onBeat,
-                    movement.duration,
-                    seg,
-                    false),
-                new ResolvedMovementSegment( // teleport to final location at time 0
-                    movement.passerIdx,
-                    0, 0, {
-                    fromX: seg.toX,
-                    fromY: seg.toY,
-                    path: [],
-                    toX: seg.toX,
-                    toY: seg.toY,
-                }, true
-                )
-            ]
+function truncateInterruptedMovements(movements: MovementSegment[], mod: number): MovementSegment[] {
+    // assert movements are sorted
+    assert(movements.every((m, idx) => idx === 0 || movements[idx - 1].onBeat <= m.onBeat), "Movements must be sorted by onBeat to truncate interrupted movements.");
 
-        } else return movement
-    })
+    // movements start onBeat and have a duration. They may go over the mod boundary and wrap around
+    // when a movement gets interrupted by another movement of the same passer, it needs to be truncated
+
+    const result: MovementSegment[] = []
+    for (let i = 0; i < movements.length; i++) {
+        const currentMovement = movements[i];
+        let nextMovement = movements.find(m => m.onBeat > currentMovement.onBeat && m.passerIdx === currentMovement.passerIdx)
+        // if there is none after this, check if it wraps around
+        if (!nextMovement)
+            nextMovement = movements.find(m => m.onBeat < currentMovement.onBeat && m.passerIdx === currentMovement.passerIdx)
+        assert(nextMovement, "I would expect at least two movements per passer?!")
+
+        const timeBetweenMovements = (nextMovement.onBeat - currentMovement.onBeat + mod) % mod;
+        if (timeBetweenMovements < currentMovement.duration - 0.00001) { // tolerance for floating point errors
+            // console.log(`truncating movement of ${currentMovement.passerIdx} on ${currentMovement.onBeat} duration ${currentMovement.duration} to ${timeBetweenMovements}`)
+            result.push(currentMovement.truncateToDuration(timeBetweenMovements))
+        } else
+            result.push(currentMovement);
+    }
+    return result;
 
 }

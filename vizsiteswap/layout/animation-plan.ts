@@ -17,6 +17,7 @@
 import type { Role } from "@modernpassing/pattern";
 import type { AnimationSpec, MovementSegmentSpec } from "./animation-spec.ts";
 import { genPath, helperSvg, type PasserIdx } from "./location-manager/helpers.ts";
+import { on } from "node:events";
 
 export type AnimationPlan = {
     mod: number, // the length of the animation in beats 
@@ -72,25 +73,42 @@ export type RelabelAnimation = {
 }
 
 
+function isOngoingAt(movement: MovementAnimation, time: number, mod: number): boolean {
+    const timeSinceMoveStart = (time - movement.onBeat + mod) % mod
+    return timeSinceMoveStart < movement.duration
+}
+
+function isFirstIterationAt(movement: MovementAnimation, time: number, mod: number): boolean {
+       return isOngoingAt(movement, time, mod) ? time < (movement.onBeat + movement.duration) % mod :
+            isCrossingIterationBoundary(movement, mod) ? false : time < movement.onBeat
+}
+
+function isCrossingIterationBoundary(movement: MovementAnimation, mod: number): boolean {
+    return (movement.onBeat + movement.duration) > mod
+}
 
 export function apFindPosition(layout: AnimationPlan, jugglerIdx: number, time: number): [number, number] {
     const firstIteration = time < layout.mod
-    const lastMovement = layout.movementAnimations.findLast(m => m.onBeat <= time%layout.mod && m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration)) ??
-        layout.movementAnimations.findLast(m => m.passerIdx === jugglerIdx && ((m.onBeat+m.duration>layout.mod) || m.firstIteration !== !firstIteration))
-    if (!lastMovement) {
+    const ongoingMovement: MovementAnimation | undefined = 
+        layout.movementAnimations.find(m => m.passerIdx === jugglerIdx && isOngoingAt(m, time, layout.mod) && m.firstIteration !== !(firstIteration&&isFirstIterationAt(m, time, layout.mod)))
+    const nextMovement: MovementAnimation | undefined = 
+        layout.movementAnimations.find(m => m.passerIdx === jugglerIdx && m.onBeat > time%layout.mod && m.firstIteration !== !(firstIteration&&isFirstIterationAt(m, time, layout.mod)))
+    
+
+    if (!ongoingMovement && !nextMovement) {
         const pos = layout.initialPositions[jugglerIdx]
         return [pos.x, pos.y]
     }
 
-    const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
-    if (timeSinceMoveStart >= lastMovement.duration)
-        return [lastMovement.movementSpec.toX, lastMovement.movementSpec.toY];
+    if (ongoingMovement) {
+        const timeSinceMoveStart = (time - ongoingMovement.onBeat + layout.mod) % layout.mod;
+        const progress = timeSinceMoveStart / ongoingMovement.duration;
+        const path = genPath(helperSvg, ongoingMovement.movementSpec); // create the path in the helper SVG to get the length
+        const p = path.pointAt(progress * path.length());
+        return [p.x, p.y]
+    }
 
-    const progress = timeSinceMoveStart / lastMovement.duration;
-    const path = genPath(helperSvg, lastMovement.movementSpec); // create the path in the helper SVG to get the length
-    const p = path.pointAt(progress * path.length());
-    return [p.x, p.y]
-
+    return [nextMovement!.movementSpec.fromX, nextMovement!.movementSpec.fromY];
 }
 
 export function apFindOngoingMovement(layout: AnimationPlan, jugglerIdx: number, time: number): MovementAnimation | undefined {
@@ -100,7 +118,7 @@ export function apFindOngoingMovement(layout: AnimationPlan, jugglerIdx: number,
     if (!lastMovement) return undefined
 
     const timeSinceMoveStart = (time - lastMovement.onBeat + layout.mod) % layout.mod;
-    if (timeSinceMoveStart > lastMovement.duration)
+    if (timeSinceMoveStart >= lastMovement.duration)
         return undefined
 
     return lastMovement

@@ -145,8 +145,7 @@ export type RelativeMovementSpec = {
     positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
     targetRoleTime: "onBeat" | "arrival" // whether a passer is identified by their roles given RelativeMovementSpec is identified at the start of the movement (onBeat) or at the end of the movement (onBeat + duration)
     bend?: "↻"|"↺"
-    skipInFirstIteration: boolean // if true, this is show only in the first iteration of the animation; if false it is shown in all but the first iteration, if undefined (default) it is shown in all iterations
-    //TODO: we could consider handling dependencies among relative movements, where position of M must be computed before the position of N because it is relative to M, as long as there are no circular dependencies
+    skipInFirstIteration: boolean // if true, this is skipped in the first iteration of the pattern (default: false)
 }
 
 export type TakePositionSpec = {

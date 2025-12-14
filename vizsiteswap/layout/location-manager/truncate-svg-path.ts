@@ -3,7 +3,7 @@
  */
 
 import assert from "node:assert"
-import PathProp from "svg-path-properties" 
+import { svgPathProperties } from "svg-path-properties" 
 
 import type { MovementSegmentSpec } from "../animation-spec.ts"
 
@@ -394,7 +394,7 @@ const commandsToSegment = (commands: PathCommand[]): MovementSegmentSpec =>
 const measureCommands = (commands: PathCommand[]): { parts: PathPropertiesPart[]; totalLength: number } => {
 	const representation = commandsToRepresentation(commands)
 	const pathStr = representationToSvgPath(representation)
-	const properties = new PathProp.svgPathProperties(pathStr)
+	const properties = new svgPathProperties(pathStr)
 	const parts = properties.getParts() as PathPropertiesPart[]
 	assert(parts.length === commands.length, "path part lookup mismatch")
 	return { parts, totalLength: properties.getTotalLength() }

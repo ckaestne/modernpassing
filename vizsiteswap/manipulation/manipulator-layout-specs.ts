@@ -301,7 +301,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 }
                 // skip movement prior to intercept if prior action was in the previous iteration
                 const skipInFirstIteration = iteration === 0 &&
-                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat
+                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat && t.throwBeat!==0
 
 
                 // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
@@ -380,7 +380,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 const arrivalTime = (t.throwBeat + actualDuration) % pattern.getLength()
                 // skip movement prior to carry if the corresponding prior intercept was in the previous cycle
                 const skipInFirstIteration = iteration === 0 &&
-                    findPriorIntercept(pattern, t).throwBeat > arrivalTime
+                    findPriorIntercept(pattern, t).throwBeat > leavingTime
 
                 // console.log(`Carry marker at throw ${t.throwBeat} for role ${manipulatorRole} from ${marker.originalFromRole} to ${marker.toRoleAtThrow}`);
                 relativeMovements.push({

@@ -1,4 +1,4 @@
-import type { GroupPattern } from "../layout.ts";
+import type { AnimationSpec, GroupPattern } from "../layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 import test from "node:test";
@@ -6,7 +6,7 @@ import type { Role } from "@modernpassing/pattern";
 import { assertEqualLocation, assertLocationBetween } from "../location-test-helpers.ts";
 import { createBaseLocationManager, createFullLocationManager, type LocationManager } from "./location-manager.ts";
 import { createPasserIdx, type PasserIdx } from "./helpers.ts";
-import type { MovementTracker, UnresolvedMovementSegment } from "./relative-movement.ts";
+import { createResolvedMovementSegmentFromSegmentSpec, ignoreOngoingOrNextDueToFirstIteration, MovementSegment, overlap, type MovementTracker } from "./relative-movement.ts";
 import type { Svg } from "@svgdotjs/svg.js";
 import { createSVG } from "@modernpassing/svg-utils";
 import { createAnimationPlan } from "../create-animation-plan.ts";
@@ -191,6 +191,43 @@ move: Vmove(B,4.9,3)`
 
 })
 
+Deno.test("locationMgr for minied (weird start with take on 0)", () => {
+    // here we expect to see differences between the first and later iterations
+
+      const pattern = `A: 3pB 3pC 3  3pB 3   3 -- B
+B: 3pA 3   3  3pA 3pC 3 -- C
+C: 3   3pA 3  3   3pB 3 -- A
+M: CB  .   SBe .   SCl  IC 
+positions: VL(A,B,C)
+move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+    const plan = createAnimationPlan(gp.layout!.animation, .1);
+
+    assert.deepEqual(locationMgr.roleTracker.roles, ['M', 'B', 'C', 'A']);
+
+    assert.equal(locationMgr.mod, 72);
+
+    // now let's try locations
+    const initialC: [number, number] = [0.25, 0.933]
+    const initialB: [number, number] = [0.75, 0.933]
+    const walkingCStart: [number, number] = [0, 0.53];
+    const initialA: [number, number] = [0.5, 0];
+    const inFrontOfA: [number, number] = [0.5, 0.4];
+    const center: [number, number] = [0.5, 0.5];
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), initialA)
+    assertEqualLocation(locationMgr.getLocationByRole(72, 'A'), inFrontOfA)
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'A'), initialA)
+    assertEqualLocation(locationMgr.getLocationByRole(73, 'A'), initialA)
+
+    assertLocationBetween(locationMgr.getLocationByRole(72, 'M'), inFrontOfA, initialB);
+    assertLocationBetween(locationMgr.getLocationByRole(0, 'M'), initialA, initialB);
+
+    const iA = locationMgr.getInitialPositions().find(p=>p[0]===3)!
+    assertEqualLocation([iA[1], iA[2]], initialA)
+
+})
 Deno.test("locationMgr for wankel engine (mid-walk swap with manipulator)", () => {
     // here we expect to see differences between the first and later iterations
 
@@ -233,8 +270,8 @@ move: Vmove(B,4.9,3)`
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'C'), locationMgr.roleTracker._getPasserIdx(0, 'M'))
     assert.equal(locationMgr.roleTracker._getPasserIdx(1, 'M'), locationMgr.roleTracker._getPasserIdx(0, 'C'))
 
-    console.log("inFrontOfC:", inFrontOfC);
-    console.log("inFrontOfWalkingC:", inFrontOfWalkingC);
+    // console.log("inFrontOfC:", inFrontOfC);
+    // console.log("inFrontOfWalkingC:", inFrontOfWalkingC);
     const firstMoveMFirstRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration === true);
     const firstMoveMSecondRound = plan.movementAnimations.find(m => m.onBeat === 1 && m.passerIdx === 3 && m.firstIteration === false);
     assertEqualLocation([firstMoveMFirstRound!.movementSpec.fromX, firstMoveMFirstRound!.movementSpec.fromY], inFrontOfC);
@@ -248,6 +285,11 @@ move: Vmove(B,4.9,3)`
 
 
 
+    for (let beat = 2; beat <= locationMgr.mod; beat += 1) 
+        for (const role of ['A', 'B', 'C', 'M'] as Role[]){
+            assertEqualLocation(locationMgr.getLocationByRole(beat, role), locationMgr.getLocationByRole(beat+locationMgr.mod, role),
+                `Expected location for role ${role} at beat ${beat} to be the same in first and second iteration`);
+    }
 
 
 
@@ -320,7 +362,7 @@ positions: Line(A, B, 0.2) `
     assertEqualLocation(mt._getLocation(9, pB), lOM)
     const _MsmoveAfterCarry = plan.movementAnimations.filter(m => m.passerIdx === pO && m.onBeat === 8)
     assert(_MsmoveAfterCarry.length === 1, "Expected one movement for O at 8 (to M's initial position)")
-    console.log(_MsmoveAfterCarry)
+    // console.log(_MsmoveAfterCarry)
     assertEqualLocation(mt._getLocation(9, pO), lMleft)
 
 
@@ -408,6 +450,7 @@ move: Bmove(B,1,1.9)Bmove(B,2.9,1.5)Bmove(C,1.4,1.5)`
     assertEqualLocation(locationMgr.getLocationByRole(3.1, 'B'), [0, .8])
 })
 
+
 Deno.test.ignore("debugging: plot location dependencies for opernball", () => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
@@ -438,6 +481,430 @@ move: Vmove(B,4.9,3)`
 
 })
 
+Deno.test("skipInFirstIteration spec: setup only", () => {
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(0, false, 2, false)
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), [0, 1])
+
+})
+
+Deno.test("skipInFirstIteration spec: basic test", () => {
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(0, false, 2, false)
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.2])
+})
+
+
+
+Deno.test("skipInFirstIteration spec: basic skip", () => {
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(0, true, 2, false)
+    assert(!locationMgr.movementTracker.hasUnresolvedMovements(), "Expected all movements to be resolved")
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0, 0.8])
+})
+
+
+Deno.test("skipInFirstIteration spec: wrap around", () => {
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(5, true, 2, false)
+    // assert(!locationMgr.movementTracker.hasUnresolvedMovements(), "Expected all movements to be resolved")
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0, 0.8])
+})
+
+Deno.test("skipInFirstIteration spec: wrap around without explicit skipFirst=true", () => {
+    // we still expect to skip the wrap movement in the first iteration because it wraps
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(5, false, 2, false)
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0, 0.8])
+})
+
+
+Deno.test("skipInFirstIteration spec: wrap around order check", () => {
+    // the order of the steps should not matter
+    const [locationMgr, _m1, _m2] = createBasicTwoMoveAnimation(2, false, 5, false)
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(4, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0, 0.2])
+})
+
+const inFrontOf08 = [0.4, 0.56]
+const inFrontOf05 = [0.4, 0.5]
+const inFrontOf02 = [0.4, 0.44]
+Deno.test("skipInFirstIteration spec: dependent movements no skipFirst", () => {
+    // the order of the steps should not matter
+    const [locationMgr, _m1, _m2, _d1, _d2] = createDependentMoveAnimation(0, false, 2, false, 0, false, 1, false)
+
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'N'), inFrontOf05)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'N'), inFrontOf08)
+})
+Deno.test("skipInFirstIteration spec: dependent movements 1", () => {
+    // the order of the steps should not matter
+    const [locationMgr, _m1, _m2, _d1, _d2] = createDependentMoveAnimation(0, true, 2, false, 0, false, 1, false)
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0, 0.8])
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'N'), inFrontOf05)
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'N'), inFrontOf08)
+})
+Deno.test("skipInFirstIteration spec: dependent movements 2", () => {
+    // the order of the steps should not matter
+    const [locationMgr, _m1, _m2, _d1, _d2] = createDependentMoveAnimation(5, false, 2, false, 0, false, 1, false)
+
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [0, 0.5])
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'M'), [0, 0.8])
+
+    assertEqualLocation(locationMgr.getLocationByRole(1, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(7, 'N'), inFrontOf08)
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'N'), inFrontOf08)
+})
+
+
+
+
+Deno.test("skipInFirstIteration spec: A position differs in first round and M position depends on A", () => {
+    const [locationMgr, m1, m2] = createMovingAAnimation(0, true, 2, false)
+    // basics
+    assertEqualLocation(locationMgr.movementTracker._getLocation(-3, 0 as PasserIdx), [0, 0])
+    assertEqualLocation(locationMgr.movementTracker._getLocation(-1, 0 as PasserIdx), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'A'), [1, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), [.666, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), [0, 1])
+
+    assert(m1.skipInFirstIteration)
+    // assertEqualLocation(m1.fromPositionNextIteration!, [.266, 0.2])
+    assertEqualLocation(m1.toPositionFirstIteration!, [0, 0.8])
+    assertEqualLocation(m1.toPositionNextIteration!, [.066, 0.8])
+
+    // assert(!m2.skipInFirstIteration)
+    // assertEqualLocation(m2.fromPositionFirstIteration!, [0.0, 0.8])
+    // assertEqualLocation(m2.fromPositionNextIteration!, [0.066, 0.8])
+    // assertEqualLocation(m2.toPositionFirstIteration!, [0.266, 0.2])
+    // assertEqualLocation(m2.toPositionNextIteration!, [0.266, 0.2])
+
+    // assertEqualLocation(m1.fromPositionFirstIteration!, [0,0.8])
+    // assertEqualLocation(m1.fromPositionNextIteration!, [0,0.8])
+    // assertEqualLocation(m1.toPositionFirstIteration!, [0,0.8])
+
+    // now M
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [.266, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [.266, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0.066, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(9, 'M'), [.266, 0.2])
+
+})
+
+
+Deno.test("skipInFirstIteration spec 2: A position differs in first round and M position depends on A", () => {
+    const [locationMgr, m1, m2] = createMovingAAnimation(0, false, 2, false)
+    // basics
+    assertEqualLocation(locationMgr.movementTracker._getLocation(-3, 0 as PasserIdx), [0, 0])
+    assertEqualLocation(locationMgr.movementTracker._getLocation(-1, 0 as PasserIdx), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(5, 'A'), [1, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'A'), [.666, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'A'), [0, 0])
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'B'), [0, 1])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'B'), [0, 1])
+
+    // now M
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'M'), [0, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(3, 'M'), [.266, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'M'), [.266, 0.2])
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'M'), [0.066, 0.8])
+    assertEqualLocation(locationMgr.getLocationByRole(9, 'M'), [.266, 0.2])
+
+})
+
+function createBasicTwoMoveAnimation(move1Time: number, move1SkipFirst: boolean, move2Time: number, move2SkipFirst: boolean): [LocationManager, MovementSegment, MovementSegment] {
+    const spec: AnimationSpec = {
+        initialPositions: [{ x: 0, y: 0, role: 'A' }, { x: 0, y: 1, role: 'B' }],
+        passAnimations: [],
+        baseMovementSegments: [],
+        baseMovementSequences: [],
+        baseMovementTriggers: [],
+        basePatternRelabeling: { initial: ['A', 'B'], relabelActions: [] },
+        relativeMovements: [
+            {
+                onBeat: move1Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 2,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move1SkipFirst
+            },
+            {
+                onBeat: move2Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 2,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move2SkipFirst
+            },
+        ],
+        relabeling: { initial: ['A', 'B', 'M'], relabelActions: [] },
+    }
+    const locationMgr = createFullLocationManager(spec)
+    const m1 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move1Time)!
+    const m2 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move2Time)!
+    return [locationMgr, m1, m2]
+}
+
+
+function createDependentMoveAnimation(move1Time: number, move1SkipFirst: boolean, move2Time: number, move2SkipFirst: boolean,
+    depMov1Time: number, depMov1SkipFirst: boolean, depMov2Time: number, depMov2SkipFirst: boolean
+): [LocationManager, MovementSegment, MovementSegment, MovementSegment, MovementSegment] {
+    const spec: AnimationSpec = {
+        initialPositions: [{ x: 0, y: 0, role: 'A' }, { x: 0, y: 1, role: 'B' }],
+        passAnimations: [],
+        baseMovementSegments: [],
+        baseMovementSequences: [],
+        baseMovementTriggers: [],
+        basePatternRelabeling: { initial: ['A', 'B'], relabelActions: [] },
+        relativeMovements: [
+            {
+                onBeat: move1Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 2,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move1SkipFirst
+            },
+            {
+                onBeat: move2Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 2,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move2SkipFirst
+            },
+            {
+                onBeat: depMov1Time,
+                mod: 6,
+                role: 'N',
+                roleAtMovementEnd: "N",
+                duration: 1,
+                positionSpec: { type: "infront", toRole: "M" },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: depMov1SkipFirst
+            },
+            {
+                onBeat: depMov2Time,
+                mod: 6,
+                role: 'N',
+                roleAtMovementEnd: "N",
+                duration: 1,
+                positionSpec: { type: "infront", toRole: "M" },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: depMov2SkipFirst
+            },
+        ],
+        relabeling: { initial: ['A', 'B', 'M', 'N'], relabelActions: [] },
+    }
+    const locationMgr = createFullLocationManager(spec)
+    const m1 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move1Time)!
+    const m2 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move2Time)!
+    const d1 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 3 && m.onBeat === depMov1Time)!
+    const d2 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 3 && m.onBeat === depMov2Time)!
+    return [locationMgr, m1, m2, d1, d2]
+}
+
+
+/**
+ * A walks between two positions, over the iteration boundary, so position of A differs between time 0 and 6
+ * 
+ * Now M's movements are dependent on that of A
+ * @returns 
+ */
+function createMovingAAnimation(move1Time: number, move1SkipFirst: boolean, move2Time: number, move2SkipFirst: boolean): [LocationManager, MovementSegment, MovementSegment] {
+    const spec: AnimationSpec = {
+        initialPositions: [{ x: 0, y: 0, role: 'A' }, { x: 0, y: 1, role: 'B' }],
+        passAnimations: [],
+        baseMovementSegments: [{
+            fromX: 0, fromY: 0, toX: 1, toY: 0, path: []
+        }, {
+            fromX: 1, fromY: 0, toX: 0, toY: 0, path: []
+        }],
+        baseMovementSequences: [[0, 1]],
+        baseMovementTriggers: [{
+            onBeat: 5,
+            mod: 6,
+            role: 'A',
+            duration: 3,
+        },
+        { onBeat: 2, mod: 6, role: 'A', duration: 3 }
+        ],
+        basePatternRelabeling: { initial: ['A', 'B'], relabelActions: [] },
+        relativeMovements: [
+            {
+                onBeat: move1Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 1,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move1SkipFirst
+            },
+            {
+                onBeat: move2Time,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: "M",
+                duration: 1,
+                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: move2SkipFirst
+            },
+        ],
+        relabeling: { initial: ['A', 'B', 'M'], relabelActions: [] },
+    }
+    const locationMgr = createFullLocationManager(spec)
+    const m1 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move1Time)!
+    const m2 = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === move2Time)!
+    return [locationMgr, m1, m2]
+}
+
+// createBasicTwoMoveAnimation(5, false, 2, false)
+// createBasicTwoMoveAnimation(5, true, 2, false)
+// createBasicTwoMoveAnimation(0, false, 2, true)
+// createBasicTwoMoveAnimation(5, false, 2, true)
+
+Deno.test("skipInFirstIteration spec: no movement across iteration boundary", () => {
+    const [_locationMgr, m1, _m2] = createBasicTwoMoveAnimation(1, true, 3, false)
+
+    // no movement across iteration boundary in this test
+
+    // during movement
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 1.5, 6))
+
+    // time is before movement (movement is not wrapping, so this will be the first movement)
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 0, 6))
+
+    // time is after movement, so before the second iteration's movement
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 3.5, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 3, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6.5, 6))
+})
+
+
+Deno.test("skipInFirstIteration spec: movement across iteration boundary", () => {
+    const [_locationMgr, m1, _m2] = createBasicTwoMoveAnimation(5, true, 2, false)
+
+    // movement across iteration boundary in this test
+
+    // during movement in first iteration
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 0.5, 6))
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 0, 6))
+
+    // during movement in second iteration
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6.5, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 5.5, 6))
+
+
+    // time is before movement (movement is wrapping, so nothing is before)
+
+    // time is after movement (movement is wrapping, so pretty much everything is after)
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 3, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 1, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 7, 6))
+})
+
+
+Deno.test("skipInFirstIteration spec: movement across iteration boundary without skipFirst", () => {
+    const [_locationMgr, m1, _m2] = createBasicTwoMoveAnimation(5, false, 2, false)
+
+    // movement across iteration boundary in this test
+
+    // during movement in first iteration
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 0.5, 6))
+    assert(ignoreOngoingOrNextDueToFirstIteration(m1, 0, 6))
+
+    // during movement in second iteration
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6.5, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 5.5, 6))
+
+    // time is before movement (movement is wrapping, so nothing is before)
+
+    // time is after movement (movement is wrapping, so pretty much everything is after)
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 3, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 1, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 6, 6))
+    assert(!ignoreOngoingOrNextDueToFirstIteration(m1, 7, 6))
+})
+
+
+
+
 function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
     const w = 50
     const svg = createSVG(200 + w * movementTracker.mod, 600);
@@ -459,18 +926,18 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
         }
         // dashed lines for unresolved movements
         if (!mov.isResolved()) {
-            const m = mov as UnresolvedMovementSegment
+            const m = mov
             svg.line(x(mov.onBeat), y(mov.passerIdx), x(mov.onBeat + mov.duration), y(mov.passerIdx))
                 .stroke({ color: 'red', width: 6, linecap: 'round', dasharray: '1,1' });
 
 
-            if (m.toPosition)
+            if (m.toPositionNextIteration)
                 svg.circle(12).fill('black').move(x(mov.onBeat + mov.duration) - 6, y(mov.passerIdx) - 6);
             else {
 
                 // arrow for dependency
-                if (m.spec.positionSpec.type === "infront") {
-                    const targetPasserIdx = m.spec.positionSpec.toPasserIdx;
+                if (m.spec!.positionSpec.type === "infront") {
+                    const targetPasserIdx = m.spec!.positionSpec.toPasserIdx;
                     const targetTime = mov.onBeat + mov.duration;
                     const line = svg.line(x(targetTime), y(mov.passerIdx), x(targetTime), y(targetPasserIdx))
                         .stroke({ color: 'blue', width: 2, linecap: 'round', dasharray: '2,2' })
@@ -478,9 +945,9 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
                         marker.path("M0,0 L0,6 L6,3 z").fill('blue')
                     })
                 }
-                if (m.spec.positionSpec.type === "between") {
-                    const targetPasserIdx1 = m.spec.positionSpec.between[0];
-                    const targetPasserIdx2 = m.spec.positionSpec.between[1];
+                if (m.spec!.positionSpec.type === "between") {
+                    const targetPasserIdx1 = m.spec!.positionSpec.between[0];
+                    const targetPasserIdx2 = m.spec!.positionSpec.between[1];
                     const targetTime = mov.onBeat + mov.duration;
                     svg.line(x(targetTime), y(mov.passerIdx), x(targetTime), y(targetPasserIdx1))
                         .stroke({ color: 'green', width: 2, linecap: 'round', dasharray: '2,2' })
@@ -495,7 +962,7 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
                 }
             }
 
-            if (m.fromPosition)
+            if (m.fromPositionNextIteration)
                 svg.circle(12).fill('black').move(x(mov.onBeat) - 6, y(mov.passerIdx) - 6);
             else {
                 // backward arrow for start position dependency
@@ -510,10 +977,10 @@ function plotRelativeDependencies(movementTracker: MovementTracker): Svg {
                 }
             }
         }
-        // small circle for teleport
-        if (mov.isTeleport()) {
-            svg.circle(12).fill('yellow').move(x(mov.onBeat) - 6, y(mov.passerIdx) - 6);
-        }
+        // // small circle for teleport
+        // if (mov.isTeleport()) {
+        //     svg.circle(12).fill('yellow').move(x(mov.onBeat) - 6, y(mov.passerIdx) - 6);
+        // }
     }
 
 
@@ -625,3 +1092,21 @@ type RegressionData = {
     nrHands: number;
     expectedPositions: Array<[number, Role, number, number, number]>;
 }
+
+
+
+Deno.test("overlap", () => {
+    const m = (beat: number, duration: number) => createResolvedMovementSegmentFromSegmentSpec(0 as PasserIdx, beat, duration, { fromX: 0, fromY: 0, path: [], toX: 0, toY: 0, }, false)
+    const mov0 = m(0, 2)
+    const mov1 = m(1, 2)
+    const mov2 = m(2, 2)
+    const mov4 = m(4, 2)
+    const mov5 = m(5, 2)
+    assert(overlap(mov1, mov2, 6))
+    assert(!overlap(mov0, mov2, 6))
+    assert(!overlap(mov0, mov4, 6))
+    assert(overlap(mov4, mov5, 6))
+    assert(overlap(mov5, mov0, 6))
+    assert(!overlap(mov5, mov1, 6))
+
+})
