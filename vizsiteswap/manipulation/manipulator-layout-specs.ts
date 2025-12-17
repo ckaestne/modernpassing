@@ -393,7 +393,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     positionSpec: {
                         type: "between",
                         between: [marker.originalFromRole, marker.toRoleAtThrow],
-                        side: 0.4, // stand in front of target
+                        side: marker.originalFromRole === marker.toRoleAtThrow ? 0.6 : 0.4, // stand in front of target
                         offset,
                         direction: 0 // face the receiver
                     },

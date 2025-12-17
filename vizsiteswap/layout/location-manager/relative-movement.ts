@@ -63,7 +63,7 @@ export abstract class MovementSegment {
     ) {
         this.passerIdx = passerIdx;
         this.onBeat = onBeat;
-        this.duration = duration;
+        this.duration = Math.round(duration*10000)/10000;
         this.skipInFirstIteration = skipInFirstIteration;
         this.fromPositionFirstIteration = fromPositionFirstIteration;
         this.fromPositionNextIteration = fromPositionNextIteration;
@@ -684,9 +684,10 @@ export class MovementTracker {
     */
     private _findPriorMovement(time: number, passerIdx: PasserIdx): [MovementSegment | undefined, [number, number] | undefined] {
         const allMovements = this.movements.filter(m => m.passerIdx === passerIdx)
-        assert(allMovements.length > 0, "This passer never moves");
-        assert(allMovements.every((mov, i) => i === 0 || allMovements[i - 1].onBeat <= mov.onBeat), "All movements for this passer must be sorted by onBeat")
-        assert(allMovements.every((mov, i) => allMovements.length === 1 || !overlap(mov, allMovements[(i - 1 + allMovements.length) % allMovements.length], this.mod)), "All movements must be truncated and not overlap")
+        dbgAssert(allMovements.length > 0, "This passer never moves");
+        dbgAssert(allMovements.every((mov, i) => i === 0 || allMovements[i - 1].onBeat <= mov.onBeat), "All movements for this passer must be sorted by onBeat")
+        allMovements.map((mov, i) => 
+            dbgAssert(allMovements.length === 1 || !overlap(mov, allMovements[(i - 1 + allMovements.length) % allMovements.length], this.mod), `All movements must be truncated and not overlap, but found overlap between: ${JSON.stringify(mov)} and ${JSON.stringify(allMovements[(i - 1 + allMovements.length) % allMovements.length])}`))
 
         const isFirstIteration = time < this.mod
 
@@ -904,13 +905,13 @@ export function overlap(mov1: MovementSegment, mov2: MovementSegment, mod: numbe
 
     if (start1 < end1) {
         if (start2 < end2) {
-            return !(end1 <= start2 || end2 <= start1);
+            return !(end1 <= start2+0.00001 || end2 <= start1+0.00001);
         } else {
-            return !(end1 <= start2 && end2 <= start1);
+            return !(end1 <= start2+0.00001 && end2 <= start1+0.00001);
         }
     } else {
         if (start2 < end2) {
-            return !(end2 <= start1 && end1 <= start2);
+            return !(end2 <= start1+0.00001 && end1 <= start2+0.00001);
         } else {
             return true; // both wrap around, so they must overlap
         }

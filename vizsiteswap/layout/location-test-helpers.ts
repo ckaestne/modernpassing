@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import { MovementAnimation } from "./animation-plan.ts";
+import exp from "node:constants";
 
 
 export function xy(pos: { x: number, y: number } | { toX: number, toY: number } | MovementAnimation): [number, number] {
@@ -37,6 +38,10 @@ export function assertLocationBetween(actual: [number, number], expectedA: [numb
         const expectedY = expectedA[1] + xRatio * (expectedB[1] - expectedA[1]);
         assert(Math.abs(actual[1] - expectedY) < 0.01, `${label ?? 'assertLocationBetween'}: Y location ${actual[1]} not on line between points, expected ${expectedY}`);
     }
+}
+
+export function assertLocationInFrontOf(actual: [number, number], expectedInFrontOf: [number, number], label?: string) {
+    assertLocationBetween(actual, expectedInFrontOf, [.5,.5], label);
 }
 
 // somewhat fuzzy: not the same location, but near it (usually for intercept next to or in front of)

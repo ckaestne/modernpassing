@@ -3,7 +3,7 @@ import { createGroupPattern, createSyncGroupPattern } from "../../parsing/patter
 import assert from "node:assert";
 import test from "node:test";
 import type { Role } from "@modernpassing/pattern";
-import { assertEqualLocation, assertLocationBetween } from "../location-test-helpers.ts";
+import { assertEqualLocation, assertLocationBetween, assertLocationInFrontOf } from "../location-test-helpers.ts";
 import { createBaseLocationManager, createFullLocationManager, type LocationManager } from "./location-manager.ts";
 import { createPasserIdx, type PasserIdx } from "./helpers.ts";
 import { createResolvedMovementSegmentFromSegmentSpec, ignoreOngoingOrNextDueToFirstIteration, MovementSegment, overlap, type MovementTracker } from "./relative-movement.ts";
@@ -1108,5 +1108,63 @@ Deno.test("overlap", () => {
     assert(overlap(mov4, mov5, 6))
     assert(overlap(mov5, mov0, 6))
     assert(!overlap(mov5, mov1, 6))
+
+})
+
+
+
+Deno.test("locationMgr for 3 -- locations", () => {
+
+    const pattern = `A: 3pB3 3pC3 3pB3 -- B
+B: 3pA3 33   3pA3 -- C
+C: 33   3pA3 33   -- A
+M: CCz   SAz   IBe.   -- M
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+
+    // now let's try locations
+    const initialC: [number, number] = [0.25, 0.933]
+    const initialA: [number, number] = [0.5, 0]
+    const bAfterMove: [number, number] = [0.933, 0.25]
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'A'), initialA); // should be at start
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0.75, 0.933]); // should be at start
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), initialC); // should be at start, skipping the initial mid-walk start
+    assertEqualLocation(locationMgr.getLocationByRole(locationMgr.mod, 'C'), initialC);
+    assertLocationInFrontOf(locationMgr.getLocationByRole(0, 'M'), initialC); 
+
+    // movement of B is kind of skipped through manipulation
+    assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), locationMgr.getLocationByRole(3.8, 'B')); // not moving yet
+    assertEqualLocation(locationMgr.getLocationByRole(8, 'C'), [.933, .25]); // B fully moved (and is now C)
+
+    // on 4 M intercepts pass to B
+    assert.equal(locationMgr.roleTracker._getPasserIdx(4.9, 'M'), locationMgr.roleTracker._getPasserIdx(5, 'B')); // relabel, nothing else changes
+    assert.equal(locationMgr.roleTracker._getPasserIdx(4.9, 'B'), locationMgr.roleTracker._getPasserIdx(5, 'M')); // relabel, nothing else changes
+
+    // on 5, old manipulator (now B, C on arrival) moves to new position
+    assertEqualLocation(locationMgr.getLocationByRole(6, 'C'), bAfterMove);
+    // on 5 old B (now M) moves to in front of where it would have walked (bAfterMove)
+    assertLocationInFrontOf(locationMgr.getLocationByRole(6, 'M'), bAfterMove)
+
+
+})
+
+
+Deno.test.only("locationMgr for 3v", () => {
+
+   const pattern = `A: 3pB3  3pC3  3pB3  -- B
+B: 3pA3  3  3  3pA3  -- C
+C: 3 3   3pA3  3  3  -- A
+M: CBz   SBz   IC.   -- M
+N: CCz   SAz   IBe.   -- N
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+
+    const gp: GroupPattern = createSyncGroupPattern(pattern)
+    const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+
 
 })
