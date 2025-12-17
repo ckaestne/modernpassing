@@ -5,6 +5,8 @@ import { createGroupPattern } from "../parsing/pattern-fromgroup.ts";
 import { renderGroupPatternLayoutFrames } from "./renderer-svg-frames.ts";
 import { createSVG } from "@modernpassing/svg-utils";
 
+const currDir = import.meta.dirname
+
 if (!fs.existsSync("test")) fs.mkdirSync("test");
 
 test("render scrambled v frames", () => {
@@ -14,7 +16,7 @@ C: 33   3pA3 33   -- A
 M: CB↺.SBl z ICl↺  
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
-  renderFrames(pattern, "test/scrambled-v-frames.svg")
+  renderFrames(pattern, currDir + "/test/scrambled-v-frames.svg")
 
 })
 
@@ -25,7 +27,7 @@ C: 33   3pA3 33   -- A
 M: IC . CA. SC 
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
-  renderFrames(pattern, "test/wankel-engine-frames.svg")
+  renderFrames(pattern, currDir + "/test/wankel-engine-frames.svg")
 })
 
 test("phonecian waltz", () => {
@@ -33,7 +35,7 @@ test("phonecian waltz", () => {
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
 positions: Line(A, B, 0.143) `
-  renderFrames(pattern, "test/phonecian-waltz.svg")
+  renderFrames(pattern, currDir + "/test/phonecian-waltz.svg")
 })
 
 test("opernball", () => {
@@ -43,7 +45,7 @@ M: SBloz   zf  SBloz   .   IBvb CA  .
 N: SAloz   .   IAvb CB  .   SBloz   zf  
 O: IBvb CA  .   SAlo z   zf  SAlo z   . 
 positions: Line(A, B, 0.2) `
-  renderFrames(pattern, "test/opernball.svg")
+  renderFrames(pattern, currDir + "/test/opernball.svg")
 })
 
 test("567 about", () => {
@@ -51,7 +53,7 @@ test("567 about", () => {
 B:, 5 7 6 5  -- A
 M:, . IAb,Co
 positions: Line(A, B, 0.1) `
-  renderFrames(pattern, "test/567-about.svg", 4)
+  renderFrames(pattern, currDir + "/test/567-about.svg", 4)
 })
 
 test("brunos one count", () => {
@@ -60,7 +62,7 @@ B: 3pA 3   3pA -- C
 C: 3   3pA 3   -- A
 positions: Brunos(A,B,C)
 move: Bmove(B,1,1.9)Bmove(B,2.9,1.5)Bmove(C,1.4,1.5)`
-  renderFrames(pattern, "test/brunos.svg", 2)
+  renderFrames(pattern, currDir + "/test/brunos.svg", 2)
 })
 
 
@@ -71,7 +73,7 @@ C: 33   3pA3 33    -- C
 D: 33  33   3pA3  -- D
 positions: Weave(A,B,C,D)
 move: move(B,0.5,1.5)move(B,2,2)move(B,4,2)  move(C,0,2)move(C,2.5,1.5)move(C,4,2)  move(D,0,2)move(D,2,2)move(D,4.5,1.5)`
-  renderFrames(pattern, "test/weave.svg", 2)
+  renderFrames(pattern, currDir + "/test/weave.svg", 2)
 })
 
 test("roundabout", () => {
@@ -79,7 +81,17 @@ test("roundabout", () => {
          B: 3pA3 33   3pA3 33  -- A
          M: SB z SB z  IBe . CB z
 positions: Line(A,B)`
-  renderFrames(pattern, "test/roundabout.svg", 2)
+  renderFrames(pattern, currDir + "/test/roundabout.svg", 2)
+})
+
+test("shooting star", () => {
+  const pattern = `A: 3pD 333   -- C
+B: 2 333-- D
+C: 3pA   222   -- B
+D: 3pB   333 -- A
+positions: Circle(A,B,C,D,_)
+move: Cmove(C,0.9,2.5,144,1)`
+  renderFrames(pattern, currDir + "/test/shooting-star.svg", 2)
 })
 
 test("minied", () => {
@@ -89,7 +101,30 @@ C: 3   3pA 3  3   3pB 3 -- A
 M: CB  .   SBe .   SCl  IC 
 positions: VL(A,B,C)
 move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
-  renderFrames(pattern, "test/minied.svg", 2)
+  renderFrames(pattern, currDir + "/test/minied.svg", 2)
+})
+
+
+test("3v", () => {
+  const pattern = `A: 3pB3  3pC3  3pB3  -- B
+B: 3pA3  3  3  3pA3  -- C
+C: 3 3   3pA3  3  3  -- A
+M: CBz   SBz   IC.   -- M
+N: CCz   SAz   IBe.   -- N
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+  renderFrames(pattern, currDir + "/test/3v.svg", 2)
+})
+
+
+test("3", () => {
+  const pattern = `A: 3pB3  3pC3  3pB3  -- B
+B: 3pA3  3  3  3pA3  -- C
+C: 3 3   3pA3  3  3  -- A
+N: CCz   SAz   IBe.   -- N
+positions: V(A,B,C)
+move: Vmove(B,4.9,3)`
+  renderFrames(pattern, currDir + "/test/3.svg", 2)
 })
 
 

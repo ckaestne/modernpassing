@@ -74,7 +74,7 @@ export function renderAnimationFrame(
     const canvas = svg.group().width(width).height(height)
     canvas.rect(width, height).fill("white").stroke("black").back()
 
-    console.log(config.showAnimationCounter + " " + time)
+    // console.log(config.showAnimationCounter + " " + time)
     const counter: Text | undefined = config.showAnimationCounter ? canvas.text('_').cx(10).cy(10).fill("black").text("" + time) : undefined
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout);
