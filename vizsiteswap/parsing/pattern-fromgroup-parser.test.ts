@@ -25,7 +25,7 @@ Deno.test("parse simple group pattern", async (t) => {
     assert(p[0].length === 3)
     assert.deepStrictEqual([p[0][0].role, p[0][1].role, p[0][2].role], ['A', 'B', 'C'])
     assert.deepStrictEqual(p[0][0].sequence, ['3pB', '3', '3', '3pC', '3', '3'])
-    assert.deepStrictEqual(p[1], { type: 'standard', shape: 'Circle', roles: ['A', 'B', 'C'] })
+    assert.deepStrictEqual(p[1], { type: 'standard', shape: 'Circle', roles: ['A', 'B', 'C'], args: [] })
 
     // assert.deepStrictEqual(p[0], ['A', 'B', 'C'])
     // assert.equal(p[1].length, 3)

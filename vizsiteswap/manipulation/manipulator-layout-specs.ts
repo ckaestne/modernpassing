@@ -216,8 +216,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                 }
                 // skip movement prior to substitution if prior action was in the previous iteration
-                const skipInFirstIteration = iteration === 0 &&
-                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat
+                const priorSubstitutionOrCarryAction = findPriorSubstitutionOrCarryAction(pattern, t)
+                const skipInFirstIteration = iteration === 0 && (!priorSubstitutionOrCarryAction ||
+                    priorSubstitutionOrCarryAction.throwBeat > t.throwBeat)
 
                 const onBeat = (t.throwBeat - duration + iteration * pattern.getLength() + mod) % mod
                 relativeMovements.push({
@@ -300,8 +301,9 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                 }
                 // skip movement prior to intercept if prior action was in the previous iteration
-                const skipInFirstIteration = iteration === 0 &&
-                    findPriorSubstitutionOrCarryAction(pattern, t).throwBeat > t.throwBeat && t.throwBeat!==0
+                const priorSubstitutionOrCarryAction = findPriorSubstitutionOrCarryAction(pattern, t)
+                const skipInFirstIteration = iteration === 0 && (!priorSubstitutionOrCarryAction ||
+                    priorSubstitutionOrCarryAction.throwBeat > t.throwBeat && t.throwBeat!==0)
 
 
                 // with an intercept we also assume that the manipulator role has not changed since the intercepted throw has been thrown
@@ -444,11 +446,13 @@ function isCarriedThrow(t: Throw): boolean {
  * 
  * note that the prior action may be in a prior iteration of the pattern in a different row
  * 
+ * some patterns may not have any carry or substitution (e.g., 456-about) and will return undefined
+ * 
  * @param pattern 
  * @param t throw with a substitution or intercept marker 
  * @returns throw with a substitution or carry marker
  */
-export function findPriorSubstitutionOrCarryAction(pattern: Pattern, t: Throw): Throw {
+export function findPriorSubstitutionOrCarryAction(pattern: Pattern, t: Throw): Throw | undefined {
     assert(isSubstitutedThrow(t) || isInterceptedThrow(t), "throw must have substitution or intercept marker");
 
     const manipulatorPasserIdx = pattern.getToPasserIdxAtThrow(t)
@@ -464,7 +468,7 @@ export function findPriorSubstitutionOrCarryAction(pattern: Pattern, t: Throw): 
             if (isCarriedThrow(priorThrow) && priorThrow.fromPasserIdx === passerIdx) return priorThrow
         }
     }
-    throw new Error(`Could not find prior substitution or carry action for throw at beat ${t.throwBeat} by passer idx ${manipulatorPasserIdx}`)
+    return undefined;
 }
 
 /**

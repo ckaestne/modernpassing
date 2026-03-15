@@ -249,6 +249,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 const fromRole = pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx)
                 // special handling of originalFromRole in case of substitutions on the intercepted beat (needed to track positions for animations correctly)
                 let originalFromRole = fromRole
+                const originalToRole = pattern.getToPasserRole(interceptedThrow)
                 assert((interceptedThrow.markers?.filter(m => m.kind === 'S').length??0) <= 1, `not sure what to do with multiple substitution markers on intercepted throw ${interceptedThrow}`)
                 if (interceptedThrow.markers?.filter(m => m.kind === 'S').length===1) {
                     const subMarker = interceptedThrow.markers!.find(m => m.kind === 'S') as SubstitutionMarker
@@ -267,7 +268,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                         markers: newPelfMarkers
                     })
                 }                
-                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
+                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: originalToRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
             }
             if (isCarry) {

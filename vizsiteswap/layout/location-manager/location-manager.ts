@@ -173,7 +173,7 @@ export function createBaseLocationManager(animationSpec: AnimationSpec): Locatio
  * relative movements.
  * @param animationSpec 
  */
-export function createFullLocationManager(animationSpec: AnimationSpec): LocationManager {
+export function createFullLocationManager(animationSpec: AnimationSpec, skipValidationForDebugging: boolean = false): LocationManager {
     const overallMod = getAnimationMod(animationSpec);
 
     const baseLocationManager = createBaseLocationManager(animationSpec)
@@ -301,8 +301,8 @@ export function createFullLocationManager(animationSpec: AnimationSpec): Locatio
     const movementTracker = new MovementTracker(time, movements, startingPositions);
     const resolvedMovementTracker = movementTracker.resolve();
     resolvedMovementTracker.resolve();
-    assert(!resolvedMovementTracker.hasUnresolvedMovements(), "Unresolved movements in full location manager: " + JSON.stringify(resolvedMovementTracker.movements.filter(m => !m.isResolved())));
-    assert(!resolvedMovementTracker.hasJumpsInMovement(), "Resolved movements must not have jumps in movement.");
+    assert(skipValidationForDebugging || !resolvedMovementTracker.hasUnresolvedMovements(), "Unresolved movements in full location manager: " + JSON.stringify(resolvedMovementTracker.movements.filter(m => !m.isResolved())));
+    assert(skipValidationForDebugging || !resolvedMovementTracker.hasJumpsInMovement(), "Resolved movements must not have jumps in movement.");
 
     return new LocationManager(roleTracker, resolvedMovementTracker)
 
