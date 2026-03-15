@@ -1152,7 +1152,7 @@ move: Vmove(B,4.9,3)`
 })
 
 
-Deno.test.only("locationMgr for 3v", () => {
+Deno.test("locationMgr for 3v", () => {
 
    const pattern = `A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
@@ -1164,6 +1164,21 @@ move: Vmove(B,4.9,3)`
 
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const locationMgr = createFullLocationManager(gp.layout!.animation)
+
+
+
+})
+Deno.test.only("locationMgr for 456-about", () => {
+
+  const pattern = `A: 5 4 6 5 4 -- B
+            B: ,6 5 4 6 -- A
+            M: .IA -- M`
+
+    const gp: GroupPattern = createGroupPattern(pattern, 4)
+    const locationMgr = createFullLocationManager(gp.layout!.animation, true)
+
+    const moveToIntercept = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === 0)!
+    assert(moveToIntercept.spec!.positionSpec.type === "between" && moveToIntercept.spec!.positionSpec.between[0] === 0 && moveToIntercept.spec!.positionSpec.between[1] === 1, "wrong spec: " + JSON.stringify(moveToIntercept.spec))
 
 
 

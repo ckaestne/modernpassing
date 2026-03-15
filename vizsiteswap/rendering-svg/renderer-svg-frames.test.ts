@@ -116,6 +116,13 @@ move: Vmove(B,4.9,3)`
   renderFrames(pattern, currDir + "/test/3v.svg", 2)
 })
 
+test("456-about", () => {
+  const pattern = `A: 5 4 6 5 4 -- B
+            B: ,6 5 4 6 -- A
+            M: .IA -- M`
+  renderFrames(pattern, currDir + "/test/456-about.svg", 4)
+})
+
 
 test("3", () => {
   const pattern = `A: 3pB3  3pC3  3pB3  -- B
