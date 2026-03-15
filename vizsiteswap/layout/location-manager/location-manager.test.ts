@@ -690,7 +690,7 @@ function createBasicTwoMoveAnimation(move1Time: number, move1SkipFirst: boolean,
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 2,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move1SkipFirst
             },
@@ -700,7 +700,7 @@ function createBasicTwoMoveAnimation(move1Time: number, move1SkipFirst: boolean,
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 2,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move2SkipFirst
             },
@@ -731,7 +731,7 @@ function createDependentMoveAnimation(move1Time: number, move1SkipFirst: boolean
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 2,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move1SkipFirst
             },
@@ -741,7 +741,7 @@ function createDependentMoveAnimation(move1Time: number, move1SkipFirst: boolean
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 2,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move2SkipFirst
             },
@@ -809,7 +809,7 @@ function createMovingAAnimation(move1Time: number, move1SkipFirst: boolean, move
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 1,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.2, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move1SkipFirst
             },
@@ -819,7 +819,7 @@ function createMovingAAnimation(move1Time: number, move1SkipFirst: boolean, move
                 role: 'M',
                 roleAtMovementEnd: "M",
                 duration: 1,
-                positionSpec: { type: "between", between: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
+                positionSpec: { type: "between", betweenRoles: ['A', 'B'], side: 0.8, offset: 0, direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: move2SkipFirst
             },
@@ -1152,7 +1152,7 @@ move: Vmove(B,4.9,3)`
 })
 
 
-Deno.test("locationMgr for 3v", () => {
+Deno.test.only("locationMgr for 3v", () => {
 
    const pattern = `A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C

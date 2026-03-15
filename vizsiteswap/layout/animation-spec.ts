@@ -134,7 +134,7 @@ export type MovementTriggerSpec = {
 
 
 /** 
- * movement relative to positions of base passers at a given moment in the future 
+ * movement relative to positions of other passers at a given moment in the future 
  **/
 export type RelativeMovementSpec = {
     onBeat: number,
@@ -150,18 +150,18 @@ export type RelativeMovementSpec = {
 
 export type TakePositionSpec = {
     type: "take",
-    toRole: Role, // base role who's position to take 
+    toBasePatternRole: Role, // base role who's position to take; can only be a base pattern role
 }
 export type BetweenPositionSpec = {
     type: "between",
-    between: [Role, Role], // from/to of the base roles at a given time (possibly in the future)
+    betweenRoles: [Role, Role], // from/to of the base roles at a given time (possibly in the future); can include other manipulator roles
     side: number, // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
     offset: number, // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
     direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to 
 }
 export type InFrontOfPositionSpec = {
     type: "infront",
-    toRole: Role, // position in front of this role (possibly in the future), where front is between the role and the center of the pattern
+    toRole: Role, // position in front of this role (possibly in the future), where front is between the role and the center of the pattern (can be in front of a manipulator)
 }
 
 

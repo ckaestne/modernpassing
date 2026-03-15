@@ -348,8 +348,8 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
 
                 if (relativeMovementSpec.positionSpec.type === "take") {
                     // look up the target position in the base pattern(!)
-                    const targetLocationFirstIteration = getTakeTargetPosition(baseLocationManager, arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toRole, mod);
-                    const targetLocationNextIteration = getTakeTargetPosition(baseLocationManager, arrivalTime + mod, leaveTime + mod, relativeMovementSpec.positionSpec.toRole, mod);
+                    const targetLocationFirstIteration = getTakeTargetPosition(baseLocationManager, arrivalTime, leaveTime, relativeMovementSpec.positionSpec.toBasePatternRole, mod);
+                    const targetLocationNextIteration = getTakeTargetPosition(baseLocationManager, arrivalTime + mod, leaveTime + mod, relativeMovementSpec.positionSpec.toBasePatternRole, mod);
                     const skipInFirst = (relativeMovementSpec.skipInFirstIteration || crossesIterationBoundary) && (startTime + relativeMovementSpec.duration) % mod < relativeMovementSpec.mod
                     unresolvedRelativeMovementSpecs.push(createUnresolvedMovementSegment(
                         passerIdx,
@@ -373,8 +373,8 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                                 ...relativeMovementSpec.positionSpec,
                                 type: "between",
                                 between: [
-                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.between[0]),
-                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.between[1])
+                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.betweenRoles[0]),
+                                    roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.betweenRoles[1])
                                 ]
                             } :
                             {

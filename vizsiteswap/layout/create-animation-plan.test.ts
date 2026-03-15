@@ -102,7 +102,7 @@ move: Vmove(B,4.9,3)`
     // on beat 5 we should take C's position
     const r5 = spec.relativeMovements.find(r => r.onBeat === 5 && r.positionSpec.type === 'take')
     assert(r5, "Relative movement on beat 5 exists")
-    assert(r5.positionSpec.type === 'take' && r5.positionSpec.toRole === 'C', "Relative movement on beat 5 is a take to C's position"+JSON.stringify(r5.positionSpec))
+    assert(r5.positionSpec.type === 'take' && r5.positionSpec.toBasePatternRole === 'C', "Relative movement on beat 5 is a take to C's position"+JSON.stringify(r5.positionSpec))
 
 
     const plan = createAnimationPlan(spec, 10);
@@ -406,8 +406,8 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
     assert(carryMovement.role === 'C', "Carry movement is started by C");
     // the carry is between A and B (arrival roles)
     assert(carryMovement.positionSpec.type==='between' &&
-        carryMovement.positionSpec.between![0] === 'A' &&
-        carryMovement.positionSpec.between![1] === 'B', "Carry movement is between A and B");
+        carryMovement.positionSpec.betweenRoles![0] === 'A' &&
+        carryMovement.positionSpec.betweenRoles![1] === 'B', "Carry movement is between A and B");
 
     // intercept on 5, so movement on 4
     const interceptMovement = spec.relativeMovements.find(m => m.onBeat === 4)!
@@ -418,7 +418,7 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
     // after the intercept on beat 0, M is now A (would be C, but immediately relabeled to A) and should take A's position
     const swapAfterInterceptMovement = spec.relativeMovements.find(m => m.onBeat === 0)!
     assert(swapAfterInterceptMovement.role === 'A', "After intercept, M is now A");
-    assert(swapAfterInterceptMovement.positionSpec.type === 'take' && swapAfterInterceptMovement.positionSpec.toRole === 'A', "After intercept, M is now A at A's position");
+    assert(swapAfterInterceptMovement.positionSpec.type === 'take' && swapAfterInterceptMovement.positionSpec.toBasePatternRole === 'A', "After intercept, M is now A at A's position");
     
 
 

@@ -209,7 +209,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                     positionSpec = {
                         type: "between",
-                        between: [marker.fromRole, marker.toRoleAtThrow],
+                        betweenRoles: [marker.fromRole, marker.toRoleAtThrow],
                         side,
                         offset,
                         direction,
@@ -294,7 +294,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     }
                     positionSpec = {
                         type: "between",
-                        between: [marker.originalFromRole, marker.originalToRoleAtThrow],
+                        betweenRoles: [marker.originalFromRole, marker.originalToRoleAtThrow],
                         side,
                         offset,
                         direction,
@@ -341,7 +341,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 targetRoleTime: "onBeat",
                 positionSpec: {
                     type: "take",
-                    toRole: moveAfterIntercept_roleOfIntercepteeOnMovementStart // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
+                    toBasePatternRole: assertIsBasePatternRole(moveAfterIntercept_roleOfIntercepteeOnMovementStart, basePattern) // we want to go to the position where this base-pattern role should be on the path if there were no manipulators
                 },
                 bend: marker.modifiers.includes("↻") ? "↻" : marker.modifiers.includes("↺") ? "↺" : undefined,
                 skipInFirstIteration
@@ -394,7 +394,7 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                     targetRoleTime: "arrival",
                     positionSpec: {
                         type: "between",
-                        between: [marker.originalFromRole, marker.toRoleAtThrow],
+                        betweenRoles: [marker.originalFromRole, marker.toRoleAtThrow],
                         side: marker.originalFromRole === marker.toRoleAtThrow ? 0.6 : 0.4, // stand in front of target
                         offset,
                         direction: 0 // face the receiver
@@ -501,4 +501,12 @@ export function findPriorIntercept(pattern: Pattern, t: Throw): Throw {
         }
     }
     throw new Error(`Could not find prior intercept for carry throw at beat ${t.throwBeat} by passer idx ${manipulatorPasserIdx}`)
+}
+
+
+function assertIsBasePatternRole(role: Role, basePattern: Pattern): Role {
+    if (!basePattern.hasRole(role)) {
+        throw new Error(`Role ${role} is not a role in the base pattern; base pattern roles are ${basePattern.roles[0][1].join(", ")}`)
+    }
+    return role
 }
