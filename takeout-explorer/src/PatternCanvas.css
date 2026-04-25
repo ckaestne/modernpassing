@@ -1,0 +1,64 @@
+.pattern-canvas {
+    position: relative;
+    overflow: auto;
+}
+
+.pattern-canvas svg {
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 14px;
+    user-select: none;
+}
+
+.pattern-canvas text {
+    transition: opacity 120ms ease, fill 120ms ease;
+}
+
+.pattern-canvas .label {
+    fill: #2d3748;
+    pointer-events: none;
+}
+
+.pattern-canvas .label-beat-header {
+    font-weight: 600;
+    fill: #1a202c;
+}
+
+.pattern-canvas .throw-label {
+    cursor: pointer;
+}
+
+.pattern-canvas .throw-label.hovered {
+    font-weight: 700;
+}
+
+.pattern-canvas .throw-label.dim,
+.pattern-canvas .arrow.dim {
+    opacity: 0.2;
+}
+
+.pattern-canvas .arrow {
+    transition: opacity 120ms ease, stroke-width 120ms ease;
+    cursor: pointer;
+}
+
+.pattern-canvas .arrow.hovered {
+    stroke-width: 4;
+}
+
+.pattern-canvas .dot {
+    pointer-events: none;
+}
+
+.canvas-tooltip {
+    position: fixed;
+    background: rgba(26, 32, 44, 0.95);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
