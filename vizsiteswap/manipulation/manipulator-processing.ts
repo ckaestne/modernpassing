@@ -246,10 +246,11 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
             let markers = t.markers || []
             let throwLength = t.throwLength
             if (isInterceptThrow) {
-                const fromRole = pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx)
+                const fromRoleAfterRelabel = pattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx)
+                const fromRole = initialPattern.getRole(interceptedThrow.throwBeat, interceptedThrow.fromPasserIdx)
+                // assert(fromRole===fromRoleAfterRelabel || throwLength <= pattern.nrHands, `unexpectedly, the role of the intercepted throw's source changes after relabeling on the intercept beat -- this should probably only happen for intercepted throws of length <= pattern.nrHands`)
                 // special handling of originalFromRole in case of substitutions on the intercepted beat (needed to track positions for animations correctly)
                 let originalFromRole = fromRole
-                const originalToRole = pattern.getToPasserRole(interceptedThrow)
                 assert((interceptedThrow.markers?.filter(m => m.kind === 'S').length??0) <= 1, `not sure what to do with multiple substitution markers on intercepted throw ${interceptedThrow}`)
                 if (interceptedThrow.markers?.filter(m => m.kind === 'S').length===1) {
                     const subMarker = interceptedThrow.markers!.find(m => m.kind === 'S') as SubstitutionMarker
@@ -268,7 +269,10 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                         markers: newPelfMarkers
                     })
                 }                
-                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: originalToRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
+                // note: for intercepted throws of lengths 2 or shorter, getting the role here does not do the intended thing due to relabeling (it's technically correct, but not helpful in identifying the base pattern position)
+                // const originalToRole = pattern.getToPasserRole(interceptedThrow)
+                // assert(originalToRole === intercept.toPasserRole, `the original target role ${originalToRole} of the intercepted throw does not match the expected target role ${intercept.toPasserRole}`)
+                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
             }
             if (isCarry) {
