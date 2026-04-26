@@ -23,7 +23,7 @@ type RenderResult = {
     initData: RuntimeInitData
 }
 
-const emptyResult: RenderResult = {
+const EMPTY_RESULT: RenderResult = {
     valid: false,
     error: "",
     plain: null,
@@ -39,6 +39,25 @@ const PLAIN_HINT =
     "Notation: throw height, target role at throw, X/‖ for straight/crossing passes, " +
     "row of receiver at causal, target hand (in first iteration), optional manipulator " +
     "annotations (I, C, S); blue is right hand, green is left hand; arrow color indicates the hand at receiver."
+
+const PATTERN_TYPE_OPTIONS: { value: PatternType; label: string }[] = [
+    { value: "sync", label: "Synchronous" },
+    { value: "fourHanded", label: "Four-handed" },
+]
+
+async function fetchRender(content: string, patternType: PatternType): Promise<RenderResult> {
+    const res = await fetch("/api/render", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, patternType }),
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+}
+
+function hasInitData(initData: RuntimeInitData): boolean {
+    return Boolean(initData.animations) || (initData.tabs?.length ?? 0) > 0
+}
 
 // --- small components ---
 
@@ -59,6 +78,32 @@ function ErrorCard({ message }: { message: string }) {
     )
 }
 
+function PresetDropdown({ onLoadPreset }: { onLoadPreset: (preset: PresetPattern) => void }) {
+    return (
+        <div className="dropdown is-hoverable">
+            <div className="dropdown-trigger">
+                <button type="button" className="button">
+                    <span>Load pattern</span>
+                </button>
+            </div>
+            <div className="dropdown-menu" role="menu">
+                <div className="dropdown-content">
+                    {PRESET_PATTERNS.map((preset) => (
+                        <button
+                            key={preset.name + preset.patternType + preset.pattern.slice(0, 24)}
+                            type="button"
+                            className="dropdown-item"
+                            onClick={() => onLoadPreset(preset)}
+                        >
+                            {preset.name}
+                        </button>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 function PatternInput({
     content,
     patternType,
@@ -72,40 +117,15 @@ function PatternInput({
     onTypeChange: (v: PatternType) => void
     onLoadPreset: (preset: PresetPattern) => void
 }) {
-    const [notationOpen, setNotationOpen] = useState(false)
-
-    const options: { value: PatternType; label: string }[] = [
-        { value: "sync", label: "Synchronous" },
-        { value: "fourHanded", label: "Four-handed" },
-    ]
     return (
         <div className="box">
             <div className="field">
-                <div className="dropdown is-hoverable">
-                    <div className="dropdown-trigger">
-                        <button type="button" className="button">
-                            <span>Load pattern</span>
-                        </button>
-                    </div>
-                    <div className="dropdown-menu" role="menu">
-                        <div className="dropdown-content">
-                            {PRESET_PATTERNS.map((preset) => (
-                                <button
-                                    key={preset.name + preset.patternType + preset.pattern.slice(0, 24)}
-                                    type="button"
-                                    className="dropdown-item"
-                                    onClick={() => onLoadPreset(preset)}
-                                >{preset.name}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+                <PresetDropdown onLoadPreset={onLoadPreset} />
             </div>
             <div className="field">
                 <label className="label">Type</label>
                 <div className="control">
-                    {options.map(({ value, label }) => (
+                    {PATTERN_TYPE_OPTIONS.map(({ value, label }) => (
                         <label key={value} className="radio mr-4">
                             <input
                                 type="radio"
@@ -132,7 +152,7 @@ function PatternInput({
                     />
                 </div>
             </div>
-            <details open={notationOpen} onToggle={(e) => setNotationOpen((e.target as HTMLDetailsElement).open)}>
+            <details>
                 <summary className="has-text-link is-clickable">Notation reference</summary>
                 <NotationReference />
             </details>
@@ -164,12 +184,12 @@ function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeIn
 
     useEffect(() => {
         if (!ref.current || !initData.animations) return
+        const init = (globalThis as { initializeFromData?: (data: RuntimeInitData) => unknown }).initializeFromData
+        if (!init) {
+            console.error("initializeFromData is not available")
+            return
+        }
         try {
-            const init = (globalThis as { initializeFromData?: (data: RuntimeInitData) => unknown }).initializeFromData
-            if (!init) {
-                console.error("initializeFromData is not available")
-                return
-            }
             init(initData)
         } catch (err) {
             console.error("Animation init error:", err)
@@ -201,11 +221,7 @@ function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeIn
                     {exportOpen ? "Hide export" : "Export"}
                 </button>
             </div>
-            <div
-                ref={ref}
-                className="svg-container"
-                dangerouslySetInnerHTML={{ __html: svg }}
-            />
+            <div ref={ref} className="svg-container" dangerouslySetInnerHTML={{ __html: svg }} />
             {exportOpen && (
                 <div className="mt-4">
                     <p className="help mb-2">
@@ -247,19 +263,14 @@ function DebugCard({ title, layout, hint }: { title: string; layout: DebugPatter
 
 // --- main app ---
 
-export default function App() {
-    const [content, setContent] = useState("")
-    const [patternType, setPatternType] = useState<PatternType>("sync")
-    const [result, setResult] = useState<RenderResult>(emptyResult)
+function useRenderResult(content: string, patternType: PatternType) {
+    const [result, setResult] = useState<RenderResult>(EMPTY_RESULT)
     const [loading, setLoading] = useState(false)
     const [requestError, setRequestError] = useState("")
 
-    const hasAnimationData = Boolean(result.initData.animations)
-    const hasInitData = hasAnimationData || ((result.initData.tabs?.length ?? 0) > 0)
-
     useEffect(() => {
         if (!content.trim()) {
-            setResult(emptyResult)
+            setResult(EMPTY_RESULT)
             setRequestError("")
             return
         }
@@ -267,16 +278,10 @@ export default function App() {
             setLoading(true)
             setRequestError("")
             try {
-                const res = await fetch("/api/render", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ content, patternType }),
-                })
-                if (!res.ok) throw new Error(`HTTP ${res.status}`)
-                setResult(await res.json())
+                setResult(await fetchRender(content, patternType))
             } catch (err) {
                 setRequestError(err instanceof Error ? err.message : String(err))
-                setResult(emptyResult)
+                setResult(EMPTY_RESULT)
             } finally {
                 setLoading(false)
             }
@@ -284,42 +289,59 @@ export default function App() {
         return () => clearTimeout(timer)
     }, [content, patternType])
 
+    return { result, loading, requestError }
+}
+
+export default function App() {
+    const [content, setContent] = useState("")
+    const [patternType, setPatternType] = useState<PatternType>("sync")
+    const { result, loading, requestError } = useRenderResult(content, patternType)
+    const showInitData = hasInitData(result.initData)
+
     return (
         <div className="section">
-        <div className="container">
-            <h1 className="title">Takeout Explorer</h1>
+            <div className="container">
+                <h1 className="title">Takeout Explorer</h1>
 
-            <PatternInput
-                content={content}
-                patternType={patternType}
-                onContentChange={setContent}
-                onTypeChange={setPatternType}
-                onLoadPreset={(preset) => {
-                    setContent(preset.pattern)
-                    setPatternType(preset.patternType)
-                }}
-            />
+                <PatternInput
+                    content={content}
+                    patternType={patternType}
+                    onContentChange={setContent}
+                    onTypeChange={setPatternType}
+                    onLoadPreset={(preset) => {
+                        setContent(preset.pattern)
+                        setPatternType(preset.patternType)
+                    }}
+                />
 
-            {requestError && <ErrorCard message={requestError} />}
-            {loading && <div className="spinner" />}
+                {requestError && <ErrorCard message={requestError} />}
+                {loading && <div className="spinner" />}
 
-            {result.rendered && (
-                <RenderedAnimation key={result.rendered + JSON.stringify(result.initData)} svg={result.rendered} initData={result.initData} />
-            )}
+                {result.rendered && (
+                    <RenderedAnimation
+                        key={result.rendered}
+                        svg={result.rendered}
+                        initData={result.initData}
+                    />
+                )}
 
-            <hr />
+                <hr />
 
-            {result.plain && <DebugCard title="Plain" layout={result.plain} hint={PLAIN_HINT} />}
-            {result.manipulator && <DebugCard title="Manipulator applied" layout={result.manipulator} />}
-            {result.filled && <DebugCard title="Filled" layout={result.filled} />}
+                {result.plain && <DebugCard title="Plain" layout={result.plain} hint={PLAIN_HINT} />}
+                {result.manipulator && <DebugCard title="Manipulator applied" layout={result.manipulator} />}
+                {result.filled && <DebugCard title="Filled" layout={result.filled} />}
 
-            {(result.error || hasInitData) && (
-                <Card>
-                    {result.error && <pre className="has-background-light p-3">{result.error}</pre>}
-                    {hasInitData && <pre className="has-background-light p-3">{JSON.stringify(result.initData, null, 2)}</pre>}
-                </Card>
-            )}
-        </div>
+                {(result.error || showInitData) && (
+                    <Card>
+                        {result.error && <pre className="has-background-light p-3">{result.error}</pre>}
+                        {showInitData && (
+                            <pre className="has-background-light p-3">
+                                {JSON.stringify(result.initData, null, 2)}
+                            </pre>
+                        )}
+                    </Card>
+                )}
+            </div>
         </div>
     )
 }
