@@ -1168,7 +1168,7 @@ move: Vmove(B,4.9,3)`
 
 
 })
-Deno.test.only("locationMgr for 456-about", () => {
+Deno.test("locationMgr for 456-about", () => {
 
   const pattern = `A: 5 4 6 5 4 -- B
             B: ,6 5 4 6 -- A
