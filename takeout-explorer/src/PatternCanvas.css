@@ -39,6 +39,22 @@
 .pattern-canvas .arrow {
     transition: opacity 120ms ease, stroke-width 120ms ease;
     cursor: pointer;
+    pointer-events: visibleStroke;
+}
+
+.pattern-canvas .arrow.arrow-intercept {
+    stroke-width: 4.8;
+    filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.95));
+}
+
+.pattern-canvas .arrow.arrow-substitution {
+    stroke-width: 4.8;
+    filter: drop-shadow(0 0 4px rgba(243, 118, 2, 0.95));
+}
+
+.pattern-canvas .arrow.arrow-carry {
+    stroke-width: 4.8;
+    filter: drop-shadow(0 0 4px rgba(15, 247, 49, 0.95));
 }
 
 .pattern-canvas .arrow.hovered {
@@ -47,6 +63,10 @@
 
 .pattern-canvas .dot {
     pointer-events: none;
+}
+
+.pattern-canvas .dot-hit {
+    cursor: help;
 }
 
 .canvas-tooltip {
@@ -59,6 +79,12 @@
     font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
     pointer-events: none;
     z-index: 100;
-    white-space: nowrap;
+    white-space: normal;
+    max-width: min(360px, 80vw);
+    line-height: 1.35;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.canvas-tooltip-line + .canvas-tooltip-line {
+    margin-top: 2px;
 }

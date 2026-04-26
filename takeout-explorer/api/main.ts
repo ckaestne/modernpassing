@@ -113,6 +113,6 @@ app.use(async (ctx, next) => {
     }
 })
 
-// const port = Number(Deno.env.get("PORT") ?? 8000)
-// console.log(`API server running on http://localhost:${port}`)
-// await app.listen({ port })
+const port = Number(Deno.env.get("PORT") ?? 8000)
+console.log(`API server running on http://localhost:${port}`)
+await app.listen({ port })

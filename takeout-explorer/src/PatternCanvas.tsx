@@ -1,16 +1,60 @@
 import { useState } from "react"
-import type { DebugPatternLayout } from "../../vizsiteswap/rendering-svg/pattern-debug-layout.ts"
+import type {
+    CrossingKind,
+    DotSpec,
+    ThrowSpec,
+    DebugPatternLayout,
+} from "../api/pattern-debug-layout.ts"
 import "./PatternCanvas.css"
+
+type TooltipState = {
+    x: number
+    y: number
+    lines: string[]
+}
+
+function describeCrossing(crossing: CrossingKind): string {
+    if (crossing === "self") return "self throw"
+    if (crossing === "straight-pass") return "straight pass"
+    return "cross pass"
+}
+
+function throwTooltipLines(t: ThrowSpec): string[] {
+    const actionableMarkers = t.markerTooltips.filter((m) => m.category !== "other")
+
+    const lines = [
+        `From: passer ${t.fromPasserIdx} (${t.fromRole}), ${t.hand} hand, beat ${t.beat}`,
+        `To: passer ${t.toPasserIdxAtThrow} (${t.toRoleAtThrow}) now; ${t.toPasserIdxOnCausal} (${t.toRoleOnCausal}) on causal beat (${t.causeBeat}); ${t.targetHandFirstIteration} hand`,
+        `Duration: ${t.throwLength} beats`,
+        `${describeCrossing(t.crossing)}`,
+    ]
+
+    if (actionableMarkers.length > 0) {
+        for (const marker of actionableMarkers) {
+            lines.push(`${marker.label}: ${marker.summary}`)
+        }
+    }
+
+    if (t.causeLength < 0) {
+        lines.push(`Causal relation: negative cause length (${t.causeLength})`)
+    }
+
+    return lines
+}
+
+function dotTooltipLines(d: DotSpec): string[] {
+    return [
+        "Hand position",
+        `Passer ${d.rowIdx} (${d.role}) at beat ${d.beat}`,
+        `Hand: ${d.hand}`,
+    ]
+}
 
 export function PatternCanvas({ layout }: { layout: DebugPatternLayout }) {
     const { width, height, dist: _dist, texts, dots, throws, arrows, errors } = layout
     const [hoveredThrow, setHoveredThrow] = useState<string | null>(null)
     const [hoveredArrow, setHoveredArrow] = useState<string | null>(null)
-    const [tooltip, setTooltip] = useState<{
-        x: number
-        y: number
-        text: string
-    } | null>(null)
+    const [tooltip, setTooltip] = useState<TooltipState | null>(null)
 
     const highlightThrowIds = new Set<string>()
     if (hoveredThrow) highlightThrowIds.add(hoveredThrow)
@@ -25,7 +69,11 @@ export function PatternCanvas({ layout }: { layout: DebugPatternLayout }) {
                 viewBox={`0 0 ${width} ${height}`}
                 width="100%"
                 xmlns="http://www.w3.org/2000/svg"
-                onMouseLeave={() => setTooltip(null)}
+                onMouseLeave={() => {
+                    setHoveredArrow(null)
+                    setHoveredThrow(null)
+                    setTooltip(null)
+                }}
             >
                 <defs>
                     <ArrowMarker id="arrowhead-blue" color="blue" />
@@ -34,38 +82,97 @@ export function PatternCanvas({ layout }: { layout: DebugPatternLayout }) {
 
                 {/* causal arrows */}
                 {arrows.map((a) => {
+                    const relatedThrow = throws.find((t) => t.id === a.throwId)
                     const related = highlightThrowIds.has(a.throwId)
                     const dim =
                         (hoveredThrow !== null || hoveredArrow !== null) &&
                         !related
+                    const markerClass = relatedThrow
+                        ? Array.from(
+                            new Set(
+                                relatedThrow.markerTooltips
+                                    .filter((m) => m.category !== "other")
+                                    .map((m) => `arrow-${m.category}`),
+                            ),
+                        ).join(" ")
+                        : ""
                     return (
                         <path
                             key={a.id}
                             d={a.d}
-                            fill="transparent"
+                            fill="none"
                             stroke={a.stroke}
                             strokeWidth={2}
+                            pointerEvents="visibleStroke"
                             strokeDasharray={a.dashed ? "2,2" : undefined}
                             markerEnd={`url(#arrowhead-${a.stroke})`}
-                            className={`arrow ${dim ? "dim" : ""} ${
+                            className={`arrow ${markerClass} ${dim ? "dim" : ""} ${
                                 hoveredArrow === a.id ? "hovered" : ""
                             }`}
-                            onMouseEnter={() => setHoveredArrow(a.id)}
-                            onMouseLeave={() => setHoveredArrow(null)}
+                            onMouseEnter={(e) => {
+                                setHoveredArrow(a.id)
+                                if (relatedThrow) {
+                                    setTooltip({
+                                        x: e.clientX,
+                                        y: e.clientY,
+                                        lines: [
+                                            ...throwTooltipLines(relatedThrow),                                            
+                                        ],
+                                    })
+                                }
+                            }}
+                            onMouseMove={(e) => {
+                                if (relatedThrow) {
+                                    setTooltip({
+                                        x: e.clientX,
+                                        y: e.clientY,
+                                        lines: [
+                                            ...throwTooltipLines(relatedThrow),
+                                        ],
+                                    })
+                                }
+                            }}
+                            onMouseLeave={() => {
+                                setHoveredArrow(null)
+                                setTooltip(null)
+                            }}
                         />
                     )
                 })}
 
                 {/* small hand-position dots */}
                 {dots.map((d, i) => (
-                    <circle
-                        key={i}
-                        cx={d.cx}
-                        cy={d.cy}
-                        r={2}
-                        fill={d.fill}
-                        className="dot"
-                    />
+                    <g key={i}>
+                        <circle
+                            cx={d.cx}
+                            cy={d.cy}
+                            r={2}
+                            fill={d.fill}
+                            className="dot"
+                        />
+                        <circle
+                            cx={d.cx}
+                            cy={d.cy}
+                            r={7}
+                            fill="transparent"
+                            className="dot-hit"
+                            onMouseEnter={(e) => {
+                                setTooltip({
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    lines: dotTooltipLines(d),
+                                })
+                            }}
+                            onMouseMove={(e) => {
+                                setTooltip({
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    lines: dotTooltipLines(d),
+                                })
+                            }}
+                            onMouseLeave={() => setTooltip(null)}
+                        />
+                    </g>
                 ))}
 
                 {/* static text labels (headers, row labels, end labels) */}
@@ -103,14 +210,14 @@ export function PatternCanvas({ layout }: { layout: DebugPatternLayout }) {
                                 setTooltip({
                                     x: e.clientX,
                                     y: e.clientY,
-                                    text: `Beat ${t.beat} · row ${t.rowIdx} · ${t.hand} hand`,
+                                    lines: throwTooltipLines(t),
                                 })
                             }}
                             onMouseMove={(e) => {
                                 setTooltip({
                                     x: e.clientX,
                                     y: e.clientY,
-                                    text: `Beat ${t.beat} · row ${t.rowIdx} · ${t.hand} hand`,
+                                    lines: throwTooltipLines(t),
                                 })
                             }}
                             onMouseLeave={() => {
@@ -155,7 +262,9 @@ export function PatternCanvas({ layout }: { layout: DebugPatternLayout }) {
                         top: tooltip.y + 12,
                     }}
                 >
-                    {tooltip.text}
+                    {tooltip.lines.map((line, i) => (
+                        <div key={i} className="canvas-tooltip-line">{line}</div>
+                    ))}
                 </div>
             )}
         </div>
