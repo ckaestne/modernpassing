@@ -9,7 +9,7 @@ import {
 } from "./patternPresets.ts"
 
 type RuntimeInitData = {
-    animations: unknown[]
+    animations?: unknown
     tabs?: unknown[]
 }
 
@@ -30,7 +30,7 @@ const emptyResult: RenderResult = {
     manipulator: null,
     filled: null,
     rendered: "",
-    initData: { animations: [] },
+    initData: {},
 }
 
 const DEBOUNCE_MS = 400
@@ -144,7 +144,7 @@ function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeIn
     const ref = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        if (!ref.current || !initData.animations || initData.animations.length === 0) return
+        if (!ref.current || !initData.animations) return
         try {
             const init = (globalThis as { initializeFromData?: (data: RuntimeInitData) => unknown }).initializeFromData
             if (!init) {
@@ -185,6 +185,9 @@ export default function App() {
     const [result, setResult] = useState<RenderResult>(emptyResult)
     const [loading, setLoading] = useState(false)
     const [requestError, setRequestError] = useState("")
+
+    const hasAnimationData = Boolean(result.initData.animations)
+    const hasInitData = hasAnimationData || ((result.initData.tabs?.length ?? 0) > 0)
 
     useEffect(() => {
         if (!content.trim()) {
@@ -242,10 +245,10 @@ export default function App() {
             {result.manipulator && <DebugCard title="Manipulator applied" layout={result.manipulator} />}
             {result.filled && <DebugCard title="Filled" layout={result.filled} />}
 
-            {(result.error || result.initData.animations.length > 0) && (
+            {(result.error || hasInitData) && (
                 <Card>
                     {result.error && <pre className="has-background-light p-3">{result.error}</pre>}
-                    {result.initData.animations.length > 0 && <pre className="has-background-light p-3">{JSON.stringify(result.initData, null, 2)}</pre>}
+                    {hasInitData && <pre className="has-background-light p-3">{JSON.stringify(result.initData, null, 2)}</pre>}
                 </Card>
             )}
         </div>

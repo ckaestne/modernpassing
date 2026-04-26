@@ -24,17 +24,30 @@ type RenderResult = {
     initData: RuntimeInitData
 }
 
-function renderPattern({ content, patternType }: RenderRequest): RenderResult {
-    const hands = patternType === "fourHanded" ? 4 : 2
-    const result: RenderResult = {
+function createEmptyRenderResult(error = ""): RenderResult {
+    return {
         valid: false,
-        error: "",
+        error,
         plain: null,
         manipulator: null,
         filled: null,
         rendered: "",
         initData: {},
     }
+}
+
+function isRenderRequest(value: unknown): value is RenderRequest {
+    if (!value || typeof value !== "object") return false
+    const candidate = value as Record<string, unknown>
+    return (
+        typeof candidate.content === "string" &&
+        (candidate.patternType === "sync" || candidate.patternType === "fourHanded")
+    )
+}
+
+function renderPattern({ content, patternType }: RenderRequest): RenderResult {
+    const hands = patternType === "fourHanded" ? 4 : 2
+    const result = createEmptyRenderResult()
     try {
         const gp: GroupPattern = createGroupPattern(content, hands)
         const p = gp.pattern
@@ -60,7 +73,10 @@ function renderPattern({ content, patternType }: RenderRequest): RenderResult {
         result.error = p.getValidationError()
     } catch (e) {
         result.error = e instanceof Error ? e.message : String(e)
-        console.error("Render error:", (e as Error).stack)
+        console.error(
+            "Render error:",
+            e instanceof Error ? e.stack ?? e.message : String(e),
+        )
     }
     return result
 }
@@ -86,8 +102,22 @@ const animationsJs = await buildAnimationsJs()
 const router = new Router()
 
 router.post("/api/render", async (ctx) => {
-    const body = (await ctx.request.body.json()) as RenderRequest
-    ctx.response.body = renderPattern(body)
+    try {
+        const body = await ctx.request.body.json()
+        if (!isRenderRequest(body)) {
+            ctx.response.status = 400
+            ctx.response.body = createEmptyRenderResult(
+                "Invalid request body. Expected { content: string, patternType: 'sync' | 'fourHanded' }.",
+            )
+            return
+        }
+        ctx.response.body = renderPattern(body)
+    } catch (e) {
+        const message = e instanceof Error ? e.message : String(e)
+        console.error("/api/render request error:", message)
+        ctx.response.status = 400
+        ctx.response.body = createEmptyRenderResult(message)
+    }
     ctx.response.type = "application/json"
 })
 
