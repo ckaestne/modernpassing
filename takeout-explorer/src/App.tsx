@@ -313,10 +313,9 @@ export default function App() {
             {result.manipulator && <DebugCard title="Manipulator applied" layout={result.manipulator} />}
             {result.filled && <DebugCard title="Filled" layout={result.filled} />}
 
-            {(result.error || hasInitData) && (
+            {(result.error) && (
                 <Card>
                     {result.error && <pre className="has-background-light p-3">{result.error}</pre>}
-                    {hasInitData && <pre className="has-background-light p-3">{JSON.stringify(result.initData, null, 2)}</pre>}
                 </Card>
             )}
         </div>
