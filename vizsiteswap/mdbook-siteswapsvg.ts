@@ -84,8 +84,8 @@ function handleGroupPattern(p: string, nrHands: number, config: any, videoLinks:
 
     try {
         // if (!config.renderFramesOnly) {
-            const [svg, js] = renderGroupPattern(gp, config);
-            result = svg.svg() + `\n<script>window.addEventListener("load",function(){${js}\n})\n</script>`;
+            const [svg, initData] = renderGroupPattern(gp, config)
+            result = svg.svg() + `\n<script>window.addEventListener("load",function(){initializeFromData(${JSON.stringify(initData)})\n})\n</script>`
         // } else {
         //     const frames = renderLayoutFrames(pattern.layout!.frames!, 148, 148, config);
         //     result = '<div class="group-pattern-frames">'

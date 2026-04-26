@@ -2,10 +2,8 @@
  * runtime library for animations
  */
 
-import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner, Circle } from "@svgdotjs/svg.js";
-import type { MovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, SegmentMovementAnimation } from "@modernpassing/layout";
-import { assert } from "node:console";
-import { posix } from "node:path";
+import { type Element, type G, SVG, Svg, Text, Line, type Path, Marker, Runner } from "@svgdotjs/svg.js";
+import type { AnimationInitData, MovementAnimation, MovementSegmentSpec, PassAnimation, RelabelAnimation, RuntimeInitData, TabInitData } from "@modernpassing/layout";
 
 type Role = string
 // export type MovementSegmentSpec = {
@@ -21,6 +19,7 @@ export enum Hand {
 
 /** position relates to a physical passer, with possibly changing roles */
 type Position = {
+    passerIdx: number,
     role: Role,
     x: number, // absolute coordinates in the SVG
     y: number,
@@ -52,6 +51,66 @@ type Timer = {
     priority: number, // the priority of the timer (lower is earlier)
     fn: (delay: number) => void // the function to execute, delay is expressed as fraction of a beat
     firstIteration?: boolean // if true, this timer is only executed in the first iteration of the animation, if false only in all other rounds, if undefined (default) it is executed in all iterations
+}
+
+type SegmentMovementAnimation = {
+    onBeat: number,
+    role: Role,
+    segmentIdx: number,
+    duration: number,
+    firstIteration?: boolean,
+}
+
+type RunnerWithOnStart = Runner & {
+    on(event: "start", callback: () => void): void
+}
+
+export function initializeAnimationFromData(initData: AnimationInitData): Data {
+    const data = initialize(
+        initData.svgCanvasId,
+        initData.mod,
+        initData.speed,
+        initData.roleColors,
+        initData.beatIndicatorId,
+        initData.beatIndicatorXOffsets,
+        initData.beatLabelId
+    )
+
+    for (const p of initData.positions)
+        addPosition(data, p.roleIdx, p.initialRole, p.x, p.y, p.svgGroupId, p.svgLabelId)
+
+    setPasses(data, initData.passes)
+    setDirectMovements(data, initData.directMovements)
+    setRelabeling(data, initData.relabeling)
+    startAnimation(data, initData.patternLength)
+    return data
+}
+
+export function initializeTabs(tabs: TabInitData[]): void {
+    if (!tabs || tabs.length === 0) return
+
+    const svgTabs = tabs.map((t) => SVG(t.tabId) as G)
+    const svgPanels = tabs.map((t) => SVG(t.panelId) as G)
+
+    svgPanels.forEach((panel, i) => {
+        panel.front()
+        if (tabs[i].active) panel.show()
+        else panel.hide()
+    })
+
+    svgTabs.forEach((tab, i) => {
+        tab.on('click', () => {
+            svgTabs.forEach(t => t.removeClass('tab-active'))
+            tab.addClass('tab-active')
+            svgPanels.forEach((panel, j) => j === i ? panel.show() : panel.hide())
+        })
+    })
+}
+
+export function initializeFromData(initData: RuntimeInitData): Data[] {
+    if (initData.tabs) initializeTabs(initData.tabs)
+    if (initData.animations) return [initializeAnimationFromData(initData.animations)]
+    return []
 }
 
 /**
@@ -112,8 +171,9 @@ export function initialize(svgId: string, mod: number, speed: number = 1, roleCo
  * @param svgLabelId 
  * @param segmentSequence 
  */
-export function addPosition(data: Data, _: number, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string) {
-    data.positions.push({ role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text });
+export function addPosition(data: Data, passerIdx: number, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string) {
+    console.assert(role!==undefined)
+    data.positions.push({ passerIdx, role, x, y, svgCircle: SVG(svgCircleId) as G, svgLabel: SVG(svgLabelId) as Text });
 }
 
 /**
@@ -177,12 +237,16 @@ function getPositionByRole(data: Data, role: Role): Position {
 export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAnimation[]): void {
     for (const spec of movementSpecs) {
         schedule(data, spec.onBeat, (delay: number) => {
-            const pos = getPositionByRole(data, spec.role)
-            const seg = data.segments[spec.segmentIdx]
-            const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
-            // console.log(`${spec.role} moving on ${spec.onBeat} from ${seg.fromX}, ${seg.fromY} to ${seg.toX}, ${seg.toY} with delay ${delay} and duration ${spec.duration}`);
-            const animation = animateMoveOnPath(data, pos, path, delay, spec.duration);
-            data.animationRunners.set(spec.onBeat + spec.role, animation)
+            try {
+                const pos = getPositionByRole(data, spec.role)
+                const seg = data.segments[spec.segmentIdx]
+                const path = genPath(data.canvas, seg) // TODO: precompute this in the backend
+                const duration = Math.max(spec.duration, 0.001)
+                const animation = animateMoveOnPath(data, pos, path, delay, duration, `segment role=${spec.role} beat=${spec.onBeat}`)
+                data.animationRunners.set(spec.onBeat + spec.role, animation)
+            } catch (err) {
+                console.warn(`Skipping invalid segment movement role=${spec.role} beat=${spec.onBeat}`, err)
+            }
         })
     }
 }
@@ -190,27 +254,21 @@ export function setSegmentMovements(data: Data, movementSpecs: SegmentMovementAn
 export function setDirectMovements(data: Data, directMovementAnimations: MovementAnimation[]): void {
     for (const spec of directMovementAnimations) {
         schedule(data, spec.onBeat, (delay: number) => {
-            const pos = getPositionByRole(data, spec.role)
-            const path = directPath(data.canvas, pos.x, pos.y, spec.toX, spec.toY, spec.bend);
-            // console.log(`${spec.role} moving directly on ${spec.onBeat} from ${pos.x}, ${pos.y} to ${spec.toX}, ${spec.toY} with delay ${delay} and duration ${spec.duration}`);
-            const directMoveAnimation = animateMoveOnPath(data, pos, path, delay, spec.duration-.1);
-
-            if (spec.takeRelativeMovementFrom) {
-                const id = spec.takeRelativeMovementFrom[0] + spec.takeRelativeMovementFrom[1]
-                if (!data.animationRunners.has(id)) {
-                    console.warn(`No animation runner found for ${spec.takeRelativeMovementFrom[1]} at beat ${spec.takeRelativeMovementFrom[0]}, cannot take relative movement from it.`);
-                    return;
-                }
-                directMoveAnimation.runner.after(() => {
-                    data.animationRunners.get(id)?.takeover(pos)
-                })
+            try {
+                const pos = getPositionByPasserIdx(data, spec.passerIdx)
+                const path = genPath(data.canvas, spec.movementSpec)
+                // Keep a tiny positive duration to avoid NaN relative progress in SVG.js.
+                const duration = Math.max(spec.duration - 0.1, 0.001)
+                animateMoveOnPath(data, pos, path, delay, duration, `direct passer=${spec.passerIdx} beat=${spec.onBeat}`)
+            } catch (err) {
+                console.warn(`Skipping invalid direct movement passer=${spec.passerIdx} beat=${spec.onBeat}`, err)
             }
         })
     }
 }
 
 
-function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number): CustomMovementRunner {
+function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number, duration: number, debugLabel: string): CustomMovementRunner {
     // gray arrow for the moving path in the background
     path.stroke({ color: 'lightgrey', width: 4 }).marker('end', data.arrowMarker('lightgrey')).fill('none').
         after(pos.svgCircle).back().hide();
@@ -219,10 +277,10 @@ function animateMoveOnPath(data: Data, pos: Position, path: Path, delay: number,
     pos.currentAnimation?.abort()
 
     const animation: Runner = pos.svgCircle.animate(duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
-    (animation as any).on('start', (function () { path.show(); }))
+    (animation as RunnerWithOnStart).on('start', (function () { path.show(); }))
 
     // this is what moves the circle along the path, can be aborted and taken over
-    const moveAnimation = new CustomMovementRunner(animation, path, pos)
+    const moveAnimation = new CustomMovementRunner(animation, path, pos, debugLabel)
     animation.after(function () {
         path.remove();
     })
@@ -238,7 +296,7 @@ export function setPasses(data: Data, passes: PassAnimation[]): void {
         schedule(data, p.onBeat, (delay: number) => {
             let v: G | undefined = undefined;
             const animation = data.canvas.animate(p.duration * 1000 / data.speed, delay * 1000 / data.speed, 'now');
-            (animation as any).on('start', function () { v = renderPass(data, p) })
+            (animation as RunnerWithOnStart).on('start', function () { v = renderPass(data, p) })
             animation.after(function () { v?.remove() });
         }, 1, p.firstIteration)
 }
@@ -253,7 +311,7 @@ export function setPasses(data: Data, passes: PassAnimation[]): void {
 export function setRelabeling(data: Data, relabelAnimations: RelabelAnimation[]) {
     let first = true
     for (const r of relabelAnimations) {
-        schedule(data, r.onBeat, (delay: number) => {
+        schedule(data, r.onBeat, (_delay: number) => {
             if (first) first = false;
             else relabel(data, r.changes);
         }, 0/*highest priority, should happen first*/)
@@ -300,12 +358,19 @@ function updateLocation(pos: Position, x: number, y: number) {
     pos.y = y
 }
 
-function relabel(data: Data, changes: [Role, Role][]) {
+function getPositionByPasserIdx(data: Data, passerIdx: number): Position {
+    const pos = data.positions.find((p) => p.passerIdx === passerIdx)
+    if (!pos)
+        throw Error(`Passer ${passerIdx} not found in data.positions`)
+    return pos
+}
+
+function relabel(data: Data, changes: [number, Role][]) {
     // console.log("relabel", changes)
-    const idxs = changes.map(c => [data.positions.findIndex(p => p.role === c[0]), c[1]] as [number, Role]);
-    for (const change of idxs) {
-        data.positions[change[0]].role = change[1]
-        data.positions[change[0]].svgLabel.text(change[1])
+    for (const [passerIdx, newRole] of changes) {
+        const pos = getPositionByPasserIdx(data, passerIdx)
+        pos.role = newRole
+        pos.svgLabel.text(newRole)
         // const color = data.roleColors.get(change[1]) || "white";
         // console.log(`relabeling ${change[0]} to ${change[1]} with color ${color}`);
         // (data.positions[change[0]].svgCircle.first() as Circle).fill(color)
@@ -373,14 +438,16 @@ function arrow(data: Data, x1: number, y1: number, x2: number, y2: number, color
 
 
 function genPath(canvas: Svg, segment: MovementSegmentSpec): Path {
-    // console.log(segment)
+    if (!Number.isFinite(segment.fromX) || !Number.isFinite(segment.fromY) || !Number.isFinite(segment.toX) || !Number.isFinite(segment.toY)) {
+        throw new Error(`Invalid movement segment coordinates: ${JSON.stringify(segment)}`)
+    }
     let p = []
     if (segment.path.length === 0) p = ['M', segment.fromX, segment.fromY, 'L', segment.toX, segment.toY]
     else p = ['M', segment.fromX, segment.fromY, ...segment.path, segment.toX, segment.toY]
     return canvas.path(p.join(' '))
 }
 
-function directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number, bend?: "↻" | "↺"): Path {
+function _directPath(canvas: Svg, x1: number, y1: number, x2: number, y2: number, bend?: "↻" | "↺"): Path {
     // console.log(`directPath from (${x1}, ${y1}) to (${x2}, ${y2}) with bend ${bend}`)
     if (!bend)
         return canvas.path(`M${x1},${y1} L${x2},${y2}`)
@@ -422,22 +489,42 @@ class CustomMovementRunner {
     readonly runner: Runner
     private readonly pos: Position
     private readonly path: Path
-    constructor(animation: Runner, path: Path, pos: Position) {
+    constructor(animation: Runner, path: Path, pos: Position, debugLabel: string) {
         this.runner = animation;
         this.pos = pos
         this.path = path
 
+        const pathLength = path.length()
+        if (!Number.isFinite(pathLength) || pathLength < 0) {
+            this.aborted = true
+            console.warn(`Invalid SVG path length for ${debugLabel}`, { pathLength, d: path.attr("d") })
+            return
+        }
+
 
         animation.during((relativeProgress: number) => {
             if (this.aborted) return
-            const p = path.pointAt(relativeProgress * path.length());
+            const distance = Math.max(0, Math.min(pathLength, relativeProgress * pathLength))
+            if (!Number.isFinite(distance)) {
+                console.warn(`Non-finite path distance for ${debugLabel}`, { relativeProgress, pathLength })
+                return
+            }
+            const p = path.pointAt(distance);
+            if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) {
+                console.warn(`Non-finite point on path for ${debugLabel}`, { distance, d: path.attr("d") })
+                return
+            }
             updateLocation(pos, p.x, p.y);
             pos.svgCircle.center(p.x, p.y);
         })
 
         animation.after(() => {
             if (this.aborted) return
-            const endPosition = path.pointAt(path.length())
+            const endPosition = path.pointAt(pathLength)
+            if (!Number.isFinite(endPosition.x) || !Number.isFinite(endPosition.y)) {
+                console.warn(`Non-finite end point on path for ${debugLabel}`, { pathLength, d: path.attr("d") })
+                return
+            }
             updateLocation(pos, endPosition.x, endPosition.y);
         })
     }
@@ -447,7 +534,7 @@ class CustomMovementRunner {
     }
     takeover(pos: Position): CustomMovementRunner {
         this.abort()
-        return new CustomMovementRunner(this.runner, this.path, pos);
+        return new CustomMovementRunner(this.runner, this.path, pos, `takeover role=${pos.role}`)
     }
 
 }

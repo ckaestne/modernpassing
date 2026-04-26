@@ -1,6 +1,6 @@
 import { Application, Router } from "@oak/oak"
 import { transpile } from "@deno/emit"
-import type { GroupPattern } from "@modernpassing/layout"
+import type { GroupPattern, RuntimeInitData } from "@modernpassing/layout"
 import { createGroupPattern } from "@modernpassing/parsing"
 import { applyManipulations, fillPatternGaps } from "@modernpassing/manipulation"
 import { renderGroupPattern } from "@modernpassing/rendering-svg"
@@ -21,7 +21,7 @@ type RenderResult = {
     manipulator: DebugPatternLayout | null
     filled: DebugPatternLayout | null
     rendered: string
-    js: string
+    initData: RuntimeInitData
 }
 
 function renderPattern({ content, patternType }: RenderRequest): RenderResult {
@@ -33,7 +33,7 @@ function renderPattern({ content, patternType }: RenderRequest): RenderResult {
         manipulator: null,
         filled: null,
         rendered: "",
-        js: "",
+        initData: {},
     }
     try {
         const gp: GroupPattern = createGroupPattern(content, hands)
@@ -53,9 +53,9 @@ function renderPattern({ content, patternType }: RenderRequest): RenderResult {
 
         result.valid = p.isValid()
         if (result.valid) {
-            const [svg, js] = renderGroupPattern(gp, {})
+            const [svg, initData] = renderGroupPattern(gp, {})
             result.rendered = svg.svg()
-            result.js = js
+            result.initData = initData
         }
         result.error = p.getValidationError()
     } catch (e) {
@@ -113,6 +113,6 @@ app.use(async (ctx, next) => {
     }
 })
 
-const port = Number(Deno.env.get("PORT") ?? 8000)
-console.log(`API server running on http://localhost:${port}`)
-await app.listen({ port })
+// const port = Number(Deno.env.get("PORT") ?? 8000)
+// console.log(`API server running on http://localhost:${port}`)
+// await app.listen({ port })

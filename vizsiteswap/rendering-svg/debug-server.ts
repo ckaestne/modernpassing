@@ -12,7 +12,7 @@ import * as path from "jsr:@std/path";
 const app = new Application();
 
 
-function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, js: string): string {
+function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, initDataJson: string): string {
     return `
             <!DOCTYPE html>
             <html>
@@ -131,7 +131,7 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                         ${rendered}
                     </div>
                     
-                    <script>window.addEventListener("load",function(){${js}\n})\n</script>
+                    <script>window.addEventListener("load",function(){initializeFromData(${initDataJson})\n})\n</script>
                     
                     <hr/>
                     
@@ -153,7 +153,7 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                     
                     <div class="section">
                         <pre>${errors}</pre>
-                        <pre>${js}</pre>
+                        <pre>${initDataJson}</pre>
                     </div>
                 </body>
             </html>
@@ -191,7 +191,7 @@ app.use(async (ctx, next) => {
             let svgManipulator = ""
             let svgFilled = ""
             let rendered = ""
-            let js = ""
+            let initDataJson = "{}"
             try {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
@@ -207,9 +207,9 @@ app.use(async (ctx, next) => {
                 }
                 isValid = p.isValid();
                 if (p.isValid()) {
-                    const t = renderGroupPattern(gp, {})
-                    rendered = t[0].svg()
-                    js = t[1]
+                    const [svg, initData] = renderGroupPattern(gp, {})
+                    rendered = svg.svg()
+                    initDataJson = JSON.stringify(initData)
                 }
                 error = p.prettyPrintThrows(false)
                 error = p.getValidationError()
@@ -217,7 +217,7 @@ app.use(async (ctx, next) => {
                 error = e instanceof Error ? e.message : String(e);
                 console.error("Error:", (e as Error).stack);
             }
-            ctx.response.body = page(pattern, svgPlain, svgManipulator, svgFilled, isValid, error, hands === 4, rendered, js);
+            ctx.response.body = page(pattern, svgPlain, svgManipulator, svgFilled, isValid, error, hands === 4, rendered, initDataJson);
         }
     }
     else next()

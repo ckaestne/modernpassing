@@ -185,7 +185,8 @@ test("create basic group sync examples", async (t) => {
 
     for (const p of patterns) {
         const pattern = createSyncGroupPattern(p)
-        const [svg, js] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true, labelThrows: "simple" })
+        const [svg, initData] = renderGroupPattern(pattern, { showLines: true, lineKind: "causal", showStraightCross: true, iterations: 1, showPasserRoles: true, labelThrows: "simple" })
+        const initDataJson = JSON.stringify(initData)
 
         // let staticFrames: Svg[] = []
         // if (pattern.layout && pattern.layout.frames) {
@@ -193,7 +194,7 @@ test("create basic group sync examples", async (t) => {
         // }
 
         // content += `<h2>${p}</h2><p>${svg.svg()}</p><p>${staticFrames.map(s => s.svg())}</p>`
-        content += `<h2>${p}</h2><p>${svg.svg()}</p><script>window.addEventListener("load",function(){${js}\n})\n</script><pre>${js}</pre>`
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><script>window.addEventListener("load",function(){initializeFromData(${initDataJson})\n})\n</script><pre>${initDataJson}</pre>`
     }
 
     content += "     <script src=\"../../dist/animations.js\"></script>  <script src=\"../../dist/svg.min.js\"></script></html>"
@@ -216,9 +217,10 @@ positions: Line(A,B)`], // roundabout
 
     for (const [conf, p] of patterns) {
         const pattern = createGroupPattern(p, 2)
-        const [svg, js] = renderGroupPattern(pattern, conf)
+        const [svg, initData] = renderGroupPattern(pattern, conf)
+        const initDataJson = JSON.stringify(initData)
 
-        content += `<h2>${p}</h2><p>${svg.svg()}</p><pre>${js}</pre>`
+        content += `<h2>${p}</h2><p>${svg.svg()}</p><script>window.addEventListener("load",function(){initializeFromData(${initDataJson})\n})\n</script><pre>${initDataJson}</pre>`
     }
 
     content += "</html>"

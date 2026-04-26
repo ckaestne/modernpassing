@@ -50,3 +50,4 @@ export {  supportedMovement, supportedShapes } from "./pattern-shapes.ts";
 export { loadPathsFromSvg } from "./pattern-paths-loader.ts";
 export * from "./animation-plan.ts";
 export { createAnimationPlan } from "./create-animation-plan.ts";
+export * from "./runtime-init-data.ts";

@@ -129,9 +129,9 @@ B: 3pC333pA33
 C: 3pA333pB33
 positions: Circle(A,B,C)`, 2)
     const config = {}
-    const [svg, js] = renderGroupPattern(gp, config)
+    const [svg, initData] = renderGroupPattern(gp, config)
     console.log(svg.svg());
-    console.log(js)
+    console.log(initData)
 
 })
 
@@ -145,8 +145,21 @@ N: CCz   SAz   IBe.   -- N
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`, 2)
     const config = {}
-    const [svg, js] = renderGroupPattern(gp, config)
+    const [svg, initData] = renderGroupPattern(gp, config)
     console.log(svg.svg());
-    console.log(js)
+    console.log(initData)
 
+})
+
+Deno.test("group pattern data payload", () => {
+    const gp = createGroupPattern(`A: 3pB33
+B: 3pC33
+C: 3pA33
+positions: Circle(A,B,C)`, 2)
+    const [svg, data] = renderGroupPattern(gp, { components: ["pattern", "layout"] })
+
+    if (!svg.svg().includes("<svg")) throw new Error("Expected SVG output")
+    if (!data.animations) throw new Error(`Expected one animation payload, got ${data.animations}`)
+    if (data.animations.positions.length === 0) throw new Error("Expected animation position entries")
+    if (!data.animations.svgCanvasId.startsWith("#")) throw new Error("Expected svgCanvasId selector")
 })

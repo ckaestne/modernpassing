@@ -1,4 +1,4 @@
-import type { BackgroundLayout, GroupPattern } from "@modernpassing/layout";
+import type { AnimationInitData, AnimationPositionInitData, BackgroundLayout, GroupPattern, TabInitData } from "@modernpassing/layout";
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout";
 import { Hand, type ManipulatorAction, type Role, type Pattern } from "@modernpassing/pattern";
 import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, type RendererConfig } from "@modernpassing/rendering-core";
@@ -8,10 +8,14 @@ import { assert } from "node:console";
 import { createSVGWindow } from 'svgdom';
 
 
+export type GroupPatternInitData = {
+    animations?: AnimationInitData
+    tabs: TabInitData[]
+}
 
-export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, string] {
 
-    let javascript = ""
+
+export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, GroupPatternInitData] {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
     const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
@@ -54,14 +58,14 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const height = onlyLayout ? layoutSize : Math.max(size.height + tabHeight + turntableHeight, layoutSize)
     const svg = createSVG(width, height).viewbox(0, 0, width, height)
 
-    const [panels, tabJs] = createTabs(svg, tabTitles)
+    const [panels, tabData] = createTabs(svg, tabTitles)
 
     for (let i = 0; i < tabIds.length; i++) {
         const panel = panels[i]
         if (tabIds[i] === "pattern") {
             panel.addClass("pattern-canvas")
             const rconfig: RendererConfig = tabIds.includes("aidan") ? { ...renderConfig, showRoleColorBackground: true, showLines: true, lineKind: "causal", lineWidth: 2, ...config } : renderConfig
-            javascript += renderInternal(panel, gp.pattern, gp.pattern.getInitialRoles(),
+            renderInternal(panel, gp.pattern, gp.pattern.getInitialRoles(),
                 getThrowsFromPattern(gp.pattern, renderConfig.iterations, renderConfig),
                 getRelabel(gp.pattern),
                 rconfig)
@@ -69,7 +73,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         if (tabIds[i] === "aidan") {
             panel.addClass("aidan-canvas")
             const roles = getInitialAidanRoles(gp.aidanNotation![0], gp.aidanNotation![1])
-            javascript += renderInternal(panel, gp.pattern, roles,
+            renderInternal(panel, gp.pattern, roles,
                 getThrowsFromManipulatorPattern(gp.aidanNotation![0], gp.aidanNotation![1], roles, renderConfig.iterations, renderConfig),
                 getRelabel(gp.aidanNotation![0]),
                 { ...renderConfig, showRoleColorBackground: false, ...config })
@@ -81,6 +85,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     }
 
 
+    let animationResult: AnimationInitData|undefined = undefined
     if (withLayout) {
         const layoutCanvas = svg.group().addClass("layout-canvas")
         if (gp.layout!.background)
@@ -88,7 +93,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         const beatIndicator = onlyLayout ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
         const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
-        javascript += renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
+        animationResult = renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
         if (!onlyLayout) layoutCanvas.transform({ translate: [size.width + layoutGap, tabHeight] })
     }
     if (withTurntable) {
@@ -97,7 +102,10 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
 
-    return [svg, javascript + tabJs]
+    return [svg, {
+        tabs: tabData,
+        animations: animationResult
+    }]
 
 }
 
@@ -154,7 +162,7 @@ function createVideoPanel(videoLink: string, panel: G, width: number, height: nu
             style: `width: 100%; height: 100%; background: #fdfdfd; display: flex; align-items: center; justify-content: center;`
         });
 
-        const iframe = div.element("iframe").attr({
+        div.element("iframe").attr({
             width: width,
             height: height,
             src: embedUrl,
@@ -212,7 +220,7 @@ function calculateRoleRanges(p: Pattern): [number, number, number, string][] {
     return roleRanges
 }
 
-function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], renderedThrows: RenderedThrow[], relabel: undefined | (Role | undefined)[], config: RendererConfig): string {
+function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], renderedThrows: RenderedThrow[], relabel: undefined | (Role | undefined)[], config: RendererConfig): void {
     if (!pattern.isValid())
         throw new Error(`Invalid pattern: ${pattern.getValidationError()}\n${pattern.prettyPrintThrows()}`);
     assert(pattern.nrRows=== initialRoles.length, `Number of initial roles (${initialRoles.length}) does not match number of rows in pattern (${pattern.nrRows})`);
@@ -424,7 +432,6 @@ function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], rende
     }
 
 
-    return "" //no javascript
 }
 
 
@@ -448,10 +455,10 @@ export function createSVG(width?: number, height?: number): Svg {
     const document = window.document;
     registerWindow(window, document);
 
-    const svg: any = SVG(document.documentElement);
+    const svg = SVG(document.documentElement) as Svg
     if (width && height)
         svg.size(width, height)
-    return svg;
+    return svg
 }
 
 
@@ -513,9 +520,6 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = {
 
 //     canvas.rect(width, height).fill('none').stroke("none")
 // }
-
-
-// deno-lint-ignore no-explicit-any
 // export function renderLayoutFrames(frames: FrameLayout[], frameWidth: number, frameHeight: number, _config: any = {}): Svg[] {
 //     return frames.map((frame) => {
 //         const svg = createSVG(frameWidth, frameHeight)
@@ -568,8 +572,7 @@ export function renderAnimation(
     patternLength: number,
     beatIndicator: Line | undefined = undefined, beatXOffsets: number[] | undefined = undefined,
     speed: number = 1
-): string {
-
+): AnimationInitData {
 
     const counter: Text | undefined = config.showAnimationCounter ? canvas.text('_').cx(10).cy(10).fill("black") : undefined
 
@@ -579,13 +582,16 @@ export function renderAnimation(
             if (config.roleColors && config.roleColors[roleIdx])
                 roleColors.push([layout.initialPositions[roleIdx].initialRole, config.roleColors[roleIdx]])
     }
-    let javascript = `const data = initialize('#${canvas.id()}', ${layout.mod}, ${speed}, ${JSON.stringify(roleColors)}, ${beatIndicator ? "'#" + beatIndicator.id() + "'" : undefined}, ${beatXOffsets ? JSON.stringify(beatXOffsets) : undefined}, ${counter ? "'#" + counter.id() + "'" : undefined});\n`
+    const svgCanvasId = `#${canvas.id()}`
+    const beatIndicatorId = beatIndicator ? `#${beatIndicator.id()}` : undefined
+    const beatLabelId = counter ? `#${counter.id()}` : undefined
     // console.log(layout)
     const s = Math.min(width, height) - config.positionCircle
-    let left = config.positionCircle / 2
-    let top = config.positionCircle / 2
+    const left = config.positionCircle / 2
+    const top = config.positionCircle / 2
     const strokeWidth = 3
     const scale = scaleup(left, top, s)
+    const positionData: AnimationPositionInitData[] = []
 
     // //shift the layout to the center
     // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
@@ -620,21 +626,31 @@ export function renderAnimation(
         // positions.set(pos.passerIdx, [pos.x, pos.y, g, l])
 
         // addPosition(data: Data, role: Role, x: number, y: number, svgCircleId: string, svgLabelId: string, segmentSequence: number[])
-        javascript += `addPosition(data, ${roleIdx}, '${pos.initialRole}', ${x}, ${y}, '#${g.id()}', '#${l.id()}');\n`
+        const svgGroupId = `#${g.id()}`
+        const svgLabelId = `#${l.id()}`
+        positionData.push({ roleIdx, initialRole: pos.initialRole, x, y, svgGroupId, svgLabelId })
     }
 
-    // TODO: scale all coordinates
-    // javascript += `setSegments(data, ${JSON.stringify(layout.movementSegments.map(scale.scaleSegment))});\n`
-    javascript += `setPasses(data, ${JSON.stringify(layout.passAnimations.map(scale.scalePass))});\n`
-    // javascript += `setSegmentMovements(data, ${JSON.stringify(layout.segmentMovementAnimations)});\n`
-    javascript += `setDirectMovements(data, ${JSON.stringify(layout.movementAnimations.map(scale.scaleDirectMovement))});\n`
-    javascript += `setRelabeling(data, ${JSON.stringify(layout.relabeling)});\n`
-    javascript += `startAnimation(data, ${patternLength});\n`
+    const scaledPasses = layout.passAnimations.map(scale.scalePass)
+    const scaledMovements = layout.movementAnimations.map(scale.scaleDirectMovement)
 
 
     canvas.rect(width, height).fill('none').stroke("none")
 
-    return `(function(){ ${javascript} })();`
+    return {
+        svgCanvasId,
+        mod: layout.mod,
+        speed,
+        roleColors,
+        beatIndicatorId,
+        beatIndicatorXOffsets: beatXOffsets,
+        beatLabelId,
+        patternLength,
+        positions: positionData,
+        passes: scaledPasses,
+        directMovements: scaledMovements,
+        relabeling: layout.relabeling
+    }
 }
 
 function getXOffset(size: PatternRenderSize, time: number): number {
@@ -649,23 +665,24 @@ const TAB_BORDER_WIDTH = 2
 const TURNTABLE_HEIGHT = 24
 
 /**
- * creates a tab for each tabTitle and returns a group element below for each (and Javascript to handle the switching)
+ * creates a tab for each tabTitle and returns a group element below for each with tab metadata
  * @param svg 
  * @param tabTitles 
  * @returns 
  */
-function createTabs(svg: Svg, tabTitles: string[]): [G[], string] {
+function createTabs(svg: Svg, tabTitles: string[]): [G[], TabInitData[]] {
     if (!tabTitles || tabTitles.length === 0)
-        return [[], ""]
+        return [[], []]
 
     // if there is only one tab, we don't need to create tabs, just a single panel
     if (tabTitles.length === 1) {
         const panel = svg.group()
-        return [[panel], ""]
+        return [[panel], []]
     }
 
     const panels: G[] = []
     const tabs: G[] = []
+    const tabData: TabInitData[] = []
     for (let i = 0; i < tabTitles.length; i++) {
 
         const panel = svg.group()
@@ -683,27 +700,11 @@ function createTabs(svg: Svg, tabTitles: string[]): [G[], string] {
 
         panels.push(panel)
         tabs.push(tab)
+        tabData.push({ tabId: `#${tab.id()}`, panelId: `#${panel.id()}`, active: i === 0 })
 
     }
 
-    const tabIds = tabs.map((tab) => `SVG('#${tab.id()}')`).join(", ")
-    const panelIds = panels.map((panel) => `SVG('#${panel.id()}')`).join(", ")
-
-
-    const js = `
-        const tabs = [${tabIds}];
-        const panels = [${panelIds}];
-        panels.forEach(p => p.front());
-        tabs.forEach((tab, i) => {
-            tab.on('click', () => {
-                tabs.forEach(t => t.removeClass('tab-active'));
-                tab.addClass('tab-active');
-                panels.forEach((p, j) => j === i ? p.show() : p.hide());
-            });
-        });`
-
-
-    return [panels, js]
+    return [panels, tabData]
 }
 
 
@@ -767,7 +768,7 @@ export function getRenderPatternSize(p: Pattern, config: RendererConfig): Patter
     }
 }
 
-function debugDrawPatternRenderSize(canvas: G, size: PatternRenderSize) {
+function _debugDrawPatternRenderSize(canvas: G, size: PatternRenderSize) {
     canvas.rect(size.width, size.height).stroke("black").fill("transparent")
     // margins
     canvas.rect(size.xMargin, size.height).stroke("red").fill("red")

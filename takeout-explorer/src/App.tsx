@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import type { DebugPatternLayout } from "../../vizsiteswap/rendering-svg/pattern-debug-layout.ts"
+import type { DebugPatternLayout } from "../api/pattern-debug-layout.ts"
 import { PatternCanvas } from "./PatternCanvas.tsx"
 import { NotationReference } from "./NotationReference.tsx"
 import {
@@ -8,6 +8,11 @@ import {
     type PresetPattern,
 } from "./patternPresets.ts"
 
+type RuntimeInitData = {
+    animations: unknown[]
+    tabs?: unknown[]
+}
+
 type RenderResult = {
     valid: boolean
     error: string
@@ -15,7 +20,7 @@ type RenderResult = {
     manipulator: DebugPatternLayout | null
     filled: DebugPatternLayout | null
     rendered: string
-    js: string
+    initData: RuntimeInitData
 }
 
 const emptyResult: RenderResult = {
@@ -25,7 +30,7 @@ const emptyResult: RenderResult = {
     manipulator: null,
     filled: null,
     rendered: "",
-    js: "",
+    initData: { animations: [] },
 }
 
 const DEBOUNCE_MS = 400
@@ -135,17 +140,22 @@ function PatternInput({
     )
 }
 
-function RenderedAnimation({ svg, js }: { svg: string; js: string }) {
+function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeInitData }) {
     const ref = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        if (!ref.current || !js) return
+        if (!ref.current || !initData.animations || initData.animations.length === 0) return
         try {
-            new Function(js)()
+            const init = (globalThis as { initializeFromData?: (data: RuntimeInitData) => unknown }).initializeFromData
+            if (!init) {
+                console.error("initializeFromData is not available")
+                return
+            }
+            init(initData)
         } catch (err) {
-            console.error("Animation script error:", err)
+            console.error("Animation init error:", err)
         }
-    }, [svg, js])
+    }, [svg, initData])
 
     return (
         <Card title="Animation">
@@ -223,7 +233,7 @@ export default function App() {
             {loading && <div className="spinner" />}
 
             {result.rendered && (
-                <RenderedAnimation key={result.rendered + result.js} svg={result.rendered} js={result.js} />
+                <RenderedAnimation key={result.rendered + JSON.stringify(result.initData)} svg={result.rendered} initData={result.initData} />
             )}
 
             <hr />
@@ -232,10 +242,10 @@ export default function App() {
             {result.manipulator && <DebugCard title="Manipulator applied" layout={result.manipulator} />}
             {result.filled && <DebugCard title="Filled" layout={result.filled} />}
 
-            {(result.error || result.js) && (
+            {(result.error || result.initData.animations.length > 0) && (
                 <Card>
                     {result.error && <pre className="has-background-light p-3">{result.error}</pre>}
-                    {result.js && <pre className="has-background-light p-3">{result.js}</pre>}
+                    {result.initData.animations.length > 0 && <pre className="has-background-light p-3">{JSON.stringify(result.initData, null, 2)}</pre>}
                 </Card>
             )}
         </div>
