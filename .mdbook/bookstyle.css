@@ -1,0 +1,50 @@
+img+em {
+    display: block;
+}
+
+crossreference {
+    background-color: var(--quote-bg);
+    border: 3px solid var(--quote-border);
+    display: block;
+    padding: 8px;
+}
+
+.video {
+    display: none;
+}
+
+todo-sync-group {
+    display: block;
+    white-space: pre;
+    background-color: red;
+}
+
+TODO-manipulator-sync {
+    display: block;
+    white-space: pre;
+    background-color: red;
+}
+
+todo-sync-group:before {
+    content: "TODO: ";
+}
+
+todo-siteswap-group {
+    display: block;
+    white-space: pre;
+    background-color: red;
+}
+
+todo-siteswap-group:before {
+    content: "TODO: ";
+}
+
+.global-toc #modern-passing-1 {
+    display: none;
+}
+.global-toc p {
+    display: none;
+}
+.global-toc h1 {
+    font-size: 1.6rem;
+}

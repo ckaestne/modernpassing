@@ -21,6 +21,7 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
                     <script src="/animations.js"></script>
+                    <link rel="stylesheet" href="/svgstyle.css">
                     <style>
                         body {
                             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -167,6 +168,19 @@ app.use(async (ctx, next) => {
             const text = await Deno.readTextFile("dist/animations.js");
             ctx.response.body = text;
             ctx.response.type = "application/javascript";
+        } catch (e) {
+            ctx.response.status = 404;
+            ctx.response.body = "File not found";
+        }
+        return;
+    }
+
+    if (ctx.request.url.pathname === "/svgstyle.css") {
+        try {
+            const cssUrl = new URL("../../.mdbook/svgstyle.css", import.meta.url);
+            const text = await Deno.readTextFile(cssUrl);
+            ctx.response.body = text;
+            ctx.response.type = "text/css";
         } catch (e) {
             ctx.response.status = 404;
             ctx.response.body = "File not found";
