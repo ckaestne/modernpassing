@@ -140,8 +140,27 @@ function PatternInput({
     )
 }
 
+function buildExportSnippet(svg: string, initData: RuntimeInitData): string {
+    const initJson = JSON.stringify(initData)
+    return `<!-- Dependencies (load once per page) -->
+<link rel="stylesheet" href="svgstyle.css">
+<script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.2.4/dist/svg.min.js"></script>
+<script src="animations.js"></script>
+
+<!-- Pattern animation -->
+${svg}
+<script>
+window.addEventListener("load", function () {
+    initializeFromData(${initJson});
+});
+</script>
+`
+}
+
 function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeInitData }) {
     const ref = useRef<HTMLDivElement | null>(null)
+    const [exportOpen, setExportOpen] = useState(false)
+    const [copied, setCopied] = useState(false)
 
     useEffect(() => {
         if (!ref.current || !initData.animations) return
@@ -157,14 +176,63 @@ function RenderedAnimation({ svg, initData }: { svg: string; initData: RuntimeIn
         }
     }, [svg, initData])
 
+    const exportSnippet = buildExportSnippet(svg, initData)
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(exportSnippet)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        } catch (err) {
+            console.error("Copy failed:", err)
+        }
+    }
+
     return (
-        <Card title="Animation">
+        <div className="box">
+            <div className="is-flex is-justify-content-space-between is-align-items-center mb-3">
+                <h2 className="subtitle mb-0">Animation</h2>
+                <button
+                    type="button"
+                    className="button is-small"
+                    onClick={() => setExportOpen((v) => !v)}
+                    aria-expanded={exportOpen}
+                >
+                    {exportOpen ? "Hide export" : "Export"}
+                </button>
+            </div>
             <div
                 ref={ref}
                 className="svg-container"
                 dangerouslySetInnerHTML={{ __html: svg }}
             />
-        </Card>
+            {exportOpen && (
+                <div className="mt-4">
+                    <p className="help mb-2">
+                        Paste this snippet into a web page to embed the animation.
+                        The page also needs <code>svgstyle.css</code> (from{" "}
+                        <code>.mdbook/svgstyle.css</code>) and{" "}
+                        <code>animations.js</code> (the runtime served at{" "}
+                        <code>/animations.js</code>); the snippet references both.
+                    </p>
+                    <div className="is-flex is-justify-content-flex-end mb-2">
+                        <button
+                            type="button"
+                            className="button is-small is-link"
+                            onClick={handleCopy}
+                        >
+                            {copied ? "Copied!" : "Copy to clipboard"}
+                        </button>
+                    </div>
+                    <pre
+                        className="has-background-light p-3"
+                        style={{ maxHeight: "400px", overflow: "auto" }}
+                    >
+                        <code>{exportSnippet}</code>
+                    </pre>
+                </div>
+            )}
+        </div>
     )
 }
 
