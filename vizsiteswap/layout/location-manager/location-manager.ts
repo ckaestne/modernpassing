@@ -379,7 +379,8 @@ function convertRelativeMovements(mod: number, relativeMovements: RelativeMoveme
                             } :
                             {
                                 type: "infront",
-                                toPasserIdx: roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.toRole)
+                                toPasserIdx: roleTracker._getPasserIdx(roleIdentificationTime, relativeMovementSpec.positionSpec.toRole),
+                                direction: relativeMovementSpec.positionSpec.direction
                             };
 
                     unresolvedRelativeMovementSpecs.push(createUnresolvedMovementSegment(

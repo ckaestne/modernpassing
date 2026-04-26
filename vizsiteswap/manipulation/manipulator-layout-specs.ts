@@ -176,9 +176,13 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 let positionSpec: RelativeMovementSpec["positionSpec"]
                 if (marker.fromRole === marker.toRoleAtThrow) {
                     // intercepting a self from in front of the passer
+                    let direction = 0
+                    if (marker.modifiers.includes("o")) direction = 90
+                    if (marker.modifiers.includes("x")) direction = -90
                     positionSpec = {
                         type: "infront",
-                        toRole: marker.toRoleAtThrow
+                        toRole: marker.toRoleAtThrow,
+                        direction
                     }
                 } else {
                     // intercepting a pass, processing several possible modifiers
@@ -260,9 +264,13 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 if (marker.fromRole === marker.originalToRoleAtThrow) {
                     // intercepting a self from in front of the passer
                     assert(t.throwLength<=4 || marker.originalToRoleAtThrow === pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow), `Expected to be intercepting from in front of the original target role ${marker.originalToRoleAtThrow} but at leaving time ${leavingTime} the role is ${pattern.getRole(leavingTime, pattern.getToPasserIdxAtThrow(t))}`)
-                    positionSpec = {
+                    let direction = 0
+                    if (marker.modifiers.includes("o")) direction = 90
+                    if (marker.modifiers.includes("x")) direction = -90
+                                        positionSpec = {
                         type: "infront",
-                        toRole: pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow)
+                        toRole: pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow),
+                        direction
                     }
                 } else {
                     // intercepting a pass, processing several possible modifiers

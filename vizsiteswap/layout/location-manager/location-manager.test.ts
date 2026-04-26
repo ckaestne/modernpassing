@@ -6,7 +6,7 @@ import type { Role } from "@modernpassing/pattern";
 import { assertEqualLocation, assertLocationBetween, assertLocationInFrontOf } from "../location-test-helpers.ts";
 import { createBaseLocationManager, createFullLocationManager, type LocationManager } from "./location-manager.ts";
 import { createPasserIdx, type PasserIdx } from "./helpers.ts";
-import { createResolvedMovementSegmentFromSegmentSpec, ignoreOngoingOrNextDueToFirstIteration, MovementSegment, overlap, type MovementTracker } from "./relative-movement.ts";
+import { computeLocationInBetween, computeLocationInFrontOf, createResolvedMovementSegmentFromSegmentSpec, ignoreOngoingOrNextDueToFirstIteration, MovementSegment, overlap, type MovementTracker } from "./relative-movement.ts";
 import type { Svg } from "@svgdotjs/svg.js";
 import { createSVG } from "@modernpassing/svg-utils";
 import { createAnimationPlan } from "../create-animation-plan.ts";
@@ -751,7 +751,7 @@ function createDependentMoveAnimation(move1Time: number, move1SkipFirst: boolean
                 role: 'N',
                 roleAtMovementEnd: "N",
                 duration: 1,
-                positionSpec: { type: "infront", toRole: "M" },
+                positionSpec: { type: "infront", toRole: "M", direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: depMov1SkipFirst
             },
@@ -761,7 +761,7 @@ function createDependentMoveAnimation(move1Time: number, move1SkipFirst: boolean
                 role: 'N',
                 roleAtMovementEnd: "N",
                 duration: 1,
-                positionSpec: { type: "infront", toRole: "M" },
+                positionSpec: { type: "infront", toRole: "M", direction: 0 },
                 targetRoleTime: "onBeat",
                 skipInFirstIteration: depMov2SkipFirst
             },
@@ -1172,7 +1172,7 @@ Deno.test("locationMgr for 456-about", () => {
 
   const pattern = `A: 5 4 6 5 4 -- B
             B: ,6 5 4 6 -- A
-            M: .IA -- M`
+            M: .IAo -- M`
 
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const locationMgr = createFullLocationManager(gp.layout!.animation, true)
@@ -1184,8 +1184,93 @@ Deno.test("locationMgr for 456-about", () => {
 
     const moveToIntercept = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === 0)!
     console.log(moveToIntercept)
-    assert(moveToIntercept.spec!.positionSpec.type === "infront" && moveToIntercept.spec!.positionSpec.toPasserIdx === 0, "wrong spec: " + JSON.stringify(moveToIntercept.spec))
+    assert(moveToIntercept.spec!.positionSpec.type === "infront" &&
+        moveToIntercept.spec!.positionSpec.toPasserIdx === 0 &&
+        moveToIntercept.spec!.positionSpec.direction === 90, "wrong spec: " + JSON.stringify(moveToIntercept.spec))
 
 
 
+})
+
+
+function createInFrontMoveAnimation(direction: number): LocationManager {
+    const spec: AnimationSpec = {
+        initialPositions: [{ x: 0, y: 0.5, role: 'A' }, { x: 1, y: 0.5, role: 'B' }],
+        passAnimations: [],
+        baseMovementSegments: [],
+        baseMovementSequences: [],
+        baseMovementTriggers: [],
+        basePatternRelabeling: { initial: ['A', 'B'], relabelActions: [] },
+        relativeMovements: [
+            {
+                onBeat: 0,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: 'M',
+                duration: 2,
+                positionSpec: { type: "infront", toRole: 'A', direction },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: false,
+            },
+            // second movement back to "in front of B" so the spec has the
+            // required >=2 movements per passer
+            {
+                onBeat: 3,
+                mod: 6,
+                role: 'M',
+                roleAtMovementEnd: 'M',
+                duration: 2,
+                positionSpec: { type: "infront", toRole: 'B', direction: 0 },
+                targetRoleTime: "onBeat",
+                skipInFirstIteration: false,
+            },
+        ],
+        relabeling: { initial: ['A', 'B', 'M'], relabelActions: [] },
+    }
+    return createFullLocationManager(spec)
+}
+
+
+Deno.test("InFront movement: direction=0 places M between A and the center", () => {
+    const locationMgr = createInFrontMoveAnimation(0)
+    // A at (0, 0.5); default vector toward center (0.5, 0.5) scaled 0.8 = (0.4, 0)
+    // direction=0: position = (0.4, 0.5)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0.4, 0.5])
+})
+
+Deno.test("InFront movement: direction=90 rotates M clockwise around A", () => {
+    const locationMgr = createInFrontMoveAnimation(90)
+    // default vector (0.4, 0) rotated clockwise on screen by 90° → (0, 0.4)
+    // position = (0, 0.5) + (0, 0.4) = (0, 0.9)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.9])
+})
+
+Deno.test("InFront movement: direction=-90 rotates M counter-clockwise around A", () => {
+    const locationMgr = createInFrontMoveAnimation(-90)
+    // default vector (0.4, 0) rotated counter-clockwise on screen by 90° → (0, -0.4)
+    // position = (0, 0.5) + (0, -0.4) = (0, 0.1)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.1])
+})
+
+
+test("computeLocationInFrontOf with direction=0 matches between(loc, loc) with side=0.6", () => {
+    const samples: [number, number][] = [
+        [0.2, 0.2],
+        [0.8, 0.8],
+        [0.5, 0],
+        [0, 0.5],
+        [0.25, 0.75],
+        [0.9, 0.1],
+    ]
+    for (const loc of samples) {
+        const fromInFront = computeLocationInFrontOf(loc, 0)
+        const fromBetween = computeLocationInBetween(loc, loc, {
+            type: "between",
+            between: [createPasserIdx(0), createPasserIdx(0)],
+            side: 0.6,
+            offset: 0,
+            direction: 0,
+        })
+        assertEqualLocation(fromInFront, fromBetween, `loc=${JSON.stringify(loc)}`)
+    }
 })

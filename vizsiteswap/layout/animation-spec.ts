@@ -162,6 +162,7 @@ export type BetweenPositionSpec = {
 export type InFrontOfPositionSpec = {
     type: "infront",
     toRole: Role, // position in front of this role (possibly in the future), where front is between the role and the center of the pattern (can be in front of a manipulator)
+    direction: number // in degree; 0 is facing the role, 90 and -90 is standing next to them
 }
 
 

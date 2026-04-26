@@ -412,6 +412,7 @@ export type UnresolvedBetweenPositionSpec = {
 export type UnresolvedInFrontOfPositionSpec = {
     type: "infront",
     toPasserIdx: PasserIdx,
+    direction: number // in degree; 0 is facing the role, 90 and -90 is standing next to them
 }
 
 
@@ -580,7 +581,7 @@ export class MovementTracker {
 
         if (mov.spec!.positionSpec.type === "infront") {
             const loc = this._resolveLocation(endTime + timeOffset, mov.spec!.positionSpec.toPasserIdx)
-            if (loc) return computeLocationInFrontOf(loc)
+            if (loc) return computeLocationInFrontOf(loc, mov.spec!.positionSpec.direction)
         }
 
         return undefined
@@ -823,17 +824,23 @@ function createDirectMovementSpec(startLocation: [number, number], endLocation: 
 }
 
 
-function computeLocationInFrontOf(loc0: [number, number]): [number, number] {
-    return computeLocationInBetween(loc0, loc0, {
-        type: "between",
-        between: [createPasserIdx(0), createPasserIdx(0)],
-        side: 0.6,
-        offset: 0,
-        direction: 0
-    })
+export function computeLocationInFrontOf(loc0: [number, number], direction: number): [number, number] {
+    const [px, py] = loc0
+    // default vector (direction=0) points from loc0 toward the pattern center (0.5, 0.5),
+    // matching the prior side=0.6 between-with-mirror computation:
+    // position = loc0 + 0.4 * (mirror - loc0) = loc0 + 0.8 * (center - loc0)
+    const dx = 0.8 * (0.5 - px)
+    const dy = 0.8 * (0.5 - py)
+    // rotate that vector by `direction` degrees (positive = clockwise on screen, since y points down)
+    const rad = direction * Math.PI / 180
+    const cosA = Math.cos(rad)
+    const sinA = Math.sin(rad)
+    const rx = dx * cosA - dy * sinA
+    const ry = dx * sinA + dy * cosA
+    return [px + rx, py + ry]
 }
 
-function computeLocationInBetween(loc0: [number, number], loc1: [number, number], betweenSpec: UnresolvedBetweenPositionSpec): [number, number] {
+export function computeLocationInBetween(loc0: [number, number], loc1: [number, number], betweenSpec: UnresolvedBetweenPositionSpec): [number, number] {
 
     const [fromX, fromY] = loc0;
     let [toX, toY] = loc1;
