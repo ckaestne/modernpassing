@@ -259,9 +259,10 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 let positionSpec: RelativeMovementSpec["positionSpec"]
                 if (marker.fromRole === marker.originalToRoleAtThrow) {
                     // intercepting a self from in front of the passer
+                    assert(t.throwLength<=4 || marker.originalToRoleAtThrow === pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow), `Expected to be intercepting from in front of the original target role ${marker.originalToRoleAtThrow} but at leaving time ${leavingTime} the role is ${pattern.getRole(leavingTime, pattern.getToPasserIdxAtThrow(t))}`)
                     positionSpec = {
                         type: "infront",
-                        toRole: marker.originalToRoleAtThrow
+                        toRole: pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow)
                     }
                 } else {
                     // intercepting a pass, processing several possible modifiers

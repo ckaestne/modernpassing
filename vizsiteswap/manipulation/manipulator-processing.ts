@@ -272,7 +272,7 @@ export function applyInterceptCarryByDelay(pattern: Pattern, intercept: Intercep
                 // note: for intercepted throws of lengths 2 or shorter, getting the role here does not do the intended thing due to relabeling (it's technically correct, but not helpful in identifying the base pattern position)
                 // const originalToRole = pattern.getToPasserRole(interceptedThrow)
                 // assert(originalToRole === intercept.toPasserRole, `the original target role ${originalToRole} of the intercepted throw does not match the expected target role ${intercept.toPasserRole}`)
-                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalThrowLength: throwLength, modifiers: intercept.modifiers }
+                const newMarker: InterceptMarker = { kind: 'I', fromRole, originalFromRole, originalToRoleAtThrow: intercept.toPasserRole, originalToPasserIdxAtThrow: pattern.getToPasserIdxAtThrow(interceptedThrow), originalThrowLength: throwLength, modifiers: intercept.modifiers }
                 markers = [...markers, newMarker]
             }
             if (isCarry) {

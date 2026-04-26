@@ -379,6 +379,7 @@ export interface InterceptMarker extends ThrowMarker {
     fromRole: Role,
     originalFromRole: Role, // usually same as fromRole unless the intercepted throw is substituted or throw length is <= nrHands -- needed to track the original origin of the throw for position computations
     originalToRoleAtThrow: Role, // actually to manipulator
+    originalToPasserIdxAtThrow: number,
     originalThrowLength: number,
     modifiers: string
 }
