@@ -275,14 +275,14 @@ function ArrowMarker({ id, color }: { id: string; color: string }) {
     return (
         <marker
             id={id}
-            markerWidth={10}
-            markerHeight={10}
-            refX={3.75}
-            refY={2.5}
+            markerWidth={14}
+            markerHeight={14}
+            refX={10}
+            refY={5}
             orient="auto-start-reverse"
             markerUnits="userSpaceOnUse"
         >
-            <polygon points="0,0 3.75,2.5 0,5" fill={color} />
+            <polygon points="0,0 10,5 0,10" fill={color} />
         </marker>
     )
 }
