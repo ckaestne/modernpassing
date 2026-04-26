@@ -69,7 +69,6 @@ export type ThrowSpec = {
     causeTime: number
     causeLength: number
     crossing: CrossingKind
-    markers: string[]
     markerTooltips: MarkerTooltipSpec[]
     annotation: string
 }
@@ -91,7 +90,6 @@ export type ErrorSpec = {
 export type DebugPatternLayout = {
     width: number
     height: number
-    dist: number
     texts: TextSpec[]
     dots: DotSpec[]
     throws: ThrowSpec[]
@@ -99,33 +97,26 @@ export type DebugPatternLayout = {
     errors: ErrorSpec[]
 }
 
-export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout {
-    const dist = 100
-    const width = (pattern.getLength() + pattern.getPrefixLength() + 4) * dist
-    const height = (pattern.nrRows + 2) * dist
+const DIST = 100
 
-    const getX = (beat: number) => (beat + pattern.getPrefixLength() + 2) * dist
-    const getY = (rowIdx: number, hand: Hand) =>
-        (rowIdx + 2) * dist + (hand === Hand.Left ? 7 : -7)
+const CROSSING_SYMBOL: Record<CrossingKind, string> = {
+    "self": "",
+    "straight-pass": "‖",
+    "cross-pass": "X",
+}
 
-    const texts: TextSpec[] = []
-    const dots: DotSpec[] = []
-    const throws: ThrowSpec[] = []
-    const arrows: ArrowSpec[] = []
-    const errors: ErrorSpec[] = []
-    const seenDots = new Set<string>()
+const handLabel = (hand: Hand): HandLabel =>
+    hand === Hand.Left ? "left" : "right"
 
-    const getRoleAtBeat = (beat: number, rowIdx: number) =>
-        pattern.getRole(Math.max(0, beat), rowIdx)
+const handColor = (hand: Hand): string =>
+    hand === Hand.Left ? "green" : "blue"
 
-    const toHandLabel = (hand: Hand): HandLabel =>
-        hand === Hand.Left ? "left" : "right"
+const formatModifiers = (modifiers: string | undefined) =>
+    modifiers ? `; modifiers: ${modifiers}` : ""
 
-    const formatModifiers = (modifiers: string | undefined) =>
-        modifiers ? `; modifiers: ${modifiers}` : ""
-
-    const markerTooltip = (marker: ThrowMarker): MarkerTooltipSpec => {
-        if (marker.kind === "I") {
+function markerTooltip(marker: ThrowMarker): MarkerTooltipSpec {
+    switch (marker.kind) {
+        case "I": {
             const m = marker as InterceptMarker
             return {
                 kind: m.kind,
@@ -137,8 +128,7 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
                     formatModifiers(m.modifiers),
             }
         }
-
-        if (marker.kind === "S") {
+        case "S": {
             const m = marker as SubstitutionMarker
             const throwSide = m.throw === "P" ? "pelf side" : "substituted side"
             return {
@@ -150,8 +140,7 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
                     formatModifiers(m.modifiers),
             }
         }
-
-        if (marker.kind === "C") {
+        case "C": {
             const m = marker as CarryMarker
             return {
                 kind: m.kind,
@@ -162,137 +151,127 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
                     formatModifiers(m.modifiers),
             }
         }
-
-        if (marker.kind === "B") {
-            return {
-                kind: marker.kind,
-                category: "other",
-                label: "Base",
-                summary: "base throw marker",
-            }
-        }
-
-        if (marker.kind === "M") {
-            return {
-                kind: marker.kind,
-                category: "other",
-                label: "Manipulator Base",
-                summary: "manipulator-generated base marker",
-            }
-        }
-
-        if (marker.kind === "F") {
-            return {
-                kind: marker.kind,
-                category: "other",
-                label: "Filled",
-                summary: "automatically filled throw",
-            }
-        }
-
-        return {
-            kind: marker.kind,
-            category: "other",
-            label: `Marker ${marker.kind}`,
-            summary: "unrecognized marker",
-        }
+        case "B":
+            return { kind: "B", category: "other", label: "Base", summary: "base throw marker" }
+        case "M":
+            return { kind: "M", category: "other", label: "Manipulator Base", summary: "manipulator-generated base marker" }
+        case "F":
+            return { kind: "F", category: "other", label: "Filled", summary: "automatically filled throw" }
+        default:
+            return { kind: marker.kind, category: "other", label: `Marker ${marker.kind}`, summary: "unrecognized marker" }
     }
+}
 
-    const getThrowDetails = (t: Throw) => {
+function throwId(t: Throw): string {
+    return `throw-${t.fromPasserIdx}-${t.throwBeat}-${t.toPasserIdxAtCausal}-${t.throwLength}`
+}
+
+function arrowPath(x1: number, y1: number, x2: number, y2: number): string {
+    const xDiff = x2 - x1
+    if (xDiff === 0) {
+        const flip = 20
+        return `M ${x1} ${y1} C ${x1 - flip} ${y1 - flip}, ${x2 + flip} ${y2 - flip}, ${x2} ${y2}`
+    }
+    const bend = xDiff > 0 ? 0 : (DIST / 5.5) * (xDiff / DIST) * 0.9
+    return `M ${x1} ${y1} C ${x1 + bend} ${y1 + bend}, ${x2 - bend} ${y2 + bend}, ${x2} ${y2}`
+}
+
+export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout {
+    const width = (pattern.getLength() + pattern.getPrefixLength() + 4) * DIST
+    const height = (pattern.nrRows + 2) * DIST
+
+    const getX = (beat: number) => (beat + pattern.getPrefixLength() + 2) * DIST
+    const getY = (rowIdx: number, hand: Hand) =>
+        (rowIdx + 2) * DIST + (hand === Hand.Left ? 7 : -7)
+
+    const getRoleAtBeat = (beat: number, rowIdx: number) =>
+        pattern.getRole(Math.max(0, beat), rowIdx)
+
+    const texts: TextSpec[] = []
+    const dots: DotSpec[] = []
+    const throws: ThrowSpec[] = []
+    const arrows: ArrowSpec[] = []
+    const errors: ErrorSpec[] = []
+    const seenDots = new Set<string>()
+
+    const buildThrowSpec = (t: Throw, beat: number, rowIdx: number, isPrefix: boolean): ThrowSpec => {
+        const hand = pattern.getThrowHand(t, 0)
         const toRoleAtThrow = pattern.getToPasserRole(t)
-        const markers = t.markers
-            ? t.markers
-            : []
-        const markerKinds = markers.map((m) => m.kind)
-        const markerTooltips = markers.map((m) => markerTooltip(m))
-        const annotation = markerKinds.join("")
-        const isSelfThrow = pattern.isSelfThrow(t)
-        const isStraightPass = !isSelfThrow && pattern.isStraightPass(t, 0)
-        const crossing: CrossingKind = isSelfThrow
-            ? "self"
-            : isStraightPass
-            ? "straight-pass"
-            : "cross-pass"
-
         const toPasserIdxAtThrow = pattern.getToPasserIdxAtThrow(t)
         const toPasserIdxOnCausal = pattern.getToPasserIdxOnCausal(t)
-        const targetHandFirstIteration = pattern.getTargetHandFirstIteration(t)
-        const targetHandFirstIterationLabel = toHandLabel(
-            targetHandFirstIteration,
-        )
+        const targetHand = pattern.getTargetHandFirstIteration(t)
         const causeBeat = pattern.getThrowCauseBeat(t)
         const causeTime = pattern.getThrowCauseTime(t)
         const causeLength = pattern.getThrowCauseLength(t)
         const toRoleOnCausal = pattern.getRole(causeBeat, toPasserIdxOnCausal)
 
+        const isSelfThrow = pattern.isSelfThrow(t)
+        const crossing: CrossingKind = isSelfThrow
+            ? "self"
+            : pattern.isStraightPass(t, 0) ? "straight-pass" : "cross-pass"
+
+        const markerTooltips = (t.markers ?? []).map(markerTooltip)
+        const annotation = markerTooltips.map((m) => m.kind).join("")
+
+        const targetFirstIteration =
+            `${toPasserIdxOnCausal}${targetHand === Hand.Left ? "L" : "R"}${causeBeat}`
+        const label = `${t.throwLength}${toRoleAtThrow}${CROSSING_SYMBOL[crossing]}${targetFirstIteration}${annotation}`
+
+        const offset = isPrefix ? 0 : 5
         return {
-            toRoleAtThrow,
-            markerKinds,
-            annotation,
-            crossing,
+            id: throwId(t),
+            x: getX(beat) + offset,
+            y: getY(rowIdx, hand) + offset,
+            label,
+            fill: handColor(hand),
+            beat,
+            rowIdx,
+            hand: handLabel(hand),
+            fromPasserIdx: t.fromPasserIdx,
+            fromRole: getRoleAtBeat(beat, rowIdx),
             toPasserIdxAtThrow,
+            toRoleAtThrow,
             toPasserIdxOnCausal,
             toRoleOnCausal,
-            targetHandFirstIteration,
-            targetHandFirstIterationLabel,
+            targetHandFirstIteration: handLabel(targetHand),
+            throwLength: t.throwLength,
             causeBeat,
             causeTime,
             causeLength,
+            crossing,
             markerTooltips,
+            annotation,
         }
     }
 
     const pushDot = (rowIdx: number, beat: number, hand: Hand) => {
-        const handLabel = toHandLabel(hand)
-        const dotId = `${rowIdx}-${beat}-${handLabel}`
+        const dotId = `${rowIdx}-${beat}-${handLabel(hand)}`
         if (seenDots.has(dotId)) return
         seenDots.add(dotId)
         dots.push({
             cx: getX(beat),
             cy: getY(rowIdx, hand),
-            fill: hand === Hand.Left ? "green" : "blue",
+            fill: handColor(hand),
             beat,
             rowIdx,
             role: getRoleAtBeat(beat, rowIdx),
-            hand: handLabel,
+            hand: handLabel(hand),
         })
-    }
-
-    const printThrow = (t: Throw): string => {
-        const details = getThrowDetails(t)
-        const printType = details.annotation
-        const isCrossing =
-            details.crossing === "self"
-                ? ""
-                : details.crossing === "straight-pass"
-                ? "‖"
-                : "X"
-        const targetFirstIteration =
-            details.toPasserIdxOnCausal +
-            (details.targetHandFirstIteration === Hand.Left ? "L" : "R") +
-            details.causeBeat
-        return `${t.throwLength}${details.toRoleAtThrow}${isCrossing}${targetFirstIteration}${printType}`
     }
 
     // Header row: "Beat" plus beat numbers + default hand
     texts.push({
-        x: dist,
-        y: dist,
-        text:
-            "Beat" +
-            (pattern.globalHandOrderOffset !== 0
-                ? " ::" + pattern.globalHandOrderOffset
-                : ""),
+        x: DIST,
+        y: DIST,
+        text: "Beat" +
+            (pattern.globalHandOrderOffset !== 0 ? " ::" + pattern.globalHandOrderOffset : ""),
         kind: "beat-header",
     })
     for (let beat = -pattern.getPrefixLength(); beat < pattern.getLength(); beat++) {
         texts.push({
             x: getX(beat),
-            y: dist,
-            text:
-                beat.toString() +
-                " " +
-                (pattern.getGlobalHand(0, beat) ? "L" : "R"),
+            y: DIST,
+            text: `${beat} ${pattern.getGlobalHand(0, beat) ? "L" : "R"}`,
             kind: "beat-header",
         })
     }
@@ -304,158 +283,61 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
             .sort((a, b) => a.throwBeat - b.throwBeat)
 
         texts.push({
-            x: dist,
+            x: DIST,
             y: getY(rowIdx, Hand.Right),
             text: `${rowIdx} (${pattern.getRole(0, rowIdx)})`,
             kind: "row-start",
         })
 
-        // prefix throws
-        for (let beat = -pattern.getPrefixLength(); beat < 0; beat++) {
-            const ts = myThrows.filter((t) => t.throwBeat === beat)
-            for (const t of ts) {
-                const hand = pattern.getThrowHand(t, 0)
-                const fill = hand === Hand.Left ? "green" : "blue"
-                const details = getThrowDetails(t)
-                throws.push({
-                    id: throwId(t),
-                    x: getX(beat),
-                    y: getY(rowIdx, hand),
-                    label: printThrow(t),
-                    fill,
-                    beat,
-                    rowIdx,
-                    hand: toHandLabel(hand),
-                    fromPasserIdx: t.fromPasserIdx,
-                    fromRole: getRoleAtBeat(beat, rowIdx),
-                    toPasserIdxAtThrow: details.toPasserIdxAtThrow,
-                    toRoleAtThrow: details.toRoleAtThrow,
-                    toPasserIdxOnCausal: details.toPasserIdxOnCausal,
-                    toRoleOnCausal: details.toRoleOnCausal,
-                    targetHandFirstIteration:
-                        details.targetHandFirstIterationLabel,
-                    throwLength: t.throwLength,
-                    causeBeat: details.causeBeat,
-                    causeTime: details.causeTime,
-                    causeLength: details.causeLength,
-                    crossing: details.crossing,
-                    markers: details.markerKinds,
-                    markerTooltips: details.markerTooltips,
-                    annotation: details.annotation,
-                })
+        for (const t of myThrows) {
+            if (t.throwBeat < -pattern.getPrefixLength() || t.throwBeat >= pattern.getLength()) continue
+            const isPrefix = t.throwBeat < 0
+            if (!isPrefix) {
+                pushDot(rowIdx, t.throwBeat, Hand.Right)
+                pushDot(rowIdx, t.throwBeat, Hand.Left)
             }
-        }
-
-        // body throws — also draw the small blue/green dots at both hand positions
-        for (let beat = 0; beat < pattern.getLength(); beat++) {
-            const ts = myThrows.filter((t) => t.throwBeat === beat)
-            for (const t of ts) {
-                const hand = pattern.getThrowHand(t, 0)
-                const details = getThrowDetails(t)
-                pushDot(rowIdx, beat, Hand.Right)
-                pushDot(rowIdx, beat, Hand.Left)
-                throws.push({
-                    id: throwId(t),
-                    x: getX(beat) + 5,
-                    y: getY(rowIdx, hand) + 5,
-                    label: printThrow(t),
-                    fill: hand ? "green" : "blue",
-                    beat,
-                    rowIdx,
-                    hand: toHandLabel(hand),
-                    fromPasserIdx: t.fromPasserIdx,
-                    fromRole: getRoleAtBeat(beat, rowIdx),
-                    toPasserIdxAtThrow: details.toPasserIdxAtThrow,
-                    toRoleAtThrow: details.toRoleAtThrow,
-                    toPasserIdxOnCausal: details.toPasserIdxOnCausal,
-                    toRoleOnCausal: details.toRoleOnCausal,
-                    targetHandFirstIteration:
-                        details.targetHandFirstIterationLabel,
-                    throwLength: t.throwLength,
-                    causeBeat: details.causeBeat,
-                    causeTime: details.causeTime,
-                    causeLength: details.causeLength,
-                    crossing: details.crossing,
-                    markers: details.markerKinds,
-                    markerTooltips: details.markerTooltips,
-                    annotation: details.annotation,
-                })
-            }
+            throws.push(buildThrowSpec(t, t.throwBeat, rowIdx, isPrefix))
         }
 
         texts.push({
             x: getX(pattern.getLength()),
             y: getY(rowIdx, Hand.Right),
-            text: `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(
-                pattern.getLength(),
-                rowIdx,
-            )}]`,
+            text: `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]`,
             kind: "row-end",
         })
     }
 
-    // Index throws to detect conflicts and draw causal arrows
-    const foundThrown: (Throw | undefined)[][][] = Array.from(
-        { length: pattern.nrRows },
-        () =>
-            Array.from({ length: 2 }, () =>
-                Array(pattern.getLength()).fill(undefined),
-            ),
-    )
-    const foundCaught: (Throw | undefined)[][][] = Array.from(
-        { length: pattern.nrRows },
-        () =>
-            Array.from({ length: 2 }, () =>
-                Array(pattern.getLength()).fill(undefined),
-            ),
-    )
+    // Index throws to detect conflicts and draw causal arrows.
+    // Key by `${rowIdx}-${hand}-${beat}`; only one throw can be thrown/caught per slot.
+    const slotKey = (rowIdx: number, hand: Hand, beat: number) => `${rowIdx}-${hand}-${beat}`
+    const thrown = new Map<string, Throw>()
+    const caught = new Map<string, Throw>()
 
     for (const t of pattern.throws) {
         if (t.throwBeat < 0) continue
         const hand = pattern.getThrowHand(t, 0)
-        if (foundThrown[t.fromPasserIdx][hand][t.throwBeat]) {
-            errors.push({
-                x: getX(t.throwBeat),
-                y: getY(t.fromPasserIdx, hand),
-                message: "multiple throws",
-            })
+        const fromKey = slotKey(t.fromPasserIdx, hand, t.throwBeat)
+        if (thrown.has(fromKey)) {
+            errors.push({ x: getX(t.throwBeat), y: getY(t.fromPasserIdx, hand), message: "multiple throws" })
         } else {
-            foundThrown[t.fromPasserIdx][hand][t.throwBeat] = t
+            thrown.set(fromKey, t)
         }
 
         const causeBeat = pattern.getThrowCauseBeat(t)
         const targetHand = pattern.getTargetHandFirstIteration(t)
-        const from = t.fromPasserIdx
         const to = pattern.getToPasserIdxOnCausal(t)
-
-        if (foundCaught[to][targetHand][causeBeat]) {
-            errors.push({
-                x: getX(causeBeat),
-                y: getY(to, targetHand),
-                message: "multiple catches",
-            })
+        const toKey = slotKey(to, targetHand, causeBeat)
+        if (caught.has(toKey)) {
+            errors.push({ x: getX(causeBeat), y: getY(to, targetHand), message: "multiple catches" })
         } else {
-            foundCaught[to][targetHand][causeBeat] = t
+            caught.set(toKey, t)
         }
 
-        const x1 = getX(t.throwBeat)
-        const y1 = getY(from, hand)
-        const x2 = getX(causeBeat)
-        const y2 = getY(to, targetHand)
-        const xDiff = x2 - x1
-        const dir = 1
-        const bendOffset = xDiff > 0 ? 0 : (dist / 5.5) * (xDiff / dist) * 0.9
-        const flipOffset = 20
-        const d =
-            xDiff !== 0
-                ? `M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`
-                : `M ${x1} ${y1} C ${x1 - flipOffset} ${y1 - flipOffset}, ${x2 + flipOffset} ${y2 - flipOffset}, ${x2} ${y2}`
-        const stroke = targetHand ? "green" : "blue"
         arrows.push({
             id: `arrow-${arrows.length}`,
             throwId: throwId(t),
-            d,
-            stroke,
+            d: arrowPath(getX(t.throwBeat), getY(t.fromPasserIdx, hand), getX(causeBeat), getY(to, targetHand)),
+            stroke: handColor(targetHand),
             dashed: pattern.getThrowCauseLength(t) < 0,
         })
     }
@@ -464,24 +346,14 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
         for (let beat = 0; beat < pattern.getLength(); beat++) {
             for (const hand of [Hand.Right, Hand.Left]) {
-                if (
-                    foundThrown[rowIdx][hand][beat] &&
-                    !foundCaught[rowIdx][hand][beat]
-                ) {
+                const key = slotKey(rowIdx, hand, beat)
+                const hasThrown = thrown.has(key)
+                const hasCaught = caught.has(key)
+                if (hasThrown !== hasCaught) {
                     errors.push({
                         x: getX(beat),
                         y: getY(rowIdx, hand),
-                        message: "throw without catch",
-                    })
-                }
-                if (
-                    foundCaught[rowIdx][hand][beat] &&
-                    !foundThrown[rowIdx][hand][beat]
-                ) {
-                    errors.push({
-                        x: getX(beat),
-                        y: getY(rowIdx, hand),
-                        message: "catch without throw",
+                        message: hasThrown ? "throw without catch" : "catch without throw",
                     })
                 }
             }
@@ -494,28 +366,21 @@ export function computeDebugPatternLayout(pattern: Pattern): DebugPatternLayout 
         if (causeTime < pattern.getLength()) continue
         const causeBeat = pattern.getThrowCauseBeat(t)
         const toHand = pattern.getTargetHand(t, 0)
-        const causedThrow =
-            foundThrown[t.toPasserIdxAtCausal][
-                pattern.getTargetHandFirstIteration(t)
-            ][causeBeat]
-        if (causedThrow) {
-            const causedThrowHand = pattern.getThrowHand(
-                causedThrow,
-                Math.floor(causeTime / pattern.getLength()),
-            )
-            if (toHand !== causedThrowHand) {
-                errors.push({
-                    x: getX(causeBeat),
-                    y: getY(t.toPasserIdxAtCausal, toHand),
-                    message: "inconsistent crossing/straight",
-                })
-            }
+        const targetHand = pattern.getTargetHandFirstIteration(t)
+        const causedThrow = thrown.get(slotKey(t.toPasserIdxAtCausal, targetHand, causeBeat))
+        if (!causedThrow) continue
+        const causedThrowHand = pattern.getThrowHand(
+            causedThrow,
+            Math.floor(causeTime / pattern.getLength()),
+        )
+        if (toHand !== causedThrowHand) {
+            errors.push({
+                x: getX(causeBeat),
+                y: getY(t.toPasserIdxAtCausal, toHand),
+                message: "inconsistent crossing/straight",
+            })
         }
     }
 
-    return { width, height, dist, texts, dots, throws, arrows, errors }
-}
-
-function throwId(t: Throw): string {
-    return `throw-${t.fromPasserIdx}-${t.throwBeat}-${t.toPasserIdxAtCausal}-${t.throwLength}`
+    return { width, height, texts, dots, throws, arrows, errors }
 }
