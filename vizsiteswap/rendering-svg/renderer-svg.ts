@@ -56,7 +56,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const layoutGap = 10
     const width = onlyLayout ? layoutSize : size.width + layoutSize + layoutGap
     const height = onlyLayout ? layoutSize : Math.max(size.height + tabHeight + turntableHeight, layoutSize)
-    const svg = createSVG(width, height).viewbox(0, 0, width, height)
+    const svg = createSVG(width, height).viewbox(0, 0, width, height).addClass("passingpattern")
 
     const [panels, tabData] = createTabs(svg, tabTitles)
 
@@ -440,7 +440,7 @@ export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>)
     const renderConfig: RendererConfig = { ...customRendererConfigDefaults(p), ...config }
 
     const size = getRenderPatternSize(p, renderConfig)
-    const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height)
+    const svg = createSVG(size.width, size.height).viewbox(0, 0, size.width, size.height).addClass("passingpattern")
     const patternCanvas = svg.group()
     renderInternal(patternCanvas, p, p.getInitialRoles(), getThrowsFromPattern(p, renderConfig.iterations, renderConfig), getRelabel(p), renderConfig)
 

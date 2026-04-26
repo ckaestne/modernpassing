@@ -1,86 +1,21 @@
-.starting-hands {
-    fill: var(--fg)
+.passingpattern {
+    --bg-color: #fff;
+    --bg-secondary-color: #f3f3f6;
+    --tab-inactive: #d2d6dd;
+    --tab-hover: #747681;
+    --tab-active: #3f4144;
 }
 
-.throw-label {
-    fill: var(--fg)
-}
+svg.passingpattern { max-width: 100%; }
 
-img+em {
-    display: block
-}
+.passingpattern .starting-hands { fill: var(--fg, #000); }
+.passingpattern .throw-label { fill: var(--fg, #000); }
 
-crossreference {
-    background-color: var(--quote-bg);
-    border: 3px solid var(--quote-border);
-    display: block;
-    padding: 8px;
-}
-
-.video {
-    display: none;
-}
-
- 
-
-svg { max-width: 100%;}
-
-
-todo-sync-group {
-    display: block;
-    white-space: pre;
-    background-color: red;
-}
-
-TODO-manipulator-sync {
-    display: block;
-    white-space: pre;
-    background-color: red;
-}
-
-todo-sync-group:before {
-    content: "TODO: "
-}
-
-todo-siteswap-group {
-    display: block;
-    white-space: pre;
-    background-color: red;
-}
-
-todo-siteswap-group:before {
-    content: "TODO: "
-}
-
-        
-svg .tab { cursor: pointer; }
-svg .tab rect { fill: var(--bg-color); stroke: var(--tab-inactive); }
-svg .tab text { fill: #666; font-size: 8px;      text-anchor: middle;            dominant-baseline: central;}
-svg .tab line {  stroke: transparent;           stroke-width: 3; }
-svg .tab:hover rect { fill: var(--bg-secondary-color); }
-svg .tab-active rect { fill: white; stroke: var(--tab-active); stroke-width: 2; }
-svg .tab-active text { fill: var(--tab-active); font-weight: 600;      text-anchor: middle; dominant-baseline: central;}
-svg .tab-active line { stroke: var(--tab-active);            stroke-width: 3;}
-/* svg { border: 1px solid #e5e5e5; } */
-
-:root {
-    --bg-color:#fff;
-    --bg-secondary-color:#f3f3f6;
-    --tab-inactive:#d2d6dd;
-    --tab-hover:#747681;
-    --tab-active:#3f4144;
-  }
-
-
-
-
-.global-toc #modern-passing-1 {
-    display: none;
-}
-.global-toc p {
-    display: none;
-}
-.global-toc h1 {
-      font-size: 1.6rem;
-}
-
+.passingpattern .tab { cursor: pointer; }
+.passingpattern .tab rect { fill: var(--bg-color); stroke: var(--tab-inactive); }
+.passingpattern .tab text { fill: #666; font-size: 8px; text-anchor: middle; dominant-baseline: central; }
+.passingpattern .tab line { stroke: transparent; stroke-width: 3; }
+.passingpattern .tab:hover rect { fill: var(--bg-secondary-color); }
+.passingpattern .tab-active rect { fill: white; stroke: var(--tab-active); stroke-width: 2; }
+.passingpattern .tab-active text { fill: var(--tab-active); font-weight: 600; text-anchor: middle; dominant-baseline: central; }
+.passingpattern .tab-active line { stroke: var(--tab-active); stroke-width: 3; }
