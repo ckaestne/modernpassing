@@ -1,13 +1,12 @@
 import type { GroupPattern } from "@modernpassing/layout"
 import fs from "node:fs"
+import path from "node:path"
 import test from "node:test"
 import { createGroupPattern } from "../parsing/pattern-fromgroup.ts"
 import { renderGroupPatternLayoutFrames } from "./renderer-svg-frames.ts"
 import { createSVG } from "@modernpassing/svg-utils"
 
 const currDir = import.meta.dirname
-
-if (!fs.existsSync("test")) fs.mkdirSync("test")
 
 test("render scrambled v frames", () => {
     const pattern = `A: 3pB3 3pC3 3pB3 -- B
@@ -132,6 +131,7 @@ move: Vmove(B,4.9,3)`
 
 function renderFrames(pattern: string, filename: string, nrHands: number = 2) {
     const gp: GroupPattern = createGroupPattern(pattern, nrHands)
+    fs.mkdirSync(path.dirname(filename), { recursive: true })
 
     const svg = createSVG(420, 1200)
     const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true, positionCircle: 25, roleLabelFontSize: 14 }, svg)
