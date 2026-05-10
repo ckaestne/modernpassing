@@ -1,90 +1,90 @@
 .pattern-canvas {
-    position: relative;
-    overflow: auto;
+  position: relative;
+  overflow: auto;
 }
 
 .pattern-canvas svg {
-    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-    font-size: 14px;
-    user-select: none;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  user-select: none;
 }
 
 .pattern-canvas text {
-    transition: opacity 120ms ease, fill 120ms ease;
+  transition: opacity 120ms ease, fill 120ms ease;
 }
 
 .pattern-canvas .label {
-    fill: #2d3748;
-    pointer-events: none;
+  fill: #2d3748;
+  pointer-events: none;
 }
 
 .pattern-canvas .label-beat-header {
-    font-weight: 600;
-    fill: #1a202c;
+  font-weight: 600;
+  fill: #1a202c;
 }
 
 .pattern-canvas .throw-label {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .pattern-canvas .throw-label.hovered {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .pattern-canvas .throw-label.dim,
 .pattern-canvas .arrow.dim {
-    opacity: 0.2;
+  opacity: 0.2;
 }
 
 .pattern-canvas .arrow {
-    transition: opacity 120ms ease, stroke-width 120ms ease;
-    cursor: pointer;
-    pointer-events: visibleStroke;
+  transition: opacity 120ms ease, stroke-width 120ms ease;
+  cursor: pointer;
+  pointer-events: visibleStroke;
 }
 
 .pattern-canvas .arrow.arrow-intercept {
-    stroke-width: 4.8;
-    filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.95));
+  stroke-width: 4.8;
+  filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.95));
 }
 
 .pattern-canvas .arrow.arrow-substitution {
-    stroke-width: 4.8;
-    filter: drop-shadow(0 0 4px rgba(243, 118, 2, 0.95));
+  stroke-width: 4.8;
+  filter: drop-shadow(0 0 4px rgba(243, 118, 2, 0.95));
 }
 
 .pattern-canvas .arrow.arrow-carry {
-    stroke-width: 4.8;
-    filter: drop-shadow(0 0 4px rgba(15, 247, 49, 0.95));
+  stroke-width: 4.8;
+  filter: drop-shadow(0 0 4px rgba(15, 247, 49, 0.95));
 }
 
 .pattern-canvas .arrow.hovered {
-    stroke-width: 4;
+  stroke-width: 4;
 }
 
 .pattern-canvas .dot {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 .pattern-canvas .dot-hit {
-    cursor: help;
+  cursor: help;
 }
 
 .canvas-tooltip {
-    position: fixed;
-    background: rgba(26, 32, 44, 0.95);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-    pointer-events: none;
-    z-index: 100;
-    white-space: normal;
-    max-width: min(360px, 80vw);
-    line-height: 1.35;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  background: rgba(26, 32, 44, 0.95);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  pointer-events: none;
+  z-index: 100;
+  white-space: normal;
+  max-width: min(360px, 80vw);
+  line-height: 1.35;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .canvas-tooltip-line + .canvas-tooltip-line {
-    margin-top: 2px;
+  margin-top: 2px;
 }

@@ -1,26 +1,28 @@
 .spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid #dbdbdb;
-    border-top-color: #3273dc;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin: 12px auto;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #dbdbdb;
+  border-top-color: #3273dc;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 12px auto;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .svg-container svg {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 .preset-label {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.1rem;
-    text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  text-align: left;
 }

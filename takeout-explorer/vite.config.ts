@@ -1,23 +1,23 @@
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import deno from "@deno/vite-plugin"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import deno from "@deno/vite-plugin";
 
 export default defineConfig({
-    plugins: [deno(), react()],
-    server: {
-        port: 3000,
-        proxy: {
-            "/api": {
-                target: "http://localhost:8000",
-                changeOrigin: true,
-            },
-            "/animations.js": {
-                target: "http://localhost:8000",
-                changeOrigin: true,
-            },
-        },
+  plugins: [deno(), react()],
+  server: {
+    port: 3000,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+      "/animations.js": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
     },
-    build: {
-        outDir: "dist",
-    },
-})
+  },
+  build: {
+    outDir: "dist",
+  },
+});
