@@ -300,7 +300,7 @@ move: Vmove(B,0.9,2),Vmove(C,1.9,2)
 
 ![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
 
-The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer will not receive clubs and one passer would pass into a hole. In the standard four-count version, the passer who would pass into the hole starts with two clubs and skips the first pass, whereas the passer who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
+The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer (role C) will not receive clubs and one passer (role B) would pass into a hole. In the standard four-count version, passer B who would pass into the hole starts with two clubs and skips the first pass, whereas passer C who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
 
 <sync-group>
 A: 3pD 333   -- C
@@ -313,7 +313,12 @@ move: Cmove(C,0.9,2.5,144,1)
 
 Note: The passer with role C starts with two clubs.
 
-Variation: It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. Removing one more club, the passer facing the hole starts with one club instead and the passer not receiving clubs passes until they are down to a single club for walking. Alternatively, the passer facing the hole starts without clubs and the passer not receiving clubs walks without any clubs after throwing their last pass. This slows down the pattern and results in walking only every other or every third pass. 
+*Variations:* It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. 
+* Walking with one club: Removing one more club, passer B (facing the hole) starts with *one* club and passer C (not receiving clubs) passes until they are down to a single club for walking. 
+* Walking the last pass: As before, passer B starts with one club. After their first pass, passer C is down to two clubs and walks their last pass to passer A, to then walk (run) around behind A with their last club to their target position in the hole.
+* Walking without clubs: Passer B (facing the hole) starts without clubs and passer C (not receiving clubs) walks without any clubs after throwing passing their last club. This slows down the pattern and results in walking only every other or every third pass. 
+
+
 
 **Two-count shooting star.** In the two-count version of the shooting star, the person moving stops in the middle to let passes go by before making it to the hole. Typically they walk when they have one club, but they can also walk to the middle with two and pass a last one from the middle.
 
