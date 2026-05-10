@@ -31,12 +31,20 @@ type ArcCommand = {
     sweepFlag: number
 }
 
+type CubicBezierCommand = {
+    kind: "cubic"
+    from: Point
+    control1: Point
+    control2: Point
+    to: Point
+}
+
 type UnsupportedCommand = {
     kind: "unsupported"
     command: string
 }
 
-type PathCommand = LineCommand | ArcCommand | UnsupportedCommand
+type PathCommand = LineCommand | ArcCommand | CubicBezierCommand | UnsupportedCommand
 
 type PathPropertiesPart = {
     start: Point
@@ -52,6 +60,95 @@ type PathRepresentation = {
 }
 
 const clonePoint = (point: Point): Point => ({ x: point.x, y: point.y })
+
+const lerpPoint = (a: Point, b: Point, t: number): Point => ({
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+})
+
+const distanceSquared = (a: Point, b: Point): number => {
+    const dx = a.x - b.x
+    const dy = a.y - b.y
+    return dx * dx + dy * dy
+}
+
+const cubicPointAt = (command: CubicBezierCommand, t: number): Point => {
+    const inv = 1 - t
+    const inv2 = inv * inv
+    const inv3 = inv2 * inv
+    const t2 = t * t
+    const t3 = t2 * t
+
+    return {
+        x: inv3 * command.from.x +
+            3 * inv2 * t * command.control1.x +
+            3 * inv * t2 * command.control2.x +
+            t3 * command.to.x,
+        y: inv3 * command.from.y +
+            3 * inv2 * t * command.control1.y +
+            3 * inv * t2 * command.control2.y +
+            t3 * command.to.y,
+    }
+}
+
+const splitCubicAtParameter = (command: CubicBezierCommand, t: number): [CubicBezierCommand, CubicBezierCommand] => {
+    const p0 = command.from
+    const p1 = command.control1
+    const p2 = command.control2
+    const p3 = command.to
+
+    const q0 = lerpPoint(p0, p1, t)
+    const q1 = lerpPoint(p1, p2, t)
+    const q2 = lerpPoint(p2, p3, t)
+    const r0 = lerpPoint(q0, q1, t)
+    const r1 = lerpPoint(q1, q2, t)
+    const s = lerpPoint(r0, r1, t)
+
+    return [
+        {
+            kind: "cubic",
+            from: clonePoint(p0),
+            control1: q0,
+            control2: r0,
+            to: s,
+        },
+        {
+            kind: "cubic",
+            from: s,
+            control1: r1,
+            control2: q2,
+            to: clonePoint(p3),
+        },
+    ]
+}
+
+const findCubicParameterForPoint = (command: CubicBezierCommand, target: Point): number => {
+    const sampleCount = 2048
+    let bestT = 0
+    let bestDistance = Number.POSITIVE_INFINITY
+
+    for (let i = 0; i <= sampleCount; i++) {
+        const t = i / sampleCount
+        const d = distanceSquared(cubicPointAt(command, t), target)
+        if (d < bestDistance) {
+            bestDistance = d
+            bestT = t
+        }
+    }
+
+    let left = Math.max(0, bestT - 2 / sampleCount)
+    let right = Math.min(1, bestT + 2 / sampleCount)
+    for (let i = 0; i < 40; i++) {
+        const m1 = left + (right - left) / 3
+        const m2 = right - (right - left) / 3
+        const d1 = distanceSquared(cubicPointAt(command, m1), target)
+        const d2 = distanceSquared(cubicPointAt(command, m2), target)
+        if (d1 <= d2) right = m2
+        else left = m1
+    }
+
+    return (left + right) / 2
+}
 
 const normalizeRotation = (rotation: number): number => ((rotation % 360) + 360) % 360
 
@@ -240,6 +337,50 @@ const segmentToCommands = (segment: MovementSegmentSpec): PathCommand[] => {
                     current = clonePoint(to)
                     break
                 }
+                case "C": {
+                    index++
+                    while (
+                        index + 3 < tokens.length &&
+                        typeof tokens[index] === "number" &&
+                        typeof tokens[index + 1] === "number" &&
+                        typeof tokens[index + 2] === "number" &&
+                        typeof tokens[index + 3] === "number"
+                    ) {
+                        const control1: Point = { x: tokens[index] as number, y: tokens[index + 1] as number }
+                        const control2: Point = { x: tokens[index + 2] as number, y: tokens[index + 3] as number }
+                        index += 4
+                        let to: Point
+                        if (
+                            index + 1 < tokens.length &&
+                            typeof tokens[index] === "number" &&
+                            typeof tokens[index + 1] === "number"
+                        ) {
+                            to = { x: tokens[index] as number, y: tokens[index + 1] as number }
+                            index += 2
+                        } else {
+                            to = { x: segment.toX, y: segment.toY }
+                        }
+                        if (!pointsEqual(current, to)) {
+                            commands.push({
+                                kind: "cubic",
+                                from: clonePoint(current),
+                                control1,
+                                control2,
+                                to,
+                            })
+                        }
+                        current = clonePoint(to)
+                        if (index < tokens.length && typeof tokens[index] === "string") break
+                    }
+                    break
+                }
+                case "M": {
+                    assert(index + 2 < tokens.length, "move command requires coordinates")
+                    assert(typeof tokens[index + 1] === "number" && typeof tokens[index + 2] === "number", "move command has invalid coordinates")
+                    current = { x: tokens[index + 1] as number, y: tokens[index + 2] as number }
+                    index += 3
+                    break
+                }
                 default: {
                     commands.push({ kind: "unsupported", command: token })
                     index++
@@ -315,24 +456,33 @@ const splitCommand = (
         ]
     }
 
+    if (command.kind === "cubic") {
+        const estimatedT = findCubicParameterForPoint(command, splitPoint)
+        const [beforeCurve, afterCurve] = splitCubicAtParameter(command, estimatedT)
+        beforeCurve.to = clonePoint(splitPoint)
+        afterCurve.from = clonePoint(splitPoint)
+        return [beforeCurve, afterCurve]
+    }
+
     throw new Error(`Cannot split unsupported command: ${command.command}`)
 }
 
 const commandsToRepresentation = (commands: PathCommand[]): PathRepresentation => {
     assert(commands.length > 0, "cannot build segment from empty path")
-    assert(commands[0].kind !== "unsupported", "path contains unsupported commands")
+    assert(commands[0].kind !== "unsupported", `when truncating svg path: path contains unsupported commands ${JSON.stringify(commands[0])}`)
 
-    const start = clonePoint((commands[0] as LineCommand | ArcCommand).from)
+    const start = clonePoint((commands[0] as LineCommand | ArcCommand | CubicBezierCommand).from)
     const pathTokens: (string | number)[] = []
     let lastPoint = clonePoint(start)
+
     let linePoints: Point[] = [clonePoint(start)]
 
-    const flushLinePoints = () => {
+    const flushLinePoints = (includeLastPoint: boolean) => {
         if (linePoints.length > 1) {
-            const middle = linePoints.slice(1, -1)
-            if (middle.length > 0) {
+            const pointsToEmit = includeLastPoint ? linePoints.slice(1) : linePoints.slice(1, -1)
+            if (pointsToEmit.length > 0) {
                 pathTokens.push("L")
-                for (const point of middle) {
+                for (const point of pointsToEmit) {
                     pathTokens.push(point.x, point.y)
                 }
             }
@@ -355,13 +505,27 @@ const commandsToRepresentation = (commands: PathCommand[]): PathRepresentation =
             continue
         }
 
-        flushLinePoints()
-        pathTokens.push("A", command.rx, command.ry, command.rotation, command.largeArcFlag, command.sweepFlag)
+        if (command.kind === "arc") {
+            flushLinePoints(true)
+            pathTokens.push("A", command.rx, command.ry, command.rotation, command.largeArcFlag, command.sweepFlag)
+            lastPoint = clonePoint(command.to)
+            linePoints = [clonePoint(lastPoint)]
+            continue
+        }
+
+        flushLinePoints(true)
+        pathTokens.push(
+            "C",
+            command.control1.x,
+            command.control1.y,
+            command.control2.x,
+            command.control2.y,
+        )
         lastPoint = clonePoint(command.to)
         linePoints = [clonePoint(lastPoint)]
     }
 
-    flushLinePoints()
+    flushLinePoints(false)
     const end = clonePoint(lastPoint)
 
     return { start, pathTokens, end }
@@ -464,7 +628,6 @@ export function truncateAnimation(
         truncatePercentageBeginning + truncatePercentageEnd < 1,
         "sum of truncatePercentageBeginning and truncatePercentageEnd must be < 1",
     )
-
     const initialCommands = segmentToCommands(segment)
     const { parts: initialParts, totalLength } = measureCommands(initialCommands)
     const { after: afterStart } = splitCommands(initialCommands, initialParts, totalLength, truncatePercentageBeginning)

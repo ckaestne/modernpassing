@@ -5,14 +5,14 @@ import type { MovementSegmentSpec } from "../animation-spec.ts"
 
 const tolerance = 1e-6
 
-const assertPointsClose = (a: { x: number; y: number }, b: { x: number; y: number }, message?: string) => {
-    assert(Math.abs(a.x - b.x) <= tolerance, `${message ?? "point mismatch"} (x)`)
-    assert(Math.abs(a.y - b.y) <= tolerance, `${message ?? "point mismatch"} (y)`)
+const assertPointsClose = (a: { x: number; y: number }, b: { x: number; y: number }, message?: string, maxDelta: number = tolerance) => {
+    assert(Math.abs(a.x - b.x) <= maxDelta, `${message ?? "point mismatch"} (x)`)
+    assert(Math.abs(a.y - b.y) <= maxDelta, `${message ?? "point mismatch"} (y)`)
 }
 
 const createPath = (segment: MovementSegmentSpec) => genPath(helperSvg, segment)
 
-const assertTrimMatchesOriginal = (original: MovementSegmentSpec, truncated: MovementSegmentSpec, trimStart: number, trimEnd: number) => {
+const assertTrimMatchesOriginal = (original: MovementSegmentSpec, truncated: MovementSegmentSpec, trimStart: number, trimEnd: number, maxDelta: number = tolerance) => {
     const originalPath = createPath(original)
     const truncatedPath = createPath(truncated)
 
@@ -22,13 +22,13 @@ const assertTrimMatchesOriginal = (original: MovementSegmentSpec, truncated: Mov
     const pointOnOriginal = (ratio: number) => originalPath.pointAt(originalLength * ratio)
     const pointOnTruncated = (ratio: number) => truncatedPath.pointAt(truncatedLength * ratio)
 
-    assertPointsClose(pointOnOriginal(trimStart), pointOnTruncated(0), "start point mismatch")
-    assertPointsClose(pointOnOriginal(1 - trimEnd), pointOnTruncated(1), "end point mismatch")
+    assertPointsClose(pointOnOriginal(trimStart), pointOnTruncated(0), "start point mismatch", maxDelta)
+    assertPointsClose(pointOnOriginal(1 - trimEnd), pointOnTruncated(1), "end point mismatch", maxDelta)
 
     const sampleRatio = 0.42
     const expectedOnOriginal = pointOnOriginal(trimStart + (1 - trimStart - trimEnd) * sampleRatio)
     const actualOnTruncated = pointOnTruncated(sampleRatio)
-    assertPointsClose(expectedOnOriginal, actualOnTruncated, "sample point mismatch")
+    assertPointsClose(expectedOnOriginal, actualOnTruncated, "sample point mismatch", maxDelta)
 }
 
 const createStraightSegment = (): MovementSegmentSpec => ({
@@ -39,9 +39,9 @@ const createStraightSegment = (): MovementSegmentSpec => ({
     toY: 0,
 })
 
-const expectTrimmedSegment = (segment: MovementSegmentSpec, trimStart: number, trimEnd: number = 0) => {
+const expectTrimmedSegment = (segment: MovementSegmentSpec, trimStart: number, trimEnd: number = 0, maxDelta: number = tolerance) => {
     const truncated = truncateAnimation(segment, trimStart, trimEnd)
-    assertTrimMatchesOriginal(segment, truncated, trimStart, trimEnd)
+    assertTrimMatchesOriginal(segment, truncated, trimStart, trimEnd, maxDelta)
 }
 
 Deno.test("truncateAnimation trims the beginning of a straight segment", () => {
@@ -67,7 +67,7 @@ Deno.test("truncate multipart segment of straight lines", () => {
     expectTrimmedSegment(segment, 0.5)
 })
 
-Deno.test("truncateAnimation trims with curved paths not yet supported", () => {
+Deno.test("truncateAnimation trims cubic bezier paths", () => {
     const segment: MovementSegmentSpec = {
         fromX: 0,
         fromY: 0,
@@ -75,9 +75,20 @@ Deno.test("truncateAnimation trims with curved paths not yet supported", () => {
         toX: 1,
         toY: 1,
     }
-    const startTrim = 0.3
-    const endTrim = 0.1
-    assert.throws(() => expectTrimmedSegment(segment, startTrim, endTrim))
+    expectTrimmedSegment(segment, 0.3, 0.1, 2e-3)
+    expectTrimmedSegment(segment, 0.15, 0, 2e-3)
+})
+
+Deno.test("truncateAnimation trims mixed line and cubic paths", () => {
+    const segment: MovementSegmentSpec = {
+        fromX: 0,
+        fromY: 0,
+        path: ["L", 1, 0, "C", 1.5, 0.5, 1.5, 1.5],
+        toX: 2,
+        toY: 2,
+    }
+
+    expectTrimmedSegment(segment, 0.25, 0.2, 2e-3)
 })
 
 Deno.test("truncate an arch path", () => {
