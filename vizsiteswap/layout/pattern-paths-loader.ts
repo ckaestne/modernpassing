@@ -14,7 +14,7 @@ import type { MovementSegmentSpec } from "./animation-spec.ts"
  * @param filename svg file to load
  * @returns
  */
-export function loadPathsFromSvg(filename: string): MovementSegmentSpec[] {
+export function loadPathsFromSvg(filename: string | URL): MovementSegmentSpec[] {
     const svgContent = Deno.readTextFileSync(filename)
     const svg = createSVG().svg(svgContent)
 
@@ -50,7 +50,7 @@ export function loadPathsFromSvg(filename: string): MovementSegmentSpec[] {
     return result.reverse()
 }
 
-export function loadPatternPathsFromSvg(filename: string, startingSegments: number[]): PatternPath {
+export function loadPatternPathsFromSvg(filename: string | URL, startingSegments: number[]): PatternPath {
     const paths = loadPathsFromSvg(filename)
 
     const sequence = paths.map((_, i) => i)

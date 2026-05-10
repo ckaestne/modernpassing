@@ -1,6 +1,7 @@
-import { loadPathsFromSvg, supportedMovement, supportedShapes, type TLayout, TMovement, type TMovementStep, TShape } from "@modernpassing/layout"
+import { loadPathsFromSvg, supportedMovement, supportedShapes, type TLayout, type TMovement, type TMovementStep, type TShape } from "@modernpassing/layout"
 import assert from "node:assert"
-import { type Role } from "@modernpassing/pattern"
+import type { Role } from "@modernpassing/pattern"
+import type { MovementSegmentSpec } from "../layout/animation-spec.ts"
 
 export function parseLayout(input: string): TLayout {
     // simple parser
@@ -31,12 +32,14 @@ export function parseLayout(input: string): TLayout {
 
         return { type: "free", pos: r }
     } else if (parts[0] === "Svg") {
-        const svgFile = "src/" + parts[1]
+        const svgFile = parts[1]
         assert(svgFile.endsWith(".svg"), "svg file must end with .svg")
-        assert(Deno.statSync(svgFile).isFile, `svg file ${svgFile} not found in src/`)
+        // Resolve from this source file location so callers can use any working directory.
+        const svgFileUrl = new URL(`../layout/shapes/${svgFile}`, import.meta.url)
+        assert(Deno.statSync(svgFileUrl).isFile, `svg file ${svgFile} not found in src/`)
         assert((parts.length % 2 === 0) && (parts.length >= 4), "svg must have pairs of role name and path index for each role")
 
-        const segments = loadPathsFromSvg(svgFile)
+        const segments = loadPathsFromSvg(svgFileUrl)
         const roles: [Role, number][] = []
         for (let i = 2; i < parts.length; i += 2) {
             const role = parts[i]
@@ -45,6 +48,8 @@ export function parseLayout(input: string): TLayout {
             assert(/^[A-Z]$/.test(role), `role names must be single uppercase letters, but found ${role}`)
             roles.push([role, idx])
         }
+
+        checkContinuousSegments(segments)
 
         return {
             type: "svg",
@@ -103,4 +108,22 @@ function parseMovement(input: string, roles: Role[]): TMovementStep[] {
         return roles.map((r) => ({ type, role: r, when, duration, extraParam }))
     }
     return [{ type, role, when, duration, extraParam }]
+}
+
+function checkContinuousSegments(segments: MovementSegmentSpec[]) {
+    assert(segments.length > 0, "svg layout must contain at least one path segment")
+
+    const EPSILON = 1e-9
+    const almostEqual = (a: number, b: number) => Math.abs(a - b) <= EPSILON
+
+    for (let i = 0; i < segments.length; i++) {
+        const prevIdx = (i - 1 + segments.length) % segments.length
+        const prev = segments[prevIdx]
+        const current = segments[i]
+
+        assert(
+            almostEqual(current.fromX, prev.toX) && almostEqual(current.fromY, prev.toY),
+            `segment ${i} starts at (${current.fromX}, ${current.fromY}) but previous segment ${prevIdx} ends at (${prev.toX}, ${prev.toY})`,
+        )
+    }
 }
