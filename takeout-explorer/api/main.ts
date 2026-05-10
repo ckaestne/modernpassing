@@ -134,7 +134,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 // Serve the built React app from `dist/` in production. In dev, Vite handles
-// this on port 3000 and proxies /api and /animations.js back here.
+// this on port 3001 and proxies /api and /animations.js back here.
 app.use(async (ctx, next) => {
   try {
     await ctx.send({
