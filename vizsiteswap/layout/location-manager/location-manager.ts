@@ -18,15 +18,12 @@
  */
 
 import type { Role } from "@modernpassing/pattern"
-import type { AnimationSpec, RelativeMovementSpec } from "../animation-spec.ts"
 import assert from "node:assert"
-import { createPasserIdx, getAnimationMod, same, same2, same3 } from "./helpers.ts"
-import type { PasserIdx } from "./helpers.ts"
-import { createResolvedMovementSegmentFromSegmentSpec, createUnresolvedMovementSegment, MovementSegment, MovementTracker, RoleTracker, type UnresolvedBetweenPositionSpec, type UnresolvedInFrontOfPositionSpec } from "./relative-movement.ts"
 import type { MovementAnimation } from "../animation-plan.ts"
-import { truncateAnimation } from "./truncate-svg-path.ts"
-import { time } from "node:console"
-import { A } from "@svgdotjs/svg.js"
+import type { AnimationSpec, RelativeMovementSpec } from "../animation-spec.ts"
+import type { PasserIdx } from "./helpers.ts"
+import { createPasserIdx, getAnimationMod, same, same2 } from "./helpers.ts"
+import { createResolvedMovementSegmentFromSegmentSpec, createUnresolvedMovementSegment, MovementSegment, MovementTracker, RoleTracker, type UnresolvedBetweenPositionSpec, type UnresolvedInFrontOfPositionSpec } from "./relative-movement.ts"
 
 /**
  * location manager is a unifying interface for the movement and role trackers
