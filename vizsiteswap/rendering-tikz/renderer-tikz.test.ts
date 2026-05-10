@@ -1,14 +1,12 @@
-import { createSiteswapPattern } from "@modernpassing/parsing";
-import fs from "node:fs";
-import test from "node:test";
-import { customRendererConfigDefaults } from "@modernpassing/rendering-core";
-import { renderPattern } from "./renderer-tikz.ts";
+import { createSiteswapPattern } from "@modernpassing/parsing"
+import fs from "node:fs"
+import test from "node:test"
+import { customRendererConfigDefaults } from "@modernpassing/rendering-core"
+import { renderPattern } from "./renderer-tikz.ts"
 
-
-if (!fs.existsSync("test")) fs.mkdirSync("test");
+if (!fs.existsSync("test")) fs.mkdirSync("test")
 
 test("create examples file", async (t) => {
-
     const patterns = ["77722", "972", "759", "45678", "456789a", "77a", "567", "786"]
 
     let content = "\\documentclass{article}\\usepackage{tikz}\\usepackage[T1]{fontenc}\\begin{document}"
@@ -23,7 +21,5 @@ test("create examples file", async (t) => {
 
     content += "\\end{document}"
 
-    fs.writeFileSync("test/test.tex", content);
-
-
+    fs.writeFileSync("test/test.tex", content)
 })

@@ -3,24 +3,18 @@
  */
 
 import { Hand, Pattern, Throw } from "@modernpassing/pattern"
-import { createSVG } from "@modernpassing/svg-utils";
-import { G, Svg } from "@svgdotjs/svg.js";
-import { PatternImpl } from "../pattern/pattern-impl.ts";
-import assert from "node:assert";
-import { Path } from "@svgdotjs/svg.js";
-
-
+import { createSVG } from "@modernpassing/svg-utils"
+import { G, Svg } from "@svgdotjs/svg.js"
+import { PatternImpl } from "../pattern/pattern-impl.ts"
+import assert from "node:assert"
+import { Path } from "@svgdotjs/svg.js"
 
 export function prettyPrintThrowsSvg(pattern: Pattern): string {
-
     const dist = 100
     const width = (pattern.getLength() + pattern.getPrefixLength() + 4) * dist
     const height = (pattern.nrRows + 2) * dist
 
     const svg: Svg = createSVG(width, height).viewbox(0, 0, width, height)
-
-
-
 
     // let result = ""
 
@@ -39,13 +33,13 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         // const fromRole = pattern.getRole(t.throwBeat, t.fromPasserIdx)
         const toRole = pattern.getToPasserRole(t)
         // const printRole = fromRole !== toRole ? toRole : ""
-        const markers = t.markers ? t.markers.filter(m => m.kind !== 'B' && m.kind !== 'M') : []
-        const printType = markers.length === 0 ? "" : markers.map(m => m.kind).join("")
+        const markers = t.markers ? t.markers.filter((m) => m.kind !== "B" && m.kind !== "M") : []
+        const printType = markers.length === 0 ? "" : markers.map((m) => m.kind).join("")
         const hand = pattern.getThrowHand(t, 0)
         const isCrossing = pattern.isSelfThrow(t) ? "" : (pattern.isStraightPass(t, 0) ? "‖" : "X")
         const targetFirstIteration = (pattern as PatternImpl).getToPasserIdxOnCausal(t) + (pattern.getTargetHandFirstIteration(t) === Hand.Left ? "L" : "R") + pattern.getThrowCauseBeat(t)
-        const str = `${t.throwLength}${toRole}${isCrossing}${(targetFirstIteration)}${printType}`
-        return hand === Hand.Left ? (str) : (str)
+        const str = `${t.throwLength}${toRole}${isCrossing}${targetFirstIteration}${printType}`
+        return hand === Hand.Left ? str : str
     }
 
     const showHeader = true
@@ -54,35 +48,35 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         svg.text("Beat" + (pattern.globalHandOrderOffset !== 0 ? " ::" + pattern.globalHandOrderOffset : "")).move(dist, dist)
 
         for (let beat = -pattern.getPrefixLength(); beat < 0; beat++) {
-            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? 'L' : 'R')).move(getX(beat), dist)
+            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? "L" : "R")).move(getX(beat), dist)
         }
         for (let beat = 0; beat < pattern.getLength(); beat++) {
             // const newRoles = pattern.roles.find(r => r[0] === beat)
             // if (beat !== 0 && newRoles)
             //     result += `\t`
             // result += beat + "\t"
-            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? 'L' : 'R')).move(getX(beat), dist)
+            svg.text(beat.toString() + " " + (pattern.getGlobalHand(0, beat) ? "L" : "R")).move(getX(beat), dist)
         }
     }
 
-
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
-        const myThrows = pattern.throws.filter(t => t.fromPasserIdx === rowIdx).sort((a, b) => a.throwBeat - b.throwBeat)
+        const myThrows = pattern.throws.filter((t) => t.fromPasserIdx === rowIdx).sort((a, b) => a.throwBeat - b.throwBeat)
         // row heading
         svg.text(`${rowIdx} (${pattern.getRole(0, rowIdx)})`).move(dist, getY(rowIdx, 0))
 
         // prefix throws
         for (let beat = -pattern.getPrefixLength(); beat < 0; beat++) {
-            const ts = myThrows.filter(t => t.throwBeat === beat)
-            for (const t of ts)
+            const ts = myThrows.filter((t) => t.throwBeat === beat)
+            for (const t of ts) {
                 svg.text(printThrow(t)).move(getX(beat), getY(rowIdx, pattern.getThrowHand(t, 0)))
+            }
         }
         for (let beat = 0; beat < pattern.getLength(); beat++) {
             // const newRoles = pattern.roles.find(r => r[0] === beat)
             // if (beat !== 0 && newRoles)
             //     result += `(${newRoles[1][rowIdx]})\t`
 
-            const ts = myThrows.filter(t => t.throwBeat === beat)
+            const ts = myThrows.filter((t) => t.throwBeat === beat)
             for (const t of ts) {
                 const hand = pattern.getThrowHand(t, 0)
                 svg.circle(4).move(getX(beat) - 2, getY(rowIdx, Hand.Right) - 2).fill("blue")
@@ -93,11 +87,6 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         const l = `-> ${pattern.mapRows[rowIdx]} [${pattern.getRole(pattern.getLength(), rowIdx)}]`
         svg.text(l).move(getX(pattern.getLength()), getY(rowIdx, 0))
     }
-
-
-
-
-
 
     function error(x: number, y: number, message: string): void {
         svg.circle(10).move(x - 5, y - 5).fill("red").stroke({ color: "black", width: 1 })
@@ -120,51 +109,49 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
         const bendOffset = xDiff > 0 ? 0 : dist / 5.5 * xDiff / dist * .9
         const flipOffset = 20
 
-        const path = xDiff !== 0 ?
-            svg.path(`M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`).fill("transparent") :
-            svg.path(`M ${x1} ${y1} C ${x1 - flipOffset} ${y1 - flipOffset}, ${x2 + flipOffset} ${y2 - flipOffset}, ${x2} ${y2}`).fill("transparent") // flip
-        if (throwLength < 0)
-            path.stroke({ dasharray: '2,2' });
-
+        const path = xDiff !== 0
+            ? svg.path(`M ${x1} ${y1} C ${x1 + bendOffset} ${y1 + dir * bendOffset}, ${x2 - bendOffset} ${y2 + dir * bendOffset}, ${x2} ${y2}`).fill("transparent")
+            : svg.path(`M ${x1} ${y1} C ${x1 - flipOffset} ${y1 - flipOffset}, ${x2 + flipOffset} ${y2 - flipOffset}, ${x2} ${y2}`).fill("transparent") // flip
+        if (throwLength < 0) {
+            path.stroke({ dasharray: "2,2" })
+        }
 
         return path
-
     }
 
-
-
-    const foundThrown: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
-    const foundCaught: (Throw | undefined)[/*row*/][/*hand*/][/*beat*/] = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
+    const foundThrown: (Throw | undefined)[] /*row*/[] /*hand*/[] /*beat*/ = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
+    const foundCaught: (Throw | undefined)[] /*row*/[] /*hand*/[] /*beat*/ = Array.from({ length: pattern.nrRows }, () => Array.from({ length: 2 }, () => Array(pattern.getLength()).fill(undefined)))
 
     // ignore prefix throws for indexing
-    for (const t of pattern.throws) if (t.throwBeat >= 0) {
-        const hand = pattern.getThrowHand(t, 0)
-        if (foundThrown[t.fromPasserIdx][hand][t.throwBeat]) {
-            error(getX(t.throwBeat), getY(t.fromPasserIdx, hand), "multiple throws")
-        } else
-            foundThrown[t.fromPasserIdx][hand][t.throwBeat] = t
+    for (const t of pattern.throws) {
+        if (t.throwBeat >= 0) {
+            const hand = pattern.getThrowHand(t, 0)
+            if (foundThrown[t.fromPasserIdx][hand][t.throwBeat]) {
+                error(getX(t.throwBeat), getY(t.fromPasserIdx, hand), "multiple throws")
+            } else {
+                foundThrown[t.fromPasserIdx][hand][t.throwBeat] = t
+            }
 
-        const causeBeat = pattern.getThrowCauseBeat(t)
-        // if we cross the pattern boundary, consider a pass from a previous period to be the incoming one to get the hands right in the wraparound
-        const targetHandInFirstIteration = pattern.getTargetHandFirstIteration(t)
-        // const from = pattern.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration*pattern.getLength())
-        // const to = pattern.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, Math.max(iteration,0)*pattern.getLength()+t.throwLength-pattern.nrHands)
-        const from = t.fromPasserIdx
-        const to = (pattern as PatternImpl).getToPasserIdxOnCausal(t)
-        // console.log(`${from}/${hand?"L":"R"} @ ${t.throwBeat} -> ${to}/${targetHand?"L":"R"} @ ${causeBeat} (${pattern.getThrowCauseTime(t)}, ${iteration})`)
-        if (foundCaught[to][targetHandInFirstIteration][causeBeat]) {
-            error(getX(causeBeat), getY(to, targetHandInFirstIteration), "multiple catches")
-        } else
-            foundCaught[to][targetHandInFirstIteration][causeBeat] = t
+            const causeBeat = pattern.getThrowCauseBeat(t)
+            // if we cross the pattern boundary, consider a pass from a previous period to be the incoming one to get the hands right in the wraparound
+            const targetHandInFirstIteration = pattern.getTargetHandFirstIteration(t)
+            // const from = pattern.samePasserNBeatsLater(t.fromPasserIdx, t.throwBeat, iteration*pattern.getLength())
+            // const to = pattern.samePasserNBeatsLater(t.toPasserIdx, t.throwBeat, Math.max(iteration,0)*pattern.getLength()+t.throwLength-pattern.nrHands)
+            const from = t.fromPasserIdx
+            const to = (pattern as PatternImpl).getToPasserIdxOnCausal(t)
+            // console.log(`${from}/${hand?"L":"R"} @ ${t.throwBeat} -> ${to}/${targetHand?"L":"R"} @ ${causeBeat} (${pattern.getThrowCauseTime(t)}, ${iteration})`)
+            if (foundCaught[to][targetHandInFirstIteration][causeBeat]) {
+                error(getX(causeBeat), getY(to, targetHandInFirstIteration), "multiple catches")
+            } else {
+                foundCaught[to][targetHandInFirstIteration][causeBeat] = t
+            }
 
-        const path = causal(getX(t.throwBeat), getY(from, hand), getX(causeBeat), getY(to, targetHandInFirstIteration), pattern.getThrowCauseLength(t))
-            .stroke({ width: 2, color: targetHandInFirstIteration ? "green" : "blue" })
+            const path = causal(getX(t.throwBeat), getY(from, hand), getX(causeBeat), getY(to, targetHandInFirstIteration), pattern.getThrowCauseLength(t))
+                .stroke({ width: 2, color: targetHandInFirstIteration ? "green" : "blue" })
 
-        // if (t.throwBeat!==causeBeat || from!==to || hand!==targetHandInFirstIteration) 
-        path.marker('end', 10, 10, add =>
-            add.polygon('0,0 7.5,5 0,10').fill(targetHandInFirstIteration ? "green" : "blue").scale(.5, .5)
-        );
-
+            // if (t.throwBeat!==causeBeat || from!==to || hand!==targetHandInFirstIteration)
+            path.marker("end", 10, 10, (add) => add.polygon("0,0 7.5,5 0,10").fill(targetHandInFirstIteration ? "green" : "blue").scale(.5, .5))
+        }
     }
     for (let rowIdx = 0; rowIdx < pattern.nrRows; rowIdx++) {
         for (let beat = 0; beat < pattern.getLength(); beat++) {
@@ -198,7 +185,7 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
     //     }
 
     //     // should land on a hand where the catching throw is a wraparound throw
-    //     const competingWraparoundThrow = foundCaught[targetPasserIdx][targetHand][causeBeat] 
+    //     const competingWraparoundThrow = foundCaught[targetPasserIdx][targetHand][causeBeat]
     //     if (!competingWraparoundThrow || pattern.getThrowCauseTime(competingWraparoundThrow)< pattern.getLength()) {
     //         pattern.validationError = `prefix throw on beat ${t.throwBeat} from ${t.fromPasserIdx}/${t.fromHand} lands on a hand that already catches a pass in the first iteration of the pattern`
     //         return false
@@ -226,22 +213,6 @@ export function prettyPrintThrowsSvg(pattern: Pattern): string {
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     return svg.svg()
 }

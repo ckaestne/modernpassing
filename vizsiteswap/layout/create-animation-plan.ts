@@ -1,36 +1,32 @@
 /**
  * takes an animation spec and produces an animation plan
- * 
+ *
  * that is, translate relative role-based positions and actions
  * into specific passer-based coordinates that can be executed
  * with little computation in the frontend.
  */
 
-import type { Hand, Role } from "../pattern/pattern.ts";
-import { apFindPosition, apGetRole, type AnimationPlan, type MovementAnimation, type PassAnimation, type RelabelAnimation } from "./animation-plan.ts";
-import type { AnimationSpec, PassSpec, RelabelSpec } from "./animation-spec.ts";
-import type { LocationManager } from "./location-manager/location-manager.ts";
-import type { PasserIdx } from "./location-manager/helpers.ts";
-import { createFullLocationManager } from "./location-manager/location-manager.ts";
-
-
+import type { Hand, Role } from "../pattern/pattern.ts"
+import { type AnimationPlan, apFindPosition, apGetRole, type MovementAnimation, type PassAnimation, type RelabelAnimation } from "./animation-plan.ts"
+import type { AnimationSpec, PassSpec, RelabelSpec } from "./animation-spec.ts"
+import type { LocationManager } from "./location-manager/location-manager.ts"
+import type { PasserIdx } from "./location-manager/helpers.ts"
+import { createFullLocationManager } from "./location-manager/location-manager.ts"
 
 /**
  * creates the animation plan
- * @param animationSpec 
+ * @param animationSpec
  * @param canvasSizeByPasserCircle Size of the canvas relative to the size of a circle representing a passer
  *      for example, a 200px canvas with a passer circle of 20px would be 10.
  *      While all animations are rendered on relative locations from 0 to 1, this is needed to scale animations to the circle size, especially the length of arms for passes
- * @returns 
+ * @returns
  */
 export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number = 200 / 40): AnimationPlan {
     // all roles, this is used to create ids
-    const locationMgr = createFullLocationManager(animationSpec);
-
-
+    const locationMgr = createFullLocationManager(animationSpec)
 
     // relative movements add manipulator movements; creating animations and also adding computed manipulator positions to the location manager
-    const movementAnimations: MovementAnimation[] = locationMgr.getAnimations();
+    const movementAnimations: MovementAnimation[] = locationMgr.getAnimations()
 
     const passAnimations: PassAnimation[] = animationSpec.passAnimations.flatMap(convertPassAnimation(locationMgr, canvasSizeByPasserCircle))
     const relabeling: RelabelAnimation[] = convertRelabeling(locationMgr, animationSpec.relabeling)
@@ -39,7 +35,7 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
     const initialPositions = locationMgr.getInitialPositions().map(([_passerIdx, x, y, initialRole]) => ({
         x,
         y,
-        initialRole
+        initialRole,
     }))
 
     return {
@@ -47,15 +43,13 @@ export function createAnimationPlan(animationSpec: AnimationSpec, canvasSizeByPa
         initialPositions,
         passAnimations,
         movementAnimations,
-        relabeling
+        relabeling,
     }
-
 }
 
 function convertPassAnimation(locationMgr: LocationManager, canvasSizeByPasserCircle: number): (passSpec: PassSpec) => PassAnimation[] {
     const relativeArmLength = 1 / canvasSizeByPasserCircle * .9
     return (passSpec: PassSpec): PassAnimation[] => {
-
         const result: PassAnimation[] = []
         for (let time = passSpec.onBeat; time < locationMgr.mod; time += passSpec.mod) {
             // getting locations for first and second iteration, in case they are different
@@ -69,53 +63,45 @@ function convertPassAnimation(locationMgr: LocationManager, canvasSizeByPasserCi
             const [toX, toY] = locationMgr.getFutureLocationByRole(passArrivalTime, time, toRoleAtThrow)
             const [toX2, toY2] = locationMgr.getFutureLocationByRole(passArrivalTime + locationMgr.mod, time + locationMgr.mod, toRoleAtThrow)
 
-
             if (fromX !== fromX2 || fromY !== fromY2 || toX !== toX2 || toY !== toY2) {
                 result.push(createPassAnimationInstance(fromX, fromY, toX, toY, passSpec, time, relativeArmLength, true))
                 result.push(createPassAnimationInstance(fromX2, fromY2, toX2, toY2, passSpec, time, relativeArmLength, false))
-            }
-            else
+            } else {
                 result.push(createPassAnimationInstance(fromX, fromY, toX, toY, passSpec, time, relativeArmLength, undefined))
-
+            }
         }
         return result
     }
-
 }
 
-
-
 function convertRelabeling(locationMgr: LocationManager, relabelingSpecs: RelabelSpec): RelabelAnimation[] {
-    const result: RelabelAnimation[] = [];
+    const result: RelabelAnimation[] = []
     for (let time = 0; time < locationMgr.mod; time++) {
         for (const relabel of relabelingSpecs.relabelActions) {
             if (time % relabel.mod === Math.floor(relabel.onBeat)) {
                 const changes: [PasserIdx, Role][] = relabel.changes.map(([_fromRole, toRole]) => {
-                    return [locationMgr.roleTracker._getPasserIdx(time, toRole), toRole];
-                });
+                    return [locationMgr.roleTracker._getPasserIdx(time, toRole), toRole]
+                })
                 result.push({ onBeat: time, changes })
             }
         }
     }
-    return result;
+    return result
 }
-
-
-
 
 /** from animations.ts */
 
 /**
  *     const [fromX, fromY, toX, toY, labelX, labelY] = computePass(x1, y1, fromHand, x2, y2, toHand)
- * @param x1 
- * @param y1 
- * @param hand1 
- * @param x2 
- * @param y2 
- * @param hand2 
- * @param armLength 
- * @param labelDistance 
- * @returns 
+ * @param x1
+ * @param y1
+ * @param hand1
+ * @param x2
+ * @param y2
+ * @param hand2
+ * @param armLength
+ * @param labelDistance
+ * @returns
  */
 function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number, hand2: Hand, armLength: number, labelDistance: number): [number, number, number, number, number, number] {
     //angle between the two points
@@ -139,11 +125,13 @@ function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number
 
     const passAngle = Math.atan2(y4 - y3, x4 - x3) * 180 / Math.PI
 
-    const labelAngle =
-        hand1 === 0 && hand2 === 1 ? 90 : // right hand pass to the right
-            hand1 === 1 && hand2 === 0 ? 90 : // left hand pass to the left
-                hand1 === 0 && hand2 === 0 ? -90 :
-                    90 // crossing pass toward the target
+    const labelAngle = hand1 === 0 && hand2 === 1
+        ? 90 // right hand pass to the right
+        : hand1 === 1 && hand2 === 0
+        ? 90 // left hand pass to the left
+        : hand1 === 0 && hand2 === 0
+        ? -90
+        : 90 // crossing pass toward the target
 
     //sideways adjustment for label
     // if (labelAngle !== 0) {
@@ -154,15 +142,11 @@ function computePass(x1: number, y1: number, hand1: Hand, x2: number, y2: number
     labelX += length / 4 * Math.cos(passAngle * Math.PI / 180)
     labelY += length / 4 * Math.sin(passAngle * Math.PI / 180)
 
-
     return [x3, y3, x4, y4, labelX, labelY]
 }
 
-
 function createPassAnimationInstance(fromX: number, fromY: number, toX: number, toY: number, passSpec: PassSpec, time: number, relativeArmLength: number, firstIteration: boolean | undefined): PassAnimation {
-
-    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] =
-        computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
+    const [fromHandX, fromHandY, toHandX, toHandY, labelHandX, labelHandY] = computePass(fromX, fromY, passSpec.pass.fromHand, toX, toY, passSpec.pass.toHand, relativeArmLength, 0.01)
     return {
         onBeat: time,
         duration: passSpec.displayDuration,
@@ -179,23 +163,15 @@ function createPassAnimationInstance(fromX: number, fromY: number, toX: number, 
             fromX,
             toX,
             fromY,
-            toY
+            toY,
         },
     }
 }
 
-
-
-
-
-
 /** infrastructure for compatibility with old tests for convenient operation on AnimationPlans */
 
-
-
 class AnimationPlanMgr {
-    constructor(public plan: AnimationPlan) { }
-
+    constructor(public plan: AnimationPlan) {}
 
     // inefficient implementation, use for testing/debugging only
     getLocationByRole(time: number, role: string): [number, number] {
@@ -209,6 +185,6 @@ class AnimationPlanMgr {
 }
 
 export function computeBaseAnimations(animationSpec: AnimationSpec, canvasSizeByPasserCircle: number = 200 / 40): AnimationPlanMgr {
-    const plan = createAnimationPlan(animationSpec, canvasSizeByPasserCircle);
+    const plan = createAnimationPlan(animationSpec, canvasSizeByPasserCircle)
     return new AnimationPlanMgr(plan)
 }

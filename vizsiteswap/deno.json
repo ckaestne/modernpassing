@@ -1,5 +1,15 @@
 {
-    "workspace": ["./pattern", "./parsing", "./rendering-core", "./rendering-svg", "./rendering-tikz","./svg-utils","./manipulation","./runtime","./layout"],
+    "workspace": [
+        "./pattern",
+        "./parsing",
+        "./rendering-core",
+        "./rendering-svg",
+        "./rendering-tikz",
+        "./svg-utils",
+        "./manipulation",
+        "./runtime",
+        "./layout"
+    ],
     "compilerOptions": {
         "strict": true,
         "noImplicitAny": true,
@@ -16,5 +26,13 @@
     "tasks": {
         "gen-runtime": "deno run -A runtime/convert.ts --input runtime/animations.ts --output dist/animations.js",
         "debug": "deno run -A --watch --watch=runtime/animations.ts rendering-svg/debug-server.ts"
+    },
+    "fmt": {
+        "useTabs": false,
+        "lineWidth": 280,
+        "indentWidth": 4,
+        "semiColons": false,
+        "singleQuote": false,
+        "proseWrap": "preserve"
     }
 }

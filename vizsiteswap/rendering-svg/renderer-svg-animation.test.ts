@@ -1,14 +1,13 @@
 // deno-lint-ignore-file no-explicit-any
-import fs from "node:fs";
-import test from "node:test";
-import type { AnimationSpec, MovementSegmentSpec, PassLayoutSpec, PassSpec } from "@modernpassing/layout";
-import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground, renderGroupPattern } from "./renderer-svg.ts";
-import { createGroupPattern } from "@modernpassing/parsing";
-import { Hand } from "../pattern/pattern.ts";
-import { createAnimationPlan } from "../layout/create-animation-plan.ts";
+import fs from "node:fs"
+import test from "node:test"
+import type { AnimationSpec, MovementSegmentSpec, PassLayoutSpec, PassSpec } from "@modernpassing/layout"
+import { createSVG, defaultRenderLayoutConfig, renderAnimation, renderBackground, renderGroupPattern } from "./renderer-svg.ts"
+import { createGroupPattern } from "@modernpassing/parsing"
+import { Hand } from "../pattern/pattern.ts"
+import { createAnimationPlan } from "../layout/create-animation-plan.ts"
 
 // test("render first animation (star with a hole)", async (t) => {
-
 
 //     const p: [string, number, number][] = [
 //         ["A", 0.5, 0],
@@ -92,9 +91,6 @@ import { createAnimationPlan } from "../layout/create-animation-plan.ts";
 //         ]}
 //     }
 
-
-
-
 //     const patterns = [animation]
 
 //     let content = "<!DOCTYPE html><html>" +
@@ -120,42 +116,47 @@ import { createAnimationPlan } from "../layout/create-animation-plan.ts";
 //     content += "</html>"
 //     fs.writeFileSync("test/animation.html", content);
 
-
 // })
 
 Deno.test("entry point for animations", () => {
-    const gp = createGroupPattern(`A: 3pB333pC33
+    const gp = createGroupPattern(
+        `A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33
-positions: Circle(A,B,C)`, 2)
+positions: Circle(A,B,C)`,
+        2,
+    )
     const config = {}
     const [svg, initData] = renderGroupPattern(gp, config)
-    console.log(svg.svg());
+    console.log(svg.svg())
     console.log(initData)
-
 })
 
-
 Deno.test("animation for 3V", () => {
-    const gp = createGroupPattern(`A: 3pB3  3pC3  3pB3  -- B
+    const gp = createGroupPattern(
+        `A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A
 M: CBz   SBz   IC.   -- M
 N: CCz   SAz   IBe.   -- N
 positions: V(A,B,C)
-move: Vmove(B,4.9,3)`, 2)
+move: Vmove(B,4.9,3)`,
+        2,
+    )
     const config = {}
     const [svg, initData] = renderGroupPattern(gp, config)
-    console.log(svg.svg());
+    console.log(svg.svg())
     console.log(initData)
-
 })
 
 Deno.test("group pattern data payload", () => {
-    const gp = createGroupPattern(`A: 3pB33
+    const gp = createGroupPattern(
+        `A: 3pB33
 B: 3pC33
 C: 3pA33
-positions: Circle(A,B,C)`, 2)
+positions: Circle(A,B,C)`,
+        2,
+    )
     const [svg, data] = renderGroupPattern(gp, { components: ["pattern", "layout"] })
 
     if (!svg.svg().includes("<svg")) throw new Error("Expected SVG output")

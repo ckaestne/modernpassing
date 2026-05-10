@@ -1,5 +1,5 @@
 {
-  "name": "@modernpassing/rendering-tikz",
-  "version": "0.1.0",
-  "exports": "./rendering-tikz.ts"
+    "name": "@modernpassing/rendering-tikz",
+    "version": "0.1.0",
+    "exports": "./rendering-tikz.ts"
 }

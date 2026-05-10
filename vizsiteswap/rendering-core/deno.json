@@ -1,5 +1,5 @@
 {
-  "name": "@modernpassing/rendering-core",
-  "version": "0.1.0",
-  "exports": "./rendering.ts"
+    "name": "@modernpassing/rendering-core",
+    "version": "0.1.0",
+    "exports": "./rendering.ts"
 }

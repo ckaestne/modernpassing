@@ -1,35 +1,30 @@
-import { applyManipulations, applyManipulatorLayout, fillPatternGaps } from "@modernpassing/manipulation";
-import { baseMarker, type Beat, createPattern, createThrow, Hand, type ManipulatorAction, type Pattern, type Throw } from "@modernpassing/pattern";
-import assert from "node:assert";
-import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts";
-import { addPassAnimations, setLayoutRelabeling } from "../layout/pattern-layout.ts";
-import { type TLayout, type TMovement, createShapeLayout, type GroupPattern, type GroupPatternLayoutSpec } from "@modernpassing/layout";
-import { MovementTriggerSpec } from "../layout/animation-spec.ts";
-import { parseLayout } from "./parse-layout.ts";
+import { applyManipulations, applyManipulatorLayout, fillPatternGaps } from "@modernpassing/manipulation"
+import { baseMarker, type Beat, createPattern, createThrow, Hand, type ManipulatorAction, type Pattern, type Throw } from "@modernpassing/pattern"
+import assert from "node:assert"
+import { HandSwap, parseGroupPattern, parseThrow, type THandSwap, type TPatternRow, type TThrow } from "./pattern-fromgroup-parser.ts"
+import { addPassAnimations, setLayoutRelabeling } from "../layout/pattern-layout.ts"
+import { createShapeLayout, type GroupPattern, type GroupPatternLayoutSpec, type TLayout, type TMovement } from "@modernpassing/layout"
+import { MovementTriggerSpec } from "../layout/animation-spec.ts"
+import { parseLayout } from "./parse-layout.ts"
 
 /**
  * parsing of multi-line patterns, pretty much anything but vanilla siteswaps (and fromsync has simpler shorthands
- * that are translated into this group format) 
- * 
+ * that are translated into this group format)
+ *
  * Supports roles, line changes, 2 and 4 hands, and various remapping (positions, hands, ...) to wrap
  * around.
- * 
+ *
  * See `pattern-notation.md` for details.
- * 
  */
-
-
-
 
 export function createSyncGroupPattern(patternStr: string): GroupPattern {
     return createGroupPattern(patternStr, 2)
 }
 export function createGroupPattern(patternStr: string, nrHands: number, skipRewrite: boolean = false, skipFillDuringRewrite: boolean = false, skipLayout: boolean = false): GroupPattern {
-
     let [rows, layout, movement] = parseGroupPattern(patternStr)
 
     // basic checks
-    const baseRows = rows.filter(r => !r.isManipulator)
+    const baseRows = rows.filter((r) => !r.isManipulator)
     if (baseRows.length < 2) throw new Error("Need at least two non-manipulator roles in a pattern")
 
     // parse basic notation and create base pattern
@@ -42,65 +37,57 @@ export function createGroupPattern(patternStr: string, nrHands: number, skipRewr
     // infer basic layouts (heuristic)
     layout = layout ?? inferDefaultLayout(rows, movement)
 
-    const patternLayout = !layout || skipLayout ? undefined :
-        setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten, pattern), pattern, rewritten)
-
-
+    const patternLayout = !layout || skipLayout ? undefined : setLayoutRelabeling(applyManipulatorLayout(addPassAnimations(genLayout(layout, movement, pattern), rewritten), rewritten, pattern), pattern, rewritten)
 
     return {
         pattern: rewritten,
         aidanNotation: [pattern, manipulatorActions],
-        layout: patternLayout
+        layout: patternLayout,
     }
 }
-
-
-
-
 
 /**
  * turns raw input rows into a pattern that can be manipulated
  * supports sync patterns and 4hsiteswaps
- * 
+ *
  * @param rawPattern pattern parsed from input
  * @param nrHands number of hands in the pattern (2 or 4)
- * @returns 
+ * @returns
  */
 export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number): [Pattern, ManipulatorAction[]] {
-    const roles = rawPattern.map(row => row.role!)
-    const fullRelabel: number[] = rawPattern.map(t => roles.indexOf(t.relabel ?? t.role!))
-    const baseRoles = rawPattern.filter(t => !t.isManipulator).map(row => row.role!)
-    const baseIdxRelabel: number[] = rawPattern.filter(t => !t.isManipulator).map(t => baseRoles.indexOf(t.relabel ?? t.role!))
+    const roles = rawPattern.map((row) => row.role!)
+    const fullRelabel: number[] = rawPattern.map((t) => roles.indexOf(t.relabel ?? t.role!))
+    const baseRoles = rawPattern.filter((t) => !t.isManipulator).map((row) => row.role!)
+    const baseIdxRelabel: number[] = rawPattern.filter((t) => !t.isManipulator).map((t) => baseRoles.indexOf(t.relabel ?? t.role!))
     const nrBaseRoles = baseRoles.length
     const throws = allThrowsByBeat(rawPattern, nrHands)
     const patternLength = getPatternLength(throws, nrHands)
-    const prefixLength = 0 - throws.map(t => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
+    const prefixLength = 0 - throws.map((t) => t[1]).reduce((min, v) => v < 0 ? Math.min(min, v) : min, 0)
 
     // hand ordering is nontrivial unfortunately
     // we assume right-left alternating by default, starting right-handed
     // `!` in the notation indicates a flip from that order, typically at the beginning, but possibly also in the middle
     // unless we have a pair of throws on the beat, the single throw is thrown from the hand
-    // where the incoming pass arrived (causal beat). 
+    // where the incoming pass arrived (causal beat).
 
     // to not go insane in the implementation, this does not wrap around; that is, the last beat of the pattern
     // does not influence the hand of the first throws of the pattern. those need to be fixed by `!`
     // if something is wrong, this will result in an invalid pattern
 
     // default hand order is right-left-right-left-right-left...; `!` flips that; those defaults may be changed later as we process throws
-    const handSequence: Hand[/*rowIdx*/][/*beat*/] =
-        applyHandswaps(
-            altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
-            rawPattern,
-            nrHands)
+    const handSequence: Hand[] /*rowIdx*/[] /*beat*/ = applyHandswaps(
+        altHands(Hand.Right, patternLength, rawPattern.length, nrHands),
+        rawPattern,
+        nrHands,
+    )
     const globalHandOrder: Hand[] = nrHands === 2 ? [Hand.Right, Hand.Left] : [Hand.Right, Hand.Right, Hand.Left, Hand.Left]
-    const prefixHandSequence: Hand[/*rowIdx*/][/*-beat*/] = altHands(handSequence.map(v => 1 - v[0]), prefixLength, rawPattern.length, nrHands)
+    const prefixHandSequence: Hand[] /*rowIdx*/[] /*-beat*/ = altHands(handSequence.map((v) => 1 - v[0]), prefixLength, rawPattern.length, nrHands)
     // for now let's assume that everybody starting on even beats is James (straight singles); any other adjustments are doing with `x` for passes
     const isJames: boolean[] = nrHands === 4 ? getJames(rawPattern) : []
 
-
     function convert(throwStr: TThrow, who: number, fixedHand: Hand | undefined, when: Beat): Throw {
         assert(!Array.isArray(throwStr))
-        assert(throwStr !== ',', `cannot convert ',' into a throw -- this should have been processed elsewhere`)
+        assert(throwStr !== ",", `cannot convert ',' into a throw -- this should have been processed elsewhere`)
         // assert(fixedHand === undefined || nrHands === 2, `only supporting sync throws for 2 handed for now`)
 
         const [throwLength, isPass, targetRole, flipCrossing] = parseThrow(throwStr)
@@ -121,15 +108,18 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
         assert(to >= 0, `target role not clear for throw  ${throwStr}`)
         const causeTime = when + throwLength - nrHands
         // next throw from receiving hand
-        if (causeTime < patternLength && fixedHand === undefined)
+        if (causeTime < patternLength && fixedHand === undefined) {
             handSequence[to][causeTime] = isCrossing ? 1 - fromHand : fromHand
+        }
 
         // deal with relabeling (transforming toPasserIdxAtThrow to toPasserIdxAtCausal)
         let toPasserIdxAtCausal = to
-        for (let wrap = 0; wrap < Math.floor(causeTime / patternLength); wrap++)
+        for (let wrap = 0; wrap < Math.floor(causeTime / patternLength); wrap++) {
             toPasserIdxAtCausal = fullRelabel[toPasserIdxAtCausal]
-        for (let wrap = 0; wrap > Math.floor(causeTime / patternLength); wrap--)
+        }
+        for (let wrap = 0; wrap > Math.floor(causeTime / patternLength); wrap--) {
             toPasserIdxAtCausal = fullRelabel.indexOf(toPasserIdxAtCausal)
+        }
 
         const fromOppositeHand = globalHandOrder[mod(when, globalHandOrder.length)] !== fromHand
 
@@ -141,10 +131,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
             toPasserIdxAtCausal,
             throwLength,
             [baseMarker],
-            throwStr
+            throwStr,
         )
     }
-
 
     function getBaseThrows(): Throw[] {
         const result: Throw[] = []
@@ -157,13 +146,13 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
     function convertManipulatorAction(pattern: Pattern, throwStr: string, whoIdx: number, when: Beat): ManipulatorAction {
         let modifiers = ""
-        if (throwStr[0] === 'z') {
+        if (throwStr[0] === "z") {
             modifiers = throwStr.slice(1)
             throwStr = (nrHands / 2).toString()
         }
         const who = roles[whoIdx]
 
-        if (['I', 'S'].includes(throwStr[0])) {
+        if (["I", "S"].includes(throwStr[0])) {
             const firstRole: string | undefined = throwStr[1]
             assert(roles.includes(firstRole), `target role ${firstRole} in ${throwStr} not found in ${roles}`)
             modifiers = throwStr.slice(2)
@@ -174,20 +163,20 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 assert(roles.includes(secondRole), `target role ${secondRole} in ${throwStr} not found in ${roles}`)
             }
             const fromPasserRole = secondRole ? firstRole : undefined // only defined when both are specified, otherwise single role is assumed to be the target
-            const toPasserRole = secondRole ? secondRole : firstRole // 
-            checkModifiers(throwStr[0] as 'I' | 'S', modifiers)
+            const toPasserRole = secondRole ? secondRole : firstRole //
+            checkModifiers(throwStr[0] as "I" | "S", modifiers)
             // const manipulatedThrow = pattern.findThrow(when, fromRoleIdx, toRoleIdx) // this is the throw that is manipulated
             // assert(manipulatedThrow, `no throw found from ${firstRole} to ${secondRole} for ${throwStr} at ${when}`)
 
             return {
-                kind: throwStr[0] as 'I' | 'S',
+                kind: throwStr[0] as "I" | "S",
                 fromPasserRole,
                 toPasserRole,
                 beat: when,
                 manipulatorRole: who,
-                modifiers
+                modifiers,
             }
-        } else if (throwStr[0] === 'C') {
+        } else if (throwStr[0] === "C") {
             modifiers = throwStr.slice(1)
             let toPasserRole: string | undefined = undefined
             if (throwStr[1] && throwStr[1].match(/[A-Z]/)) {
@@ -195,24 +184,24 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
                 modifiers = modifiers.slice(1)
             }
             return {
-                kind: 'C',
+                kind: "C",
                 toPasserRole,
                 beat: when,
                 manipulatorRole: who,
-                modifiers
+                modifiers,
             }
         } else {
             try {
                 const t = convert(throwStr, whoIdx, undefined, when)
                 return {
-                    kind: 'T',
+                    kind: "T",
                     throwLength: t.throwLength,
                     toPasserRole: roles[pattern.getToPasserIdxAtThrow(t)],
                     fromOppositeHand: t.fromOppositeHand,
                     flipCrossing: t.flipCrossing,
                     beat: t.throwBeat,
                     manipulatorRole: who,
-                    modifiers
+                    modifiers,
                 }
             } catch (e) {
                 throw new Error(`error converting manipulator action ${throwStr} for ${who} at ${when}`, { cause: e })
@@ -222,23 +211,23 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
 
     function getManipulatorActions(pattern: Pattern): ManipulatorAction[] {
         const result: ManipulatorAction[] = []
-        for (let rowIdx = 0; rowIdx < rawPattern.length; rowIdx++)
+        for (let rowIdx = 0; rowIdx < rawPattern.length; rowIdx++) {
             if (rawPattern[rowIdx].isManipulator) {
                 const throwsByBeat = throwByBeat(rawPattern[rowIdx], nrHands)
                 for (const [beat, currentThrow] of throwsByBeat) {
-                    if (Array.isArray(currentThrow))
-                        result.push(...currentThrow.map(t => convertManipulatorAction(pattern, t, rowIdx, beat)))
-                    else result.push(convertManipulatorAction(pattern, currentThrow, rowIdx, beat))
+                    if (Array.isArray(currentThrow)) {
+                        result.push(...currentThrow.map((t) => convertManipulatorAction(pattern, t, rowIdx, beat)))
+                    } else result.push(convertManipulatorAction(pattern, currentThrow, rowIdx, beat))
                 }
             }
+        }
         return result
     }
-
 
     const baseThrows = getBaseThrows()
 
     // handle handedness
-    const providedHandOrderOffset: number | undefined = rawPattern.find(r => r.handOrderOffset !== undefined)?.handOrderOffset
+    const providedHandOrderOffset: number | undefined = rawPattern.find((r) => r.handOrderOffset !== undefined)?.handOrderOffset
 
     // any mapping specified? if yes, we take that as the mapping for the pattern (and the pattern is simply invalid if its wrong)
     // if not, we are doing guessing and brute force trying all combinations
@@ -260,9 +249,9 @@ export function createPatternFromRaw(rawPattern: TPatternRow[], nrHands: number)
     //     })
     //     p = tryHandMapping(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, guessedMapHands, guestMapCrossing, undefined, patternLength))
     // }
-    const p = providedHandOrderOffset !== undefined ?
-        createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, providedHandOrderOffset) :
-        tryHandOrderOffsets(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, 0))
+    const p = providedHandOrderOffset !== undefined
+        ? createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, providedHandOrderOffset)
+        : tryHandOrderOffsets(createPattern(baseThrows, nrHands, baseIdxRelabel, baseRoles, globalHandOrder, patternLength, 0))
     const m = getManipulatorActions(p)
 
     return [p, m]
@@ -276,13 +265,12 @@ function tryHandOrderOffsets(pattern: Pattern): Pattern {
 
     for (let offset = 1; offset < pattern.nrHands; offset++) {
         const p = createPattern(pattern.throws, pattern.nrHands, pattern.mapRows, pattern.roles, pattern.globalHandOrder, pattern.getLength(), offset)
-        if (p.isValid()) return p;
+        if (p.isValid()) return p
     }
 
     // nothing worked, so just return the original invalid pattern
     return pattern
 }
-
 
 // /**
 //  * brute force approach to try different hand mappings if the pattern is not valid as is
@@ -329,8 +317,6 @@ function tryHandOrderOffsets(pattern: Pattern): Pattern {
 //     return pattern
 // }
 
-
-
 //     `e` -- substitute/intercept **e**arly
 // `l` -- substitute/intercept **l**ate (default for substitution)
 // `v` -- substitute/intercept **v**ery late (default for intercept)
@@ -343,25 +329,23 @@ function tryHandOrderOffsets(pattern: Pattern): Pattern {
 
 // `f` -- zip with **f**lipping the club (`zf`) / flip only the active club on the carry (`CBf`), by default carry implies flipping both clubs
 
-
-function checkModifiers(actionKind: 'I' | 'S', modifiers: string) {
-    assert(actionKind !== 'I' || !modifiers.includes('d'), `cannot use 'd' modifier for ${actionKind} action`)
-    const mutuallyExclusive = ['e', 'l', 'v', 'c']
-    for (const a of mutuallyExclusive)
-        for (const b of mutuallyExclusive)
-            if (a !== b && modifiers.includes(a) && modifiers.includes(b))
+function checkModifiers(actionKind: "I" | "S", modifiers: string) {
+    assert(actionKind !== "I" || !modifiers.includes("d"), `cannot use 'd' modifier for ${actionKind} action`)
+    const mutuallyExclusive = ["e", "l", "v", "c"]
+    for (const a of mutuallyExclusive) {
+        for (const b of mutuallyExclusive) {
+            if (a !== b && modifiers.includes(a) && modifiers.includes(b)) {
                 throw new Error(`cannot use both ${a} and ${b} modifiers for ${actionKind} action`)
+            }
+        }
+    }
 }
-
 
 function getCirclePosition(degree: number): [number, number] {
     const x = Math.cos(degree * Math.PI / 180) * 0.5 + 0.5
     const y = Math.sin(degree * Math.PI / 180) * 0.5 + 0.5
     return [x, y]
 }
-
-
-
 
 function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: number, nrHands: number): Hand[][] {
     const result = []
@@ -370,8 +354,7 @@ function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: num
         let c = 0
         for (let i = 0; i < sequenceLength; i++) {
             const sh = Array.isArray(startingHand) ? startingHand[row] : startingHand
-            const hand = nrHands === 2 ? (sh + c) % 2 :
-                (sh + c) % 4 < 2 ? Hand.Right : Hand.Left
+            const hand = nrHands === 2 ? (sh + c) % 2 : (sh + c) % 4 < 2 ? Hand.Right : Hand.Left
             seq.push(hand)
             c++
         }
@@ -380,9 +363,8 @@ function altHands(startingHand: Hand | Hand[], sequenceLength: number, rows: num
     return result
 }
 
-
 function applyHandswaps(handsequence: Hand[][], rawPattern: TPatternRow[], nrHands: number): Hand[][] {
-    const result = handsequence.map(h => [...h])
+    const result = handsequence.map((h) => [...h])
     for (let rowIdx = 0; rowIdx < rawPattern.length; rowIdx++) {
         const swaps = handswapByBeat(rawPattern[rowIdx], nrHands)
         // for each swap, swap all hands from the beat to the end of the handsequence
@@ -395,17 +377,16 @@ function applyHandswaps(handsequence: Hand[][], rawPattern: TPatternRow[], nrHan
     return result
 }
 
-
 function throwByBeat(row: TPatternRow, nrHands: number): [Beat, TThrow][] {
-    return throwOrHandswapByBeat(row, nrHands).filter(t => t[1] !== HandSwap)
+    return throwOrHandswapByBeat(row, nrHands).filter((t) => t[1] !== HandSwap)
 }
 function handswapByBeat(row: TPatternRow, nrHands: number): [Beat, THandSwap][] {
-    return throwOrHandswapByBeat(row, nrHands).filter(t => t[1] === HandSwap) as [number, THandSwap][]
+    return throwOrHandswapByBeat(row, nrHands).filter((t) => t[1] === HandSwap) as [number, THandSwap][]
 }
 
 /**
  * handling of `,` and `.` for timing and also `!`
- * 
+ *
  * returns a list of throws with their corresponding beats
  */
 function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThrow | THandSwap)][] {
@@ -413,37 +394,40 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
 
     const result: [Beat, (TThrow | THandSwap)][] = []
 
-    assert(row.sequence.filter(t => t === "|").length <= 1, `at most one prefix allowed in a row`)
+    assert(row.sequence.filter((t) => t === "|").length <= 1, `at most one prefix allowed in a row`)
     const prefixDelimiter = row.sequence.indexOf("|")
-    const [sequence, prefix] =
-        prefixDelimiter >= 0 ? [row.sequence.slice(prefixDelimiter + 1), row.sequence.slice(0, prefixDelimiter)] : [row.sequence, []]
+    const [sequence, prefix] = prefixDelimiter >= 0 ? [row.sequence.slice(prefixDelimiter + 1), row.sequence.slice(0, prefixDelimiter)] : [row.sequence, []]
 
     let beat = 0
     for (let seqIdx = 0; seqIdx < sequence.length; seqIdx++) {
         const currentThrow = sequence[seqIdx]
 
-
-        if (currentThrow && currentThrow !== ',' && currentThrow !== '.')
+        if (currentThrow && currentThrow !== "," && currentThrow !== ".") {
             result.push([nrHands === 4 ? beat * 2 : beat, currentThrow])
+        }
 
-        if (currentThrow !== HandSwap)
-            beat += currentThrow === ',' ? .5 : 1
-        if (Array.isArray(currentThrow) && !row.isManipulator)
+        if (currentThrow !== HandSwap) {
+            beat += currentThrow === "," ? .5 : 1
+        }
+        if (Array.isArray(currentThrow) && !row.isManipulator) {
             beat += 1
+        }
     }
     beat = 0
     for (let seqIdx = 0; seqIdx < prefix.length; seqIdx++) {
         const currentThrow = prefix[prefix.length - 1 - seqIdx]
-        if (currentThrow && currentThrow !== ',' && currentThrow !== '.')
+        if (currentThrow && currentThrow !== "," && currentThrow !== ".") {
             result.push([nrHands === 4 ? beat * 2 : -1 - beat, currentThrow])
-        if (currentThrow !== HandSwap)
-            beat += currentThrow === ',' ? .5 : 1
-        if (Array.isArray(currentThrow) && !row.isManipulator)
+        }
+        if (currentThrow !== HandSwap) {
+            beat += currentThrow === "," ? .5 : 1
+        }
+        if (Array.isArray(currentThrow) && !row.isManipulator) {
             beat += 1
+        }
     }
     return result
 }
-
 
 // function getPatternLength(rawPattern: TPatternRow[], nrHands: number): number {
 //     return rawPattern.map(r => getRowLength(r, nrHands)).reduce((a, b) => Math.max(a, b), 0)
@@ -463,26 +447,26 @@ function throwOrHandswapByBeat(row: TPatternRow, nrHands: number): [Beat, (TThro
 //             beat += 1
 //     }
 //     if (nrHands===2) return beat
-//     else return beat*2-1 
+//     else return beat*2-1
 // }
-
 
 /**
  * for all nonmanipulator rows, sorted by beat, then row */
 function allThrowsByBeat(rows: TPatternRow[], nrHands: number): [number, Beat, Hand | undefined, string][] {
     const result: [number, Beat, Hand | undefined, string][] = []
-    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++)
+    for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
         if (!rows[rowIdx].isManipulator) {
             const throwsByBeat = throwByBeat(rows[rowIdx], nrHands)
             for (const [beat, t] of throwsByBeat) {
                 if (Array.isArray(t)) {
                     result.push([rowIdx, beat, Hand.Right, t[0]])
                     result.push([rowIdx, beat, Hand.Left, t[1]])
-                }
-                else
+                } else {
                     result.push([rowIdx, beat, undefined, t])
+                }
             }
         }
+    }
     result.sort((a, b) => {
         if (a[1] !== b[1]) return a[1] - b[1]
         return a[0] - b[0]
@@ -509,8 +493,6 @@ function getCrossing(throwLength: number, isJames: boolean): boolean {
     return (isJames ? [2, 3] : [1, 2]).includes(throwLength % 4)
 }
 
-
-
 function getOrUpdate<A, B>(m: Map<A, B>, key: A, def: () => B): B {
     const v = m.get(key)
     if (v === undefined) {
@@ -521,7 +503,7 @@ function getOrUpdate<A, B>(m: Map<A, B>, key: A, def: () => B): B {
 }
 
 function getOrUpdate4<B>(m: Map<[number, number, number, number], B>, key1: number, key2: number, key3: number, key4: number, def: () => B): B {
-    const k = m.keys().find(k => k[0] === key1 && k[1] === key2 && k[2] === key3 && k[3] === key4)
+    const k = m.keys().find((k) => k[0] === key1 && k[1] === key2 && k[2] === key3 && k[3] === key4)
     if (k === undefined) {
         const nv = def()
         m.set([key1, key2, key3, key4], nv)
@@ -529,24 +511,19 @@ function getOrUpdate4<B>(m: Map<[number, number, number, number], B>, key1: numb
     } else return m.get(k)!
 }
 
-
-
-
 /**
  * generates a layout from notation and some information about the passing sequence
- * 
+ *
  * as a issue, we need the full passing sequence with both left and right hands, so for
  * odd period patterns, we consider a longer sequence that loops all the way around.
  * hence, we have both the patternLength and the completePatternLength
- * @param layout 
- * @param movement 
- * @param adjustedThrows 
- * @returns 
+ * @param layout
+ * @param movement
+ * @param adjustedThrows
+ * @returns
  */
 export function genLayout(layout: TLayout, movement: TMovement | undefined, pattern: Pattern): GroupPatternLayoutSpec {
-
     const [positions, baseMovementSegments, baseMovementSequences, background] = createShapeLayout(pattern.getInitialRoles(), layout, movement)
-
 
     // function findPosition(passerIdx: number): PositionLayout {
     //     const p = positions.find(p => p.passerIdx === passerIdx)
@@ -564,17 +541,15 @@ export function genLayout(layout: TLayout, movement: TMovement | undefined, patt
     //     }
     // }
 
-
-
-
     // const [movementSegments, movementSequences, movementTriggers] = animateMovement(movement, layout, patternRoles, patternLength)
-    const baseMovementTriggers: MovementTriggerSpec[] = movement ? movement.map(m => ({
-        onBeat: m.when,
-        mod: pattern.getLength(),
-        role: m.role,
-        duration: m.duration
-    })) : []
-
+    const baseMovementTriggers: MovementTriggerSpec[] = movement
+        ? movement.map((m) => ({
+            onBeat: m.when,
+            mod: pattern.getLength(),
+            role: m.role,
+            duration: m.duration,
+        }))
+        : []
 
     return {
         // static: { positions: positions, passes: passesToRender.values().toArray() },
@@ -591,35 +566,32 @@ export function genLayout(layout: TLayout, movement: TMovement | undefined, patt
             baseMovementSequences,
             baseMovementTriggers,
             relativeMovements: [],
-            basePatternRelabeling: {initial:pattern.getInitialRoles(), relabelActions: []},
-            relabeling: {initial:pattern.getInitialRoles(), relabelActions: []},
+            basePatternRelabeling: { initial: pattern.getInitialRoles(), relabelActions: [] },
+            relabeling: { initial: pattern.getInitialRoles(), relabelActions: [] },
             // speed: pattern.nrHands === 4 ? 2 : 1
         },
-        background
+        background,
     }
 }
 
-
 export function createLayout(input: string, patternLength: number = 0): GroupPatternLayoutSpec {
-    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ['A', 'B', 'C', 'D', 'E']))
+    return genLayout(parseLayout(input), undefined, createPattern([], 2, [], ["A", "B", "C", "D", "E"]))
 }
-
 
 function inferDefaultLayout(rows: TPatternRow[], movement: TMovement | undefined): TLayout | undefined {
     // for patterns with two passers and one to three manipulators, let's just assume that the passers are in a line (i.e., roundabout)
-    const baseRoles = rows.filter(r => !r.isManipulator && r.role).map(r => r.role!)
-    const nrManipulators = rows.filter(r => r.isManipulator).length
+    const baseRoles = rows.filter((r) => !r.isManipulator && r.role).map((r) => r.role!)
+    const nrManipulators = rows.filter((r) => r.isManipulator).length
     if (baseRoles.length === 2 && nrManipulators > 0) {
-        return { type: 'standard', shape: 'Line', roles: baseRoles }
+        return { type: "standard", shape: "Line", roles: baseRoles }
     }
     return undefined
 }
 
-
 function mod(va: number, len: number): number {
-    let v = va;
+    let v = va
     while (v < 0) {
-        v += len;
+        v += len
     }
-    return v % len;
+    return v % len
 }

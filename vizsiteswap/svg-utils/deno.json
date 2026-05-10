@@ -1,9 +1,9 @@
 {
-  "name": "@modernpassing/svg-utils",
-  "version": "0.1.0",
-  "exports": "./svg-utils.ts",
-  "imports": {
-    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
-    "svgdom": "npm:svgdom@^0.1.19"
-  }
+    "name": "@modernpassing/svg-utils",
+    "version": "0.1.0",
+    "exports": "./svg-utils.ts",
+    "imports": {
+        "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
+        "svgdom": "npm:svgdom@^0.1.19"
+    }
 }

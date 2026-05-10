@@ -1,18 +1,17 @@
-import { Application } from "https://deno.land/x/oak/mod.ts";
-import { err } from "npm:typescript-parsec@~0.3.4";
-import type { GroupPattern } from "@modernpassing/layout";
-import { createGroupPattern } from "@modernpassing/parsing";
-import { prettyPrintThrowsSvg } from "./debug-renderer-svg.ts";
-import { renderGroupPattern } from "./renderer-svg.ts";
-import { nextTick } from "node:process";
-import { applyManipulations, fillPatternGaps } from "../manipulation/manipulator-processing.ts";
-import { transpile } from "jsr:@deno/emit";
-import * as path from "jsr:@std/path";
+import { Application } from "https://deno.land/x/oak/mod.ts"
+import { err } from "npm:typescript-parsec@~0.3.4"
+import type { GroupPattern } from "@modernpassing/layout"
+import { createGroupPattern } from "@modernpassing/parsing"
+import { prettyPrintThrowsSvg } from "./debug-renderer-svg.ts"
+import { renderGroupPattern } from "./renderer-svg.ts"
+import { nextTick } from "node:process"
+import { applyManipulations, fillPatternGaps } from "../manipulation/manipulator-processing.ts"
+import { transpile } from "jsr:@deno/emit"
+import * as path from "jsr:@std/path"
 
-const app = new Application();
+const app = new Application()
 
-
-function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, initDataJson: string): string {
+function page(p: string, svg1: string, svg2: string, svg3: string, isValid: boolean, errors: string, isFourHanded: boolean, rendered: string, initDataJson: string): string {
     return `
             <!DOCTYPE html>
             <html>
@@ -117,11 +116,11 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                         <div class="radio-group">
                             <label>Pattern type:</label><br>
                             <div>
-                                <input type="radio" id="sync" name="patternType" value="sync" ${!isFourHanded ? 'checked' : ''}>
+                                <input type="radio" id="sync" name="patternType" value="sync" ${!isFourHanded ? "checked" : ""}>
                                 <label for="sync">Synchronous</label>
                             </div>
                             <div>
-                                <input type="radio" id="fourHanded" name="patternType" value="fourHanded" ${isFourHanded ? 'checked' : ''}>
+                                <input type="radio" id="fourHanded" name="patternType" value="fourHanded" ${isFourHanded ? "checked" : ""}>
                                 <label for="fourHanded">Four-handed</label>
                             </div>
                         </div>
@@ -158,46 +157,46 @@ function page(p: string, svg1: string,svg2: string,svg3: string, isValid: boolea
                     </div>
                 </body>
             </html>
-        `;
+        `
 }
 
 app.use(async (ctx, next) => {
     // console.log(ctx.request.url.pathname)
     if (ctx.request.url.pathname === "/animations.js") {
         try {
-            const text = await Deno.readTextFile("dist/animations.js");
-            ctx.response.body = text;
-            ctx.response.type = "application/javascript";
+            const text = await Deno.readTextFile("dist/animations.js")
+            ctx.response.body = text
+            ctx.response.type = "application/javascript"
         } catch (e) {
-            ctx.response.status = 404;
-            ctx.response.body = "File not found";
+            ctx.response.status = 404
+            ctx.response.body = "File not found"
         }
-        return;
+        return
     }
 
     if (ctx.request.url.pathname === "/svgstyle.css") {
         try {
-            const cssUrl = new URL("../../.mdbook/svgstyle.css", import.meta.url);
-            const text = await Deno.readTextFile(cssUrl);
-            ctx.response.body = text;
-            ctx.response.type = "text/css";
+            const cssUrl = new URL("../../.mdbook/svgstyle.css", import.meta.url)
+            const text = await Deno.readTextFile(cssUrl)
+            ctx.response.body = text
+            ctx.response.type = "text/css"
         } catch (e) {
-            ctx.response.status = 404;
-            ctx.response.body = "File not found";
+            ctx.response.status = 404
+            ctx.response.body = "File not found"
         }
-        return;
+        return
     }
 
-    await next();
-});
+    await next()
+})
 app.use(async (ctx, next) => {
     if (ctx.request.url.pathname === "/") {
         if (ctx.request.method === "GET") {
-            ctx.response.body = page("", "","","", true, "", false, "", "");
+            ctx.response.body = page("", "", "", "", true, "", false, "", "")
         } else if (ctx.request.method === "POST") {
-            const body = await ctx.request.body.form();
-            const pattern = body.get("content") || "";
-            const hands = (body.get("patternType") || "sync") === "sync" ? 2 : 4;
+            const body = await ctx.request.body.form()
+            const pattern = body.get("content") || ""
+            const hands = (body.get("patternType") || "sync") === "sync" ? 2 : 4
 
             let error = ""
             let isValid = false
@@ -209,17 +208,17 @@ app.use(async (ctx, next) => {
             try {
                 const gp: GroupPattern = createGroupPattern(pattern, hands)
                 const p = gp.pattern
-           
+
                 if (gp.aidanNotation && gp.aidanNotation[1].length > 0) {
                     svgPlain = prettyPrintThrowsSvg(gp.aidanNotation![0])
-                    const rewritten =  applyManipulations(gp.aidanNotation![0], gp.aidanNotation![1])
+                    const rewritten = applyManipulations(gp.aidanNotation![0], gp.aidanNotation![1])
                     svgManipulator = prettyPrintThrowsSvg(rewritten)
-                    const filled =  fillPatternGaps(rewritten)
+                    const filled = fillPatternGaps(rewritten)
                     svgFilled = prettyPrintThrowsSvg(filled)
                 } else {
-                    svgPlain = prettyPrintThrowsSvg(p);
+                    svgPlain = prettyPrintThrowsSvg(p)
                 }
-                isValid = p.isValid();
+                isValid = p.isValid()
                 if (p.isValid()) {
                     const [svg, initData] = renderGroupPattern(gp, {})
                     rendered = svg.svg()
@@ -228,16 +227,14 @@ app.use(async (ctx, next) => {
                 error = p.prettyPrintThrows(false)
                 error = p.getValidationError()
             } catch (e) {
-                error = e instanceof Error ? e.message : String(e);
-                console.error("Error:", (e as Error).stack);
+                error = e instanceof Error ? e.message : String(e)
+                console.error("Error:", (e as Error).stack)
             }
-            ctx.response.body = page(pattern, svgPlain, svgManipulator, svgFilled, isValid, error, hands === 4, rendered, initDataJson);
+            ctx.response.body = page(pattern, svgPlain, svgManipulator, svgFilled, isValid, error, hands === 4, rendered, initDataJson)
         }
-    }
-    else next()
-});
+    } else next()
+})
 
- 
 // console.log("Updating runtime.js")
 // const js_path = path.join("..","runtime");
 // const url = new URL("../runtime/animations.ts", import.meta.url);
@@ -245,19 +242,19 @@ app.use(async (ctx, next) => {
 // const code = await result.get(url.href);
 // await Deno.mkdir(js_path, { mode: 0o775, recursive: true });
 // Deno.writeTextFile("../dist/animations.js", "// GENERATED CODE. DO NOT MODIFY //\n" + code!);
-const url = new URL("../runtime/animations.ts", import.meta.url);
-const source = await Deno.readTextFile(url);
-const sourceWithoutImports = source.replace(/^import.*$/gm, '')//.replace(/^\s*$/gm, '').replace(/^\n+/g, '');
+const url = new URL("../runtime/animations.ts", import.meta.url)
+const source = await Deno.readTextFile(url)
+const sourceWithoutImports = source.replace(/^import.*$/gm, "") //.replace(/^\s*$/gm, '').replace(/^\n+/g, '');
 const u = new URL(`data:text/typescript,${encodeURIComponent(sourceWithoutImports)}`)
-const result = await transpile(u);
-const code = await result.get(u.href)?.replaceAll("export","");
-Deno.writeTextFile("dist/animations.js", "// GENERATED CODE. DO NOT MODIFY //\n" + code!);
+const result = await transpile(u)
+const code = await result.get(u.href)?.replaceAll("export", "")
+Deno.writeTextFile("dist/animations.js", "// GENERATED CODE. DO NOT MODIFY //\n" + code!)
 
 // Define the port
-const port = 8000;
+const port = 8000
 
 // Log that the server is starting
-console.log(`Server is running on http://localhost:${port}`);
+console.log(`Server is running on http://localhost:${port}`)
 
 // Start the server and keep it running
-await app.listen({ port });
+await app.listen({ port })

@@ -1,5 +1,5 @@
 {
-  "name": "@modernpassing/pattern",
-  "version": "0.1.0",
-  "exports": "./pattern.ts"
+    "name": "@modernpassing/pattern",
+    "version": "0.1.0",
+    "exports": "./pattern.ts"
 }

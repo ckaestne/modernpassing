@@ -5,7 +5,6 @@
 // import { renderPattern } from './renderer-svg.ts';
 // import process  from 'node:process';
 
-
 // program
 //     .name("vizsiteswap")
 
@@ -30,9 +29,7 @@
 
 // program.parse(process.argv);
 
-
 // // const configOptions: any = program.opts();
-
 
 // function printSiteswapSvg(siteswap: string, output: string | undefined) {
 //     const sw = new FourHandedSiteswap(siteswap)
@@ -49,9 +46,6 @@
 //     } else
 //         console.log(svg.svg());
 // }
-
-
-
 
 // // function preprocessLatex(input: string, output: string | undefined, dir: string, includeDir: string | undefined, type: string) {
 // //     const layoutConf: Partial<RendererConfig> = {
@@ -104,7 +98,4 @@
 // //         fs.writeFileSync(output, newFile);
 // //     else console.log(newFile);
 
-
-
 // // }
-

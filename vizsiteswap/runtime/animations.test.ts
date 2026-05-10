@@ -1,4 +1,3 @@
-
 // import { SVG } from "@svgdotjs/svg.js";
 // import { addPosition, addRelabeling, animateBaseMovement, setPasses, Data, getLocationByRoleInFuture, initialize, initializeSegments } from './animations.ts';
 // import { createSVG } from '@modernpassing/svg-utils';

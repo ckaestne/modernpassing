@@ -2,34 +2,31 @@
 // import { alt, alt_sc, apply, betterError, buildLexer, expectEOF, expectSingleResult, kright, opt, ParseError, Parser, ParseResult, ParserOutput, rep, resultOrError, rule, seq, tok, Token } from "npm:typescript-parsec";
 // import { Hand, Pattern, Throw } from "../pattern/pattern.ts";
 
-import { Pattern } from "@modernpassing/pattern";
-import { parseGroupPattern } from "./pattern-fromgroup-parser.ts";
-import { createGroupPattern } from "./pattern-fromgroup.ts";
+import { Pattern } from "@modernpassing/pattern"
+import { parseGroupPattern } from "./pattern-fromgroup-parser.ts"
+import { createGroupPattern } from "./pattern-fromgroup.ts"
 
 /**
  * parser for simplified pattern notation. for patterns like three-count
  * where two passers do the same thing, we do not need the full group notation
  * but can parse a single line of throws (e.g. `3p33`)
- * 
+ *
  * this also supports two comma separated patterns for legacy reasons
  * where the first describes A's throws and the second B's
- * 
- * @param expr 
- * @returns 
+ *
+ * @param expr
+ * @returns
  */
 export function createSyncPattern(expr: string): Pattern {
-    
-    if (expr.split(',').length > 2) 
-        throw new Error('Invalid pattern: cannot have more than one comma in the expression');
-    
-    
-    const [a, b] = expr.includes(',') ? expr.split(",") : [expr, expr]
+    if (expr.split(",").length > 2) {
+        throw new Error("Invalid pattern: cannot have more than one comma in the expression")
+    }
+
+    const [a, b] = expr.includes(",") ? expr.split(",") : [expr, expr]
     const p = `A: ${a}\nB: ${b}`
 
-    return createGroupPattern(p,2).pattern
+    return createGroupPattern(p, 2).pattern
 }
-
-
 
 // export const defaultSyncPatternConfig: SyncPatternConfig = {
 //     startingHands: [0, 0],
@@ -43,7 +40,6 @@ export function createSyncPattern(expr: string): Pattern {
 //     gallop: boolean,
 //     useSimpleLabels: boolean // use s and p instead of 3 and 3p, etc.
 // }
-
 
 // export enum TokenKind {
 //     Throw=0, Comma=1, Arrow=2, Empty=3, Hurry=4,
@@ -60,8 +56,6 @@ export function createSyncPattern(expr: string): Pattern {
 //     [true, /^->/g, TokenKind.Arrow],
 //     [false, /^\s+/g, TokenKind.Space]
 // ]);
-
-
 
 // /**
 // PatternWithPrefix = (Pair "->")? Pair
@@ -107,7 +101,7 @@ export function createSyncPattern(expr: string): Pattern {
 // )
 
 // /**
-//  * 
+//  *
 //  * @param p parser
 //  * @param checker returns an error message if the result is not valid, otherwise undefined
 //  * @returns succeeding or failing parser
@@ -155,13 +149,11 @@ export function createSyncPattern(expr: string): Pattern {
 //     return expectSingleResult(expectEOF(PFullPattern.parse(tokenizer.parse(expr))));
 // }
 
-
 // // const crossingThrows
 // export const straightPasses = ["1p", "2px", "3p", "4px", "5p", "6px", "7p", "8px", "9p"]
 // export const crossingPasses = ["1px", "2p", "3px", "4p", "5px", "6p", "7px", "8p", "9px"]
 // export const straightSelfs = ["1x", "2", "3x", "4", "5x", "6", "7x", "8", "9x"] // R to R or L to L (even if it's the other person's hand)
 // export const crossingSelfs = ["1", "2x", "3", "4x", "5", "6x", "7", "8x", "9"] // R to L or L to R
-
 
 // // export function createSyncPattern(sw: string, config: Partial<SyncPatternConfig>): Pattern {
 // //     const {
@@ -172,7 +164,6 @@ export function createSyncPattern(expr: string): Pattern {
 // //     } = { ...defaultSyncPatternConfig, ...config }
 
 // //     const [prefix, pattern] = parseSyncPattern(sw)
-
 
 // //     assert(prefix.length === 0 || prefix.length == pattern.length, "prefix must have same length for both passers")
 // //     assert(pattern.length === 2, "only two passers supported for now")
@@ -195,8 +186,6 @@ export function createSyncPattern(expr: string): Pattern {
 // //         const throws: Throw[] = [];
 // //         const handSequence: (0 | 1)[][] = altHands([startingHands[0], (startingHands[1] + (flipStraightCrossing ? 1 : 0)) % 2], prefixLength + iterations * sequenceLength + 9);
 
-
-
 // //         function genThrow(throwToken: string, time: number, passerIdx: number, fromHand: Hand, timeFactor: number = 1): Throw {
 // //             const [value, isPass, _isCrossing] = parseThrow(throwToken)
 // //             const causeTime = time + (value - 2)*timeFactor;
@@ -208,11 +197,11 @@ export function createSyncPattern(expr: string): Pattern {
 // //             if (toHand !== expectedToHandIdx) {
 // //                 //found hurry, swapping handsequence at caused time
 // //                 swapHands(handSequence, toPasserIdx, causeTime)
-// //                 // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`) 
+// //                 // console.log(`found hurry at ${time} (${t}) in ${sw} from (${passerIdx},${fromHandIdx}) to hand (${toPasserIdx},${toHand}); expected (${toPasserIdx},${expectedToHandIdx})`)
 // //             }
 // //             const annotation = isPass ? (fromHand===toHand ? "X" : "||") : ""
 // //             const label = useSimpleLabels ? convertToLabel(throwToken, gallop, allSync!) : throwToken
-// //             return { 
+// //             return {
 // //                 throwTime: gallopOffset(time, fromHand),
 // //                 fromPasserIdx: passerIdx,
 // //                 fromHand,
@@ -225,7 +214,6 @@ export function createSyncPattern(expr: string): Pattern {
 // //             }
 // //         }
 
-
 // //         for (let time = 0; time < prefixLength + iterations * sequenceLength; time++)
 // //             for (const passerIdx of [0, 1]) {
 // //                 const t = time < prefixLength ? prefix[passerIdx][time] :
@@ -236,7 +224,7 @@ export function createSyncPattern(expr: string): Pattern {
 // //                     allSync = false
 // //                     const fromHandIdx: Hand = handSequence[passerIdx][time];
 // //                     throws.push(genThrow(t, time, passerIdx, fromHandIdx))
-// //                 } else if (typeof t !== "string" && t.length === 2) {                    
+// //                 } else if (typeof t !== "string" && t.length === 2) {
 // //                     //two throws at the same time, and we know which hand each comes from
 // //                     assert(allSync === undefined || allSync === true, "found sync throw after single throws")
 // //                     allSync = true
@@ -251,7 +239,6 @@ export function createSyncPattern(expr: string): Pattern {
 // //         return throws
 // //     }
 
-
 // //     return {
 // //         passerNames: ["A", "B"],
 // //         startingHands: getStartingHands(genThrows(2), prefixLength + sequenceLength * 2,allSync===true),
@@ -260,7 +247,6 @@ export function createSyncPattern(expr: string): Pattern {
 // //         getThrows: genThrows
 // //     }
 // // }
-
 
 // export function altHands(startingHands: Hand[], sequenceLength: number): Hand[][] {
 //     const result = []
@@ -291,18 +277,17 @@ export function createSyncPattern(expr: string): Pattern {
 // //     // collect all throws
 // //     const throwingHands: [number, number, Hand][] = []
 // //     for (const t of throws) {
-// //         const v: [number, number, Hand] = [t.throwTime, t.fromPasserIdx, t.fromHand]    
+// //         const v: [number, number, Hand] = [t.throwTime, t.fromPasserIdx, t.fromHand]
 // //         assert(throwingHands.find(x => v[0] === x[0] && v[1] === x[1] && v[2] === x[2]) === undefined,
 // //             `two or more throws from the same passer ${t.fromPasserIdx} and the same hand ${t.fromHand} on the same beat ${t.rethrowTime} not supported`)
 // //         throwingHands.push(v)
 // //     }
 
-
 // //     // remove throws that are received
 // //     for (const t of throws) {
-// //         const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHand]    
+// //         const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHand]
 // //         //for only for all-sync patterns we actually check the hands (otherwise hurrys won't work)
-// //         const tIdx = throwingHands.findIndex(x => v[0] === x[0] && v[1] === x[1] && (!allSync||v[2] === x[2])) 
+// //         const tIdx = throwingHands.findIndex(x => v[0] === x[0] && v[1] === x[1] && (!allSync||v[2] === x[2]))
 // //         if (tIdx>=0)
 // //             throwingHands.splice(tIdx, 1)
 // //     }
@@ -310,7 +295,7 @@ export function createSyncPattern(expr: string): Pattern {
 // //     // // check that no more than one throw is received by the same hand on the same beat
 // //     // const receivingHands: [number, number, Hand][] = []
 // //     // for (const t of throws) {
-// //     //     const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHandIdx]    
+// //     //     const v: [number, number, Hand] = [t.rethrowTime, t.toPasserIdx, t.toHandIdx]
 // //     //     assert(receivingHands.find(x => v[0] === x[0] && v[1] === x[1] && v[2] === x[2]) === undefined,
 // //     //         `two or more throws arriving to the same passer ${t.fromPasserIdx} and the same hand ${t.fromHandIdx} on the same beat ${t.rethrowTime}`)
 // //     //     receivingHands.push(v)
@@ -367,4 +352,3 @@ export function createSyncPattern(expr: string): Pattern {
 //     }
 //     throw Error("unknown throw " + throwToken)
 // }
-

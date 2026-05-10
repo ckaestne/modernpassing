@@ -1,76 +1,70 @@
-import type { Hand, Role } from "@modernpassing/pattern";
+import type { Hand, Role } from "@modernpassing/pattern"
 
 /**
  * This is the abstract specification of layouts and movements, derived from
  * user specifications (pattern, positions, and movements) and manipulator actions.
- * 
+ *
  * Movements are expressed as repeating movements on paths for base roles and
  * as relative positions between other roles for manipulators. Passes are
  * also expressed relative to positions of roles.
  * (The relative positions may be expressed as where somebody holding a specific
  * role will be in the future, which requires non-trivial computations to
  * translate into concrete positions in the animation plan.)
- * 
+ *
  * Relabeling is integral to the specification, as it is necessary to compute
  * who has which role at any given time in the pattern.
- * 
+ *
  * The specification is generally tied to roles, not passers.
  * Initial positions and segments contain coordinates, all other specifications
  * are relative to those positions/roles.
- * 
- * 
- * Specific animations to be executed or individual frames are derived from 
+ *
+ * Specific animations to be executed or individual frames are derived from
  * this with derive-animations.ts
  */
 
-
-
-
 /**
  * all animations run on a timer that's continuously counting up
- * animations are triggered at a time identified by `onBeat` and `mod` 
+ * animations are triggered at a time identified by `onBeat` and `mod`
  * when `(time % mod) == onBeat`. In many cases, `mod` is the number of beats in a pattern,
  * so onBeat identifies triggers that happen at every iteration. However movement may
  * happen distributed across many iterations, so larger mods are possible to express that.
  * OnBeat does not have to be an integer, fractional values are allowed
- * 
- * relabeling must be on a full beat and is always performed first, 
- * so a passer on beat x is the 
+ *
+ * relabeling must be on a full beat and is always performed first,
+ * so a passer on beat x is the
  * person who has that role after the relabeling on beat x.
- * 
+ *
  * animations of movement may be much longer than the number of beats in a pattern
  */
 export type AnimationSpec = {
-    initialPositions: PositionSpec[], // if movement is provided, this value is ignored and the initial position is computed from movement instead for all passers that move
+    initialPositions: PositionSpec[] // if movement is provided, this value is ignored and the initial position is computed from movement instead for all passers that move
 
     // passes
-    passAnimations: PassSpec[],
+    passAnimations: PassSpec[]
 
     // movements for base roles
-    baseMovementSegments: MovementSegmentSpec[],
-    baseMovementSequences: MovementSequenceSpec[], // segment indices for each juggler (not role), by the order of initial roles
-    baseMovementTriggers: MovementTriggerSpec[],
-    basePatternRelabeling: RelabelSpec, // relabeling of base roles, ignoring manipulators -- this is needed to determine the proper movement of the base roles
+    baseMovementSegments: MovementSegmentSpec[]
+    baseMovementSequences: MovementSequenceSpec[] // segment indices for each juggler (not role), by the order of initial roles
+    baseMovementTriggers: MovementTriggerSpec[]
+    basePatternRelabeling: RelabelSpec // relabeling of base roles, ignoring manipulators -- this is needed to determine the proper movement of the base roles
 
     // additional manipulator movements, if any
-    relativeMovements: RelativeMovementSpec[], // for manipulators, relative to other roles
+    relativeMovements: RelativeMovementSpec[] // for manipulators, relative to other roles
 
     // relabeling (same as basePatternRelabeling if no manipulators)
-    relabeling: RelabelSpec,
+    relabeling: RelabelSpec
 }
 
-
-
 export type PositionSpec = {
-    x: number,
-    y: number,
+    x: number
+    y: number
     role: Role
 }
 export type PassLayoutSpec = {
-    fromRole: Role,
-    fromHand: Hand,
-    toRole: Role,
-    toHand: Hand,
+    fromRole: Role
+    fromHand: Hand
+    toRole: Role
+    toHand: Hand
     label: string
 }
 
@@ -80,99 +74,97 @@ export type PassLayoutSpec = {
  */
 
 export type PassSpec = {
-    pass: PassLayoutSpec,
-    onBeat: number,
-    mod: number, // default to length of the pattern
-    displayDuration: number, // how long the pass is shown, in beats
-    throwLength: number, // the actual length of the passing throw
+    pass: PassLayoutSpec
+    onBeat: number
+    mod: number // default to length of the pattern
+    displayDuration: number // how long the pass is shown, in beats
+    throwLength: number // the actual length of the passing throw
 }
 /**
- * movement is more complex -- 
- * segments describe possible movement paths in the pattern; 
+ * movement is more complex --
+ * segments describe possible movement paths in the pattern;
  * a juggler/role may go through or all a subset of these segments in any order
- * 
+ *
  * locations are absolute, not relative to the previous location
  * animations should be created such that the start position of the triggered segment
  * is where the role is actually positioned to avoid jumps
  */
 export type MovementSegmentSpec = {
-    fromX: number,
-    fromY: number,
-    path: (number | string)[], // path instructions using C or A for curves and arches in SVG path notation
-    toX: number,
-    toY: number,
+    fromX: number
+    fromY: number
+    path: (number | string)[] // path instructions using C or A for curves and arches in SVG path notation
+    toX: number
+    toY: number
 }
 
 /**
- * a movement sequence is a list of segment indices that an 
+ * a movement sequence is a list of segment indices that an
  * unmanipulated jugger (not role) goes through
- * 
+ *
  * a sequence corresponds to a starting position. each juggler
  * tracks which part of the sequence they are on. a trigger identifies
  * when a role is moving, which identifies the corresponding juggler
  * and the next step in this sequence
- * 
+ *
  * the first segment is always the movement from the starting position
  */
 export type MovementSequenceSpec = number[]
 /**
  * a trigger identifies the time when a role should start moving
  * with a provided duration
- * 
+ *
  * the juggler in the identified role will always walk the next
  * segment in their current sequence
- * 
+ *
  * for example in scrambled V, role B starts walking after beat
  * 5; the walk animation may start at 5.5 for 3.5 beats.
  */
 export type MovementTriggerSpec = {
-    onBeat: number,
-    mod: number,
-    role: Role,
-    duration: number,
+    onBeat: number
+    mod: number
+    role: Role
+    duration: number
 }
 
-
-/** 
- * movement relative to positions of other passers at a given moment in the future 
- **/
+/**
+ * movement relative to positions of other passers at a given moment in the future
+ */
 export type RelativeMovementSpec = {
-    onBeat: number,
-    mod: number,
-    role: Role, // the manipulator role that is moving, identified on beat onBeat (not arrival beat) (may not yet be manipulator)
-    roleAtMovementEnd: Role, // the manipulator's role who is moving at the time of arrival (may no longer be manipulator)
-    duration: number, // length of the movement
-    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec  // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
+    onBeat: number
+    mod: number
+    role: Role // the manipulator role that is moving, identified on beat onBeat (not arrival beat) (may not yet be manipulator)
+    roleAtMovementEnd: Role // the manipulator's role who is moving at the time of arrival (may no longer be manipulator)
+    duration: number // length of the movement
+    positionSpec: TakePositionSpec | BetweenPositionSpec | InFrontOfPositionSpec // positions are computed relative to where base roles fromRole and toRole (identified on time of beat) would be be at the end of the movement at the time (ie., onBeat+duration) -- note, the passer is identified by a role at an earlier time than where the passer's (not role's) position is computed
     targetRoleTime: "onBeat" | "arrival" // whether a passer is identified by their roles given RelativeMovementSpec is identified at the start of the movement (onBeat) or at the end of the movement (onBeat + duration)
-    bend?: "↻"|"↺"
+    bend?: "↻" | "↺"
     skipInFirstIteration: boolean // if true, this is skipped in the first iteration of the pattern (default: false)
 }
 
 export type TakePositionSpec = {
-    type: "take",
-    toBasePatternRole: Role, // base role who's position to take; can only be a base pattern role
+    type: "take"
+    toBasePatternRole: Role // base role who's position to take; can only be a base pattern role
 }
 export type BetweenPositionSpec = {
-    type: "between",
-    betweenRoles: [Role, Role], // from/to of the base roles at a given time (possibly in the future); can include other manipulator roles
-    side: number, // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
-    offset: number, // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
-    direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to 
+    type: "between"
+    betweenRoles: [Role, Role] // from/to of the base roles at a given time (possibly in the future); can include other manipulator roles
+    side: number // relative distance: .5 is in the middle, 0.1 near the second role, 0 is where the second role is, ...
+    offset: number // absolute distance: 0 is in the passing lane between the roles, .2 is further to the outside of the righthand pass, -.2 is further to the outside of the lefthand pass
+    direction: number // in degree; 0 is facing the second role, 90 (clockwise) is facing sideways to substitute a righthand pass to
 }
 export type InFrontOfPositionSpec = {
-    type: "infront",
-    toRole: Role, // position in front of this role (possibly in the future), where front is between the role and the center of the pattern (can be in front of a manipulator)
+    type: "infront"
+    toRole: Role // position in front of this role (possibly in the future), where front is between the role and the center of the pattern (can be in front of a manipulator)
     direction: number // in degree; 0 is facing the role, 90 and -90 is standing next to them
 }
 
-
 export type RelabelSpec = {
-    initial: Role[],
+    initial: Role[]
     relabelActions: RelabelActionSpec[]
 }
 
 export type RelabelActionSpec = {
-    onBeat: number,
-    mod: number,
+    onBeat: number
+    mod: number
     changes: [Role, Role][] // oldRole, newRole
 }

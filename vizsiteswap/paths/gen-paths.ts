@@ -1,5 +1,5 @@
 // /**
-//  * playground to try different paths with test rendering and 
+//  * playground to try different paths with test rendering and
 //  * producing data structures for pattern-paths.ts
 //  */
 
@@ -8,9 +8,6 @@
 // import * as fs from 'node:fs';
 // import { scaler } from "@modernpassing/svg-utils";
 // import type { MovementSegment, MovementSequence, PositionLayout } from "@modernpassing/layout";
-
-
-
 
 // type Result = {initialPositions:PositionLayout[],paths:MovementSegment[],sequence:MovementSequence[]}
 
@@ -28,7 +25,6 @@
 // function a(x:number):number {
 //     return Math.round(10000*(x-50)/250)/10000
 // }
-
 
 // function fV(): [string,Svg, Result] {
 //     // @ts-ignore hacking to make `document` work
@@ -53,9 +49,7 @@
 //         return [a(x),a(y)]
 //     }
 
-
 //     const passer = 50
-
 
 //     // v-path *************
 
@@ -110,10 +104,7 @@
 //     return ['V',svg, out]
 // }
 
-
-
 // // v-path *************
-
 
 // // (function fY() {
 // //     // @ts-ignore hacking to make `document` work
@@ -130,7 +121,6 @@
 // //     const c1 = svg.circle(bc).center(center1[0], center1[1]).fill('none').stroke({ color: 'lightgrey' })
 // //     const c2 = svg.circle(bc).center(center2[0], center2[1]).fill('none').stroke({ color: 'lightgrey' })
 
-
 // //     function getPos(angle: number, dist: number, centerX: number, centerY: number): [number, number] {
 // //         const radians = (angle * Math.PI) / 180;
 // //         const x = dist * Math.cos(radians);
@@ -145,7 +135,6 @@
 // //     }
 
 // //     const out:{initialPositions:any[],paths:any[]} = { initialPositions: [], paths: []}
-
 
 // //     // v-path *************
 
@@ -195,18 +184,16 @@
 
 // // })();
 
-
-
 // function fBrunos(): [string,Svg, Result] {
 //     // @ts-ignore hacking to make `document` work
 //     const svg: Svg = createSVG()
-    
+
 //     const out:Result = { initialPositions: [], paths: [], sequence:[]}
 
 //     const offsetx = 0
 //     const offsety = 100/250
 //     //big circle
-   
+
 //     const dx = 1
 //     const dy = 100/250
 //     const po = 20/250
@@ -217,7 +204,6 @@
 //         [offsetx, offsety + dy],
 //         [offsetx + dx/2, offsety + dy/2],
 //     ]
-    
 
 //     // v-path *************
 
@@ -260,8 +246,6 @@
 //         idx++
 //     }
 
-
-
 //     for (let i = 0; i < p.length; i++) {
 //         const [x, y] = p[i]
 //         svg.circle(20).fill("red").center(x, y)
@@ -271,16 +255,15 @@
 
 // }
 
-
 // function fMagermix(): [string,Svg, Result] {
 //     // @ts-ignore hacking to make `document` work
 //     const svg: Svg = createSVG()
-    
+
 //     const out:Result = { initialPositions: [], paths: [], sequence:[]}
 
 //     const offsetx = .25
 //     //big circle
-   
+
 //     const dx = .6
 //     const dy = 100/250
 //     const po = 20/250
@@ -291,11 +274,9 @@
 //         [.5,.75],
 //         [1-offsetx,1],[1-offsetx,.5]
 //     ]
-    
 
 //     // v-path *************
 
-    
 //     for (let i = 0; i < p.length; i++) {
 //         const [x, y] = p[i]
 //         svg.circle(3).fill("red").center(scale.scalex(x), scale.scaley(y))
@@ -327,7 +308,6 @@
 //         [2,3,dx/4,0,dx/8,-dy/4],
 //         [3,4,-dx/8,dy/4 ,-dx/8,0],
 
-
 //         // [2, 4, -dx*.75/2, dy/4, dy/4, dy/4],
 //         // [4, 0, -dy/2, -dy/2, dx/8, -dy/4],
 //         // [0,3,-dx/8,dy/4,0,-dy/2]
@@ -350,8 +330,6 @@
 //         idx++
 //     }
 
-
-
 //     // for (let i = 0; i < p.length; i++) {
 //     //     const [x, y] = p[i]
 //     //     svg.circle(20).fill("red").center(x, y)
@@ -360,8 +338,6 @@
 //     return ['magermix' , svg, out]
 
 // }
-
-
 
 // // (function fWeave() {
 // //     // @ts-ignore hacking to make `document` work
@@ -377,8 +353,7 @@
 // //      const feeder: [number, number] = [350/2,bc/2]
 // //      const c1 = svg.circle(bc).center(center1[0], center1[1]).fill('none').stroke({ color: 'lightgrey' })
 // //      const c2 = svg.circle(bc).center(center2[0], center2[1]).fill('none').stroke({ color: 'lightgrey' })
- 
- 
+
 // //      function getPos(angle: number, dist: number, centerX: number, centerY: number): [number, number] {
 // //          const radians = (angle * Math.PI) / 180;
 // //          const x = dist * Math.cos(radians);
@@ -407,7 +382,6 @@
 // //         gp1(120)
 // //      ]
 // //      const s = [0,8,4]
-     
 
 // //     // v-path *************
 // //     for (let i = 0; i < p.length; i++) {
@@ -424,7 +398,6 @@
 // //     }
 // //     svg.circle(50).fill("blue").center(feeder[0], feeder[1])
 // //     out.initialPositions.push({i:3,x:a(feeder[0]),y:a(feeder[1])})
-
 
 // //     for (let i = 0; i < p.length; i++) {
 // //         const flip = i<3 || i>=9
@@ -445,10 +418,7 @@
 
 // //     appendOut('Weave',svg, out)
 
-
 // // })();
-
-
 
 // // (function fClover() {
 // //     // @ts-ignore hacking to make `document` work
@@ -459,7 +429,7 @@
 
 // //     const offset = 50
 // //     //big circle
-   
+
 // //     const d = 250
 
 // //     function getPos(angle: number, dist: number, centerX: number, centerY: number): [number, number] {
@@ -471,7 +441,6 @@
 // //     function gp(angle: number): [number, number] {
 // //         return getPos(angle, d / 2, offset + d / 2, offset + d / 2)
 // //     }
-
 
 // //     const corners :[number, number][] =  [
 // //         gp(-90),
@@ -486,7 +455,6 @@
 // //         return [offset+d/2, offset+d/2]
 // //     }
 
-
 // //     const p: [number, number][] =  [
 // //         corners[0],
 // //         halfway(halfway(corners[0],corners[1]),corners[2]),
@@ -496,7 +464,6 @@
 // //         halfway(halfway(corners[2],corners[0]),corners[1]),
 // //     ]
 
-    
 // //     const s = [0,3,4,2]
 
 // //     // v-path *************
@@ -556,18 +523,13 @@
 // //         svg.text(idx.toString()).center(walkingPath.cx(), walkingPath.cy()).fill("black")
 // //         idx++
 
-
 // //         out.paths.push({fromX:a(p[to][0]),fromY:a(p[to][1]),toX:a(p[from][0]),toY:a(p[from][1]),p:pa})
 
 // //     }
 
-
 // //     appendOut('Clover',svg, out)
 
-   
 // // })();
-
-
 
 // // (function fCircle() {
 // //     // @ts-ignore hacking to make `document` work
@@ -595,9 +557,7 @@
 // //         return getPos(angle, .5, .5, .5)
 // //     }
 
-
 // //     const passer = 50
-
 
 // //     // v-path *************
 
@@ -612,8 +572,6 @@
 
 // // })();
 
-
-
 // function createSVG(): Svg {
 //     const window = createSVGWindow();
 //     const document = window.document;
@@ -626,19 +584,15 @@
 //     return svg
 // }
 
-
-
 // function appendOut(name: string, svg: Svg, o: Result){
 //     output += `<h2>${name}</h2>`
 //     output += svg.svg()
 //     output += `<pre>${JSON.stringify(o,null,2)}</pre>`
 // }
 
-
 // appendOut(...fV());
 
 // appendOut(...fBrunos());
 // appendOut(...fMagermix());
-
 
 // fs.writeFileSync("out/paths.html", output);

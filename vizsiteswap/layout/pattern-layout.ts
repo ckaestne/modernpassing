@@ -1,9 +1,6 @@
-import type { Pattern, Role } from "@modernpassing/pattern";
-import type { PassSpec, RelabelSpec } from "./animation-spec.ts";
-import type { GroupPatternLayoutSpec } from "./layout.ts";
-
-
-
+import type { Pattern, Role } from "@modernpassing/pattern"
+import type { PassSpec, RelabelSpec } from "./animation-spec.ts"
+import type { GroupPatternLayoutSpec } from "./layout.ts"
 
 function getRelabelSpec(pattern: Pattern): RelabelSpec {
     const layoutRelabel: RelabelSpec = { initial: pattern.getInitialRoles(), relabelActions: [] }
@@ -15,8 +12,9 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec {
             for (let rowIdx = 0; rowIdx < labels.length; rowIdx++) {
                 const from = lastLabels[rowIdx]
                 const to = labels[rowIdx]
-                if (from !== to)
+                if (from !== to) {
                     labelChanges.push([from, to])
+                }
             }
             if (labelChanges.length > 0) {
                 layoutRelabel.relabelActions.push({
@@ -33,8 +31,9 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec {
     for (let rowIdx = 0; rowIdx < lastLabels.length; rowIdx++) {
         const from = lastLabels[rowIdx]
         const to = firstLabels[pattern.mapRows[rowIdx]]
-        if (from !== to)
+        if (from !== to) {
             finalLabelChanges.push([from, to])
+        }
     }
     if (finalLabelChanges.length > 0) {
         layoutRelabel.relabelActions.push({
@@ -46,8 +45,6 @@ function getRelabelSpec(pattern: Pattern): RelabelSpec {
     return layoutRelabel
 }
 
-
-
 export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, basePattern: Pattern, manipulatorPattern: Pattern): GroupPatternLayoutSpec {
     //TODO extend for manipulator actions
 
@@ -57,7 +54,7 @@ export function setLayoutRelabeling(layout: GroupPatternLayoutSpec, basePattern:
             ...layout.animation,
             basePatternRelabeling: getRelabelSpec(basePattern),
             relabeling: getRelabelSpec(manipulatorPattern),
-        }
+        },
     }
 }
 
@@ -66,9 +63,9 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
     const nrIterations = pattern.iterationsUntilRepeat()
     const completePatternLength = pattern.getLength() * nrIterations
     // for every iteration of a complete cycle
-    for (let iteration = 0; iteration < nrIterations; iteration++)
+    for (let iteration = 0; iteration < nrIterations; iteration++) {
         //every throw that is a pass
-        for (const t of pattern.throws)
+        for (const t of pattern.throws) {
             if (t.fromPasserIdx !== pattern.getToPasserIdxAtThrow(t)) {
                 const timeOffset = iteration * pattern.getLength()
 
@@ -84,7 +81,7 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
                         fromHand,
                         toRole: toPasserRoleAtThrow,
                         toHand,
-                        label: ""
+                        label: "",
                     },
                     onBeat: timeOffset + t.throwBeat,
                     mod: completePatternLength,
@@ -92,14 +89,14 @@ export function addPassAnimations(layout: GroupPatternLayoutSpec, pattern: Patte
                     throwLength: t.throwLength,
                 })
             }
+        }
+    }
 
     return {
         ...layout,
         animation: {
             ...layout.animation,
             passAnimations: [...layout.animation.passAnimations, ...passAnimations],
-        }
+        },
     }
 }
-
-

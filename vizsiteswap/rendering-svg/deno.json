@@ -1,13 +1,13 @@
 {
-  "name": "@modernpassing/rendering-svg",
-  "version": "0.1.0",
-  "exports": "./renderer-svg.ts",
-  "imports": {
-    "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
-    "jsdom": "npm:jsdom@^24.1.1",
-    "svgdom": "npm:svgdom@^0.1.19",
-    "@types/jsdom": "npm:@types/jsdom@^21.1.7",
-    "@types/node": "npm:@types/node@^22.5.0",
-    "@types/svgdom": "npm:@types/svgdom@^0.1.2"
-  }
+    "name": "@modernpassing/rendering-svg",
+    "version": "0.1.0",
+    "exports": "./renderer-svg.ts",
+    "imports": {
+        "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
+        "jsdom": "npm:jsdom@^24.1.1",
+        "svgdom": "npm:svgdom@^0.1.19",
+        "@types/jsdom": "npm:@types/jsdom@^21.1.7",
+        "@types/node": "npm:@types/node@^22.5.0",
+        "@types/svgdom": "npm:@types/svgdom@^0.1.2"
+    }
 }
