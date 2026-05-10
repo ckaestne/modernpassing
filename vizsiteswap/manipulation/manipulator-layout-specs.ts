@@ -466,7 +466,7 @@ function isCarriedThrow(t: Throw): boolean {
  * 
  * @param pattern 
  * @param t throw with a substitution or intercept marker 
- * @returns throw with a substitution or carry marker
+ * @returns throw with a substitution or carry marker, undefined if there is none
  */
 export function findPriorSubstitutionOrCarryAction(pattern: Pattern, t: Throw): Throw | undefined {
     assert(isSubstitutedThrow(t) || isInterceptedThrow(t), "throw must have substitution or intercept marker");

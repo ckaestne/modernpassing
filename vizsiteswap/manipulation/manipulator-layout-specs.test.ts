@@ -17,7 +17,7 @@ Deno.test('findPriorSubstitutionOrCarryAction: no prior action', () => {
     const substitutedPass = g.pattern.findThrow(0,0)
     assert(substitutedPass && substitutedPass.markers?.some(m => m.kind === "S"), "found substituted pass")
 
-    assert.throws(() => findPriorSubstitutionOrCarryAction(g.pattern, substitutedPass))
+    assert.strictEqual(findPriorSubstitutionOrCarryAction(g.pattern, substitutedPass), undefined)
 })
 
 Deno.test('findPriorSubstitutionOrCarryAction: scrambled v', () => {
