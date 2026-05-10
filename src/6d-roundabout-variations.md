@@ -22,11 +22,11 @@ All spinning in *Chopabout* is clockwise, including the German turn at the end (
 
 <!-- TODO: this breaks the assumptions of the automated carry computation, because the new B throws an unforced pass? -->
 
-<todo-sync-group video="https://youtu.be/94PLxzRh5Ec?si=6z2O5qaDtiMI8x2w&t=8">
+<sync-group  style='{"components":["aidan","video"]}' video="https://youtu.be/94PLxzRh5Ec?si=6z2O5qaDtiMI8x2w&t=8">
 A: 3pB 3 3   3pB 3 3 -- B
 B: 3pA 3 3   3pA 3 3 -- A
 M: SBl z IBl .   Cz
-</todo-sync-group>
+</sync-group>
 
 In this one, the manipulator intercepts a self, turns around, and passes that intercepted club immediately on the next beat as B with their left hand -- this is very fast for the manipulator.
 
