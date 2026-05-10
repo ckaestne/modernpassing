@@ -175,15 +175,12 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 // handling slightly different positions
                 let positionSpec: RelativeMovementSpec["positionSpec"]
                 if (marker.fromRole === marker.toRoleAtThrow) {
-                    // intercepting a self from in front of the passer
-                    let direction = 0
-                    if (marker.modifiers.includes("o")) direction = 90
-                    if (marker.modifiers.includes("x")) direction = -90
-                    positionSpec = {
-                        type: "infront",
-                        toRole: marker.toRoleAtThrow,
-                        direction
-                    }
+                    // substituting a self from in front of the passer
+                    positionSpec = createInFrontOfSelfPositionSpec(
+                        marker.toRoleAtThrow,
+                        marker.modifiers,
+                        pattern.getTargetHand(t, iteration) === Hand.Right
+                    )
                 } else {
                     // intercepting a pass, processing several possible modifiers
                     // default is late intercept, so exactly in the middle, facing outside
@@ -264,14 +261,12 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
                 if (marker.fromRole === marker.originalToRoleAtThrow) {
                     // intercepting a self from in front of the passer
                     assert(t.throwLength<=4 || marker.originalToRoleAtThrow === pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow), `Expected to be intercepting from in front of the original target role ${marker.originalToRoleAtThrow} but at leaving time ${leavingTime} the role is ${pattern.getRole(leavingTime, pattern.getToPasserIdxAtThrow(t))}`)
-                    let direction = 0
-                    if (marker.modifiers.includes("o")) direction = 90
-                    if (marker.modifiers.includes("x")) direction = -90
-                                        positionSpec = {
-                        type: "infront",
-                        toRole: pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow),
-                        direction
-                    }
+                    // for a v-intercept the manipulator's throw hand on `t` matches the original receiving hand on the passer
+                    positionSpec = createInFrontOfSelfPositionSpec(
+                        pattern.getRole(t.throwBeat, marker.originalToPasserIdxAtThrow),
+                        marker.modifiers,
+                        pattern.getThrowHand(t, iteration) === Hand.Right
+                    )
                 } else {
                     // intercepting a pass, processing several possible modifiers
                     let side = 0 // default is very late intercept, so next to the receiver
@@ -423,6 +418,18 @@ export function getRelativeMovementsFromPattern(pattern: Pattern, basePattern: P
 // function getBasePasserPositions(layout: AnimationLayout): [BasePasserLocationRecord[], number/*mod*/] {
 
 // }
+
+
+// Build the in-front-of position spec for a self substitution/intercept,
+// applying `o`/`x` modifiers as a rotation around the target role's location:
+// `o` -> stand next to the role on the side of the receiving hand
+// `x` -> stand on the opposite side
+function createInFrontOfSelfPositionSpec(toRole: Role, modifiers: string, receivingHandIsRight: boolean): RelativeMovementSpec["positionSpec"] {
+    let direction = 0
+    if (modifiers.includes("o")) direction = receivingHandIsRight ? -90 : 90
+    if (modifiers.includes("x")) direction = receivingHandIsRight ? 90 : -90
+    return { type: "infront", toRole, direction }
+}
 
 
 function differentThrowOrTargetHandAcrossIterations(pattern: Pattern, t: Throw): boolean {

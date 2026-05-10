@@ -2,7 +2,7 @@ import type { AnimationSpec, GroupPattern } from "../layout.ts";
 import { createGroupPattern, createSyncGroupPattern } from "../../parsing/pattern-fromgroup.ts";
 import assert from "node:assert";
 import test from "node:test";
-import type { Role } from "@modernpassing/pattern";
+import { Hand, type Role } from "@modernpassing/pattern";
 import { assertEqualLocation, assertLocationBetween, assertLocationInFrontOf } from "../location-test-helpers.ts";
 import { createBaseLocationManager, createFullLocationManager, type LocationManager } from "./location-manager.ts";
 import { createPasserIdx, type PasserIdx } from "./helpers.ts";
@@ -194,7 +194,7 @@ move: Vmove(B,4.9,3)`
 Deno.test("locationMgr for minied (weird start with take on 0)", () => {
     // here we expect to see differences between the first and later iterations
 
-      const pattern = `A: 3pB 3pC 3  3pB 3   3 -- B
+    const pattern = `A: 3pB 3pC 3  3pB 3   3 -- B
 B: 3pA 3   3  3pA 3pC 3 -- C
 C: 3   3pA 3  3   3pB 3 -- A
 M: CB  .   SBe .   SCl  IC 
@@ -224,7 +224,7 @@ move: Vmove(C,1.9,2)Vmove(A,3.9,2)`
     assertLocationBetween(locationMgr.getLocationByRole(72, 'M'), inFrontOfA, initialB);
     assertLocationBetween(locationMgr.getLocationByRole(0, 'M'), initialA, initialB);
 
-    const iA = locationMgr.getInitialPositions().find(p=>p[0]===3)!
+    const iA = locationMgr.getInitialPositions().find(p => p[0] === 3)!
     assertEqualLocation([iA[1], iA[2]], initialA)
 
 })
@@ -285,11 +285,11 @@ move: Vmove(B,4.9,3)`
 
 
 
-    for (let beat = 2; beat <= locationMgr.mod; beat += 1) 
-        for (const role of ['A', 'B', 'C', 'M'] as Role[]){
-            assertEqualLocation(locationMgr.getLocationByRole(beat, role), locationMgr.getLocationByRole(beat+locationMgr.mod, role),
+    for (let beat = 2; beat <= locationMgr.mod; beat += 1)
+        for (const role of ['A', 'B', 'C', 'M'] as Role[]) {
+            assertEqualLocation(locationMgr.getLocationByRole(beat, role), locationMgr.getLocationByRole(beat + locationMgr.mod, role),
                 `Expected location for role ${role} at beat ${beat} to be the same in first and second iteration`);
-    }
+        }
 
 
 
@@ -1133,7 +1133,7 @@ move: Vmove(B,4.9,3)`
     assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), [0.75, 0.933]); // should be at start
     assertEqualLocation(locationMgr.getLocationByRole(0, 'C'), initialC); // should be at start, skipping the initial mid-walk start
     assertEqualLocation(locationMgr.getLocationByRole(locationMgr.mod, 'C'), initialC);
-    assertLocationInFrontOf(locationMgr.getLocationByRole(0, 'M'), initialC); 
+    assertLocationInFrontOf(locationMgr.getLocationByRole(0, 'M'), initialC);
 
     // movement of B is kind of skipped through manipulation
     assertEqualLocation(locationMgr.getLocationByRole(0, 'B'), locationMgr.getLocationByRole(3.8, 'B')); // not moving yet
@@ -1154,7 +1154,7 @@ move: Vmove(B,4.9,3)`
 
 Deno.test("locationMgr for 3v", () => {
 
-   const pattern = `A: 3pB3  3pC3  3pB3  -- B
+    const pattern = `A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A
 M: CBz   SBz   IC.   -- M
@@ -1170,7 +1170,7 @@ move: Vmove(B,4.9,3)`
 })
 Deno.test("locationMgr for 456-about", () => {
 
-  const pattern = `A: 5 4 6 5 4 -- B
+    const pattern = `A: 5 4 6 5 4 -- B
             B: ,6 5 4 6 -- A
             M: .IAo -- M`
 
@@ -1178,17 +1178,43 @@ Deno.test("locationMgr for 456-about", () => {
     const locationMgr = createFullLocationManager(gp.layout!.animation, true)
 
     const moveAfterIntercept = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === 2)!
-    console.log(moveAfterIntercept)
+    // console.log(moveAfterIntercept)
     assert(moveAfterIntercept.spec!.positionSpec.type === "take")
     assert(moveAfterIntercept.toPositionNextIteration![0] === 0 && moveAfterIntercept.toPositionNextIteration![1] === .5, "wrong to pos: " + JSON.stringify(moveAfterIntercept.toPositionNextIteration))
 
     const moveToIntercept = locationMgr.movementTracker.movements.find(m => m.passerIdx === 2 && m.onBeat === 0)!
-    console.log(moveToIntercept)
+    // console.log(moveToIntercept)
     assert(moveToIntercept.spec!.positionSpec.type === "infront" &&
         moveToIntercept.spec!.positionSpec.toPasserIdx === 0 &&
         moveToIntercept.spec!.positionSpec.direction === 90, "wrong spec: " + JSON.stringify(moveToIntercept.spec))
 
 
+    for (let iteration = 0; iteration <= 4; iteration++) {
+        const moveToIntercept = locationMgr.movementTracker.movements.find(m => m.onBeat === 0 + iteration * 9)!
+        if (iteration % 4 < 2)
+            assert(moveToIntercept.spec!.positionSpec.type === "infront" &&
+                moveToIntercept.spec!.positionSpec.direction === 90, `wrong spec for iteration ${iteration}: ` + JSON.stringify(moveToIntercept.spec))
+        else
+            assert(moveToIntercept.spec!.positionSpec.type === "infront" &&
+                moveToIntercept.spec!.positionSpec.direction === -90, `wrong spec for iteration ${iteration}: ` + JSON.stringify(moveToIntercept.spec))
+    }
+
+    // let's check the specific position for the intercept
+
+    // left hand to left hand, while the manipulator (now A) is standing to the right of the passer (now M)
+    const interceptedPass = gp.layout!.animation.passAnimations.find(p=>p.onBeat===2)
+    // console.log(interceptedPass)
+    assert.equal(interceptedPass!.pass.fromHand, Hand.Left)
+    assert.equal(interceptedPass!.pass.toHand, Hand.Left)
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'M'), [0, 0.5]) // A is starting at (0, 0.5) and is now M at the time of the intercept
+    assertEqualLocation(locationMgr.getLocationByRole(2, 'A'), [0, 0.9]) // the manipulator intercepts a left handed pass and stands to the right (so below here)
+    const plan = createAnimationPlan(gp.layout!.animation);
+    const interceptedPassPlan = plan.passAnimations.find(p => p.onBeat === 2)!
+
+    // TODO: the pass rendering is weird, because the prior manipulator takes the passers position by the time the pass arrives
+    // the old passer does not move until they move for the intercept, several beats later -- we may finally need a mechanism to specify the walking delays
+    console.log(interceptedPassPlan)
+    assertEqualLocation([interceptedPassPlan?.debug_center.toX, interceptedPassPlan?.debug_center.toY], [0, 0.9]) 
 
 })
 
