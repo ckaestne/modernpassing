@@ -11,7 +11,7 @@ Deno.test("shift: basic", async () => {
     const r = parseGroupSyncPattern(basicFourCountWithoutManipulator)
     const [t, m] = createPatternFromRaw(r[0], 2)
 
-    console.log(t.prettyPrintThrows())
+    // console.log(t.prettyPrintThrows())
 
     const A = 0, B = 1
     assertThrowH(t, 0, 3, A, Hand.Right, B)
@@ -25,7 +25,7 @@ Deno.test("shift: basic", async () => {
 
     const [t2, m2] = shiftPattern(t, m)
 
-    console.log(t2.prettyPrintThrows())
+    // console.log(t2.prettyPrintThrows())
     assertThrowH(t2, 0, 3, A, Hand.Left, A)
     assertThrowH(t2, 0, 3, B, Hand.Left, B)
     assertThrowH(t2, 1, 3, A, Hand.Right, A)
@@ -37,7 +37,7 @@ Deno.test("shift: basic", async () => {
 
     const [t3, m3] = shiftPattern(t2, m2)
 
-    console.log(t3.prettyPrintThrows())
+    // console.log(t3.prettyPrintThrows())
     assertThrowH(t3, 0, 3, A, Hand.Right, A)
     assertThrowH(t3, 0, 3, B, Hand.Right, B)
     assertThrowH(t3, 1, 3, A, Hand.Left, A)
@@ -49,7 +49,7 @@ Deno.test("shift: basic", async () => {
 
     const [t4, m4] = shiftPattern(t3, m3)
 
-    console.log(t4.prettyPrintThrows())
+    // console.log(t4.prettyPrintThrows())
     assertThrowH(t4, 0, 3, A, Hand.Left, A)
     assertThrowH(t4, 0, 3, B, Hand.Left, B)
     assertThrowH(t4, 1, 3, A, Hand.Right, B)
@@ -79,7 +79,7 @@ Deno.test("shift: odd length, need hand switch", async () => {
     const r = parseGroupSyncPattern(basicThreeCountWithoutManipulator)
     const [t, m] = createPatternFromRaw(r[0], 2)
 
-    console.log(t.prettyPrintThrows())
+    // console.log(t.prettyPrintThrows())
 
     const A = 0, B = 1
     assertThrowH(t, 0, 3, A, Hand.Right, B)
@@ -91,7 +91,7 @@ Deno.test("shift: odd length, need hand switch", async () => {
 
     const [t2, m2] = shiftPattern(t, m)
 
-    console.log(t2.prettyPrintThrows())
+    // console.log(t2.prettyPrintThrows())
     assertThrowH(t2, 0, 3, A, Hand.Left, A)
     assertThrowH(t2, 0, 3, B, Hand.Left, B)
     assertThrowH(t2, 1, 3, A, Hand.Right, A)
@@ -101,7 +101,7 @@ Deno.test("shift: odd length, need hand switch", async () => {
 
     const [t3, m3] = shiftPattern(t2, m2)
 
-    console.log(t3.prettyPrintThrows())
+    // console.log(t3.prettyPrintThrows())
     assertThrowH(t3, 0, 3, A, Hand.Right, A)
     assertThrowH(t3, 0, 3, B, Hand.Right, B)
     assertThrowH(t3, 1, 3, A, Hand.Left, B)
@@ -127,7 +127,7 @@ Deno.test("shift: nonsymetric", async () => {
     const r = parseGroupSyncPattern(basicFour42CountWithoutManipulator)
     const [t, m] = createPatternFromRaw(r[0], 2)
 
-    console.log(t.prettyPrintThrows())
+    // console.log(t.prettyPrintThrows())
 
     const A = 0, B = 1
     assertThrow(t, 0, 3, A, B)
@@ -141,7 +141,7 @@ Deno.test("shift: nonsymetric", async () => {
 
     const [t2, m2] = shiftPattern(t, m)
 
-    console.log(t2.prettyPrintThrows())
+    // console.log(t2.prettyPrintThrows())
     assertThrow(t2, 0, 4, A, A)
     assertThrow(t2, 0, 3, B, B)
     assertThrow(t2, 1, 2, A, A)
@@ -153,7 +153,7 @@ Deno.test("shift: nonsymetric", async () => {
 
     const [t3, m3] = shiftPattern(t2, m2)
 
-    console.log(t3.prettyPrintThrows())
+    // console.log(t3.prettyPrintThrows())
     assertThrow(t3, 0, 2, A, A)
     assertThrow(t3, 0, 3, B, B)
     assertThrow(t3, 1, 3, A, A)
@@ -165,7 +165,7 @@ Deno.test("shift: nonsymetric", async () => {
 
     const [t4, m4] = shiftPattern(t3, m3)
 
-    console.log(t4.prettyPrintThrows())
+    // console.log(t4.prettyPrintThrows())
     assertThrow(t4, 0, 3, A, A)
     assertThrow(t4, 0, 3, B, B)
     assertThrow(t4, 1, 3, A, B)
@@ -176,7 +176,7 @@ Deno.test("shift: nonsymetric", async () => {
     assertThrow(t4, 3, 2, B, B)
 
     const [t5, m5] = shiftPattern(t4, m4)
-    console.log(t5.prettyPrintThrows())
+    // console.log(t5.prettyPrintThrows())
 
     assertThrow(t5, 0, 3, A, B)
     assertThrow(t5, 0, 3, B, A)
@@ -199,7 +199,7 @@ Deno.test("shift: with manipulator applied", async () => {
     const [t, m] = createPatternFromRaw(r[0], 2)
     const p = applyManipulations(t, m)
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
     assertThrow(p, 0, 3, A, B, "intercept")
@@ -212,7 +212,7 @@ Deno.test("shift: with manipulator applied", async () => {
     assertThrow(p, 3, 3, M, B)
 
     const p1 = shiftPattern(p, [])[0]
-    console.log(p1.prettyPrintThrows())
+    // console.log(p1.prettyPrintThrows())
     assertThrow(p1, 3, 3, M, M, "intercept")
     assertThrow(p1, 3, 3, B, B)
     assertThrow(p1, 0, 3, A, M, "carry")
@@ -223,7 +223,7 @@ Deno.test("shift: with manipulator applied", async () => {
     assertThrow(p1, 2, 3, M, M)
 
     const p2 = shiftPattern(p1, [])[0]
-    console.log(p2.prettyPrintThrows())
+    // console.log(p2.prettyPrintThrows())
     assertThrow(p2, 2, 3, M, A, "intercept")
     assertThrow(p2, 2, 3, B, M)
     assertThrow(p2, 3, 3, B, M, "carry")
@@ -408,9 +408,9 @@ test("generate all aidan patterns", async () => {
             const [t, m] = createPatternFromRaw(r[0], 2)
             pWithManipulator = fillPatternGaps(applyManipulations(t, m))
 
-            console.log(patternName)
+            // console.log(patternName)
             assert.ok(pWithManipulator.isValid(), "pattern is invalid after filling manipulator actions: " + pWithManipulator.getValidationError())
-            console.log(pWithManipulator.prettyPrintThrows())
+            // console.log(pWithManipulator.prettyPrintThrows())
         } catch (e) {
             console.error(`## Pattern: ${patternName}`)
             console.error(pattern)
@@ -534,8 +534,8 @@ Deno.test("invariant: all patterns are valid after filling gaps", async () => {
             assert.ok(pWithManipulatorFilled.isValid(), "pattern is invalid after filling manipulator actions: " + pWithManipulatorFilled.getValidationError())
         } catch (e) {
             console.error(`## Pattern: ${patternName}`)
-            console.log(pWithManipulator.prettyPrintThrows())
-            console.log(pWithManipulatorFilled.prettyPrintThrows())
+            // console.log(pWithManipulator.prettyPrintThrows())
+            // console.log(pWithManipulatorFilled.prettyPrintThrows())
 
             throw e
         }

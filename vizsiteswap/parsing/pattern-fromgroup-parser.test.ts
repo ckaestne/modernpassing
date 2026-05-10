@@ -83,7 +83,7 @@ M: . (SBd2 2)
     const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(". (SBd2 2) "))))
     // console.log(expectEOF(PRow.parse(tokenizer.parse("A: . (SBd2 2) "))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(". (SBd2 2) "))))
-    console.log(a, b)
+    // console.log(a, b)
     assert(b.isManipulator)
 
     const p = parseGroupPattern(pp)
@@ -100,7 +100,7 @@ test("parse manipulator row", () => {
     const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(b.isManipulator)
-    console.log(a, b)
+    // console.log(a, b)
 })
 
 test("parse manipulator row - handle carry", () => {
@@ -110,7 +110,7 @@ test("parse manipulator row - handle carry", () => {
     const a = expectSingleResult(expectEOF(PManipulatorSequence.parse(tokenizer.parse(t.slice(3)))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(b.isManipulator)
-    console.log(a, b)
+    // console.log(a, b)
 })
 
 test("parse allsync pattern", () => {
@@ -119,7 +119,7 @@ test("parse allsync pattern", () => {
     const a = expectSingleResult(expectEOF(PThrow.parse(tokenizer.parse(t))))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(!b.isManipulator)
-    console.log(b)
+    // console.log(b)
 })
 let max = 500
 
@@ -128,19 +128,19 @@ test("parse prefix in row", () => {
     // logTokens(tokenizer.parse(t))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(!b.isManipulator)
-    console.log(b)
+    // console.log(b)
 })
 test("parse prefix in row 2", () => {
     const t = `. 4px 3`
     // logTokens(tokenizer.parse(t))
     const b = expectSingleResult(expectEOF(PRow.parse(tokenizer.parse(t))))
     assert(!b.isManipulator)
-    console.log(b)
+    // console.log(b)
 })
 
 function logTokens(x: Token<any> | undefined) {
     while (x && max > 0) {
-        console.log(x.text, x.kind)
+        // console.log(x.text, x.kind)
         x = x.next
         max--
     }

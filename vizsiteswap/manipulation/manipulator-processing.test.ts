@@ -13,7 +13,7 @@ Deno.test("test parsing chopabout", () => {
     const [t, a] = createPatternFromRaw(p[0], 2)
 
     const s = t.prettyPrintThrows() + prettyPrintManipulatorActions(t, a)
-    console.log(s)
+    // console.log(s)
 
     const A = 0, B = 1, M = 2
 
@@ -39,7 +39,7 @@ Deno.test("test parsing manege", () => {
     const [t, a] = createPatternFromRaw(p[0], 4)
 
     const s = t.prettyPrintThrows() + prettyPrintManipulatorActions(t, a)
-    console.log(s)
+    // console.log(s)
 
     const A = 0, B = 1, M = 2
 
@@ -74,7 +74,7 @@ Deno.test("intercept rewrite: basic", () => {
     // assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, B, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, B, A, "remove intercepted")
@@ -95,7 +95,7 @@ Deno.test("intercept rewrite: basic", () => {
     const full = fillPatternGaps(rewritten)
     assert.ok(full.isValid())
     const hands = full.getStartingHands()
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [2, 1])
     assert.deepEqual(hands[B], [2, 1])
     assert.deepEqual(hands[M], [1, 0])
@@ -111,14 +111,14 @@ Deno.test.ignore("**broken:**intercept rewrite: 456about should be easy", () => 
         4,
     )
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert(manipulations[0].kind === "I" && manipulations.length === 1) // just making sure parsing is stable
 
     const rewritten = applyInterceptCarry(p, manipulations[0])
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 5, A, B, "unmodified")
     assertThrow(rewritten, 2, 4, A, M, "new throw for intercept")
@@ -154,7 +154,7 @@ Deno.test.ignore("**broken:** intercept rewrite: manege", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 7, A, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, A, B, "remove intercepted")
@@ -191,7 +191,7 @@ Deno.test("intercept rewrite: basic two beat carry", () => {
     // assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, B, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, B, A, "remove intercepted")
@@ -206,7 +206,7 @@ Deno.test("intercept rewrite: basic two beat carry", () => {
     assertThrow(rewritten, 2, 2, M, M, "carry-induced flip at old manipulator")
 
     const full = fillPatternGaps(rewritten)
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.ok(full.isValid(), full.getValidationError())
 })
 
@@ -226,7 +226,7 @@ Deno.test("intercept rewrite: basic three beat carry", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, B, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, B, A, "remove intercepted")
@@ -259,7 +259,7 @@ Deno.test("intercept rewrite: two carry on a pass", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, A, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, A, A, "remove intercepted")
@@ -294,7 +294,7 @@ Deno.test("intercept rewrite: three-beat carry over a pass", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, A, M, "new throw for intercept")
     assertNoThrow(rewritten, 0, A, A, "remove intercepted")
@@ -331,7 +331,7 @@ Deno.test("intercept rewrite: intercept over pattern boundary", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 2, B = 1, M = 0
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [2, 0, 1])
 
     // this is stupid to track and unintutive; due to intercept landing on beat 0, the first row corresponds to M, the second to B, and the last to A
@@ -352,7 +352,7 @@ Deno.test("intercept rewrite: intercept over pattern boundary", () => {
     const full = fillPatternGaps(rewritten)
     assert.ok(full.isValid())
     const hands = full.getStartingHands()
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 1])
     assert.deepEqual(hands[B], [2, 1])
     assert.deepEqual(hands[M], [1, 1])
@@ -378,7 +378,7 @@ Deno.test("intercept rewrite: intercept over pattern boundary with three passers
     assert.deepEqual(rewritten.mapRows, [1, 2, 3, 0])
     const A = 0, B = 1, M = 2, C = 3
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertNoThrow(rewritten, 3, B, B, "remove intercepted")
     assertThrow(rewritten, 3, 3, B, M, "new throw for intercept")
@@ -414,7 +414,7 @@ Deno.test("intercept rewrite: two-beat intercept/carry over pattern boundary", (
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 2, B = 1, M = 0
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [2, 0, 1])
 
     // this is stupid to track and unintutive; due to intercept landing on beat 0, the first row corresponds to M, the second to B, and the last to A
@@ -454,7 +454,7 @@ Deno.test("intercept rewrite: high intercept throw over pattern boundary", () =>
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [2, 0, 1])
 
     // this is stupid to track and unintutive; due to intercept landing on beat 0, the first row corresponds to M, the second to B, and the last to A
@@ -491,7 +491,7 @@ Deno.test("intercept rewrite: two-beat intercept/carry over pattern boundary lik
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 2, 0])
 
     // this is stupid to track and unintutive; due to intercept landing on beat 0, the first row corresponds to M, the second to B, and the last to A
@@ -533,7 +533,7 @@ Deno.test("intercept rewrite: two intercepts from same manipulator", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [B, A, M])
 
     assertThrow(rewritten, 1, 3, B, M, "first intercept")
@@ -570,7 +570,7 @@ Deno.test("intercept rewrite: two intercepts from same manipulator, but differen
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [M, B, A])
 
     assertThrow(rewritten, 1, 3, B, M, "first intercept")
@@ -608,7 +608,7 @@ Deno.test("intercept rewrite: two independent intercepts", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2, N = 3
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 2, 3, 0])
 
     assertNoThrow(rewritten, 1, B, B, "remove first intercepted")
@@ -654,7 +654,7 @@ Deno.test("intercept rewrite: intercepting a carry", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2, N = 3
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 2, 3, 0])
 
     assertNoThrow(rewritten, 1, B, B, "remove first intercepted")
@@ -737,7 +737,7 @@ Deno.test("apply substitution: basics", () => {
     let rewritten = applySubstitution(p, manipulations[0])
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 0, 2])
 
     assertNoThrow(rewritten, 1, B, B, "remove substituted throw")
@@ -765,7 +765,7 @@ Deno.test("apply substitution: substituting the first beat requires reverse wrap
     let rewritten = applySubstitution(p, manipulations[0])
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 0, 2])
 
     assertNoThrow(rewritten, 0, A, B, "remove substituted throw")
@@ -793,7 +793,7 @@ Deno.test("apply substitution: substituting the last beat", () => {
     let rewritten = applySubstitution(p, manipulations[0])
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 0, 2])
 
     assertThrow(rewritten, 3, 3, B, B, "keep Bs self")
@@ -828,7 +828,7 @@ Deno.test("apply substitution: substituting right person after relabel", () => {
     assert.deepStrictEqual(_removeUniqueKey(applyManipulations(p, manipulations)), _removeUniqueKey(rewritten)) //, 'applyManipulations should do the same as the manual steps before')
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 3, A, M, "intercept")
     assertThrow(rewritten, 1, 3, B, M, "carry")
@@ -857,7 +857,7 @@ Deno.test("apply substitution: intercept a substitution", () => {
     const rewritten = applyManipulations(p, manipulations)
     const A = 0, B = 1, M = 2, N = 3
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 1, A, M, "substitution -- steal")
     assertThrow(rewritten, 0, 3, M, N, "intercept of the placement part of the substitution")
@@ -890,7 +890,7 @@ Deno.test("apply substitution: intercept a substitution 2", () => {
     const rewritten = applyManipulations(p, manipulations)
     const A = 0, B = 1, M = 2, N = 3
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 0, 1, A, N, "substitution -- steal")
     assertThrow(rewritten, 0, 3, N, M, "intercept of the placement part of the substitution")
@@ -915,7 +915,7 @@ Deno.test("manipulator throw: basics", () => {
 
     let rewritten = applyManipulatorThrow(p, manipulations[1])
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const M = 2
     assertThrow(rewritten, 2, 1, M, M, "new manipulator throw")
@@ -945,7 +945,7 @@ Deno.test("manipulator throw: zip after substitution", () => {
 
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.deepEqual(rewritten.mapRows, [1, 0, 2])
 
     assertNoThrow(rewritten, 1, B, B, "remove substituted throw")
@@ -970,7 +970,7 @@ Deno.test("roundabout", () => {
     )
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
     assertThrowRaw(rewritten, 0, 1, A, B, "sub pass -- steal")
@@ -1005,7 +1005,7 @@ Deno.test("chopabout", () => {
     )
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
     assertSub(rewritten, 0, 3, A, M, B, "sub first chop")
@@ -1041,7 +1041,7 @@ Deno.test("phonecian walz", () => {
     )
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
     assertSub(rewritten, 0, 3, A, M, B, "sub first")
@@ -1069,7 +1069,7 @@ Deno.test("opernball", () => {
     )
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2, N = 3, O = 4
     assertSub(rewritten, 0, 3, A, M, O, "sub north to intercept")
@@ -1225,7 +1225,7 @@ Deno.test("minued", () => {
     const A = 0, B = 1, M = 2
     assert.deepEqual(p.mapRows, [B, A])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertSub(rewritten, 1, 3, A, M, B, "sub pass")
     assertThrow(rewritten, 2, 3, B, M, "intercept")
@@ -1255,7 +1255,7 @@ Deno.test("scrambled V", () => {
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
     assertThrow(rewritten, 0, 3, M, B, "carry")
@@ -1269,7 +1269,7 @@ Deno.test("scrambled V", () => {
     const full = fillPatternGaps(rewritten)
     assert.ok(full.isValid())
     const hands = full.getStartingHands()
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 1])
     assert.deepEqual(hands[B], [2, 1])
     assert.deepEqual(hands[C], [2, 1])
@@ -1290,11 +1290,11 @@ move: Vmove(B,5.9,3)`,
     )
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
-    console.log(p.prettyPrintThrows() + prettyPrintManipulatorActions(p, manipulations))
+    // console.log(p.prettyPrintThrows() + prettyPrintManipulatorActions(p, manipulations))
     assert.ok(p.isValid(), p.getValidationError())
 
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     // assert.ok(rewritten.isValid(), rewritten.getValidationError())
 
     assertThrow(rewritten, 0, 4, M, B, "carry")
@@ -1306,10 +1306,10 @@ move: Vmove(B,5.9,3)`,
     assertThrow(rewritten, 6, 2, C, C, "flip to prepare for carry")
 
     const full = fillPatternGaps(rewritten)
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.ok(full.isValid(), full.getValidationError())
     const hands = full.getStartingHands()
-    console.log(full.prettyPrintThrows())
+    // console.log(full.prettyPrintThrows())
     assert.deepEqual(hands[A], [1, 2])
     assert.deepEqual(hands[B], [1, 2])
     assert.deepEqual(hands[C], [2, 1])
@@ -1333,7 +1333,7 @@ Deno.test("ambled 3 (with late intercept)", () => {
     assert.ok(p.isValid(), p.getValidationError())
 
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 3, M, C, "carry")
     // 3 beat carry!
@@ -1362,7 +1362,7 @@ Deno.test("modifiers: delayed placement (for German turn)", () => {
     )
     const A = 0, B = 1, M = 2
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 1, B, M, "steal")
     assertThrow(rewritten, 3, 1, M, B, "late placement")
@@ -1382,7 +1382,7 @@ Deno.test("modifiers: delayed placement with flips (for German turn)", () => {
     )
     const A = 0, B = 1, M = 2
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 1, B, M, "steal")
     assertThrow(rewritten, 3, 1, M, B, "late placement")
@@ -1407,7 +1407,7 @@ Deno.test("delayed substitute placement: basics", () => {
 
     const B = 1, M = 2
 
-    console.log(basic.prettyPrintThrows())
+    // console.log(basic.prettyPrintThrows())
 
     // assertEmpty(basic, 0, M, 'empty hand to catch pelf')
     assertThrow(basic, 1, 3, M, B, "normal handin")
@@ -1418,7 +1418,7 @@ Deno.test("delayed substitute placement: basics", () => {
          B: 3333  -- A
          M: . SBd2 `,
     )
-    console.log(d2.prettyPrintThrows())
+    // console.log(d2.prettyPrintThrows())
 
     // assertEmpty(d2, 0, M, 'empty hand to catch pelf')
     assertThrow(d2, 3, 1, M, B, "very late handin")
@@ -1435,7 +1435,7 @@ Deno.test("delayed substitute placement: basics", () => {
          M: . SBd1 `,
     )
     assert.deepEqual(stripModifiers(d), stripModifiers(d1))
-    console.log(d1.prettyPrintThrows())
+    // console.log(d1.prettyPrintThrows())
 
     // assertEmpty(d1, 0, M, 'empty hand to catch pelf')
     assertThrow(d1, 2, 2, M, B, "later handin")
@@ -1465,7 +1465,7 @@ test.skip("delayed substitute placement: roundabout with German turn", () => {
     )
     assert.deepEqual(p.mapRows, [1, 0])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     const A = 0, B = 1, M = 2
     assertThrowRaw(rewritten, 0, 1, A, M, /*weird wraparound, but correct */ "sub pass -- steal")
@@ -1505,7 +1505,7 @@ Deno.test("modifiers: early intercept", () => {
     assert.deepStrictEqual(applyManipulations(p, manipulations), rewritten, "applyManipulations should do the same as the manual steps before")
     const A = 0, B = 1, M = 2
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 1, B, M, "new throw for intercept")
     assertNoThrow(rewritten, 1, B, A, "remove intercepted")
@@ -1537,7 +1537,7 @@ Deno.test("ambled 3 (with early intercept)", () => {
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 3, M, C, "carry")
     // 3 beat carry!
@@ -1569,7 +1569,7 @@ Deno.test("ambled 3 (with early intercept and delayed hand-in and real time-trav
     const A = 0, B = 1, C = 2, M = 3
     assert.deepEqual(p.mapRows, [B, C, A])
     let rewritten = applyManipulations(p, manipulations)
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
 
     assertThrow(rewritten, 1, 3, M, C, "carry")
     // 3 beat carry!
@@ -1616,7 +1616,7 @@ Deno.test("intercept: at end of pattern with different base rows", () => {
     const [t, m] = createPatternFromRaw(r[0], 2)
     const rewritten = applyManipulations(t, m)
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     const A = 0, B = 1, M = 2
 
     assertThrow(rewritten, 3, 4, B, A, "intercept")
@@ -1889,10 +1889,10 @@ Deno.test("intercept: at end of pattern again after prior relabeling", () => {
     const r = parseGroupSyncPattern(tt)
     const [t, m] = createPatternFromRaw(r[0], 2)
     const t2 = t.swapRoles(3, "A", "B", true)
-    console.log(t2.prettyPrintThrows() + prettyPrintManipulatorActions(t2, m))
+    // console.log(t2.prettyPrintThrows() + prettyPrintManipulatorActions(t2, m))
     const rewritten = applyManipulations(t2, m)
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     const A = 0, B = 1, M = 2
 
     assertIntercept(rewritten, 3, 3, M, M)
@@ -1919,11 +1919,11 @@ Deno.test("fill and validate: basics", () => {
         M: IBA CA`,
     )
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.ok(!p.isValid(), "pattern is valid without filling manipulator actions: " + p.getValidationError())
     const filled = fillPatternGaps(p)
-    console.log(filled.prettyPrintThrows())
+    // console.log(filled.prettyPrintThrows())
     assert.ok(filled.isValid(), "pattern is invalid after filling manipulator actions: " + filled.getValidationError())
 })
 
@@ -1934,11 +1934,11 @@ Deno.test("fill and validate: basics 2 beat intercept", () => {
         M: IB . C`,
     )
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.ok(!p.isValid(), "pattern is valid without filling manipulator actions: " + p.getValidationError())
     const filled = fillPatternGaps(p)
-    console.log(filled.prettyPrintThrows())
+    // console.log(filled.prettyPrintThrows())
     assert.ok(filled.isValid(), "pattern is invalid after filling manipulator actions: " + filled.getValidationError())
 })
 Deno.test("fill and validate: ambled 3 with time travel", () => {
@@ -1950,10 +1950,10 @@ Deno.test("fill and validate: ambled 3 with time travel", () => {
         positions: V(A,B,C)`,
     )
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     const filled = fillPatternGaps(p)
-    console.log(filled.prettyPrintThrows())
+    // console.log(filled.prettyPrintThrows())
     assert.ok(filled.isValid(), "pattern is invalid after filling manipulator actions: " + filled.getValidationError())
 })
 
@@ -1966,11 +1966,11 @@ M: SB.IB↻   C↻..
 positions: Line(A,B)`,
     )
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.ok(!p.isValid(), "pattern is valid without filling manipulator actions: " + p.getValidationError())
     const filled = fillPatternGaps(p)
-    console.log(filled.getStartingHands())
+    // console.log(filled.getStartingHands())
     assert.ok(filled.isValid(), "pattern is invalid after filling manipulator actions: " + filled.getValidationError())
 
     assert.deepEqual(filled.getStartingHands(), [[2, 1], [2, 1], [1, 0]])
@@ -1985,7 +1985,7 @@ M: SBe! . 1x     SBl IBv.. CB↺  -- M`
     const [t, m] = createPatternFromRaw(r[0], 2)
     const rewritten = applyManipulations(t, m)
 
-    console.log(rewritten.prettyPrintThrows())
+    // console.log(rewritten.prettyPrintThrows())
     const A = 0, B = 1, M = 2
 
     const full = fillPatternGaps(rewritten)

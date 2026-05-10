@@ -17,7 +17,7 @@ Deno.test("test parsing four-count", () => {
         2,
     ).pattern
 
-    console.log(t.prettyPrintThrows())
+    // console.log(t.prettyPrintThrows())
     const A = 0, B = 1
 
     assertThrow(t, 0, 3, A, B)
@@ -93,7 +93,7 @@ Deno.test("test parsing 867", () => {
         4,
     ).pattern
 
-    console.log(t.prettyPrintThrows())
+    // console.log(t.prettyPrintThrows())
 
     const A = 0, B = 1
 
@@ -152,7 +152,7 @@ test("test pattern creation", (t) => {
     const gp: GroupPattern = createSyncGroupPattern("A: 3pB333pC33\n           B: 3pC333pA33\n            C: 3pA333pB33\n            positions: Circle(A,B,C)")
     const p = gp.pattern
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     const roles = ["A", "B", "C"]
@@ -196,7 +196,7 @@ positions: Box(A,C,D,B)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
     const roles = ["A", "B", "C"]
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
@@ -220,7 +220,7 @@ positions: V(A,B,C)
 move: Vmove(B,3.9,3)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
@@ -231,7 +231,7 @@ test("hands: double pass", async (t) => {
     const pattern = `4p 2 3\n3 3p 3`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
@@ -254,7 +254,7 @@ test("TODO[remove hand inference] hands: jim's three count", async (t) => {
                      3px 3 3 3px 3 3`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
@@ -291,7 +291,7 @@ test.skip("not supported: hands: jim's three count -- short", async (t) => {
     const pattern = `A: 3p33--B\nB: 3px33 -- A`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
     assert.deepEqual(p.getStartingHands(), [[2, 1], [2, 1]])
 
@@ -322,7 +322,7 @@ test("hands: 8c two count", () => {
     const pattern = `(4px 4x)\n(4px 4x)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.deepEqual(p.getStartingHands(), [[2, 2], [2, 2]])
@@ -334,7 +334,7 @@ test("hands: techno", () => {
         (4x  2)(4x 4px)(2  4x)(4px 4x)`
     const gp: GroupPattern = createSyncGroupPattern(pattern)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 
     assert.equal(p.findThrow(0, 0, undefined, Hand.Right)?.fromOppositeHand, false)
@@ -355,8 +355,8 @@ test("siteswaps, basics", () => {
         4,
     ).pattern
 
-    console.log(q.prettyPrintThrows())
-    console.log(p.prettyPrintThrows())
+    // console.log(q.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.equal(p.getLength(), q.getLength())
     assert.deepEqual(p.prettyPrintThrows(), q.prettyPrintThrows())
@@ -372,7 +372,7 @@ test("hands/crossing complicated: extra club brunos", () => {
         move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5) `
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 })
 
@@ -382,7 +382,7 @@ test("hands: 7 club two count, straight doubles", () => {
         B:!3   4px`
     const gp: GroupPattern = createGroupPattern(pattern, 2)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 })
 
@@ -392,7 +392,7 @@ test("prefix and hands: 7 club two count", () => {
         B: 4px 3`
     const gp: GroupPattern = createGroupPattern(pattern, 2)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.equal(p.getPrefixLength(), 1)
     assert.equal(p.getLength(), 2)
@@ -409,7 +409,7 @@ test("prefix and hands: 7 club two count, start left-handed", () => {
         B: !4px 3`
     const gp: GroupPattern = createGroupPattern(pattern, 2)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.equal(p.getPrefixLength(), 1)
     assert.equal(p.getLength(), 2)
@@ -444,7 +444,7 @@ C: ,67A667A46
 positions: V(A,B,C)`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
@@ -461,7 +461,7 @@ positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 0), Hand.Right)
     assert.equal(p.getThrowHand(p.findThrow(0, 0)!, 1), Hand.Left)
@@ -529,7 +529,7 @@ move: Vmove(B, 7, 5)`,
 function printAndCheckValidity(pattern: string, expectValid: boolean, nrHands: number = 4) {
     const gp: GroupPattern = createGroupPattern(pattern, nrHands)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     const roles = p.getInitialRoles()
     const result: string[][] = roles.map((r) => [])
@@ -546,9 +546,9 @@ function printAndCheckValidity(pattern: string, expectValid: boolean, nrHands: n
                 )
             } else result[passerIdx].push("----")
         }
-        console.log(roles[passerIdx] + ": " + result[passerIdx].join(" "))
+        // console.log(roles[passerIdx] + ": " + result[passerIdx].join(" "))
     }
-    console.log((p as any).countHurries(), p.iterationsUntilRepeat())
+    // console.log((p as any).countHurries(), p.iterationsUntilRepeat())
     assert.equal(p.isValid(), expectValid, `Pattern is ${p.isValid() ? "valid" : "invalid"} but expected ${expectValid} for pattern:\n${pattern}\n${p.getValidationError()}`)
 }
 
@@ -582,7 +582,7 @@ test("testing crossing/hands validation: manege", async (t) => {
     // console.log(p.mapCrossing)
     // console.log((p as any).countHurries())
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     // first pass
     const p7 = p.findThrow(0, 0)!
@@ -627,8 +627,8 @@ test("testing crossing/hands validation: manege", async (t) => {
         // assert.equal(isJames(p, m5, iteration), isJames(p, b5, iteration), "M should always start on the same side as B")
     }
 
-    console.log("Hand of start A:", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i) ? "L" : "R") + (isJames(p, p7, i) ? "‖" : "X")))
-    console.log("Hand of start B:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(b7, i) ? "L" : "R") + (isJames(p, b7, i) ? "‖" : "X")))
+    // console.log("Hand of start A:", Array.from({ length: 13 }, (_, i) => (p.getThrowHand(p7, i) ? "L" : "R") + (isJames(p, p7, i) ? "‖" : "X")))
+    // console.log("Hand of start B:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(b7, i) ? "L" : "R") + (isJames(p, b7, i) ? "‖" : "X")))
     // console.log("Hand of start C:", Array.from({ length: 13 }, (_, i) => (!p.getThrowHand(m5, i) ? 'L' : 'R') + (isJames(p, m5, i) ? '‖' : 'X')))
 
     assert.ok(p.isValid(), p.getValidationError())
@@ -640,11 +640,11 @@ test("testing crossing/hands validation: 744about", async (t) => {
         M: IB, CA -- M`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.nrRows)
-    console.log(p.iterationsUntilRepeat())
+    // console.log(p.nrRows)
+    // console.log(p.iterationsUntilRepeat())
     // console.log(p.mapHands)
     // console.log(p.mapCrossing)
-    console.log(p.isValid(), p.getValidationError())
+    // console.log(p.isValid(), p.getValidationError())
 
     // p.mapHands[0] = [true]
     // p.mapHands[1] = [true, false]
@@ -654,9 +654,9 @@ test("testing crossing/hands validation: 744about", async (t) => {
     // p.mapCrossing[2] = [true]
     // console.log(p.mapHands)
     // console.log(p.mapCrossing);
-    console.log((p as any).countHurries())
+    // console.log((p as any).countHurries())
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert(p.isValid(), p.getValidationError())
 })
 
@@ -667,7 +667,7 @@ test("detailed testing crossing/hands validation: 567about", async (t) => {
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
 
-    console.log(p.nrRows)
+    // console.log(p.nrRows)
     // console.log(p.mapHands)
     // console.log(p.mapCrossing)
     // p.mapHands[0] = [true]
@@ -679,7 +679,7 @@ test("detailed testing crossing/hands validation: 567about", async (t) => {
     // console.log(p.mapHands)
     // console.log(p.mapCrossing)
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     // first pass
     const a7 = p.findThrow(0, 0)!
@@ -740,11 +740,11 @@ positions: V(A,B,C)
 move: Vmove(B, 7, 5)`
     const gp: GroupPattern = createGroupPattern(pattern, 4)
     const p = gp.pattern
-    console.log(p.nrRows)
-    console.log(p.iterationsUntilRepeat())
+    // console.log(p.nrRows)
+    // console.log(p.iterationsUntilRepeat())
     // console.log(p.mapHands)
     // console.log(p.mapCrossing)
-    console.log(p.isValid(), p.getValidationError())
+    // console.log(p.isValid(), p.getValidationError())
 
     // p.mapHands[0] = [true]
     // p.mapHands[1] = [true, false]
@@ -754,9 +754,9 @@ move: Vmove(B, 7, 5)`
     // p.mapCrossing[2] = [true]
     // console.log(p.mapHands)
     // console.log(p.mapCrossing);
-    console.log((p as any).countHurries())
+    // console.log((p as any).countHurries())
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert(p.isValid(), p.getValidationError())
 })
 
@@ -769,6 +769,6 @@ positions: V(A,B,C)
 move: Vmove(B,4.9,3)`
     const gp: GroupPattern = createGroupPattern(pattern, 2)
     const p = gp.pattern
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
     assert.ok(p.isValid(), p.getValidationError())
 })

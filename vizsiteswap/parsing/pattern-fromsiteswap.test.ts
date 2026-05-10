@@ -4,7 +4,7 @@ import { Hand } from "../pattern/pattern.ts"
 
 Deno.test("Pattern from siteswap, 756", () => {
     const s756 = createSiteswapPattern("756", {})
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
     const t7 = s756.findThrow(0)!
     const t5 = s756.findThrow(1)!
     const t6 = s756.findThrow(2)!
@@ -36,7 +36,7 @@ Deno.test("Pattern from siteswap, 756", () => {
 
 Deno.test("Pattern from siteswap, 756, B starting", () => {
     const s756 = createSiteswapPattern("756", { startingJuggler: 1 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
     const t7 = s756.findThrow(0)!
     const t5 = s756.findThrow(1)!
     const t6 = s756.findThrow(2)!
@@ -68,7 +68,7 @@ Deno.test("Pattern from siteswap, 756, B starting", () => {
 
 Deno.test("Pattern from siteswap, 77722", () => {
     const s756 = createSiteswapPattern("77722", { startingJuggler: 0 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     const t2 = s756.findThrow(1)!
@@ -86,7 +86,7 @@ Deno.test("Pattern from siteswap, 77722", () => {
 })
 Deno.test("Pattern from siteswap, 77722, B starting", () => {
     const s756 = createSiteswapPattern("77722", { startingJuggler: 1 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     const t2 = s756.findThrow(1)!
@@ -104,7 +104,7 @@ Deno.test("Pattern from siteswap, 77722, B starting", () => {
 
 Deno.test("Pattern from siteswap, 7", () => {
     const s756 = createSiteswapPattern("7", { startingJuggler: 0 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     assert.equal(t1.fromPasserIdx, 0)
@@ -116,7 +116,7 @@ Deno.test("Pattern from siteswap, 7", () => {
 
 Deno.test("Pattern from siteswap, 75", () => {
     const s756 = createSiteswapPattern("75", { startingJuggler: 0 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     const t2 = s756.findThrow(1)!
@@ -134,7 +134,7 @@ Deno.test("Pattern from siteswap, 75", () => {
 
 Deno.test("Pattern from siteswap, 7575", () => {
     const s756 = createSiteswapPattern("7575", { startingJuggler: 0 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     const t2 = s756.findThrow(1)!
@@ -151,7 +151,7 @@ Deno.test("Pattern from siteswap, 7575", () => {
 
 Deno.test("Pattern from siteswap, 756756", () => {
     const s756 = createSiteswapPattern("756756", { startingJuggler: 0 })
-    console.log(s756.prettyPrintThrows())
+    // console.log(s756.prettyPrintThrows())
 
     const t1 = s756.findThrow(0)!
     const t2 = s756.findThrow(1)!
@@ -169,7 +169,7 @@ Deno.test("Pattern from siteswap, 756756", () => {
 Deno.test("more siteswaps", () => {
     function ensureValid(s: string) {
         const p = createSiteswapPattern(s, {})
-        console.log(p.prettyPrintThrows())
+        // console.log(p.prettyPrintThrows())
         assert(p.isValid(), s + ": " + p.getValidationError())
     }
 

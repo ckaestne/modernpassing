@@ -241,7 +241,7 @@ describe("Pattern.getRowIdxByRole", () => {
 test("some ad-hoc tests", () => {
     const p = twoPersonFourBeatPatternWithInterceptOnOne
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     // self from A on last beat goes to B's row
     assert.equal(p.getRole(3, 0), "A")
@@ -275,7 +275,7 @@ test("some ad-hoc tests", () => {
 test("some more ad-hoc tests", () => {
     const p = twoPersonFourBeatPatternWithInterceptOnZeroA
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     // self from A on last beat goes to B's row
     assert.equal(p.getRole(3, 2), "A")

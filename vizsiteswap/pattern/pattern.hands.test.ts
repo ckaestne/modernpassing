@@ -154,7 +154,7 @@ test("global hand order offset -- seven club two count straight", () => {
         assert.equal(pattern.getThrowHand(t2, iteration), Hand.Left, "iteration " + iteration)
         assert.equal(pattern.getTargetHand(t2, iteration), Hand.Right, "iteration " + iteration)
     }
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     assert.equal(pattern.iterationsUntilRepeat(), 2)
@@ -229,7 +229,7 @@ Deno.test("hands, three count", () => {
         ["A", "B"],
     )
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     for (let iteration = -4; iteration < 8; iteration += 2) {
@@ -297,7 +297,7 @@ Deno.test("hands, 756", () => {
         ["A", "B"],
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
 
     assert.equal(pattern.isStraightPass(pattern.throws[0], 0), true)
     assert.equal(pattern.isStraightPass(pattern.throws[1], 0), true)
@@ -372,7 +372,7 @@ Deno.test("hands, 756756", () => {
         ["A", "B"],
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     assert.equal(pattern.isStraightPass(pattern.throws[0], 0), true)
@@ -489,7 +489,7 @@ Deno.test("hands, 7-club two-count straight", () => {
         ["A", "B"],
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     for (let i = -3; i < 5; i++) {
@@ -524,7 +524,7 @@ Deno.test("hands, 8-club two-count", () => {
         2,
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
 
     assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2, 2]])
@@ -544,7 +544,7 @@ Deno.test("hands, 720", () => {
         ["A", "B"],
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
 
     assert.equal(pattern.isStraightPass(pattern.throws[0], 0), true)
     assert.equal(pattern.isStraightPass(pattern.throws[0], 1), false)
@@ -605,7 +605,7 @@ function sw(p: number[]): Pattern {
 
     // swap the hands of the side with the odd number of throws
     const pattern = createPattern(ts, 4, [1, 0], ["A", "B"]) as PatternImpl
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
     return pattern
 }
@@ -680,10 +680,10 @@ Deno.test("hands, 10 club brunos", () => {
         1,
     ) as PatternImpl
 
-    console.log(pattern.prettyPrintThrows())
+    // console.log(pattern.prettyPrintThrows())
 
-    console.log(pattern.getTargetHand(lastself, 0))
-    console.log(pattern.getTargetHandFirstIteration(lastself))
+    // console.log(pattern.getTargetHand(lastself, 0))
+    // console.log(pattern.getTargetHandFirstIteration(lastself))
 
     assert.ok(pattern.isValid(), "Pattern invalid: " + pattern.getValidationError())
     assert.deepEqual(pattern.getStartingHands(), [[2, 2], [2, 1], [1, 2]])
@@ -753,15 +753,15 @@ Deno.test("hand sequence modeling for siteswap takeout in manage", () => {
     // Use 4-handed globalHandOrder: [Right, Right, Left, Left]
     const p = createPattern(t, 4, [1, 2, 0], ["A", "B", "M"], [Hand.Right, Hand.Right, Hand.Left, Hand.Left]) as PatternImpl
 
-    console.log(p.iterationsUntilRepeat())
-    console.log(p.prettyPrintThrows())
+    // console.log(p.iterationsUntilRepeat())
+    // console.log(p.prettyPrintThrows())
 
-    console.log(p.throws[5])
-    console.log(p.getThrowHand(p.throws[5], 0))
-    console.log(p.getTargetHand(p.throws[5], 0))
-    console.log(p.getThrowHand(p.throws[5], 1))
-    console.log(p.getTargetHand(p.throws[5], 1))
-    console.log(p.getTargetHandFirstIteration(p.throws[5]))
+    // console.log(p.throws[5])
+    // console.log(p.getThrowHand(p.throws[5], 0))
+    // console.log(p.getTargetHand(p.throws[5], 0))
+    // console.log(p.getThrowHand(p.throws[5], 1))
+    // console.log(p.getTargetHand(p.throws[5], 1))
+    // console.log(p.getTargetHandFirstIteration(p.throws[5]))
 
     const handStartSequenceA = [Hand.Right, Hand.Right, Hand.Left, Hand.Left]
     const handStartSequenceBM = [Hand.Right, Hand.Left, Hand.Left, Hand.Right]

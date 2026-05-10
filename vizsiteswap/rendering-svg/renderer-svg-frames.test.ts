@@ -147,7 +147,7 @@ function renderFrames(pattern: string, filename: string, nrHands: number = 2) {
         frames[i].width(200)
         frames[i].height(200)
     }
-    console.log(`rendered ${frames.length} frames`)
+    // console.log(`rendered ${frames.length} frames`)
 
     fs.writeFileSync(filename, svg.svg())
 }

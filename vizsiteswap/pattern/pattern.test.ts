@@ -11,7 +11,7 @@ Deno.test("prefix throws", () => {
     ]
     const p = createPattern(t, 2, [0, 1], ["A", "B"])
 
-    console.log(p.prettyPrintThrows())
+    // console.log(p.prettyPrintThrows())
 
     assert.ok(p.isValid(), p.getValidationError())
     assert.deepEqual(p.getStartingHands(), [[1, 2], [2, 1]])

@@ -128,8 +128,8 @@ positions: Circle(A,B,C)`,
     )
     const config = {}
     const [svg, initData] = renderGroupPattern(gp, config)
-    console.log(svg.svg())
-    console.log(initData)
+    // console.log(svg.svg())
+    // console.log(initData)
 })
 
 Deno.test("animation for 3V", () => {
@@ -145,8 +145,8 @@ move: Vmove(B,4.9,3)`,
     )
     const config = {}
     const [svg, initData] = renderGroupPattern(gp, config)
-    console.log(svg.svg())
-    console.log(initData)
+    // console.log(svg.svg())
+    // console.log(initData)
 })
 
 Deno.test("group pattern data payload", () => {
