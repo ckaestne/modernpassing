@@ -4,7 +4,7 @@ Next: [Synchronous passing notation](2a-intro-notation.md) or [Four-handed sites
 
 ## 5-club one count
 
-The most effective way to teach beginners passing is to teach them *5-club one count*. Especially if one passer is more experienced, it is possible to teach almost everybody passing within minutes and get them to experience success, even if they have never tried to juggle clubs before. As it allows for more control and feedback and trains both hands equally, this approach is much more effective than the traditional approach of first requiring a solo cascade pattern and then learning [6-club four count]() as the first pattern. This approach was first introduced by Amiel Martin and published on [passingpedagogy.com](https://web.archive.org/web/20240511104511/https://www.passingpedagogy.com/); it has since been widely taught in workshops.
+The most effective way to teach beginners passing is to teach them *5-club one count*. Especially if one passer is more experienced, it is possible to teach almost everybody passing within minutes and get them to experience success, even if they have never tried to juggle clubs before. As it allows for more control and feedback and trains both hands equally, this approach is much more effective than the traditional approach of first requiring a solo cascade pattern and then learning [6-club four count]() as the first pattern. This approach was first introduced by Amiel Martin and published on [passingpedagogy.com](https://www.passingpedagogy.com/); it has since been widely taught in workshops.
 
 In the following I assume a more experienced *teacher* and a less experienced *student*. While it is easier to get to success with a more experienced *teacher*, who can throw good passes and recover from less good responses, the same sequence also works with two beginners.
 
@@ -14,7 +14,7 @@ In the following I assume a more experienced *teacher* and a less experienced *s
 
 *Illustration of the four passes between the teacher (T) and the student (S).*
 
-Use this first step to practice passes, watch them land, and correct with the next throw if needed. Passes will often be too spiny, too short, too fast, or too low. Passes should be lofty and should be caught with an open hand facing the other passer roughly at shoulder height, maybe 10 to 20 cm (4-8 inch) diagonally in front of the shoulder. It is a good exercise for the teacher (a) to hold the empty hand where they want to catch the club as a reference point for the student to aim for, and (b) to provide feedback on what to correct.
+Use this first step to practice passes, watch them land, and correct with the next throw if needed. Passes will often be too spinny, too short, too fast, or too low. Passes should be lofty and should be caught with an open hand facing the other passer roughly at shoulder height, maybe 10 to 20 cm (4-8 inch) diagonally in front of the shoulder. It is a good exercise for the teacher (a) to hold the empty hand where they want to catch the club as a reference point for the student to aim for, and (b) to provide feedback on what to correct.
 
 [TODO: Photo of where to catch]
  
