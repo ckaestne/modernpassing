@@ -37,7 +37,7 @@ positions: Line(A, B, 0.143) `
     renderFrames(pattern, currDir + "/test/phonecian-waltz.svg")
 })
 
-test.only("opernball", () => {
+test("opernball", () => {
     const pattern = `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
