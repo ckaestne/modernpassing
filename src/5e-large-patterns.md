@@ -19,7 +19,7 @@ G: 3pD3pD3pD3pD333pC3pC3pC3pC33 -- H
 H: 3pC3pC3pC3pC333pB3pB3pB3pB33 -- I
 I: 3pB3pB3pB3pB333pA3pA3pA3pA33 -- J
 J: 3pA3pA3pA3pA33333333 -- A
-positions: Svg(shapes/speedpassing.svg,A,0,B,2,C,4,D,6,E,8, F,10,G,12,H,14,I,16,J,18)
+positions: Svg(speedpassing.svg,A,0,B,2,C,4,D,6,E,8, F,10,G,12,H,14,I,16,J,18)
 move:move(*,3.9,1)move(*,9.9,1)
 </sync-group>
 
@@ -51,7 +51,7 @@ G: 3pC3 -- H
 H: 3pB3 -- I
 I: 3pA3 -- J
 J: 3  3 -- A
-positions: Svg(shapes/skinnyfeast.svg,A,0,B,1,C,2,D,3,E,4, F,5,G,6,H,7,I,8,J,9)
+positions: Svg(skinnyfeast.svg,A,0,B,1,C,2,D,3,E,4, F,5,G,6,H,7,I,8,J,9)
 move:move(*,0.9,1)
 </sync-group>
 

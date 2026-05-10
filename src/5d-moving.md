@@ -193,7 +193,7 @@ B: 3pE33 3pD33  -- C
 C: 3pD33 3  33  -- D
 D: 3pC33 3pB33  -- E
 E: 3pB33 3pA33  -- A
-positions: Svg(shapes/5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
+positions: Svg(5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
 move: move(A,0.9,2)move(B,0.9,2)move(C,0.9,2)move(D,0.9,2)move(E,0.9,2)
 move: move(A,3.9,2)move(B,3.9,2)move(C,3.9,2)move(D,3.9,2)move(E,3.9,2)
 </sync-group>
@@ -208,7 +208,7 @@ C: 3  33 3pA33 3  33 3pA33 3pE33 3pA33 -- B
 D: 3pE33 3pF33 3pE33 3pF33 3  33 3pF33 -- F
 E: 3pD33 3  33 3pD33 3  33 3pC33 3  33 -- A
 F: 3  33 3pD33 3  33 3pD33 3pB33 3pD33 -- E
-positions: Svg(shapes/magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
+positions: Svg(magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
 move: move(B,2.9,3)move(C,3.9,5) move(B,6.9,5) move(A,11.9,3) move(A,15.9,5)move(B,12.9,5)
 move: move(E,2.9,3)move(F,3.9,5) move(E,6.9,5) move(D,11.9,3) move(D,15.9,5)move(E,12.9,5)
 </sync-group>

@@ -49,7 +49,7 @@ export function parseLayout(input: string): TLayout {
             roles.push([role, idx])
         }
 
-        checkContinuousSegments(segments)
+        checkContinuousSegments(segments, svgFile)
 
         return {
             type: "svg",
@@ -110,7 +110,7 @@ function parseMovement(input: string, roles: Role[]): TMovementStep[] {
     return [{ type, role, when, duration, extraParam }]
 }
 
-function checkContinuousSegments(segments: MovementSegmentSpec[]) {
+function checkContinuousSegments(segments: MovementSegmentSpec[], svgFile: string) {
     assert(segments.length > 0, "svg layout must contain at least one path segment")
 
     const EPSILON = 1e-9
@@ -123,7 +123,7 @@ function checkContinuousSegments(segments: MovementSegmentSpec[]) {
 
         assert(
             almostEqual(current.fromX, prev.toX) && almostEqual(current.fromY, prev.toY),
-            `segment ${i} starts at (${current.fromX}, ${current.fromY}) but previous segment ${prevIdx} ends at (${prev.toX}, ${prev.toY})`,
+            `In ${svgFile}: segment ${i} starts at (${current.fromX}, ${current.fromY}) but previous segment ${prevIdx} ends at (${prev.toX}, ${prev.toY})`,
         )
     }
 }

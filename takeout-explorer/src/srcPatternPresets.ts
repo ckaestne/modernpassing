@@ -328,7 +328,7 @@ B: 3pE33 3pD33  -- C
 C: 3pD33 3  33  -- D
 D: 3pC33 3pB33  -- E
 E: 3pB33 3pA33  -- A
-positions: Svg(shapes/5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
+positions: Svg(5bcascade.svg,A,0,B,2,C,4,D,6,E,8)
 move: move(A,0.9,2)move(B,0.9,2)move(C,0.9,2)move(D,0.9,2)move(E,0.9,2)
 move: move(A,3.9,2)move(B,3.9,2)move(C,3.9,2)move(D,3.9,2)move(E,3.9,2)`,
     patternType: "sync",
@@ -341,7 +341,7 @@ C: 3  33 3pA33 3  33 3pA33 3pE33 3pA33 -- B
 D: 3pE33 3pF33 3pE33 3pF33 3  33 3pF33 -- F
 E: 3pD33 3  33 3pD33 3  33 3pC33 3  33 -- A
 F: 3  33 3pD33 3  33 3pD33 3pB33 3pD33 -- E
-positions: Svg(shapes/magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
+positions: Svg(magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
 move: move(B,2.9,3)move(C,3.9,5) move(B,6.9,5) move(A,11.9,3) move(A,15.9,5)move(B,12.9,5)
 move: move(E,2.9,3)move(F,3.9,5) move(E,6.9,5) move(D,11.9,3) move(D,15.9,5)move(E,12.9,5)`,
     patternType: "sync",
@@ -435,7 +435,7 @@ G: 3pD3pD3pD3pD333pC3pC3pC3pC33 -- H
 H: 3pC3pC3pC3pC333pB3pB3pB3pB33 -- I
 I: 3pB3pB3pB3pB333pA3pA3pA3pA33 -- J
 J: 3pA3pA3pA3pA33333333 -- A
-positions: Svg(shapes/speedpassing.svg,A,0,B,2,C,4,D,6,E,8, F,10,G,12,H,14,I,16,J,18)
+positions: Svg(speedpassing.svg,A,0,B,2,C,4,D,6,E,8, F,10,G,12,H,14,I,16,J,18)
 move:move(*,3.9,1)move(*,9.9,1)`,
     patternType: "sync",
   },
@@ -451,7 +451,7 @@ G: 3pC3 -- H
 H: 3pB3 -- I
 I: 3pA3 -- J
 J: 3  3 -- A
-positions: Svg(shapes/skinnyfeast.svg,A,0,B,1,C,2,D,3,E,4, F,5,G,6,H,7,I,8,J,9)
+positions: Svg(skinnyfeast.svg,A,0,B,1,C,2,D,3,E,4, F,5,G,6,H,7,I,8,J,9)
 move:move(*,0.9,1)`,
     patternType: "sync",
   },
@@ -724,7 +724,7 @@ B: , (9A 7Ax)`,
     pattern: `A: 3pB3 3pC3 3pB3 3pC3 3pB3 -- B
 B: 3pA3 3  3 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   3pA3 33   -- A
-positions: Svg(shapes/bruno5.svg,A,0,B,4,C,3)
+positions: Svg(bruno5.svg,A,0,B,4,C,3)
 move: move(B,1.9,2)move(B,4.9,3)move(B,8.9,3)move(C,2.9,3)`,
     patternType: "sync",
   },
@@ -742,7 +742,7 @@ move: Bmove(B,2.9,3)Bmove(B,7.9,4)Bmove(C,4.9,4)`,
     pattern: `A: 3pB3pC3 3pB3pC3 3pB3pC3 -- B
 B: 3pA33   3pA33   3pA33 -- C
 C: 33pA3   33pA3 33pA3   -- A
-positions: Svg(shapes/bruno5.svg,A,0,B,4,C,3)
+positions: Svg(bruno5.svg,A,0,B,4,C,3)
 move: move(B,0.9,2)move(B,3.9,2)move(B,6.9,2)move(C,1.9,2)`,
     patternType: "sync",
   },
@@ -763,7 +763,7 @@ C: 3   3pA 3   3pA 3pE 3pA -- B
 D: 3pE 3pF 3pE 3pF 3   3pF -- F
 E: 3pD 3   3pD 3   3pC 3   -- A
 F: 3   3pD 3   3pD 3pB 3pD -- E
-positions: Svg(shapes/magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
+positions: Svg(magermix.svg,A,0,B,3,C,2,D,6,E,9,F,8)
 move: move(B,0.9,1)move(C,1.6,1.3) move(B,2.9,1)move(A,3.9,1)move(A,5.9,1)move(B,4.9,1)
 move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(E,4.9,1)`,
     patternType: "sync",
@@ -773,7 +773,7 @@ move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(
     pattern: `A: 3pB33 3pC33 3pB33 3pC33 333   3pC33 -- C
 B: 3pA33 333   3pA33 333   3pC33 333   -- A
 C: 333   3pA33 333   3pA33 3pB33 3pA33 -- B
-positions: Svg(shapes/bruno441.svg,A,8,B,1,C,4)
+positions: Svg(bruno441.svg,A,8,B,1,C,4)
 move: move(B,0.9,5)move(C,3.9,5)move(A,9.9,5)move(C,12.9,2)move(B,12.9,5)`,
     patternType: "sync",
   },
@@ -782,7 +782,7 @@ move: move(B,0.9,5)move(C,3.9,5)move(A,9.9,5)move(C,12.9,2)move(B,12.9,5)`,
     pattern: `A: 3pB 3pC 3pB 3pC 3   3pC -- C
 B: 3pA 3   3pA 3   3pC 3   -- A
 C: 3  3pA 3   3pA 3pB 3pA -- B
-positions: Svg(shapes/bruno441.svg,A,8,B,1,C,4)
+positions: Svg(bruno441.svg,A,8,B,1,C,4)
 move: move(B,0.6,1.3)move(C,1.6,1.3)move(A,3.9,1)move(C,4.6,0.3)move(B,4.9,1)`,
     patternType: "sync",
   },
