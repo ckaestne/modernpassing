@@ -37,19 +37,19 @@ The exact same takeout sequence on single passes from *567-about* can be straigh
 
 **Catch the carrot.** Fairly easy and short pattern based on [Jim’s three-count, async](4b-4hsw-beginner.md) with useful color coding: One for the only club that gets passed (first throw of A) and two for the clubs that get intercepted with a pop ("the carrots"). The video is very helpful.
 
-<TODO-siteswap-group video="https://passing.zone/catch-the-carrot/">
+<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/catch-the-carrot/">
 A: 7 4 6 6 -- B
 B:, 7 6 6  -- A
 M: C ,IB
-</TODO-siteswap-group>
+</siteswap-group>
 
 **Killer-bunny-about.** Based on [*564 (killer bunny)*](4e-4hsw-zaps.md), with an intercept on the flip: The intercepted passer flips the club over and gives it to the manipulator next to them. This pattern (like all patterns that intercept flips or zips) does not have a carry since the new manipulator is already down to a single club; instead the new manipulator directly walks across the pattern to stand next to the other passer to intercept the next flip. In one direction, the manipulator walks straight, in the other they walk through the pattern crossing. In practice, the passers effectively stand in 3 corners of a rectangle and the manipulator always walks to the empty corner next.  Again, watching the video is very helpful.
 
-<TODO-siteswap-group video="https://passing.zone/killer-bunny-about/">
+<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/killer-bunny-about/">
 A: 5 4 6 5 4 -- B
 B:, 6 5 4 6 -- A
 M: . IA
-</TODO-siteswap-group>
+</siteswap-group>
 
 The same idea is possible with *78456* for a much faster pattern.
 
@@ -59,20 +59,20 @@ These patterns are long but fairly accessible for passers with a robust [why-not
 
 **Dropbear.** In this pattern, the crossing and the straight side are quite different: On the side with straight passes, the manipulator steps through the pattern in front of A between the carry and intercept (essentially following the club they just carried) and on the other side they simply remain on the same side and catch a crossing pass. The first action after the intercept is a pass that follows the last pass of the B before the intercept.
 
-<TODO-siteswap-group>
+<TODO-siteswap-group  style='{"components":["aidan","video"]}' video="https://passing.zone/pattern/why-not-about-2/">
 A: 7 6 7 8 2 7 6 7 -- B
 B:, 8 2 7 6 7 8 2  -- A
-M  SB. IB,C
+M:  SB. IB,C
 </TODO-siteswap-group>
 **[TODO: need a video]**
 
 **What's that about.** Probably the oldest siteswap takeout pattern (from 2014). The manipulator intercepts a heff, which is commonly thrown as a heffling (single spin). The pattern is fairly slow, with a long wait before the intercept.
 
-<TODO-siteswap-group video="https://www.youtube.com/watch?v=omz7Vj7LblE">
+<siteswap-group video="https://www.youtube.com/watch?v=omz7Vj7LblE">
 A: 7 6 7 8 2 7 6 7 -- B
 B:, 8 2 7 6 7 8 2  -- A
-M , IB. C
-</TODO-siteswap-group>
+M: , IBo. C
+</siteswap-group>
 
 
 ## Techno Patterns
