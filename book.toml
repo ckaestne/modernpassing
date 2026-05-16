@@ -10,15 +10,16 @@ extra-watch-dirs = ["vizsiteswap"]
 
 [preprocessor.siteswapsvg]
 command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
+renderer=["html"]
 
 #[preprocessor.compatsiteswaps]
 #command = "compatsiteswaps/mdbook-compatsiteswaps"
 
-[output.linkcheck2]
-follow-web-links = false
-exclude = [ 'juggling\.tv' ]
-warning-policy = "warn"
-optional=true
+#[output.linkcheck2]
+#follow-web-links = false
+#exclude = [ 'juggling\.tv' ]
+#warning-policy = "warn"
+#optional=true
 
 [output.html]
 additional-css = ["css/svgstyle.css", "css/bookstyle.css"]
@@ -28,8 +29,5 @@ git-repository-url = "https://github.com/ckaestne/modernpassing"
 git-repository-icon = "fab-github"
 default-theme = "light"
 
-[output.markdown]
-
-#[output.typst]
-#[output.typst.output]
-#format = "pdf"
+[output.typst]
+command = "deno run -A ../../pdf/mdbook-typst.ts"

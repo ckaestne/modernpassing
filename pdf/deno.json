@@ -1,0 +1,29 @@
+{
+    "nodeModulesDir": "none",
+    "imports": {
+        "@modernpassing/layout": "../vizsiteswap/layout/layout.ts",
+        "@modernpassing/manipulation": "../vizsiteswap/manipulation/manipulation.ts",
+        "@modernpassing/parsing": "../vizsiteswap/parsing/parsing.ts",
+        "@modernpassing/pattern": "../vizsiteswap/pattern/pattern.ts",
+        "@modernpassing/rendering-core": "../vizsiteswap/rendering-core/rendering.ts",
+        "@modernpassing/rendering-svg": "../vizsiteswap/rendering-svg/renderer-svg.ts",
+        "@modernpassing/svg-utils": "../vizsiteswap/svg-utils/svg-utils.ts",
+        "@std/assert": "jsr:@std/assert@1",
+        "@svgdotjs/svg.js": "npm:@svgdotjs/svg.js@^3.2.4",
+        "jsdom": "npm:jsdom@^24.1.1",
+        "svg-path-properties": "npm:svg-path-properties@^2.0.0",
+        "svgdom": "npm:svgdom@^0.1.19",
+        "typescript-parsec": "npm:typescript-parsec@^0.3.4"
+    },
+    "compilerOptions": {
+        "strict": true
+    },
+    "fmt": {
+        "useTabs": false,
+        "lineWidth": 280,
+        "indentWidth": 4,
+        "semiColons": false,
+        "singleQuote": false,
+        "proseWrap": "preserve"
+    }
+}
