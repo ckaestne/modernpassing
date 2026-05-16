@@ -91,7 +91,7 @@ This also works for less intuitive starts like the start of 972, where we can se
 
 Similarly, we can count the hand without incoming lines in causal diagram and add one club to each hand (one less if the very first action is a zip).
 
-**Avoid skipping initial beats.** Some common patterns are often taught with starts that skip the first beat for the second passer. For example, it is common to start 7-club three count with a right-handed straight double, and for the other passer to start "as late as possible" with a right-handed crossing double, which should be *three beats later*. This works but requires to practice a new timing. We argue it is better to start all four-handed siteswaps one beat apart, that is, passer A should start with a crossing double from the right hand and passer B should start just afterward with a self from the right hand, followed by a straight double from the left hand as clearly indicated by the notation:
+**Avoid skipping initial beats.** Some common patterns are often taught with starts that skip the first beat for the second passer. For example, it is common to start 7-club three-count with a right-handed straight double, and for the other passer to start "as late as possible" with a right-handed crossing double, which should be *three beats later*. This works but requires to practice a new timing. We argue it is better to start all four-handed siteswaps one beat apart, that is, passer A should start with a crossing double from the right hand and passer B should start just afterward with a self from the right hand, followed by a straight double from the left hand as clearly indicated by the notation:
 
 <siteswap>966</siteswap>
 
@@ -103,7 +103,7 @@ We usually do not consider starts where a club would need to be caught with a no
 
 Beyond that, we usually prefer starts where (1) the first throw of passer A is a pass, (2) the first throw of passer B is a pass, (3) the number of starting clubs is the same in both hands or the right hand has one more club, and (4) the number of starting clubs are relatively balanced between the passers. 
 
-It is not always possible to satisfy all four preferences. For example, among the two remaining starts of 972, both violate at least one preference: Starting with the double requires juggler A to start with two clubs in the left hand (violating preference 3). Starting with the single requires juggler B to start with a non-pass, with two clubs in the right and an empty left hand (violating preferences 2 and 3). Despite not satisfying all preferences, the start with the double seems overall the better start.
+It is not always possible to satisfy all four preferences. For example, among the two remaining starts of 972, both violate at least one preference: Starting with the double requires passer A to start with two clubs in the left hand (violating preference 3). Starting with the single requires passer B to start with a non-pass, with two clubs in the right and an empty left hand (violating preferences 2 and 3). Despite not satisfying all preferences, the start with the double seems overall the better start.
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>729</siteswap>
 
@@ -125,4 +125,4 @@ A *trelf* is a more recent attempt to disambiguate triple selfs from triple pass
 
 The *zap* was originally discovered when playing with the early passing animator [JoePass!](http://koelnvention.de/w/?page_id=151) Based on the software's name, they were sometimes called *joe passes,* but now the name zap is much more common.
 
-In this book, I use *passer A* and *passer B* and assume that passer A starts and throws straight single passes and crossing zaps and doubles. This is arbitrary. When agreeing on a side, it is common to negotiate who is throwing straight and crossing passes. As a running gag, some in the community have adopted *"James"* as the name for the passer with straight singles and *"Not James"* as the name for the passer with crossing singles. Alternatively, some have suggested *"James"* and *"Jims,"* because the latter throws crossing singles as in Jim's three count.
+In this book, I use *passer A* and *passer B* and assume that passer A starts and throws straight single passes and crossing zaps and doubles. This is arbitrary. When agreeing on a side, it is common to negotiate who is throwing straight and crossing passes. As a running gag, some in the community have adopted *"James"* as the name for the passer with straight singles and *"Not James"* as the name for the passer with crossing singles. Alternatively, some have suggested *"James"* and *"Jims,"* because the latter throws crossing singles as in Jim's three-count.

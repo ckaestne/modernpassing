@@ -1,7 +1,7 @@
 # For Ian
 
 
-## 5-count popcorn vs why not moving feed
+## Five-count popcorn vs why not moving feed
 
 
 (created by Maria, reconstructed from memory and changed directions)
@@ -16,8 +16,8 @@ move: Vmove(B, 7, 5)
 
 
 Notes:
-* B walks on a five count, followed by a6/88
-* The "7" in the five-count is needed because we cross sides of the pattern and need to fudge by half a beat, but it is not really noticable and can just be thought of as a 5-count
+* B walks on a five-count, followed by a6/88
+* The "7" in the five-count is needed because we cross sides of the pattern and need to fudge by half a beat, but it is not really noticable and can just be thought of as a five-count
 * A passes straight to B and crossing to C
 * B passes crossing, C passes straight
 * After B walks the new feeder (previous C) stays straight to the first feeder, but starts crossing to the new feedee (previously B, now C)
@@ -78,7 +78,7 @@ move: Vmove(B, 11, 5)
 </siteswap-group>
 
 
-## Martin's one count vs Why not
+## Martin's one-count vs Why not
 
 <siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
 A: !7B 7Cx 7B 7Cx 2 7Cx -- B

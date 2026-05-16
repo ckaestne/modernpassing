@@ -87,7 +87,7 @@ positions: Circle(A,B,C)
 
 The *feast* is an elegant and scalable pattern that theoretically works with any number of passers and on any base pattern: The passers stand in a circle. Each passer has a starting partner such that no passing lanes cross (with odd numbers of passers, one passer has no partner). On the first passing beat each passer passes with their starting partner (or a self if they have no starting partner). On every next passing beat, they pass to the passer on right (in the circle) of their previous pass. If the previous pass was to the last passer on the right, they do a self on the next passing beat, and continue with the passer on their left on the passing beat after. That is, everybody passes with everybody in the circle in order (including themself). 
 
-The feast is commonly juggled on four-count or two-count, but we strongly recommend three-count or another ambidextrous pattern. Here is the pattern for five jugglers on three-count:
+The feast is commonly juggled on four-count or two-count, but we strongly recommend three-count or another ambidextrous pattern. Here is the pattern for five passers on three-count:
 
 <sync-group>
 A: 3pB33 3pC33 3pD33 3pE33 3  33

@@ -2,7 +2,7 @@
 
 <progressions>
 
-**Prerequisite —** [6-club three count](2b-basic-sync.md)
+**Prerequisite —** [6-club three-count](2b-basic-sync.md)
 
 **Next —** [Roundabout](6c-roundabout.md), [Scrambled V](6f-aidan-patterns.md), or [takeouts in 4-handed siteswaps](6i-siteswap-takeouts.md)
 
@@ -58,7 +58,7 @@ While other patterns are more popular, *Nicki's 3-Count Roundabout* is a good fi
 
 <video todo="this like most other videos start on the carry, which is not ideal for teaching, record new video?">https://www.youtube.com/watch?v=OB3mwD08Hck</video>
 
-In the pattern, two passers with roles A and B pass [*6-club three count*](2b-basic-sync.md). A manipulator M stands in the middle of the pattern (between the passing lanes) with a single club in the right hand (upside down).
+In the pattern, two passers with roles A and B pass [*6-club three-count*](2b-basic-sync.md). A manipulator M stands in the middle of the pattern (between the passing lanes) with a single club in the right hand (upside down).
 
 1. On the first beat, the manipulator M *substitutes* a right-handed pass from passer A to passer B, stealing it with their left hand in the air, catching it on the handle (late steal, see below) and placing the held club with their right hand from blow into passer B's left hand where the pass would have landed.
 2. On the third beat, the manipulator now stands in front of passer B and *intercepts* B's right-hand self with their right hand, catching the club on the handle (late steal). Passer B will usually help by throwing a nice self with less spin then usual (a pelf, see below). 

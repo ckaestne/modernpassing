@@ -56,7 +56,7 @@ positions: Brunos(A,B,C)
 move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,4)
 </sync-group>
 
-There is no equivalence of a north-wall pattern for 3 passers and a manipulator where everybody cycles to the pattern both left and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two jugglers doing the right side of the pattern and two jugglers doing the left side, without ever swapping.
+There is no equivalence of a north-wall pattern for 3 passers and a manipulator where everybody cycles to the pattern both left and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two passers doing the right side of the pattern and two passers doing the left side, without ever swapping.
 
 **Brunickolf.** *Brunickolf* is a 5-person takeout pattern on the standard *[Bruno's nightmare](5d-moving.md)* base pattern.
 It is composed of two 4-person patterns that have only one of the manipulators each. 
@@ -73,7 +73,7 @@ move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 
 The 5-person pattern is a north-wall pattern with two sides, but the two 4-person patterns again have two passers do the right-handed sequence and two passers do the left-handed sequence.
 
-**MiniEd.** MiniEd is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three count (C on beat 2 and A on beat 4) as the base pattern. 
+**MiniEd.** MiniEd is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three-count (C on beat 2 and A on beat 4) as the base pattern. 
 
 <sync-group video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
 A: 3pB 3pC 3  3pB 3   3 -- B

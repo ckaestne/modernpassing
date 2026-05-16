@@ -20,7 +20,7 @@ For zaps, it is useful to try the various easier [zap patterns]() until zaps fee
 
 The double is probably the most difficult throw in holy grail. *7-club three-count* (966) and *972* (see [doubles]()) are good warm-up pattern. Provide detailed feedback on all double passes to your partner (length, spin, height) and practice to look down to see the passes landing in *7-club three-count* to calibrate without feedback.
 
-Finally, the most important warm-up pattern is *945*, to dial in the dragons (just hold the 4 without a flip). Again focus on giving good feedback on the doubles or watching your own double throws land (which is rather difficult). This pattern is hard, nearly as hard as holy grain, and not a good pattern to learn dragons. Use it as a warm-up pattern or come back to this if holy grail is unstable. From this one to holy grail, use the same start but juggler B adds a club for the additional single pass.
+Finally, the most important warm-up pattern is *945*, to dial in the dragons (just hold the 4 without a flip). Again focus on giving good feedback on the doubles or watching your own double throws land (which is rather difficult). This pattern is hard, nearly as hard as holy grail, and not a good pattern to learn dragons. Use it as a warm-up pattern or come back to this if holy grail is unstable. From this one to holy grail, use the same start but passer B adds a club for the additional single pass.
 
 <siteswap>945</siteswap>
 

@@ -53,7 +53,7 @@ positions: V(A,B,C,D)
 </sync-group>
 
 
-As another beginner-friendly feed, a feeder juggling *[6-club one-count](1-learn-teach.md)* can alternate passes to two feedees in [6-club two-count](2b-basic-sync.md) -- with one of them juggling left-handed two count.
+As another beginner-friendly feed, a feeder juggling *[6-club one-count](1-learn-teach.md)* can alternate passes to two feedees in [6-club two-count](2b-basic-sync.md) -- with one of them juggling left-handed two-count.
 
 **Chaining multiple feeds.** 
 To integrate more passers, it is possible to have more than one feeder in a pattern, producing N-shaped or W-shaped layouts, for example here is a pattern with two feeders (B, C):
@@ -140,7 +140,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 
-**Martin's one-count vs. why not.** For more experienced feedees, Martin's one-count (pass-pass-pass-pass-zip) feeding two juggler's passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees to wait for an incoming pass to trigger their heff is the easiest-to-remember start.
+**Martin's one-count vs. why not.** For more experienced feedees, Martin's one-count (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees to wait for an incoming pass to trigger their heff is the easiest-to-remember start.
 
 <siteswap-group>
 A: 7B7C7B7C2
@@ -151,7 +151,7 @@ positions: V(A,B,C)
 
 [TODO: change shown start]
 
-**Why not vs. 5-count popcorn.** This feed is roughly of similar difficulty for all passers; as usual, *5-count popcorn* can be juggled with either [heffs](4d-4hsw-heffs.md) or [trelfs](4f-4hsw-trelfs.md).
+**Why not vs. five-count popcorn.** This feed is roughly of similar difficulty for all passers; as usual, *five-count popcorn* can be juggled with either [heffs](4d-4hsw-heffs.md) or [trelfs](4f-4hsw-trelfs.md).
 
 <siteswap-group>
 A: 7B67C82
@@ -169,7 +169,7 @@ C: ,67A827A
 positions: V(A,B,C)
 </siteswap-group>
 
-**972 vs. 7-club three-count and French three count.** In this pattern, the feeder passes double passes with one feedee and single passes with the other.
+**972 vs. 7-club three-count and French three-count.** In this pattern, the feeder passes double passes with one feedee and single passes with the other.
 
 <siteswap-group>
 A: 7B   9C    2 
@@ -200,9 +200,9 @@ With the theory of [compatible siteswaps](4h-4hsw-compatible.md) it is easy to c
 
 Generally the two feedees always throw at the same time, but they must not pass such that their passes arrive on the same beat. For example, two feedees can pass *why not* with the interface *pxpxx*, but they must be offset from each other by one beat so that their combined interface toward the feeder is *ppppx* -- that is either one of them will pass on every beat except the last. The feeder can pass any pattern that is compatible with the combined interface of the feedees; in the example any pattern with interface *ppppx*, such as *Martin's one-count*, can feed two *why not* feedees. As another example from above, *[funky bookends](4d-4hsw-heffs.md)* has the interface *ppxpx* and can be combined with *why not*'s interface *pxpxx* when started two beats later for a combined interface of *ppppp* which is compatible with *7-club one-count* by the feeder. It is possible to combine patterns with throws of different heights and of very different difficulty levels as long as their interfaces can be combined. Following this principle, we can find many unusual feeds of common four-handed siteswaps, such as:
 * *[7-club one-count](4b-4hsw-beginner.md)* *(ppp)* vs. *[765](4e-4hsw-zaps.md)* (ppx) and *[582](4g-4hsw-named.md)* (pxx)
-* *[parsnip](4b-4hsw-beginner.md)* or *[funky bookends](4d-4hsw-heffs.md)* (ppxpx) vs. *[Jim's two-count (async, 77466)](4b-4hsw-beginner.md)* (pxpxx) and *[5-count popcorn](4f-4hsw-trelfs.md)* (pxxxx)
+* *[parsnip](4b-4hsw-beginner.md)* or *[funky bookends](4d-4hsw-heffs.md)* (ppxpx) vs. *[Jim's two-count (async, 77466)](4b-4hsw-beginner.md)* (pxpxx) and *[five-count popcorn](4f-4hsw-trelfs.md)* (pxxxx)
 * *[945](4i-4hsw-holygrail.md)* (ppx) vs. *[French three-count](4d-4hsw-heffs.md)* (pxx) and *[5-club one-count](4b-4hsw-beginner.md)* (pxx)
 * *[7-club one-count](4b-4hsw-beginner.md)* *(ppp)* vs. *[74a](4d-4hsw-heffs.md)* (pxx) and *[77a](4f-4hsw-trelfs.md)* (ppx)
 
-As with all compatible siteswaps, identifying starts can be a bit tricky and may require pen and paper as described in the [theory section](4l-4hsw-theory.md). The total number of clubs needed for the feed is the sum of the clubs for each pattern divided by two, since each passer passes half of each siteswap. We following heuristic to figure out the start often works: Let the feeder start with their pattern with a convenient start and identify when each feedee will receive their first pass. Usually each feedee can identify how they usually would start their pattern in reaction to an incoming pass. For example, it is common to start *[French three count](4d-4hsw-heffs.md)* with a heff on the beat after the first incoming single pass is thrown. If the first incoming pass is at a different height than usually expected in the feedee's pattern (e.g., an incoming zap instead of a single pass for a feedee's *French three count*), this start would be adjusted correspondingly to start a beat earlier or later. In many cases, the second feedee may need to wait a beat or two for their first incoming pass; they can either wait for their usual start or backtrack and identify the throws before; the throw before might include a pass to the feeder. In many cases, it is possible to identify the start this way with only few attempts to figure out what works; if it does not work go back to the pen and paper method. See the patterns above for some examples of starts.
+As with all compatible siteswaps, identifying starts can be a bit tricky and may require pen and paper as described in the [theory section](4l-4hsw-theory.md). The total number of clubs needed for the feed is the sum of the clubs for each pattern divided by two, since each passer passes half of each siteswap. We following heuristic to figure out the start often works: Let the feeder start with their pattern with a convenient start and identify when each feedee will receive their first pass. Usually each feedee can identify how they usually would start their pattern in reaction to an incoming pass. For example, it is common to start *[French three-count](4d-4hsw-heffs.md)* with a heff on the beat after the first incoming single pass is thrown. If the first incoming pass is at a different height than usually expected in the feedee's pattern (e.g., an incoming zap instead of a single pass for a feedee's *French three-count*), this start would be adjusted correspondingly to start a beat earlier or later. In many cases, the second feedee may need to wait a beat or two for their first incoming pass; they can either wait for their usual start or backtrack and identify the throws before; the throw before might include a pass to the feeder. In many cases, it is possible to identify the start this way with only few attempts to figure out what works; if it does not work go back to the pen and paper method. See the patterns above for some examples of starts.
  

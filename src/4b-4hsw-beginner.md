@@ -3,7 +3,7 @@
 
 <progressions>
 
-**Prerequisites —** [5-club one count](1-learn-teach.md) and [four-handed siteswap notation](4a-4hsw-notation.md)
+**Prerequisites —** [5-club one-count](1-learn-teach.md) and [four-handed siteswap notation](4a-4hsw-notation.md)
 
 **Helpful —** [6-club one-count](2b-basic-sync.md) and [bookends](2b-basic-sync.md)
 
@@ -33,7 +33,7 @@ When you get more comfortable with the pattern, try flipping the 4s or throw sel
 
 <siteswap>7777266</siteswap>
 
-**Jim's three-count, async (7746666).** An four-handed siteswap version of Jim's three count (see [Jim's patterns]()) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. (There are siteswap version for all Jim's patterns)
+**Jim's three-count, async (7746666).** An four-handed siteswap version of Jim's three-count (see [Jim's patterns]()) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. (There are siteswap version for all Jim's patterns)
 
 <siteswap>7746666</siteswap>
 

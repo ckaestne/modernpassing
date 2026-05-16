@@ -6,9 +6,9 @@
 
 </progressions>
 
-## 5-club one count
+## 5-club one-count
 
-The most effective way to teach beginners passing is to teach them *5-club one count*. Especially if one passer is more experienced, it is possible to teach almost everybody passing within minutes and get them to experience success, even if they have never tried to juggle clubs before. As it allows for more control and feedback and trains both hands equally, this approach is much more effective than the traditional approach of first requiring a solo cascade pattern and then learning [6-club four count]() as the first pattern. This approach was first introduced by Amiel Martin and published on [passingpedagogy.com](https://www.passingpedagogy.com/); it has since been widely taught in workshops.
+The most effective way to teach beginners passing is to teach them *5-club one-count*. Especially if one passer is more experienced, it is possible to teach almost everybody passing within minutes and get them to experience success, even if they have never tried to juggle clubs before. As it allows for more control and feedback and trains both hands equally, this approach is much more effective than the traditional approach of first requiring a solo cascade pattern and then learning [6-club four-count]() as the first pattern. This approach was first introduced by Amiel Martin and published on [passingpedagogy.com](https://www.passingpedagogy.com/); it has since been widely taught in workshops.
 
 In the following I assume a more experienced *teacher* and a less experienced *student*. While it is easier to get to success with a more experienced *teacher*, who can throw good passes and recover from less good responses, the same sequence also works with two beginners.
 
@@ -34,11 +34,11 @@ The teacher needs to throw lofty passes that are high and wide enough for the st
 
 If this is working well, a more experience teacher take a shortcut to 5-club one-count without telling the student by always handing the caught pass to the other hand to indefinitely continue the pattern (this is technically the four-handed siteswap 720). This can be done without any announcement and will often result in a student surprised about what they can do; adding another club for the final step will not make a difference from the student's perspective.
 
-**Finally: 5-club one count.** Adding one more club again, the teacher starts with two clubs in the right hand and one club in the left hand, the student still has one club in each hand. The teacher starts with a lofty crossing pass and the rest is a continuous sequence of responses. This is it. This is 5-club one count. The student can also practice starting with three clubs, but should continue to do straight passes, unless they want to get ready to teach somebody else.
+**Finally: 5-club one-count.** Adding one more club again, the teacher starts with two clubs in the right hand and one club in the left hand, the student still has one club in each hand. The teacher starts with a lofty crossing pass and the rest is a continuous sequence of responses. This is it. This is 5-club one-count. The student can also practice starting with three clubs, but should continue to do straight passes, unless they want to get ready to teach somebody else.
 
 ## Onward to 6-club one-count and 7-club one-count
 
-With an experienced teacher, most students can learn 6-club one-count on their first day, and some even see first success with 7-club one-count. Both patterns will likely still be easier than learning 6-club four count.
+With an experienced teacher, most students can learn 6-club one-count on their first day, and some even see first success with 7-club one-count. Both patterns will likely still be easier than learning 6-club four-count.
 
 To warm up for 6-club one-count, first pass three clubs between the teacher's left hand and the student's right hand. All passes are straight and thrown a little from the inside to the outside. Try to keep passes lofty. The responding passes are thrown *underneath* incoming passes, and collisions indicate too short or too low passes. Once this works, switch sides and pass three clubs between the teacher's right hand and the student's left hand. Finally, combine both sides, alternating right-hand and left-hand passes. The most common start is for both passers to have two clubs in their right hand and one club in their left hand and to start at the same time with a right-handed pass – a more experienced teacher might start with four clubs and a left-handed pass, whereas the student starts responding one beat later with a right-hand pass.
 

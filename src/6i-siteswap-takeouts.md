@@ -107,4 +107,4 @@ M: CAB    .      IB
 ---
 
 **Other patterns to try.**
-The space of siteswap takeout patterns is still fairly new. There are several others based on *7-club three count*, *5-count popcorn*, *parsnip*, and less common siteswaps. I previously collected a longer list with some additional explanation [here](https://www.cs.cmu.edu/~ckaestne/takeouts.html). Two more techno variations can be found on [passing.zone](https://passing.zone/techno-manipulation-patterns/). To the best of my knowledge, there are no 4 or 5 person patterns yet.
+The space of siteswap takeout patterns is still fairly new. There are several others based on *7-club three-count*, *five-count popcorn*, *parsnip*, and less common siteswaps. I previously collected a longer list with some additional explanation [here](https://www.cs.cmu.edu/~ckaestne/takeouts.html). Two more techno variations can be found on [passing.zone](https://passing.zone/techno-manipulation-patterns/). To the best of my knowledge, there are no 4 or 5 person patterns yet.

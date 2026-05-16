@@ -9,7 +9,7 @@
 
 In four-handed siteswaps, usually both passers juggle the same sequence, just offset of each other. However, this is not necessary -- just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [advanced synchronous patterns]()). 
 
-Matching and easier and a harder four-handed siteswap allows passers with different skills to both juggle interesting patterns. A good example is matching the easy *5-club one-count* (744) against the harder 7-club pattern *french three-count* (786):
+Matching and easier and a harder four-handed siteswap allows passers with different skills to both juggle interesting patterns. A good example is matching the easy *5-club one-count* (744) against the harder 7-club pattern *French three-count* (786):
 
 <siteswap>784746</siteswap>
 
@@ -35,10 +35,10 @@ Here is a table with the compatibility of some common period 1, 3 and 5 siteswap
 
 | Interface | 4 and 5 club patterns                                        | 6 and 7 club patterns                                        | 8 and 9 club patterns |
 | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------- |
-| pxx       | 5-club one count (744), 726, 564, 582, 528                   | French three-count (786), 7-club three count (966), 588, 56a | a89, a7a              |
+| pxx       | 5-club one-count (744), 726, 564, 582, 528                   | French three-count (786), 7-club three-count (966), 588, 56a | a89, a7a              |
 | ppx       | 552                                                          | 756, 774, 558, 945, 972                                      | 996, a77              |
 | ppp       | 555                                                          | 777, holy grail (975)                                        | 999                   |
-| pxxxx     | 5-club why not (78622), 56464                                | 5-count popcorn (78686, 7a666)                               | aaa69, aaaa5          |
+| pxxxx     | 5-club why not (78622), 56464                                | five-count popcorn (78686, 7a666)                            | aaa69, aaaa5          |
 | ppxxx     | 72722                                                        | maybe (72786), maybe not (79662), 747a2                      | 969a6                 |
 | pxpxx     | inverted parsnip (72227)                                     | Jim's two-count (77466), why not (77862), not why (77286), not likely (96672), suicide bunny (56784) | 789a6                 |
 | pppxx     | Kaatzi (75724), Dragon cat (95524)                           | 99692, 96956, 96857                                          |                       |

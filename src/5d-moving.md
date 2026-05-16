@@ -108,7 +108,7 @@ Walking and turning while juggling can initially be somewhat challenging. Usuall
 
 
 **Pass-pass-self feeds.**
-The following pattern is a nice approximation of a pass-pass-self feed (technically pass-pass-self-pass-pass-self-pass-self), which still allows walking on a right-handed four count. That is, the pattern is ambidextrous and slightly more challenging, but the walking is the same as in the two-count vs. four-count version.
+The following pattern is a nice approximation of a pass-pass-self feed (technically pass-pass-self-pass-pass-self-pass-self), which still allows walking on a right-handed four-count. That is, the pattern is ambidextrous and slightly more challenging, but the walking is the same as in the two-count vs. four-count version.
 
 <sync-group>
 A: 3pC3pB3 3pC3pB3 3pC3  -- B
@@ -132,7 +132,7 @@ move: Vmove(B,6.9,2)Vmove(A,16.9,2)
 
 **Four-handed siteswap feeds.** Rotating feeds on four-handed siteswaps are not common and usually very challenging since it requires changing between straight and crossing passes and account for the half-beat timing difference between the two sides. To make this work, the common trick is that the feeder throws straight single passes to feedee B and crossing single passes to feedee C, and feedee B responds with crossing single passes and feedee C with straight single passes. When walking passer B juggles slightly slower (to loose half a beat; written as 7x in the notation) and maintains the crossing passes with the previous feeder, but starts throwing straight passes to the other feedee. 
 
-Here is an example of this based on a [why-not vs 5-count popcorn feed](5b-feeds.md).
+Here is an example of this based on a [why-not vs five-count popcorn feed](5b-feeds.md).
 
 <siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
 A: 7B 6 7Cx 827Cx -- B
@@ -168,7 +168,7 @@ move: Vmove(A,4.9,2)Vmove(B,2.9,2)
 The two-count vs. four-count feed with 10 clubs (see [Feeds](5b-feeds.md)) can also be turned into a walking rotating pattern, similar to other feeds.
 In this pattern, on all double passes, the feeder throws one more pass to their right feedee before switching to four-count and the walk happens on a five-count (resulting locally in the sequence pass left, pass right, pass left, pass right, pass right).
 
-To maintain the usual approach to throw all double passes straight instead of crossing, the feedees start left-handed or one beat late (see *[7-club two-count](2d-advanced.md)* and [adding clubs to synchronous feeds](5b-feeds.md)). Since the walking technically changes from the left-handed to the right-handed side of the pattern, there can only be three selfs in the five-count and passer walking needs to take one of these options: (a) juggle a four-count very slowly to match the speed of a five-count, (b) throw one of the three selfs of a four-count as a double self followed by a wait to gain an extra beat of time, or (c) walk on a normal four-count and throw an early triple pass followed by a wait. In either case, timing is right if, after walking, the first pass responds to an incoming pass with the offset timing common for *7-club two count*.
+To maintain the usual approach to throw all double passes straight instead of crossing, the feedees start left-handed or one beat late (see *[7-club two-count](2d-advanced.md)* and [adding clubs to synchronous feeds](5b-feeds.md)). Since the walking technically changes from the left-handed to the right-handed side of the pattern, there can only be three selfs in the five-count and passer walking needs to take one of these options: (a) juggle a four-count very slowly to match the speed of a five-count, (b) throw one of the three selfs of a four-count as a double self followed by a wait to gain an extra beat of time, or (c) walk on a normal four-count and throw an early triple pass followed by a wait. In either case, timing is right if, after walking, the first pass responds to an incoming pass with the offset timing common for *7-club two-count*.
 
 <sync-group>
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B
@@ -187,7 +187,7 @@ With a bit of galloping, this pattern can also be juggled on single passes (see 
 
 The conceptual idea behind all "Bruno's" patterns is that the passers move as if they were balls thrown by a giant. In the basic Bruno's nightmare pattern the passers move in a simple cascade pattern being "thrown" to one side of the room and then "falling" back down to the other (see the diagram below). Many other patterns, including passing patterns, are possible beyond a simple three-ball cascade. While the passers are moving in the shape of a juggling pattern, they exchange clubs.
 
-In the basic Bruno's nightmare pattern, the passers start in a V shape and one feedee walking walks *through* the middle of the pattern to arrive at the opposite side of the former feeder to where they would have walked in a rotating feed; during that time the other feedee "falls down" to take the place of the feedee who just walked from where they will feed next. The initial feeder first throws to the feedee walking, then to the other feedee, and then once more to the feedee walking while they are in the middle of the pattern. From here the pattern repeats with the previous feeder now walking through the pattern, the previous "falling" feedee now feeding, and the juggler who previously walked falling down.
+In the basic Bruno's nightmare pattern, the passers start in a V shape and one feedee walking walks *through* the middle of the pattern to arrive at the opposite side of the former feeder to where they would have walked in a rotating feed; during that time the other feedee "falls down" to take the place of the feedee who just walked from where they will feed next. The initial feeder first throws to the feedee walking, then to the other feedee, and then once more to the feedee walking while they are in the middle of the pattern. From here the pattern repeats with the previous feeder now walking through the pattern, the previous "falling" feedee now feeding, and the passer who previously walked falling down.
 
 The standard way to juggle this pattern is on *three-count vs. six-count*, which is giving passers a lot of time to walk and turn. 
 
@@ -199,14 +199,14 @@ positions: Brunos(A,B,C)
 move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 </sync-group>
 
-The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise, one of those turns is usually more challenging. A much slower version has five instead of three passes before it repeats, where the walking juggler passes twice while walking through the middle of the pattern. Less conventional base patterns are pass-pass-self or pass-pass-self-pass-self feeds. See the [appendix](7-appendix-brunos.md) for illustrations of these.
+The pattern can also be juggled on many other baseline beats. Feeding two-count vs. four-count is fairly common too, but since the pattern requires turning both clockwise and counter-clockwise, one of those turns is usually more challenging. A much slower version has five instead of three passes before it repeats, where the walking passer passes twice while walking through the middle of the pattern. Less conventional base patterns are pass-pass-self or pass-pass-self-pass-self feeds. See the [appendix](7-appendix-brunos.md) for illustrations of these.
 
 
 
 
 
 
-**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three jugglers, or 534 and 531 for four jugglers (see the [appendix](7-appendix-brunos.md) for an example).
+**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three passers, or 534 and 531 for four passers (see the [appendix](7-appendix-brunos.md) for an example).
 There is no principled way to decide when to pass and to whom to pass (that I am aware off), so it is easy to create lots of different patters by first picking a pattern for the walking and then fitting passes in there.
 
 This is an easy pattern based on the five-ball cascade:
@@ -238,7 +238,7 @@ move: move(E,2.9,3)move(F,3.9,5) move(E,6.9,5) move(D,11.9,3) move(D,15.9,5)move
 </sync-group>
 
 
-**Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking juggler turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
+**Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking passer turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
 
 <sync-group>
 A: 3pB3 3pC3 33   -- B
@@ -254,7 +254,7 @@ move: Bmove(B,1.9,2)Bmove(B,4.9,3)Bmove(C,2.9,1)
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
 
-**Bruno's one count.** A particularly challenging variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
+**Bruno's one-count.** A particularly challenging variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one-count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
 
 <sync-group>
 A: 3pB 3pC 3pB -- B

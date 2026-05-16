@@ -49,11 +49,11 @@ In practice, passer B often leaves out that first left-handed self to start on a
 
 
 
-**6-count popcorn.** This is one of several one-sided *popcorn* patterns -- named after the trelfs that pop up on alternating sides. It can also be thrown with heff-heff instead of trelf-self, which many find easier to learn. Again, notice that, conventionally, we again throw the double passes straight and passer B starts with the left hand (but often skips the first self).
+**Six-count popcorn.** This is one of several one-sided *popcorn* patterns -- named after the trelfs that pop up on alternating sides. It can also be thrown with heff-heff instead of trelf-self, which many find easier to learn. Again, notice that, conventionally, we again throw the double passes straight and passer B starts with the left hand (but often skips the first self).
 
 <sync style=''>4px33353,!3534px33</sync>
 
-<crossreference>See [5-count popcorn with heffs](4d-4hsw-heffs.md) and [5-count popcorn with trelfs](4f-4hsw-trelfs.md) for ambidextrous versions.</crossreference>
+<crossreference>See [five-count popcorn with heffs](4d-4hsw-heffs.md) and [five-count popcorn with trelfs](4f-4hsw-trelfs.md) for ambidextrous versions.</crossreference>
 
 
 **7-club pass-pass-self.** With odd-length patterns, there are no synchronous patterns where both passers throw the same sequence. The most common *7-club pass-pass-self* pattern has passer A throws *single-double-self* and passer B throws *double-self-double* (3p 4p 3 vs. 4p 3 4p):
@@ -94,7 +94,7 @@ Other variations of *7-club pass-pass-self,* often with one side being substanti
 <crossreference>Try also [*techno*](2e-beyond.md), [7-club three-count (966)](4c-4hsw-doubles.md), and [french three-count (786)](4d-4hsw-heffs.md) for other three-count patterns with 7 clubs.</crossreference>
 
 
-**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (a three-count), *4p 4p 4* (a pass-pass-self pattern), *4p* (a one count), and *4p 4 4 4* (a four count). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
+**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (a three-count), *4p 4p 4* (a pass-pass-self pattern), *4p* (a one-count), and *4p 4 4 4* (a four-count). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
 
 <sync>4p44</sync>
 

@@ -71,13 +71,13 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throw: for example, 456, 567, 789, 45678, 56789, 6789a, 456789a, and 56789ab. Those all make valid siteswaps, that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
 
-For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each juggler passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
+For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each passer passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
 
 **95678.** The sequence 56789 is probably the best known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand -- as in [holy grail](). 
 
 <siteswap>95678</siteswap>
 
-The permutations are 97586 (each juggler counting up) and 96857 (each juggler counting down):
+The permutations are 97586 (each passer counting up) and 96857 (each passer counting down):
 
 <siteswap>97586</siteswap>
 
@@ -101,4 +101,4 @@ The permutations are *97a86* and *a7968*.
 
 <siteswap>9ab5678</siteswap>
 
-Both have permutations following the same recipe (each juggler counting up or down) and several more, too many to list here.
+Both have permutations following the same recipe (each passer counting up or down) and several more, too many to list here.

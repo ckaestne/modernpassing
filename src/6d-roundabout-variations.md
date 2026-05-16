@@ -85,7 +85,7 @@ M: SBe z SBl z IBvo . CB↺ z
 N: SAe z SAl z IAvo . CA↺ z
 </sync-group>
 
-**Shooting star with Roundabout (5 to 7 passers).** A manipulator doing the Roundabout manipulation can be integrated into the moving pattern [Shooting star](5d-moving.md) in the variation where a passer walks after every other pass with *one* club. The manipulator simply does the roundabout sequence between C and A, swapping out the target juggler who then does the roundabout sequence on the next segment of the star.
+**Shooting star with Roundabout (5 to 7 passers).** A manipulator doing the Roundabout manipulation can be integrated into the moving pattern [Shooting star](5d-moving.md) in the variation where a passer walks after every other pass with *one* club. The manipulator simply does the roundabout sequence between C and A, swapping out the target passer who then does the roundabout sequence on the next segment of the star.
 
 <sync-group>
 A: 3pD 333 3pD 333   -- C

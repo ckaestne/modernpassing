@@ -8,7 +8,7 @@
 
 </progressions>
 
-There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md). We use a asterisk to note these throws are lower than they should be if they were juggled as traditional synchronous patterns:
+There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md). We use an asterisk to note these throws are lower than they should be if they were juggled as traditional synchronous patterns:
 
 | Symbol | Description     | Solo-siteswap equivalent without fudging the timing |
 | ------ | ---- | ---- |
@@ -43,7 +43,7 @@ dsdsdsds
 tstststs //gallop rendering
 tstststs -->
 
-**6-count popcorn on singles.** The standard [6-count popcorn](2d-advanced.md) can be juggled on singles and with a double-self instead of trelf if the pattern is galloped.
+**Six-count popcorn on singles.** The standard [six-count popcorn](2d-advanced.md) can be juggled on singles and with a double-self instead of trelf if the pattern is galloped.
 
 **Long beach popcorn.** This 8-club pattern has the right-hand sequence lofty-triple pass (instead of a quad), double-self (instead of a trelf), lofty single pass (instead of a double), while all left-hand actions are quick, galloped selfs.
 
@@ -84,7 +84,7 @@ This is also compatible against various scratch your hand patterns (see below). 
 
 **8-club one-count on singles.** Similar to two-count, it is possible to juggle 8-club one-count all synchronously, all four hands throwing at the same time. To avoid collisions, some lane management is needed. A good version to try is with all straight lofty single passes first throwing outside on the right and inside on the left, and then inside on the right and outside on the left for the second throw, but many other variations are possible.
 
-![Two diagrams with two jugglers from above, throwing all straight passes](figures/8c1c-lanes.svg)
+![Two diagrams with two passers from above, throwing all straight passes](figures/8c1c-lanes.svg)
 *Example of two possible lanes for 8-club one-count synchronously, consider alternating between them.*
 
 <crossreference>Also see the many other 8-club one-count variations in the [appendix](7-appendix-8c1c.md).</crossreference>
@@ -95,7 +95,7 @@ This is also compatible against various scratch your hand patterns (see below). 
 <sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"iterations":8,"yDist":50,"throwTextSize": 22}'>(6px 4x)</sync>
 
 
-**Scratch your head.** Throw a single pass and a heff at the same time; one passer is crossing (this can technically be seen as a siteswap transformation in techno, replacing self-self with heff-flip, though the flip is usually just held). While technically all synchronous, the actions of both jugglers alternate since they only hold a club on the off beat and only throw every other beat.
+**Scratch your head.** Throw a single pass and a heff at the same time; one passer is crossing (this can technically be seen as a siteswap transformation in techno, replacing self-self with heff-flip, though the flip is usually just held). While technically all synchronous, the actions of both passers alternate since they only hold a club on the off beat and only throw every other beat.
 
 <sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"iterations":2,"yDist":50,"throwTextSize": 22}'>(4px 6)(2 2)(6 4px)(2 2), (2 2)(4p 6)(2 2)(6 4p)</sync>
 

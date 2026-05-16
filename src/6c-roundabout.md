@@ -3,7 +3,7 @@
 
 <progressions>
 
-**Prerequisite —** [6-club four count](2b-basic-sync.md)
+**Prerequisite —** [6-club four-count](2b-basic-sync.md)
 
 **Helpful —** [Nicki's three-count roundabout](6a-intro.md)
 
@@ -13,7 +13,7 @@
 
 
 
-The *Roundabout* is the first manipulator pattern many jugglers learn.
+The *Roundabout* is the first manipulator pattern many passers learn.
 It is kind of the *6-club four-count* of manipulator patterns: 
 (1) it is universally known and relatively easy to find passing partners who can do it,
 (2) it is easy to juggle and visually appealing for performances,
@@ -37,7 +37,7 @@ The Roundabout is based on 6-club four-count and the manipulator has the followi
 * Beat 5: On this beat both A and B pass, but M intercepts the pass that would have gone to B, catching it with their left hand. Usually A helps by throwing the pass wider as M stands next to B. After this, the passer previously in the B role becomes the new manipulator.
 * Beat 7: The new manipulator carries B's self by stepping forward and flipping both clubs to hold them on the body, turning 180 degree counter-clockwise to face the new B, and placing the club from their right hand into B's left hand. The previous manipulator, now B, simply holds both clubs and steps to the right to take B's position, optionally they can flip the right club; their first action is a self from the left hand to receive the carry. After the carry, the new manipulator zips the club from their left to their right hand, holding the club on the body, and continues turning counter-clockwise by 90 degree to get ready for the substitution on beat 1. 
 
-From here the pattern repeats and all jugglers go through all roles. The passer initially in role A starts the next cycle in role B, the passer initially in role B now starts in role M, and the passer initially in role M now starts in role A.
+From here the pattern repeats and all passers go through all roles. The passer initially in role A starts the next cycle in role B, the passer initially in role B now starts in role M, and the passer initially in role M now starts in role A.
 
 
 **Hints.** Beginners find the zips and club rotations of the manipulator challenging, and teachers should focus their attention on explaining this clearly. As a general rule, all clubs are stolen with the left hand and are placed with the right hand. After each carry and substitution action, the manipulator resets by zipping their remaining club to the right hand. If the pattern is juggled the canonical way (flipping both clubs before the carry, early steal on the first substitution, and late steal on the second), all clubs should have the right orientation and do not need to be flipped during a zip.

@@ -108,7 +108,7 @@ B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
 </sync-group>
 
-Now the pattern can be read like a walking pattern, seeing what each juggler does and where the clubs actually go -- each person corresponds to the actions of a physical person, even if they switch roles in between. It is no longer needed to read actions in a different row after a role change. If the changing roles (indicated with background colors) are confusing, ignore the roles in passes and simply see which row each pass goes to.
+Now the pattern can be read like a walking pattern, seeing what each passer does and where the clubs actually go -- each person corresponds to the actions of a physical person, even if they switch roles in between. It is no longer needed to read actions in a different row after a role change. If the changing roles (indicated with background colors) are confusing, ignore the roles in passes and simply see which row each pass goes to.
 
 A substitution is visible as two passes: A pass (pelf) from the passer A to the manipulator, and a pass from the manipulator to B. We could model this in different ways, but we assume that the pelf has the same length as a zip (solo siteswap 1, so the causal arrow goes backward) and the placement has the length of a normal pass; both are thrown on the same beat -- the first beat in our example.
 

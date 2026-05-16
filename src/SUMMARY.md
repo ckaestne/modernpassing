@@ -63,5 +63,5 @@
 - [Siteswap list](./7-appendix-siteswaplist.md)
 <!-- - [TODO: Starting compatible siteswaps](./introduction.md) -->
 - [More Bruno's](./7-appendix-brunos.md)
-- [8-club one counts](./7-appendix-8c1c.md)
+- [8-club one-counts](./7-appendix-8c1c.md)
 - [Walking siteswap patterns](./7-test-ian.md)

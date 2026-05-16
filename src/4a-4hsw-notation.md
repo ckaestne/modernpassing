@@ -2,7 +2,7 @@
 
 <progressions>
 
-**Prerequisite —** [5-club one count](1-learn-teach.md)
+**Prerequisite —** [5-club one-count](1-learn-teach.md)
 
 **Next —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
 

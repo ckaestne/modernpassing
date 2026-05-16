@@ -12,7 +12,7 @@
 
 This is a collection of advice for common problems in four-handed siteswaps.
 
-**Slow down.** The single pass in four-handed siteswaps should be slow and lofty. In particular, the crossing single should be high enough that the partner can comfortably pass below the incoming passes. Return to 5-club one count (744 or 726) to calibrate singles or practice with increasingly fewer zips from 77722 (Parsnip) to 77772 (Martin's one count) to 7 (7-club one count). 
+**Slow down.** The single pass in four-handed siteswaps should be slow and lofty. In particular, the crossing single should be high enough that the partner can comfortably pass below the incoming passes. Return to 5-club one-count (744 or 726) to calibrate singles or practice with increasingly fewer zips from 77722 (Parsnip) to 77772 (Martin's one-count) to 7 (7-club one-count). 
 
 **Request feedback.** Most passers are not good about giving feedback, at it often gets worse as they get better and can catch more things. Explicitly request feedback, possibly direct feedback on every pass while juggling the pattern.
 
