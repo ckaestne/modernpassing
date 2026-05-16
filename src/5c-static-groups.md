@@ -189,7 +189,7 @@ positions: Circle(A,B,C,D,E)
 
 
 **Ten-handed siteswaps.**
-Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by throwing slightly lower or higher passes, many four-handed siteswaps have equivalent ten-handed versions, such as french three-count with very lofty singles ([jkf](https://passist.org/siteswap/jkf?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)) and seven-count popcorn with either lofty zaps or doubles ([efkfkfk](https://passist.org/siteswap/efkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl) or [lfkfkfk](https://passist.org/siteswap/lfkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)), but none of those are common or intuitive to figure out.
+Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by throwing slightly lower or higher passes, many four-handed siteswaps have equivalent ten-handed versions, such as French three-count with very lofty singles ([jkf](https://passist.org/siteswap/jkf?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)) and seven-count popcorn with either lofty zaps or doubles ([efkfkfk](https://passist.org/siteswap/efkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl) or [lfkfkfk](https://passist.org/siteswap/lfkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)), but none of those are common or intuitive to figure out.
 
 ## Trapezoid (5 passers)
 
