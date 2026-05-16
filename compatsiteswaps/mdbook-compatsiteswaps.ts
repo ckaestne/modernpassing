@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import process from "node:process";
 import { defaultConfig, loadCompatSiteswapList, Pattern } from './load-siteswaplist.ts';
 
 /**
@@ -12,8 +13,7 @@ if (process.argv[2] === "supports") {
 
 const file = fs.readFileSync(0, 'utf-8');
 
-
-const [_, book] = JSON.parse(file);
+const book = extractBook(JSON.parse(file));
 
 const config = {
     includeB: false,
@@ -22,11 +22,52 @@ const config = {
     maxLength: 7
 }
 
+const generatedSiteswapList = await genCompatSiteswapList()
 
-for (const sec of book.sections)
-    if (sec.Chapter && sec.Chapter.content) {
-        sec.Chapter.content = sec.Chapter.content.replace("$siteswapslist", await genCompatSiteswapList())
+
+forEachChapter(book, (chapter) => {
+    if (typeof chapter.content === "string") {
+        chapter.content = chapter.content.replace("$siteswapslist", generatedSiteswapList)
     }
+})
+
+function extractBook(rawInput: unknown): unknown {
+    if (Array.isArray(rawInput) && rawInput.length >= 2) {
+        return rawInput[1]
+    }
+    if (rawInput && typeof rawInput === "object" && "book" in rawInput) {
+        return (rawInput as { book: unknown }).book
+    }
+    return rawInput
+}
+
+type ChapterNode = {
+    content?: string
+    [key: string]: unknown
+}
+
+function forEachChapter(node: unknown, callback: (chapter: ChapterNode) => void): void {
+    if (Array.isArray(node)) {
+        for (const item of node) {
+            forEachChapter(item, callback)
+        }
+        return
+    }
+    if (!node || typeof node !== "object") {
+        return
+    }
+
+    const record = node as Record<string, unknown>
+    if (record.Chapter && typeof record.Chapter === "object") {
+        callback(record.Chapter as ChapterNode)
+    }
+
+    for (const value of Object.values(record)) {
+        if (value && typeof value === "object") {
+            forEachChapter(value, callback)
+        }
+    }
+}
 
 
 

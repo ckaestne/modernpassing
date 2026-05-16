@@ -1,7 +1,6 @@
 [book]
 authors = ["Christian Kaestner"]
 language = "en"
-multilingual = false
 src = "src"
 title = "Modern Club Passing"
 
@@ -15,17 +14,18 @@ command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
 #[preprocessor.compatsiteswaps]
 #command = "compatsiteswaps/mdbook-compatsiteswaps"
 
-[output.linkcheck]
+[output.linkcheck2]
 follow-web-links = false
 exclude = [ 'juggling\.tv' ]
 warning-policy = "warn"
+optional=true
 
 [output.html]
 additional-css = ["css/svgstyle.css", "css/bookstyle.css"]
 additional-js = ["vizsiteswap/dist/animations.js","vizsiteswap/dist/svg.min.js"]
 smart-punctuation = true
 git-repository-url = "https://github.com/ckaestne/modernpassing"
-git-repository-icon = "fa-github"
+git-repository-icon = "fab-github"
 default-theme = "light"
 
 

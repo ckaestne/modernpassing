@@ -29,17 +29,13 @@ jobs:
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@ee69d230fe19748b7abf22df32acaa93833fad08 # v2
         with:
-          mdbook-version: '0.4.52'
+          mdbook-version: '0.5.2'
           # mdbook-version: 'latest'
 
-      - name: Install mdbook-linkcheck
-        run: |
-          curl -fsSL -o mdbook-linkcheck.zip https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/download/v0.7.7/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
-          tmpdir="$(mktemp -d)"
-          unzip -qo mdbook-linkcheck.zip -d "$tmpdir"
-          mkdir -p "$HOME/.local/bin"
-          install -m 0755 "$tmpdir/mdbook-linkcheck" "$HOME/.local/bin/mdbook-linkcheck"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          # // deactivated for now, since it is very slow to install
+      # - name: Install mdbook-linkcheck2
+      #   run: |
+      #     cargo install mdbook-linkcheck2 --locked
 
       - name: Install vizsiteswap dependencies and run tests
         run: cd vizsiteswap; deno install; deno test -A; deno task gen-runtime

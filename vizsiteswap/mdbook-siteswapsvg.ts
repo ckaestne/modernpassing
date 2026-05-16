@@ -17,17 +17,14 @@ if (process.argv[2] === "supports") {
 }
 
 const file = fs.readFileSync(0, "utf-8")
-
-fs.writeFileSync("tmp_mdbook.json", file)
-
-const [_, book] = JSON.parse(file)
+const book = extractBook(JSON.parse(file))
 
 const startTime = Date.now()
 const nrPatterns = [0, 0, 0]
-for (const sec of book.sections) {
+forEachChapter(book, (chapter) => {
     try {
-        if (sec.Chapter && sec.Chapter.content) {
-            sec.Chapter.content = replaceElement("siteswap", sec.Chapter.content, (match, inner, config) => {
+        if (typeof chapter.content === "string") {
+            chapter.content = replaceElement("siteswap", chapter.content, (_match, inner, config) => {
                 nrPatterns[0]++
                 const pattern = createSiteswapPattern(inner, config)
                 if (!pattern.isValid()) {
@@ -37,7 +34,7 @@ for (const sec of book.sections) {
                 const svg = renderPlainPattern(pattern, config)
                 return svg.svg()
             })
-            sec.Chapter.content = replaceElement("sync", sec.Chapter.content, (match, p, config) => {
+            chapter.content = replaceElement("sync", chapter.content, (_match, p, config) => {
                 nrPatterns[1]++
                 const pattern = createSyncPattern(p)
                 if (!pattern.isValid()) {
@@ -48,10 +45,10 @@ for (const sec of book.sections) {
                 return svg.svg()
             })
             //sync-group
-            sec.Chapter.content = replaceElement("sync-group", sec.Chapter.content, (match, p, config, videoLinks) => {
+            chapter.content = replaceElement("sync-group", chapter.content, (_match, p, config, videoLinks) => {
                 return handleGroupPattern(p, 2, config, videoLinks)
             })
-            sec.Chapter.content = replaceElement("siteswap-group", sec.Chapter.content, (match, p, config, videoLinks) => {
+            chapter.content = replaceElement("siteswap-group", chapter.content, (_match, p, config, videoLinks) => {
                 return handleGroupPattern(p, 4, config, videoLinks)
             })
             // sec.Chapter.content = replaceElement("positions", sec.Chapter.content, (match, p, config) => {
@@ -60,17 +57,58 @@ for (const sec of book.sections) {
             //     const svg = renderStaticLayout(layout.static, 148, 148, config);
             //     return svg.svg();
             // });
-            sec.Chapter.content = replaceElement("video", sec.Chapter.content, (match, p, config) => {
+            chapter.content = replaceElement("video", chapter.content, (_match, p, _config) => {
                 return `<crossreference>Video: <a href="${p}" target="_blank">${p}</a></crossreference>`
             })
         }
     } catch (e) {
-        console.error(`Error processing section ${sec.Chapter?.source_path}`)
+        console.error(`Error processing section ${chapter.source_path}`)
         throw e
+    }
+})
+
+function extractBook(rawInput: unknown): unknown {
+    if (Array.isArray(rawInput) && rawInput.length >= 2) {
+        return rawInput[1]
+    }
+    if (rawInput && typeof rawInput === "object" && "book" in rawInput) {
+        return (rawInput as { book: unknown }).book
+    }
+    return rawInput
+}
+
+type ChapterNode = {
+    content?: string
+    source_path?: string
+    [key: string]: unknown
+}
+
+function forEachChapter(node: unknown, callback: (chapter: ChapterNode) => void): void {
+    if (Array.isArray(node)) {
+        for (const item of node) {
+            forEachChapter(item, callback)
+        }
+        return
+    }
+    if (!node || typeof node !== "object") {
+        return
+    }
+
+    const record = node as Record<string, unknown>
+    if (record.Chapter && typeof record.Chapter === "object") {
+        callback(record.Chapter as ChapterNode)
+    }
+
+    for (const value of Object.values(record)) {
+        if (value && typeof value === "object") {
+            forEachChapter(value, callback)
+        }
     }
 }
 
-function handleGroupPattern(p: string, nrHands: number, config: any, videoLinks: string[]): string {
+type GroupRenderConfig = Parameters<typeof renderGroupPattern>[1]
+
+function handleGroupPattern(p: string, nrHands: number, config: GroupRenderConfig, videoLinks: string[]): string {
     assert(nrHands === 2 || nrHands === 4, "Only 2 or 4 hands supported for group patterns")
     nrPatterns[2]++
     let result = ""
