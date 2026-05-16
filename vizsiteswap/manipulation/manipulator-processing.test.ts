@@ -1030,7 +1030,7 @@ Deno.test("chopabout", () => {
     assert.ok(full.isValid(), full.getValidationError())
 })
 
-Deno.test("phonecian walz", () => {
+Deno.test("phoenicean walz", () => {
     const [p, manipulations] = createPatternFromRaw(
         parseGroupSyncPattern(
             `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B

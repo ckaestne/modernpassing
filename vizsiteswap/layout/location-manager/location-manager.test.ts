@@ -1000,7 +1000,7 @@ M: IC . CA. SC
 positions: V(A,B,C)
 move: Vmove(B,4.9,3)`,
     ], [
-        "phonecian waltz",
+        "phoenicean waltz",
         `A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 
