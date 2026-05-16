@@ -77,7 +77,7 @@ A *causal diagram* illustrates how throws cause the passer to do other actions t
 
 <siteswap style='{"showLines": true, "lineKind": "causal", "iterations":6, "lineWidth":3,"lineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
 
-We can see that we always throw a single pass to catch an incoming single pass (i.e., 7 causes 7), and we always throw a self to catch a heff (8 causes 6) and vice versa. The fact that singles cause singles in patterns of length 3 (and doubles cause doubles in patterns of length 5) is why these patterns easily fall apart when those passes are too low and fast (see [Improve your siteswap passing]()).
+We can see that we always throw a single pass to catch an incoming single pass (i.e., 7 causes 7), and we always throw a self to catch a heff (8 causes 6) and vice versa. The fact that singles cause singles in patterns of length 3 (and doubles cause doubles in patterns of length 5) is why these patterns easily fall apart when those passes are too low and fast (see [Improve your siteswap passing](4k-4hsw-improve.md)).
 
 In the passing community, ladder diagrams are rarely used other than for determining starts and color coding (see below), but causal diagrams are more common, especially for reasoning about takeouts.
 
@@ -107,7 +107,7 @@ It is not always possible to satisfy all four preferences. For example, among th
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>729</siteswap>
 
-With a siteswap animator like [passist.org]() it is easy to cycle through the various starts and pick a nice one.
+With a siteswap animator like [passist.org](https://passist.org/) it is easy to cycle through the various starts and pick a nice one.
 
 ## Orbits and color coding
 

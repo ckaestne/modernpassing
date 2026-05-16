@@ -87,7 +87,7 @@ The rotating feed is a good introduction to walking and turning on a four-count 
 In all these patterns, one feedee (usually the left one) is walking across the pattern while turning to a position beside the previous feeder. The other feedee becomes the new feeder, feeding the passer who just walked and the previous feeder.
 
 **Two-count vs. four-count.** The standard pattern, shown already in the notation section above, is a *two-count* feed with feedees on *four-count*.
-This pattern is the foundation for many [four-person manipulator patterns]().
+This pattern is the foundation for many [four-person manipulator patterns](6f-aidan-patterns.md).
 
 To begin, the left feedee can walk across the pattern after any pass with or without announcing it. There is enough time for both the previous feeder and the new feeder to adjust patterns; the previous feeder will simply do a self where they would have passed to the feedee who just walked, resulting in a switch to four-count; the third passer will throw a pass to the passer who just walked instead of a self, thus switching to a two-count feed.
 
@@ -147,7 +147,7 @@ move: Vmove(B, 7, 5)
 
 
 **Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across.
-It is also possible that multiple passers walk before the pattern repeats (as ain the rotating pure pass-pass-self feed above). Here is an example of a very short pattern (the base pattern for [MiniEd]()), with a lot of walking on right-handed three-counts:
+It is also possible that multiple passers walk before the pattern repeats (as ain the rotating pure pass-pass-self feed above). Here is an example of a very short pattern (the base pattern for [MiniEd](6h-zippy-etc.md)), with a lot of walking on right-handed three-counts:
 
 
 <sync-group>

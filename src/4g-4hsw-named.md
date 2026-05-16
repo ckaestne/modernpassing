@@ -19,7 +19,7 @@ There are lots and lots of 7 and 8-club patterns that include plenty of heffs an
 
 <siteswap>9968926</siteswap>
 
-**978.** Warm up with the 6-club pattern *972* (see [doubles]()).
+**978.** Warm up with the 6-club pattern *972* (see [doubles](4c-4hsw-doubles.md)).
 
 <siteswap>978</siteswap>
 
@@ -65,7 +65,7 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 <siteswap>a5555</siteswap>
 
-**Other patterns to try.** *89562* and see [holy grail]() patterns for more tricky combinations of zaps and doubles.
+**Other patterns to try.** *89562* and see [holy grail](4i-4hsw-holygrail.md) patterns for more tricky combinations of zaps and doubles.
 
 ## Sequences
 
@@ -73,7 +73,7 @@ There are a large number of patterns that consist of a sequence of increasing nu
 
 For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each passer passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
 
-**95678.** The sequence *56789* is probably the best known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand -- as in [holy grail](). 
+**95678.** The sequence *56789* is probably the best known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand -- as in [holy grail](4i-4hsw-holygrail.md). 
 
 <siteswap>95678</siteswap>
 

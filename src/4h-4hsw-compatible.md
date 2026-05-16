@@ -7,7 +7,7 @@
 
 </progressions>
 
-In four-handed siteswaps, usually both passers juggle the same sequence, just offset of each other. However, this is not necessary -- just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [advanced synchronous patterns]()). 
+In four-handed siteswaps, usually both passers juggle the same sequence, just offset of each other. However, this is not necessary -- just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [basic synchronous patterns](2b-basic-sync.md)). 
 
 Matching and easier and a harder four-handed siteswap allows passers with different skills to both juggle interesting patterns. A good example is matching the easy *5-club one-count* (744) against the harder 7-club pattern *French three-count* (786):
 
@@ -27,7 +27,7 @@ Importantly, it does not matter when clubs are thrown, but when they land, since
 
 Note that *ppxxx*, *xppxx*, *xxppx* and so forth are all the same interface, simply by shifting where to start each siteswap.
 
-Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper -- or simply look it up in a table like in the [appendix](). Many standard siteswap transformations preserve the interface, as we will discuss in [siteswap theory](4l-4hsw-theory.md). Also figuring out how to start is not always obvious and may require some trial and error or scribbling of causal diagrams. **[TODO: better approach to explaining starts in appendix]**
+Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper (see [theory](4l-4hsw-theory.md)) -- or simply look it up with a tool like [passist.org](https://passist.org/). Many standard siteswap transformations preserve the interface. Also figuring out how to start is not always obvious and may require some trial and error or scribbling of causal diagrams.
 
 ## Compatible Common Patterns
 

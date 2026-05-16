@@ -67,7 +67,7 @@ Here is the full list, linked with the video from the [aidanburnsproject](https:
 * iBcBsB [Chopped up B](http://juggling.tv/14612)
 * iBcBsC [Gentle Romble](http://juggling.tv/14489)
 * iCcAsA [Moonwalk](http://juggling.tv/15835)
-* iCcAsB [3 variation]()
+* iCcAsB [3 variation](https://passing.zone/pattern/scrambled-variation-2-8-3-variation-ic-ca-sb-2/)
 * iCcAsC [Wankle Engine](http://juggling.tv/15097)
 * sBiAcB [Anna-Maria](http://juggling.tv/14708)
 * sCiAcB [Panto](http://juggling.tv/14480)
