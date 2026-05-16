@@ -22,18 +22,18 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2.0.4
         with:
           deno-version: v2.x
       - name: Setup mdBook
-        uses: peaceiris/actions-mdbook@v2
+        uses: peaceiris/actions-mdbook@ee69d230fe19748b7abf22df32acaa93833fad08 # v2
         with:
-          mdbook-version: '0.4.37'
+          mdbook-version: '0.4.52'
           # mdbook-version: 'latest'
 
       - name: Install mdbook-linkcheck
-        run: cargo install mdbook-linkcheck
+        run: cargo install mdbook-linkcheck --version 0.7.7 --locked
 
       - name: Install vizsiteswap dependencies and run tests
         run: cd vizsiteswap; deno install; deno test -A; deno task gen-runtime
@@ -46,7 +46,7 @@ jobs:
       - run: mdbook build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: ./book
 
@@ -59,4 +59,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
