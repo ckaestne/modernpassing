@@ -1,6 +1,12 @@
 # Common 7-club and 8-club patterns
 
-Prerequisite: [Basic Synchronous Passing Patterns](2b-basic-sync.md) | Next: [Four-handed siteswaps](4a-4hsw-notation.md) or [tedious synchronous patterns](2e-tedious.md).
+<progressions>
+
+**Prerequisite —** [Basic synchronous passing patterns](2b-basic-sync.md)
+
+**Next —** [Four-handed siteswaps](4a-4hsw-notation.md) or [tedious synchronous patterns](2e-tedious.md)
+
+</progressions>
 
 There are many more variations of synchronous patterns, especially when exploring 7-club and 8-club patterns. They are still all synchronous in that both passers throw at the same time, but they may not both make the same throw, or throw from the same hand.
 

@@ -1,6 +1,16 @@
 # North-Wall Patterns
 
-Prerequisites: [Nicki's three-count roundabout](6a-intro.md); recommended after [Roundabout](6c-roundabout.md) and some [Roundabout variations](6d-roundabout-variations.md). Next: [Four-handed siteswap abouts](6j-siteswap-takeouts.md).
+
+<progressions>
+
+**Prerequisite —** [Nicki's three-count roundabout](6a-intro.md)
+
+**Helpful —** [Roundabout](6c-roundabout.md) and [Roundabout variations](6d-roundabout-variations.md)
+
+**Next —** [Four-handed siteswap abouts](6i-siteswap-takeouts.md)
+
+</progressions>
+
 
 All three-person Roundabout-style patterns on based patterns with an *odd period* are symmetric in that they have a left side and a right side; every passer goes through all passing and manipulator positions both left-handed and right-handed before the pattern repeats after six iterations.
 

@@ -32,6 +32,9 @@ jobs:
           mdbook-version: '0.4.37'
           # mdbook-version: 'latest'
 
+      - name: Install mdbook-linkcheck
+        run: cargo install mdbook-linkcheck
+
       - name: Install vizsiteswap dependencies and run tests
         run: cd vizsiteswap; deno install; deno test -A; deno task gen-runtime
         #; deno task build

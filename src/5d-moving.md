@@ -1,5 +1,16 @@
 # Moving Group Patterns
 
+<progressions>
+
+**Prerequisite —** [Basic synchronous passing patterns](2b-basic-sync.md)
+
+**Helpful —** [Static group patterns](5c-static-groups.md)
+
+**Next —** [Takeouts](6a-intro.md)
+
+</progressions>
+
+
 Movement adds interesting variations and challenges to group passing patterns. We mostly discuss patterns that are symmetric in that all passers cycle through all positions during the pattern. The following patterns are roughly sorted by increasing difficulty.
 
 
@@ -119,7 +130,20 @@ move: Vmove(B,6.9,2)Vmove(A,16.9,2)
 </sync-group>
 
 
-**Four-handed siteswap feeds.** Rotating feeds on four-handed siteswaps are not common and usually very challenging since it requires changing between straight and crossing passes and account for the half-beat timing difference between the two sides. To make this work, the common trick is that the feeder throws straight single passes to feedee B (who will walk next) and crossing single passes to feedee C, and feedee B responds with crossing single passes and feedee C with straight single passes. When walking passer B throws an extra fast self (where there is technically only half a beat) and maintains the crossing passes with the previous feeder, but starts throwing straight passes to the other feedee. **[TODO: finalize and example]**
+**Four-handed siteswap feeds.** Rotating feeds on four-handed siteswaps are not common and usually very challenging since it requires changing between straight and crossing passes and account for the half-beat timing difference between the two sides. To make this work, the common trick is that the feeder throws straight single passes to feedee B and crossing single passes to feedee C, and feedee B responds with crossing single passes and feedee C with straight single passes. When walking passer B juggles slightly slower (to loose half a beat; written as 7x in the notation) and maintains the crossing passes with the previous feeder, but starts throwing straight passes to the other feedee. 
+
+Here is an example of this based on a [why-not vs 5-count popcorn feed](5b-feeds.md).
+
+<siteswap-group style='{"emphasizeThrows":[[1,9]],"components":["pattern","turntable"]}'>
+A: 7B 6 7Cx 827Cx -- B
+B: , a67A67x -- C
+C: !, 66a67Ax -- A
+positions: V(A,B,C)
+move: Vmove(B, 7, 5)
+</siteswap-group>
+
+<crossreference>Extra club Bruno's (see below) uses the same idea. The [appendix](7-test-ian.md) has a few more patterns to explore.</crossreference>
+
 
 
 **Other feeds.** Generally any feed can be turned into a rotating feed if there are enough selfs to walk across.

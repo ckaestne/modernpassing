@@ -1,6 +1,14 @@
 # Introduction to Four-Handed Siteswaps & Notation
 
-Prerequisites: [Learn to pass / teach to pass](1-1); Next: [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
+<progressions>
+
+**Prerequisite —** [5-club one count](1-learn-teach.md)
+
+**Next —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
+
+</progressions>
+
+
 
 Four-handed siteswaps describe a large class of two-person passing patterns. They are all ambidextrous and symmetric, performing the same sequence both one the right and the left side. They are all characterized by an asynchronous beat where both passers juggle the same sequence but offset from each other and by having one passer throw crossing passes. 
 

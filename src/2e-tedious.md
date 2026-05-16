@@ -1,5 +1,11 @@
 # Tedious synchronous patterns
 
+<progressions>
+
+**Prerequisite —** [Basic synchronous passing patterns](2b-basic-sync.md)
+
+</progressions>
+
 There are various ways to make juggling patterns harder mentally without making them harder physically, typically by requiring nontrivial counting or introducing randomness. They can be an interesting challenge, but few people practice them regularly. I include them more for completeness.
 
 **Passing colors.** Pick clubs with some distinct colors and assign different counts to different clubs. The number of colors and the assigned counts do not really matter; for example, 2 red clubs = 3 count, 1 blue club = 4 count, 3 white clubs = 2 count. Now focus on the passes of juggler A and the pass thrown determines the next count. Colors can also be assigned as double passes, whether passer A throws crossing or straight passes (see [Jim's](2c-jims.md)), or other variations. This will result in a random new sequence for every start.

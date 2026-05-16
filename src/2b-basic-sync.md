@@ -1,6 +1,12 @@
 # Basic 6-club synchronous passing patterns
 
-Prerequisites: [Learning to pass](1-learn-teach.md) | Next: [Jim's patterns](2c-jims.md), [7-club and 8-club synchronous patterns](2d-advanced.md), [tedious patterns](2e-tedious.md), or [four-handed siteswaps](4a-4hsw-notation.md) 
+<progressions>
+
+**Prerequisite —** [Learning to pass](1-learn-teach.md)
+
+**Next —** [Jim's patterns](2c-jims.md), [synchronous 7-club and 8-club patterns](2d-advanced.md), [tedious patterns](2e-tedious.md), [four-handed siteswaps](4a-4hsw-notation.md), or introduce [takeouts](6a-intro.md)
+
+</progressions>
 
 In all these 6-club patterns, both passers start with two clubs in the right and one club in the left hand. Both passers start at the same time with a straight single pass. It is customary to synchronize the start with an *up-down-pass* sequence where both passers lift the club without throwing it.
 

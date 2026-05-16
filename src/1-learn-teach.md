@@ -1,6 +1,10 @@
 # Learn to pass / teach to pass
 
-Next: [Synchronous passing notation](2a-intro-notation.md) or [Four-handed siteswap notation](4a-4hsw-notation.md)
+<progressions>
+
+**Next —** [Synchronous passing notation](2a-intro-notation.md) or [Four-handed siteswap notation](4a-4hsw-notation.md)
+
+</progressions>
 
 ## 5-club one count
 
@@ -50,7 +54,7 @@ If the teacher is comfortable with *7-club one-count*, transitioning from *6-clu
 
 One-counts are great beginner patterns because the learner can focus entirely on passes, rather than focusing on separating passes and self throws. An experienced teacher can carry the pattern, so most incoming clubs for the student will be fairly stable, whereas other patterns often fall apart from bad self throws. One-counts also provide a good foundation for passing slow and lofty and for passing with both hands.
 
-One the one hand, one-counts provide a good entry point for four-handed siteswaps (actually *5-club one-count* and *7-club one-count* are four-handed siteswaps: 744 and 7). To go this route, learn about the [notation](4a-4hsw-notation.md) and start with the [beginner patterns](4b-beginners.md), slowly introducing zips, flips, and selfs. For beginners, zips are easier to introduce than selfs, so good patterns to try next are 777742 (see [compatible siteswaps](4h-4hsw-compatible.md)) and 77722 (*Parsnip*, see [beginner patterns](4b-beginners.md)).
+One the one hand, one-counts provide a good entry point for four-handed siteswaps (actually *5-club one-count* and *7-club one-count* are four-handed siteswaps: 744 and 7). To go this route, learn about the [notation](4a-4hsw-notation.md) and start with the [beginner patterns](4b-4hsw-beginner.md), slowly introducing zips, flips, and selfs. For beginners, zips are easier to introduce than selfs, so good patterns to try next are 777742 (see [compatible siteswaps](4h-4hsw-compatible.md)) and 77722 (*Parsnip*, see [beginner patterns](4b-4hsw-beginner.md)).
 
 On the other hand, most other passers will have learned *6-club four-count* first and other [synchronous patterns](2b-basic-sync.md) next.  To have a wider range of passing partners at all levels, it is useful to learn those patterns too. They also are the foundation for most [group patterns](). Depending on how stable their cascade is, some beginners might find it easier to learn patterns with more self, like 6-count, and others might prefer starting with patterns with fewer selfs, such as *pass-pass-self*.
 
