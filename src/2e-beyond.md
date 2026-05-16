@@ -43,7 +43,7 @@ dsdsdsds
 tstststs //gallop rendering
 tstststs -->
 
-**6-count popcorn on singles.** The standard [6-count popcorn]() can be juggled on singles and with a double-self instead of trelf if the pattern is galloped.
+**6-count popcorn on singles.** The standard [6-count popcorn](2d-advanced.md) can be juggled on singles and with a double-self instead of trelf if the pattern is galloped.
 
 **Long beach popcorn.** This 8-club pattern has the right-hand sequence lofty-triple pass (instead of a quad), double-self (instead of a trelf), lofty single pass (instead of a double), while all left-hand actions are quick, galloped selfs.
 

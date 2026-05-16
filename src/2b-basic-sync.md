@@ -10,7 +10,7 @@
 
 In all these 6-club patterns, both passers start with two clubs in the right and one club in the left hand. Both passers start at the same time with a straight single pass. It is customary to synchronize the start with an *up-down-pass* sequence where both passers lift the club without throwing it.
 
-**6-club four-count (pass-self-self-self) and two-count (pass-self).** *Four-count* (old name *every others*) and *two-count* (old name *everies*) are probably the most common pattern used as a basis for group patterns, trick throws, and performances, but they are both one-sided, with all passes thrown from the right hand. I consider them as traditional passing, not modern passing. In *four-count* ever other right-hand throw is a pass. 
+**6-club four-count (pass-self-self-self) and two-count (pass-self).** *Four-count* (old name *every others*) and *two-count* (old name *everies*) are probably the most common pattern used as a basis for group patterns, trick throws, and performances, but they are both one-sided, with all passes thrown from the right hand. I consider them as traditional passing, not modern passing. In *four-count* every other right-hand throw is a pass. 
 
 <sync>3p333</sync>
 
@@ -21,7 +21,7 @@ In *two-count* every right-hand throw is a pass; the left hand only throws selfs
 
 <crossreference>For a more modern version, try *6-club three-count* or *6-club one-count* instead, or the [beginner four-handed siteswaps](4b-4hsw-beginner.md).</crossreference>
 
-**6-club one-count.** The 6-club one-count from [learning to pass]() (also known as *ultimates*, old name *thundershower*) is the easiest synchronous pattern for beginners to learn when they have a stronger passer as partner, because all throws are the same. Both passers pass from their right hand at the same time and then again from the left hand at the same time.
+**6-club one-count.** The 6-club one-count from [learning to pass](1-learn-teach.md) (also known as *ultimates*, old name *thundershower*) is the easiest synchronous pattern for beginners to learn when they have a stronger passer as partner, because all throws are the same. Both passers pass from their right hand at the same time and then again from the left hand at the same time.
 
 **6-club three-count (pass-self-self).** A good pattern to introduce selfs ofter one-count is *three-count* (old name *waltz*) with both passers counting pass-self-self. The pattern is ambidextrous, so has both right-hand and left-hand passes. Note that two clubs are always passed and the other clubs are always selfed – each club received as a pass gets thrown back as a pass again. Using two clubs of a different color to highlight the passes can help beginners remember when to pass.
 

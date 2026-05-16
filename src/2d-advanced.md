@@ -76,7 +76,7 @@ Other variations of *7-club pass-pass-self,* often with one side being substanti
 * 3p 3p 4 vs. 5 3p 3p
 * 4p 4p 1 vs. 4p 5 3p
 
-In the [appendix](), we list a few more patterns with triple passes.
+<!-- In the [appendix](), we list a few more patterns with triple passes. -->
 
 <crossreference>See *8-club pass-pass-self* both the synchronous version below and the four-handed siteswap [996](4c-4hsw-doubles.md) for  pass-pass-self pattern that are the same for both passers.</crossreference>
 
@@ -89,12 +89,12 @@ In the [appendix](), we list a few more patterns with triple passes.
 * 3 3p 3 vs. 4p 4 4
 * 3 3p 3 vs. 5 3p 4
 
-In the [appendix](), we list a few more of these patterns.
+<!-- In the [appendix](), we list a few more of these patterns. -->
 
 <crossreference>Try also [*techno*](2e-beyond.md), [7-club three-count (966)](4c-4hsw-doubles.md), and [french three-count (786)](4d-4hsw-heffs.md) for other three-count patterns with 7 clubs.</crossreference>
 
 
-**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (8-club three count), *4p 4p 4* (8-club pass-pass-self), *4p* (8-club one count), and *4p 4 4 4* (8-club four count). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
+**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (a three-count), *4p 4p 4* (a pass-pass-self pattern), *4p* (a one count), and *4p 4 4 4* (a four count). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
 
 <sync>4p44</sync>
 
