@@ -33,7 +33,11 @@ jobs:
           # mdbook-version: 'latest'
 
       - name: Install mdbook-linkcheck
-        run: cargo install mdbook-linkcheck --version 0.7.7 --locked
+        run: |
+          curl -fsSL -o mdbook-linkcheck.zip https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/download/v0.7.7/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
+          unzip -q mdbook-linkcheck.zip
+          install -m 0755 mdbook-linkcheck "$HOME/.local/bin/mdbook-linkcheck"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Install vizsiteswap dependencies and run tests
         run: cd vizsiteswap; deno install; deno test -A; deno task gen-runtime
