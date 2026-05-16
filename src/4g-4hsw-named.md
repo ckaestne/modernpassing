@@ -1,6 +1,13 @@
 # Advanced patterns
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner four-handed siteswaps]() & [doubles]() & [zaps]() & [heffs](). Next: [Holy grail sequence](), [compatible siteswaps](), and [full siteswap list]()
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md), [notation](4a-4hsw-notation.md), [doubles](4c-4hsw-doubles.md), [zaps](4e-4hsw-zaps.md), and [heffs](4d-4hsw-heffs.md)
+
+**Next —** [Holy grail sequence](4i-4hsw-holygrail.md), [compatible siteswaps](4h-4hsw-compatible.md), and the [full siteswap list](7-appendix-siteswaplist.md)
+
+</progressions>
+
 
 Once comfortable with basic siteswaps and multiple additional kinds of throws, like zaps, heffs, doubles, and trelfs, there is a whole world of siteswaps that combine these. The following is far from comprehensive but highlights common popular patterns, many with names:
 

@@ -1,7 +1,15 @@
 
 # Doubles
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner four-handed siteswaps]() | Helpful: [Advanced synchronous patterns]() | Next: Add [heffs]() or [zaps]().
+<progressions>
+
+**Prerequisite —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md)
+
+**Helpful —** [Synchronous 7-club and 8-club patterns](2d-advanced.md)
+
+**Next —** Add [heffs](4d-4hsw-heffs.md) or [zaps](4e-4hsw-zaps.md)
+
+</progressions>
 
 **7-club three-count (966).** A good pattern to practice doubles. Provide feedback about incoming doubles (e.g., over/under-spun, short/long, high/low, wide/narrow). As the pattern gets more stable, try to look down to see your passes land.
 

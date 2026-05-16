@@ -1,6 +1,12 @@
 # Trelfs
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner four-handed siteswaps]() | Next: Add [doubles]() and [heffs]() and look for combinations among [common named patterns]().
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md) and [notation](4a-4hsw-notation.md)
+
+**Next —** Add [doubles](4c-4hsw-doubles.md) and [heffs](4d-4hsw-heffs.md) and look for combinations among [common named patterns](4g-4hsw-named.md)
+
+</progressions>
 
 Trelfs are triple selfs, introducing the artificial term to distinguish them from triple passes. They are common in solo juggling, for example, the solo siteswap 543 with single, double, and triple spins is a good solo practice pattern.
 

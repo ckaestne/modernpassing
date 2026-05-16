@@ -7,6 +7,31 @@ crossreference {
     border: 3px solid var(--quote-border);
     display: block;
     padding: 8px;
+    font-size: 90%;
+}
+
+progressions {
+    display: block;
+    background-color: var(--quote-bg);
+    border-left: 4px solid var(--warning-border);
+    padding: 0.7em 1em;
+    margin: 1em 0;
+    font-size: 90%;
+}
+
+progressions::before {
+    content: "Pattern Progressions";
+    display: block;
+    color: var(--warning-border);
+    font-size: 95%;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    margin-bottom: 0.35em;
+}
+
+progressions p {
+    margin: 0.2em 0;
 }
 
 .video {

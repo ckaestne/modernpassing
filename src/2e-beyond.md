@@ -1,6 +1,12 @@
 # Beyond classic synchronous patterns
 
-Prerequisite: [Advanced synchronous patterns](https://en.wikipedia.org/wiki/Siteswap#Synchronous) | Next: [Four-handed siteswaps](https://en.wikipedia.org/wiki/Siteswap#Synchronous)
+<progressions>
+
+**Prerequisite —** [7-club and 8-club patterns](2d-advanced.md)
+
+**Next —** [Four-handed siteswaps](4a-4hsw-notation.md)
+
+</progressions>
 
 There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they push the go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md). We use a asterisk to note these throws are lower than they should be if they were juggled as traditional synchronous patterns:
 

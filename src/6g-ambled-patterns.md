@@ -1,7 +1,15 @@
 # Ambled Patterns
 
 
-Prerequisites: [Scrambled V](6f-aidan-patterns.md); recommended: [Extra Club Rotating Feed](5d-moving.md); Next: [Zippy](6h-zippy-etc.md) or [Takeouts in Four-handed Siteswaps](6j-siteswap-takeouts.md)
+<progressions>
+
+**Prerequisite —** [Scrambled V](6f-aidan-patterns.md)
+
+**Helpful —** [Extra club rotating feed](5d-moving.md)
+
+**Next —** [Zippy](6h-zippy-etc.md) or [takeouts in four-handed siteswaps](6i-siteswap-takeouts.md)
+
+</progressions>
 
 Ambeled patterns are extra-club versions of scrambled patterns, juggled on double passes. They are all based on the [extra-club rotating feed](5d-moving.md) in two-count vs four-count. Since the extra club is distributed across three, not two passers, ambled patterns are more approachable than [extra-club roundabout](6d-roundabout-variations.md) patterns.
 

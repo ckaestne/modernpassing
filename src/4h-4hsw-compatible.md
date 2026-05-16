@@ -1,6 +1,11 @@
 # Compatible Siteswaps
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner patterns]().
+
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md) and [notation](4a-4hsw-notation.md)
+
+</progressions>
 
 In four-handed siteswaps, usually both passers juggle the same sequence, just offset of each other. However, this is not necessary -- just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [advanced synchronous patterns]()). 
 

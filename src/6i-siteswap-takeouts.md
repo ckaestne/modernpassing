@@ -1,6 +1,15 @@
 # Siteswap takeout patterns
 
-Prerequisites: [Beginner four-handed siteswap](4b-4hsw-beginner.md), recommended: [Zaps](4e-4hsw-zaps.md), [Doubles](4c-4hsw-doubles.md), and [Heffs](4d-4hsw-heffs.md); Next: synchronous, ambidextrous takeouts described in [North-wall patterns](6e-northwall.md) and [Zippy](6h-zippy-etc.md)
+<progressions>
+
+**Prerequisite —** [Beginner four-handed siteswap](4b-4hsw-beginner.md)
+
+**Helpful —** [Zaps](4e-4hsw-zaps.md), [doubles](4c-4hsw-doubles.md), and [heffs](4d-4hsw-heffs.md)
+
+**Next —** [North-wall patterns](6e-northwall.md) and [Zippy](6h-zippy-etc.md)
+
+</progressions>
+
 
 Manipulator patterns on four-handed siteswaps form a class of their own, similar to [north-wall patterns](6e-northwall.md). 
 They are amendable to base patterns of different difficulty, from [5-club one-count](1-learn-teach.md) to [holy grail](4i-4hsw-holygrail.md).

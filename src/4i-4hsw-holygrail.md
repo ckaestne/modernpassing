@@ -1,6 +1,14 @@
 # Holy grail sequence
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Zaps]() & [Doubles]() | Next: [Advanced patterns]() and [takeouts in 4-handed siteswaps]().
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md), [doubles](4c-4hsw-doubles.md), and [zaps](4e-4hsw-zaps.md)
+
+**Next —** [Advanced patterns](4g-4hsw-named.md) and [takeouts in 4-handed siteswaps](6i-siteswap-takeouts.md)
+
+</progressions>
+
+
 
 **Holy grail (975).** Holy grail is a difficult 7-club one-count pattern that combines zaps, singles, and doubles. What makes this pattern particularly challenging to learn is a double-zap combination, known as dragon ("the dragon to slay on the way to the holy grail"), where the double is thrown first, but the zap arrives first -- that is, to catch a dragon, you cannot look up for the incoming double until catching the zap. While it was considered nearly impossible 15 years ago and only few people could run a few cycles, there are now quite a few people who have a stable pattern.
 

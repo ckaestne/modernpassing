@@ -1,6 +1,12 @@
 # Heffs
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner four-handed siteswaps]() | Next: Add [doubles](), [zaps](), or [trelfs](), or introduce [takeouts]().
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md) and [notation](4a-4hsw-notation.md)
+
+**Next —** Add [doubles](4c-4hsw-doubles.md), [zaps](4e-4hsw-zaps.md), [trelfs](4f-4hsw-trelfs.md), or introduce [takeouts](6i-siteswap-takeouts.md)
+
+</progressions>
 
 **Why not (78627).** *Why not* is probably the first pattern with heffs for most jugglers. It is a widely know 6-club pattern, with [lots of videos](https://www.youtube.com/results?search_query=why+not+club+passing+ija) and [good video tutorials](https://www.youtube.com/watch?v=6GKvM23fexE). Many jugglers fudge the timing with a fast zip (like [Jim's patterns]()) and juggle it synchronously. The most common and easiest to learn start is to have juggler B start with two clubs and react to the first pass with heff-zip-pass-self-pass.
 

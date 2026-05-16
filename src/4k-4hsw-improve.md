@@ -1,6 +1,14 @@
 # Improve your siteswaps
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner patterns]() & [Doubles](). | Recommended: [Improve your passing](). 
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md), [notation](4a-4hsw-notation.md), and [doubles](4c-4hsw-doubles.md)
+
+**Helpful —** [Improve your passing](2f-improve.md)
+
+</progressions>
+
+
 
 This is a collection of advice for common problems in four-handed siteswaps.
 

@@ -1,7 +1,15 @@
 
 # Beginner four-handed siteswaps 
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Learn to pass / teach to pass]() | Helpful: [Sync 6-club one-count]() and [ppsps]() | Next: Add [doubles](), [heffs](), or [zaps]().
+<progressions>
+
+**Prerequisites —** [5-club one count](1-learn-teach.md) and [four-handed siteswap notation](4a-4hsw-notation.md)
+
+**Helpful —** [6-club one-count](2b-basic-sync.md) and [bookends](2b-basic-sync.md)
+
+**Next —** Add [doubles](4c-4hsw-doubles.md), [heffs](4d-4hsw-heffs.md), or [zaps](4e-4hsw-zaps.md)
+
+</progressions>
 
 **5-club one-count (744 and 726).** Note how 5-club one-count (from [learn to pass]()) is actually the four-handed siteswap 744
 

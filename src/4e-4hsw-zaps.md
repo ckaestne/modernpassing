@@ -1,6 +1,12 @@
 # Zaps
 
-Prerequisites: [Reading Four-Handed Siteswaps]() & [Beginner four-handed siteswaps]() | Next: Add [doubles](), [heffs](), or [trelfs](), or introduce [takeouts]().
+<progressions>
+
+**Prerequisites —** [Beginner four-handed siteswaps](4b-4hsw-beginner.md) and [notation](4a-4hsw-notation.md)
+
+**Next —** Add [doubles](4c-4hsw-doubles.md), [heffs](4d-4hsw-heffs.md), or [trelfs](4f-4hsw-trelfs.md), or introduce [takeouts](6i-siteswap-takeouts.md)
+
+</progressions>
 
 Zaps are low, fast passes that only spin half a rotation. The open a whole new group of interesting patterns. Look at a [video](https://www.youtube.com/watch?v=fXyLoK-KhxQ) or an [animation](https://passist.org/siteswap/564?jugglers=2) for examples. They are usually thrown with an extended arm, letting the club slide down to the knob, without any spin from the wrist, aiming quite a bit behind the person catching the zap. Most of these patterns do not have commonly used names and are simply known by their numbers.
 

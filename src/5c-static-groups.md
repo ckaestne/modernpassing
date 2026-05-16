@@ -1,6 +1,12 @@
 # Static Group Patterns
 
-Prerequisite: [Basic Synchronous Passing Patterns](2b-basic-sync.md) |  Next: Feeds, Moving Patterns, Takeouts
+<progressions>
+
+**Prerequisite —** [Basic synchronous passing patterns](2b-basic-sync.md)
+
+**Next —** [Feeds](5b-feeds.md), [moving patterns](5d-moving.md), and [takeouts](6a-intro.md)
+
+</progressions>
 
 Beyond feeds, there are many static group patterns for different sizes of groups and different difficulty levels. We group them roughly the number of passers and shape of the positions. Almost all of these patterns are based on the [basic synchronous 6-club passing patterns](2b-basic-sync.md). Most of these patterns are easy to medium difficulty. 
 

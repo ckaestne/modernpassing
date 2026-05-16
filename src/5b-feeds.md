@@ -1,6 +1,12 @@
 # Feeds
 
-Prerequisite: [Basic Synchronous Passing Patterns](2b-basic-sync.md) or [Compatible Four-Handed Siteswaps](4h-4hsw-compatible.md) | Next: [Moving Patterns](5d-moving.md), Static Group Patterns
+<progressions>
+
+**Prerequisite —** [Basic synchronous passing patterns](2b-basic-sync.md) or [compatible four-handed siteswaps](4h-4hsw-compatible.md)
+
+**Next —** [Static group patterns](5c-static-groups.md), [moving patterns](5d-moving.md), or [takeouts](6a-intro.md)
+
+</progressions>
 
 
 Feeds are a common and simple form to involve three or more passers. A passer acting as the *feeder* (A) will pass with multiple *feedees* (B, C, ...). Each feedee will only pass with the feeder, but not with other feedees.
@@ -198,5 +204,5 @@ Generally the two feedees always throw at the same time, but they must not pass 
 * *[945](4i-4hsw-holygrail.md)* (ppx) vs. *[French three-count](4d-4hsw-heffs.md)* (pxx) and *[5-club one-count](4b-4hsw-beginner.md)* (pxx)
 * *[7-club one-count](4b-4hsw-beginner.md)* *(ppp)* vs. *[74a](4d-4hsw-heffs.md)* (pxx) and *[77a](4f-4hsw-trelfs.md)* (ppx)
 
-As with all compatible siteswaps, identifying starts can be a bit tricky and may require pen and paper as described in the [appendix](7-appendix-compatsw-starts.md). The total number of clubs needed for the feed is the sum of the clubs for each pattern divided by two, since each passer passes half of each siteswap. We following heuristic to figure out the start often works: Let the feeder start with their pattern with a convenient start and identify when each feedee will receive their first pass. Usually each feedee can identify how they usually would start their pattern in reaction to an incoming pass. For example, it is common to start *[French three count](4d-4hsw-heffs.md)* with a heff on the beat after the first incoming single pass is thrown. If the first incoming pass is at a different height than usually expected in the feedee's pattern (e.g., an incoming zap instead of a single pass for a feedee's *French three count*), this start would be adjusted correspondingly to start a beat earlier or later. In many cases, the second feedee may need to wait a beat or two for their first incoming pass; they can either wait for their usual start or backtrack and identify the throws before; the throw before might include a pass to the feeder. In many cases, it is possible to identify the start this way with only few attempts to figure out what works; if it does not work go back to the pen and paper method. See the patterns above for some examples of starts.
+As with all compatible siteswaps, identifying starts can be a bit tricky and may require pen and paper as described in the [theory section](4l-4hsw-theory.md). The total number of clubs needed for the feed is the sum of the clubs for each pattern divided by two, since each passer passes half of each siteswap. We following heuristic to figure out the start often works: Let the feeder start with their pattern with a convenient start and identify when each feedee will receive their first pass. Usually each feedee can identify how they usually would start their pattern in reaction to an incoming pass. For example, it is common to start *[French three count](4d-4hsw-heffs.md)* with a heff on the beat after the first incoming single pass is thrown. If the first incoming pass is at a different height than usually expected in the feedee's pattern (e.g., an incoming zap instead of a single pass for a feedee's *French three count*), this start would be adjusted correspondingly to start a beat earlier or later. In many cases, the second feedee may need to wait a beat or two for their first incoming pass; they can either wait for their usual start or backtrack and identify the throws before; the throw before might include a pass to the feeder. In many cases, it is possible to identify the start this way with only few attempts to figure out what works; if it does not work go back to the pen and paper method. See the patterns above for some examples of starts.
  

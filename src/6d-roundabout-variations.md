@@ -1,5 +1,14 @@
 # Roundabout Variations
 
+<progressions>
+
+**Prerequisite —** [Roundabout](6c-roundabout.md)
+
+**Helpful —** [Synchronous 7-club and 8-club patterns](2d-advanced.md) and [moving patterns](5d-moving.md)
+
+</progressions>
+
+
 There are many variations of Roundabout, patterns that incorporate Roundabout in larger group patterns, and patterns that are conceptually similar to the traditional Roundabout.
 
 
@@ -132,7 +141,7 @@ M: SBe! . 1x     SBl IBv.. CB↺  -- M
 </sync-group>
 
 
-**Beyond.** While not common, there are challenging extra-club versions of many common patterns and also patterns that add two clubs (e.g., [*9-club Roundabout*](https://passing.zone/9-club-roundabout/)), with triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). For other takeout patterns on more challenging base patterns of seven and more clubs explore [takeouts in four-handed siteswaps](6j-siteswap-takeouts.md). 
+**Beyond.** While not common, there are challenging extra-club versions of many common patterns and also patterns that add two clubs (e.g., [*9-club Roundabout*](https://passing.zone/9-club-roundabout/)), with triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). For other takeout patterns on more challenging base patterns of seven and more clubs explore [takeouts in four-handed siteswaps](6i-siteswap-takeouts.md). 
 
 
 

@@ -1,6 +1,16 @@
 # Roundabout
 
-Prerequisites: [6-club four count](2b-basic-sync.md); recommended after: [Nicki's three-count roundabout](6a-intro.md); next: [Roundabout variations](6d-roundabout-variations.md), [North-wall patterns](6e-northwall.md), or for four passers the [Scrambled V](6f-aidan-patterns.md).
+
+<progressions>
+
+**Prerequisite —** [6-club four count](2b-basic-sync.md)
+
+**Helpful —** [Nicki's three-count roundabout](6a-intro.md)
+
+**Next —** [Roundabout variations](6d-roundabout-variations.md), [north-wall patterns](6e-northwall.md), or [Scrambled V](6f-aidan-patterns.md)
+
+</progressions>
+
 
 
 The *Roundabout* is the first manipulator pattern many jugglers learn.
