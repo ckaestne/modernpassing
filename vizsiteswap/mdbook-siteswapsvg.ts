@@ -17,6 +17,8 @@ if (process.argv[2] === "supports") {
 }
 
 const file = fs.readFileSync(0, "utf-8")
+
+fs.writeFileSync("tmp_mdbook.json", file)
 const book = extractBook(JSON.parse(file))
 
 const startTime = Date.now()
