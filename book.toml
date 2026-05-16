@@ -21,7 +21,7 @@ exclude = [ 'juggling\.tv' ]
 warning-policy = "warn"
 
 [output.html]
-additional-css = [".mdbook/svgstyle.css", ".mdbook/bookstyle.css"]
+additional-css = ["css/svgstyle.css", "css/bookstyle.css"]
 additional-js = ["vizsiteswap/dist/animations.js","vizsiteswap/dist/svg.min.js"]
 smart-punctuation = true
 git-repository-url = "https://github.com/ckaestne/modernpassing"
