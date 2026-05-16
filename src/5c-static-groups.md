@@ -15,7 +15,7 @@ Beyond feeds, there are many static group patterns for different sizes of groups
 
 Triangle patterns conceptually simple and versatile. In contrast to feeds, they are usually symmetric in that all passers juggle the same pattern.
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 **Three-count, insides.** 
 A good first pattern is to juggle *three-count* with *inside* throws, that is right-handed passes go to the left hand of the passer on the left and left-handed passes to the right hand of the passer on the right. Everybody passes at the same time, count out loud if necessary to synchronize timing and avoid collisions. 
@@ -44,7 +44,7 @@ positions: Circle(A,B,C)
 **Three-count, outside-inside-inside-outside.**
 Several further good variation come from exploring different sequences of inside and outside throws. For example, alternating outside and inside results in all clubs being thrown to the same person. The sequence *outside-inside-inside-outside* is interesting in that it passes to all four hands of the other two passers, from right to left.
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/start-here.svg)
 
 **Pass-pass-self and one-count.** 
 The same triangle idea also works for all other base patterns (including *four-count* if somebody insists). *Pass-pass-self* and *one-count* can be interesting challenges with different combinations of *inside* and *outside* throws. *Pass-pass-self* with *inside-inside-self-outside-outside-self* throws feels similar to [pass-pass-self feeds](5b-feeds.md). *One-count* with all-*outside* passes is particularly challenging as it requires constant head movement to see incoming passes.
@@ -61,7 +61,7 @@ positions: Circle(A,B,C)
 
 To extend this sequence for a more challenging pattern, we can swap roles after every *n* iterations. For example, a passer starts in role A (*pass-pass-self* feed) for two iterations, followed by two iterations in role B (*three-count*), followed by two iterations in role C (*pass-pass-self* to the right), the others similarly shift through the roles but start with a different role.
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/start-here.svg)
 
 **Extra club three-count.** 
 With all passes thrown as crossing doubles, it is easy to add a 10th club to a triangle *three-count* pattern, with double passes all going in a circle in one direction:
@@ -75,7 +75,7 @@ positions: Circle(A,B,C)
 
 (All passers start at the same time with the same hand. Crossing passes can be awkward to throw in a triangle with left-hand passes being much longer than right-hand passes; provide feedback.)
 
-![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
+![advanced pattern](figures/advanced.svg)
 
 **Six-handed siteswap triangles.** Six-handed siteswaps are naturally juggled in triangle positions, as described in the context of [four-handed siteswap theory](4l-4hsw-theory.md), but they are not commonly passed in the community. Use a siteswap generator like [passist.org](http://passist.org) to find interesting patterns with "a" as single passes or "7" as zaps, such as [aaa69](https://passist.org/siteswap/aaa69?jugglers=3) or [a37979999](https://passist.org/siteswap/a37979999?jugglers=3) (Mayday Zap).
 
@@ -83,7 +83,7 @@ positions: Circle(A,B,C)
 
 ## Feast (3+ passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 The *feast* is an elegant and scalable pattern that theoretically works with any number of passers and on any base pattern: The passers stand in a circle. Each passer has a starting partner such that no passing lanes cross (with odd numbers of passers, one passer has no partner). On the first passing beat each passer passes with their starting partner (or a self if they have no starting partner). On every next passing beat, they pass to the passer on right (in the circle) of their previous pass. If the previous pass was to the last passer on the right, they do a self on the next passing beat, and continue with the passer on their left on the passing beat after. That is, everybody passes with everybody in the circle in order (including themself). 
 
@@ -120,7 +120,7 @@ For more than 6 or 7 passers, the length of different passes starts to differ a 
 
 ## Double feeds (4 passers)
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/start-here.svg)
 
 By arranging four passers in a rectangle with two facing the other two, each passer can feed two other passers. The challenge is to find patterns that do not collide in the middle, sometimes involving selective double passes. The most elegant of these patterns is a *double pass-pass-self feed*:
 
@@ -132,7 +132,7 @@ D: 3pA 3pB 3
 positions: Box(A,B,C,D)
 </sync-group>
 
-![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
+![advanced pattern](figures/advanced.svg)
 
 
 **Eight-handed siteswaps.** [Eight-handed siteswaps](4l-4hsw-theory.md), such as [fcc](https://passist.org/siteswap/fcc?jugglers=4) (three-count friction), also generally are arranged in this double-feed position, but not commonly juggled.
@@ -140,7 +140,7 @@ positions: Box(A,B,C,D)
 
 ## Square (4 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 In a square arrangement, everybody can pass with everybody. Aside from feasts (see above), the following pattern combines *two-count* and *three-count* in a somewhat interesting arrangement:
 
@@ -166,7 +166,7 @@ positions: Circle(A,B,C,D)
 
 ## Star (5 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 A common pattern for a group of five passers is in a circle where each passer juggles with the two people opposite in the circle, resulting in a five-pointed star formation. Like in standard triangle patterns, all passers pass to a different person than from whom they receive the incoming pass; like in triangle patterns many variations are possible by deciding the sequence of *"inside"* and *"outside"* passes. Since all passes go through the middle on the same beat, it is important to be consistent on timing and length of all passes, especially *inside* passes.
 
@@ -182,7 +182,7 @@ E: 3pC33 3pB33
 positions: Circle(A,B,C,D,E)
 </sync-group>
 
-![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
+![advanced pattern](figures/advanced.svg)
 
 **Adding clubs.** The easiest way to add a 16th club is to pass *five-count* on doubles all in one direction (i.e., left and right-hand passes go to the same person), either with all passes crossing or with every other passer starting left-handed. To add another club (17 total), *pass-self-pass-pass-self* on doubles is a good sequence to try, and in theory every other self can be replaced by a double pass if adding one more club. A simpler 20-club version is simply *two-count* on doubles, where everybody starts with 4 clubs and passes the gallopy [8-club two-count on doubles](2e-beyond.md).
 
@@ -193,7 +193,7 @@ Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by th
 
 ## Trapezoid (5 passers)
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/start-here.svg)
 
 **Chocolate box.**
 Another common setup is two passers A and B facing three passers C, D, and E in a trapeze shape. A common pattern of intermediate difficulty is *chocolate box* where the two passers A and B each juggle *pass-pass-self-self* (which is a synchronous pattern called *chocolate bar*) and the three other passers juggle *three-count*, in the following sequence:

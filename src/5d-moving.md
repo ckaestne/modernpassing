@@ -59,7 +59,7 @@ For teaching more complicated patterns, after turning back, the passer who previ
 
 ## Rotating Y (4 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 
 A good beginner pattern with easy movement is the *Rotating Y*. The Y is a formation of two passers next to each other facing two passers behind each other (a feed with an extra passer behind the feeder). The rightmost passer throws a long pass to the passer in the back, who throws a long pass to the passer on the left, who throws a much shorter pass to the feeder in the middle, who then throws another short pass to the rightmost passer. For movement, consider that the two passers standing next to each other are on the left and right of a circle, whereas the other two passers are in the front and back of another circle; for each movement each passer moves a quarter position counter-clockwise on their circle (all walking at the same time), yielding another Y. Note that after movement, everybody still passes to the same passer (now in a different location, possibly with a different distance) and receives from the same passer.
@@ -79,7 +79,7 @@ move: move(A,4.9,3)move(B,4.9,3)move(C,4.9,3)move(D,4.9,3)
 
 ## Rotating Feeds (3 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 
 The rotating feed is a good introduction to walking and turning on a four-count (usually), which is an important foundation for many other walking and takeout patterns. So even if the rotating feed on two-count vs four-count can be rather boring, it is an important milestone.
@@ -104,7 +104,7 @@ move: Vmove(B,4.9,3)
 
 Walking and turning while juggling can initially be somewhat challenging. Usually the passer walking will walk immediately after their pass and catch the incoming pass somewhat along the way (ask the feeder to throw it shorter if necessary). It is possible to practice walking and turning while juggling alone, simply walking around while maintaining a 3-club cascade. Less confident passers can also collect all clubs and walk across the pattern holding all three clubs to then restart with a pass on the other side.
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/intermediate.svg)
 
 
 **Pass-pass-self feeds.**
@@ -162,7 +162,7 @@ move: Vmove(A,4.9,2)Vmove(B,2.9,2)
 
 ## Extra Club Rotating Feed (3 passers)
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/intermediate.svg)
 
 
 The two-count vs. four-count feed with 10 clubs (see [Feeds](5b-feeds.md)) can also be turned into a walking rotating pattern, similar to other feeds.
@@ -183,7 +183,7 @@ With a bit of galloping, this pattern can also be juggled on single passes (see 
 
 ## Bruno's Nightmare (3 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 The conceptual idea behind all "Bruno's" patterns is that the passers move as if they were balls thrown by a giant. In the basic Bruno's nightmare pattern the passers move in a simple cascade pattern being "thrown" to one side of the room and then "falling" back down to the other (see the diagram below). Many other patterns, including passing patterns, are possible beyond a simple three-ball cascade. While the passers are moving in the shape of a juggling pattern, they exchange clubs.
 
@@ -251,7 +251,7 @@ move: Bmove(B,1.9,2)Bmove(B,4.9,3)Bmove(C,2.9,1)
 
 
 
-![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
+![advanced pattern](figures/advanced.svg)
 
 
 **Bruno's one-count.** A particularly challenging variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one-count*. This pattern requires usually very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
@@ -273,7 +273,7 @@ This pattern is very difficult to learn from scratch. By far the best way to lea
 
 
 
-![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
+![advanced pattern](figures/advanced.svg)
 
 **Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles.
 However, since this is juggled on a four-handed siteswap feed, the walking and notation is somewhat unusual:
@@ -292,7 +292,7 @@ move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)
 
 ## El Niño (4 passers)
 
-![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
+![intermediate pattern](figures/intermediate.svg)
 
 *El Niño* is a version of a rotating feed for 4 passers, based on the feeder passing *one-count* to three feedees in *three-count*.
 The feeder feeds the feedees in the following order: middle feedee, left feedee, right feedee, and middle feedee. First the left feedee walks in three-count after their pass, and then the middle feedee after their second pass, turning the right feedee into the new feeder. The pattern is usually started left-handed so that all walking happens after right-hand passes.
@@ -322,7 +322,7 @@ move: Vmove(B,0.9,2),Vmove(C,1.9,2)
 
 ## Shooting Star (4 passers)
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer (role C) will not receive clubs and one passer (role B) would pass into a hole. In the standard four-count version, passer B who would pass into the hole starts with two clubs and skips the first pass, whereas passer C who does not receive clubs walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
 
@@ -351,7 +351,7 @@ Note: The passer with role C starts with two clubs.
 
 The [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/) has a huge number of walking patterns, including *Turbo* and *El Niño* discussed above. Here are two more common patterns from that collection that are also the basis for many other variations. 
 
-![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
+![starter pattern](figures/start-here.svg)
 
 **3-leaf clover.**
 In this pattern, all passers continuously walk in an out of the middle of the pattern, through three loops (see diagram below). Essentially, a feeder throws two-count to three feedees in six-count. The Madison book has many more variations, including ambidextrous ones.
