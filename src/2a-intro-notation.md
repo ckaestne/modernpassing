@@ -1,8 +1,8 @@
 # Introduction to synchronous passing & notation
 
-Most traditional passing patterns, including *6-club four-count*, *three-count*, and *pass-pass-self* as well as *7-club two-count* are synchronous patterns in that both passers throw at the same time. This is where a lot of people start passing,  though we recommend a different first pattern (see [learning to pass](1-learn-teach.md)).
+Most traditional passing patterns, including *6-club four-count*, *three-count*, and *pass-pass-self*, as well as *7-club two-count*, are synchronous patterns in that both passers throw at the same time. This is where a lot of people start passing, though we recommend a different first pattern (see [learning to pass](1-learn-teach.md)).
 
-Many passers explore only a small number of traditional synchronous patterns, usually with many selfs and with most or all passes thrown from the right hand, making it harder only by adding more clubs. It is not surprising that many find this boring soon. But there is a large number of synchronous patterns to explore, both one-sided (e.g., [*six-count popcorn*](2d-advanced.md)) and ambidextrous (e.g., [*Jim's three-count*](2c-jims.md)) patterns, and then there is also the whole world of [four-handed siteswaps](4a-4hsw-notation.md). 
+Many passers explore only a small number of traditional synchronous patterns, usually with many selfs and with most or all passes thrown from the right hand, making it harder only by adding more clubs. It is not surprising that many soon find this boring. But there are many synchronous patterns to explore, both one-sided (e.g., [*six-count popcorn*](2d-advanced.md)) and ambidextrous (e.g., [*Jim's three-count*](2c-jims.md)), and then there is also the whole world of [four-handed siteswaps](4a-4hsw-notation.md). 
 
 ## Notation
 
@@ -13,19 +13,19 @@ We use the following symbols for different throws:
 | Symbol | Description     | Solo-siteswap equivalent |
 | ------ | ---- | ---- |
 | z | Zip / hand-across: Directly handing a club from one hand to the other without throwing it | 1 |
-| f | Flip / hold: Holding a club in a hand without throwing it or flipping it quickly | 2 |
+| f | Flip / hold: Holding a club in a hand without throwing it, or flipping it quickly in place | 2 |
 | s | Self as in a normal cascade | 3 |
-| p | Single-spin straight pass, usually straight  | 3p |
+| p | Single-spin pass, usually straight | 3p |
 | h | Heff: A double-spun self to the same hand, as in a four-club solo fountain | 4 |
-| d | Double-spin crossing pass, usually crossing | 4p |
-| t | Trelf: triple-self to the other hand | 5 |
-| r | Triple-spin straight pass | 5p |
+| d | Double-spin pass, usually crossing | 4p |
+| t | Trelf: A triple-spun self to the other hand | 5 |
+| r | Triple-spin pass, usually straight | 5p |
 
-A pattern where both passers make the same throws at the same time can now be written as a sequence of throws, such as "p s s" or just "pss" for *6-club three-count* where both passers throw a single pass on every third beat. This can also be visualized as follows:
+A pattern where both passers make the same throws at the same time can now be written as a sequence of throws, such as "p s s" or just "pss" for *6-club three-count*, where both passers pass on every third beat. This can also be visualized as follows:
 
 <sync>3p33</sync>
 
-In such visualization, we show two rows, one row for each passer. Time is progressing from left to right. Usually both passers start at the same time with the right hand and then alternate hands, as indicated with the "R" and "L" labels for right and left-handed throws. The numbers on the left indicate how many clubs each passer has in their right and left hand at the start ("right|left"), and the "||" and "X" next to a pass indicate whether that pass is thrown straight (i.e., right to left or left to right hand) or crossing (i.e., right to right or left to left hand). 
+In such a visualization, we show two rows, one row for each passer. Time progresses from left to right. Usually both passers start at the same time with the right hand and then alternate hands, as indicated by the "R" and "L" labels for right- and left-handed throws. The numbers on the left indicate how many clubs each passer has in their right and left hand at the start ("right|left"), and the "||" and "X" next to a pass indicate whether that pass is thrown straight (i.e., right to left or left to right hand) or crossing (i.e., right to right or left to left hand). 
 
 
 
