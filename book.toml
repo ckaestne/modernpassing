@@ -15,6 +15,11 @@ command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
 #[preprocessor.compatsiteswaps]
 #command = "compatsiteswaps/mdbook-compatsiteswaps"
 
+[output.linkcheck]
+follow-web-links = false
+exclude = [ 'juggling\.tv' ]
+warning-policy = "warn"
+
 [output.html]
 additional-css = [".mdbook/svgstyle.css", ".mdbook/bookstyle.css"]
 additional-js = ["vizsiteswap/dist/animations.js","vizsiteswap/dist/svg.min.js"]
