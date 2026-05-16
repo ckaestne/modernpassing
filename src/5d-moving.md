@@ -22,7 +22,7 @@ In most patterns, it takes a while until all passers cycle through all positions
 However, conceptually, the pattern is usually composed of smaller repeating steps, similarly to how siteswaps repeat over an over again even if we write the most compact version showing only the first half of the pattern.
 With walking and takeout patterns, it is common to write down only one transition of the pattern and then describe how it repeats.
 
-For illustration, here is the full notation for the *rotating feed* in two-count vs four-count (described in more detail below). It is 18 beats long to get back to the start where passer A feeds (though the orientation in the room will have changed). However, the first six beats already describe all that is happening in the pattern. After those six beats, a different passer (who started as C before) will now feed; after another six beats the third passer will be the feeder.
+For illustration, here is the full notation for the *rotating feed* in *two-count* vs *four-count* (described in more detail below). It is 18 beats long to get back to the start where passer A feeds (though the orientation in the room will have changed). However, the first six beats already describe all that is happening in the pattern. After those six beats, a different passer (who started as C before) will now feed; after another six beats the third passer will be the feeder.
 
 <sync-group frames="1,3,5,7,9,11,13,15,17">
 A: 3pB3  3pC3  3pB3     3pC3  3  3  3pC3      3  3  3pB3  3  3  
@@ -86,7 +86,7 @@ The rotating feed is a good introduction to walking and turning on a four-count 
 
 In all these patterns, one feedee (usually the left one) is walking across the pattern while turning to a position beside the previous feeder. The other feedee becomes the new feeder, feeding the passer who just walked and the previous feeder.
 
-**Two-count vs. four-count.** The standard pattern, shown already in the notation section above, is a two-count feed with feedees on four-count.
+**Two-count vs. four-count.** The standard pattern, shown already in the notation section above, is a *two-count* feed with feedees on *four-count*.
 This pattern is the foundation for many [four-person manipulator patterns]().
 
 To begin, the left feedee can walk across the pattern after any pass with or without announcing it. There is enough time for both the previous feeder and the new feeder to adjust patterns; the previous feeder will simply do a self where they would have passed to the feedee who just walked, resulting in a switch to four-count; the third passer will throw a pass to the passer who just walked instead of a self, thus switching to a two-count feed.
@@ -206,7 +206,7 @@ The pattern can also be juggled on many other baseline beats. Feeding two-count 
 
 
 
-**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as 423, 441, 33441, and the box for three passers, or 534 and 531 for four passers (see the [appendix](7-appendix-brunos.md) for an example).
+**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as *423*, *441*, *33441*, and the box for three passers, or *534* and *531* for four passers (see the [appendix](7-appendix-brunos.md) for an example).
 There is no principled way to decide when to pass and to whom to pass (that I am aware off), so it is easy to create lots of different patters by first picking a pattern for the walking and then fitting passes in there.
 
 This is an easy pattern based on the five-ball cascade:
@@ -238,7 +238,7 @@ move: move(E,2.9,3)move(F,3.9,5) move(E,6.9,5) move(D,11.9,3) move(D,15.9,5)move
 </sync-group>
 
 
-**Turbo.** Turbo is a Bruno's variation (same walking paths) where the walking passer turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, Turbo can be juggled on different baseline patterns, but two-count vs. four-count is the most common.
+**Turbo.** *Turbo* is a Bruno's variation (same walking paths) where the walking passer turns around to pass back to the passer who started next to them when walking through the pattern, after which they back up to their target position. While it looks like a feed setup at the start, the passer "in the air" (in the Bruno's analogy of juggling people) starts as feeder one pass into the pattern. Again, *Turbo* can be juggled on different baseline patterns, but *two-count* vs. *four-count* is the most common.
 
 <sync-group>
 A: 3pB3 3pC3 33   -- B
@@ -268,7 +268,7 @@ move: Bmove(B,1.3,.6)Bmove(B,2.4,1.5)Bmove(C,1.4,1.5)
 
 This pattern is very difficult to learn from scratch. By far the best way to learn this pattern is with two passers who can run it. Here are a couple of hints: Juggle very lofty and slow; count out loud to synchronize. After the first pass of the feed, the walking passer should take a step forward to give the "falling" passer space, but should not yet move sideways. The second pass of the feed needs to be long to avoid collisions with the short pass after; for the passer walking through the pattern this is the first pass on the other side after turning (likely the most difficult pass of the pattern); collisions are most commonly caused by the walking passer's pass being too short here. The third pass of the feed needs to be lofty but very short; usually the feeder is leading the walking passer quite a bit; the outgoing and incoming passes usually cross, the walking passer should aim to the nose or even the wrong hand of the feeder. For the feeder, the second and third pass are usually roughly in the same direction, the third pass is just much shorter. The walking passer has a single self to turn all the way around; usually they already turn a lot after throwing their short pass *before* catching the incoming short pass, so that they need to turn much less under the self.
 
-Bruno's one-count is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in two-count (see above) and various three-ball siteswaps like 441 and 33441 (known as *Babymix*). See the [appendix](7-appendix-brunos.md) for illustrations of these.
+*Bruno's one-count* is possible on all the other variations, like *Magermix* for six passers moving as if they were thrown in *two-count* (see above) and various three-ball siteswaps like *441* and *33441* (known as *Babymix*). See the [appendix](7-appendix-brunos.md) for illustrations of these.
 
 
 
@@ -287,14 +287,14 @@ positions: Brunos(A,B,C)
 move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)
 </siteswap-group>
 
-(Technically the approach also works for 10-club Bruno's one-count by leaving out the extra selfs.)
+(Technically the approach also works for 10-club *Bruno's one-count* by leaving out the extra selfs.)
 
 
 ## El Niño (4 passers)
 
 ![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
 
-*El Niño* is a version of a rotating feed for 4 passers, based on the feeder passing one-count to three feedees in three-count.
+*El Niño* is a version of a rotating feed for 4 passers, based on the feeder passing *one-count* to three feedees in *three-count*.
 The feeder feeds the feedees in the following order: middle feedee, left feedee, right feedee, and middle feedee. First the left feedee walks in three-count after their pass, and then the middle feedee after their second pass, turning the right feedee into the new feeder. The pattern is usually started left-handed so that all walking happens after right-hand passes.
 
 

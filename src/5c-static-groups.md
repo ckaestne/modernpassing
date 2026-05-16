@@ -18,7 +18,7 @@ Triangle patterns conceptually simple and versatile. In contrast to feeds, they 
 ![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
 
 **Three-count, insides.** 
-A good first pattern is to juggle three-count with *inside* throws, that is right-handed passes go to the left hand of the passer on the left and left-handed passes to the right hand of the passer on the right. Everybody passes at the same time, count out loud if necessary to synchronize timing and avoid collisions. 
+A good first pattern is to juggle *three-count* with *inside* throws, that is right-handed passes go to the left hand of the passer on the left and left-handed passes to the right hand of the passer on the right. Everybody passes at the same time, count out loud if necessary to synchronize timing and avoid collisions. 
 
 <sync-group>
 A: 3pB333pC33
@@ -30,7 +30,7 @@ positions: Circle(A,B,C)
 Once this works, there are many more variations to explore that are interestingly different without drastically increasing difficulty.
 
 **Three-count, outsides.**
-Stay on the same three-count rhythm, but throw the passes *outside*, that is right-handed passes go to the left hand of the passer on the right and left-handed passes to the right hand of the passer on the left. Outside throws tend to be less collision prone but harder to watch due to much wider angle -- do not watch the outgoing club but look for the incoming one. 
+Stay on the same *three-count* rhythm, but throw the passes *outside*, that is right-handed passes go to the left hand of the passer on the right and left-handed passes to the right hand of the passer on the left. Outside throws tend to be less collision prone but harder to watch due to much wider angle -- do not watch the outgoing club but look for the incoming one. 
 Actively provide feedback about incoming passes and where you would like to receive them (usually likely slightly behind you), as other passers also will not see their passes land.
 
 <sync-group>
@@ -59,12 +59,12 @@ C: 3pA 3pA 3
 positions: Circle(A,B,C)
 </sync-group>
 
-To extend this sequence for a more challenging pattern, we can swap roles after every *n* iterations. For example, a passer starts in role A (pass-pass-self feed) for two iterations, followed by two iterations in role B (three-count), followed by two iterations in role C (pass-pass-self to the right), the others similarly shift through the roles but start with a different role.
+To extend this sequence for a more challenging pattern, we can swap roles after every *n* iterations. For example, a passer starts in role A (*pass-pass-self* feed) for two iterations, followed by two iterations in role B (*three-count*), followed by two iterations in role C (*pass-pass-self* to the right), the others similarly shift through the roles but start with a different role.
 
 ![intermediate pattern](https://img.shields.io/badge/-intermediate-orange.svg)
 
 **Extra club three-count.** 
-With all passes thrown as crossing doubles, it is easy to add a 10th club to a triangle three-count pattern, with double passes all going in a circle in one direction:
+With all passes thrown as crossing doubles, it is easy to add a 10th club to a triangle *three-count* pattern, with double passes all going in a circle in one direction:
 
 <sync-group>
 A: 4pB33   
@@ -87,7 +87,7 @@ positions: Circle(A,B,C)
 
 The *feast* is an elegant and scalable pattern that theoretically works with any number of passers and on any base pattern: The passers stand in a circle. Each passer has a starting partner such that no passing lanes cross (with odd numbers of passers, one passer has no partner). On the first passing beat each passer passes with their starting partner (or a self if they have no starting partner). On every next passing beat, they pass to the passer on right (in the circle) of their previous pass. If the previous pass was to the last passer on the right, they do a self on the next passing beat, and continue with the passer on their left on the passing beat after. That is, everybody passes with everybody in the circle in order (including themself). 
 
-The feast is commonly juggled on four-count or two-count, but we strongly recommend three-count or another ambidextrous pattern. Here is the pattern for five passers on three-count:
+The feast is commonly juggled on *four-count* or *two-count*, but we strongly recommend *three-count* or another ambidextrous pattern. Here is the pattern for five passers on *three-count*:
 
 <sync-group>
 A: 3pB33 3pC33 3pD33 3pE33 3  33
@@ -142,7 +142,7 @@ positions: Box(A,B,C,D)
 
 ![starter pattern](https://img.shields.io/badge/-start%20here-green.svg)
 
-In a square arrangement, everybody can pass with everybody. Aside from feasts (see above), the following pattern combines two-count and three-count in a somewhat interesting arrangement:
+In a square arrangement, everybody can pass with everybody. Aside from feasts (see above), the following pattern combines *two-count* and *three-count* in a somewhat interesting arrangement:
 
 <sync-group>
 A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3
@@ -184,12 +184,12 @@ positions: Circle(A,B,C,D,E)
 
 ![advanced pattern](https://img.shields.io/badge/-advanced-red.svg)
 
-**Adding clubs.** The easiest way to add a 16th club is to pass five-count on doubles all in one direction (i.e., left and right-hand passes go to the same person), either with all passes crossing or with every other passer starting left-handed. To add another club (17 total), pass-self-pass-pass-self on doubles is a good sequence to try, and in theory every other self can be replaced by a double pass if adding one more club. A simpler 20-club version is simply two-count on doubles, where everybody starts with 4 clubs and passes the gallopy [8-club two-count on doubles](2e-beyond.md).
+**Adding clubs.** The easiest way to add a 16th club is to pass *five-count* on doubles all in one direction (i.e., left and right-hand passes go to the same person), either with all passes crossing or with every other passer starting left-handed. To add another club (17 total), *pass-self-pass-pass-self* on doubles is a good sequence to try, and in theory every other self can be replaced by a double pass if adding one more club. A simpler 20-club version is simply *two-count* on doubles, where everybody starts with 4 clubs and passes the gallopy [8-club two-count on doubles](2e-beyond.md).
 
 
 
 **Ten-handed siteswaps.**
-Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by throwing slightly lower or higher passes, many four-handed siteswaps have equivalent ten-handed versions, such as French three-count with very lofty singles ([jkf](https://passist.org/siteswap/jkf?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)) and seven-count popcorn with either lofty zaps or doubles ([efkfkfk](https://passist.org/siteswap/efkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl) or [lfkfkfk](https://passist.org/siteswap/lfkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)), but none of those are common or intuitive to figure out.
+Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by throwing slightly lower or higher passes, many four-handed siteswaps have equivalent ten-handed versions, such as *French three-count* with very lofty singles ([jkf](https://passist.org/siteswap/jkf?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)) and *seven-count popcorn* with either lofty zaps or doubles ([efkfkfk](https://passist.org/siteswap/efkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl) or [lfkfkfk](https://passist.org/siteswap/lfkfkfk?jugglers=5&hands=ar-dr-br-er-cr-al-dl-bl-el-cl)), but none of those are common or intuitive to figure out.
 
 ## Trapezoid (5 passers)
 

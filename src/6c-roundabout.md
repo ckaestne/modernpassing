@@ -20,7 +20,7 @@ It is kind of the *6-club four-count* of manipulator patterns:
 (3) it is the first manipulator pattern that many passers learn, but not a great intro pattern (we recommend [Nicki's three-count roundabout](6a-intro.md) as the first manipulator pattern to learn), 
 (4) it has many [variations](6d-roundabout-variations.md) and tricks to explore,
 and (5) it is entirely right-handed with many more interesting patterns to move on to afterward.
-It is now so common that it has recently made it into juggling games the the IJA and ECJ festivals. 
+It is now so common that it has recently made it into juggling games at the IJA and ECJ festivals. 
 
 
 <sync-group video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4">
@@ -31,7 +31,7 @@ positions: Line(A,B)
 </sync-group>
 
 
-The Roundabout is based on 6-club four-count and the manipulator has the following actions on right-handed beats: 
+The *Roundabout* is based on *6-club four-count* and the manipulator has the following actions on right-handed beats: 
 * Beat 1: Starting in the middle of the pattern between the passing lanes, M substitutes a pass from A to B. The canonical version is to steal the pass early with the left hand and place the other club with M's right hand into B's left hand from below. After the substitution M zips the stolen club to the right hand, holding it on the body, to get ready for the next step.
 * Beat 3: Now standing in front of B, M substitutes B's right-hand self. The canonical version is for M to steal the self late catching the handle, and then to spin out clockwise to the right side of B (the rotation following the hand movement that steals the self), placing the other club in M's right hand into B's left hand after the turn when standing next to B (this is commonly known as the *German turn*). B usually helps by throwing an underspun easy to catch self (a *[pelf](6a-intro.md)*). Again, after the substitution, M zips their remaining club from their left to the right hand, holding it on the handle, to get ready for the next step.
 * Beat 5: On this beat both A and B pass, but M intercepts the pass that would have gone to B, catching it with their left hand. Usually A helps by throwing the pass wider as M stands next to B. After this, the passer previously in the B role becomes the new manipulator.

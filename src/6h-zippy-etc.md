@@ -8,7 +8,7 @@
 
 </progressions>
 
-All standard scrambled and ambled patterns are right-handed and use four-count or two-count as the base pattern. *Zippy* is based on a [rotating pass-pass-self feed](5d-moving.md) is a good starting point to explore patterns with more interesting base patterns and even a left-handed takeout.
+All standard scrambled and ambled patterns are right-handed and use *four-count* or *two-count* as the base pattern. *Zippy* is based on a [rotating pass-pass-self feed](5d-moving.md) is a good starting point to explore patterns with more interesting base patterns and even a left-handed takeout.
 
 ## Zippy
 
@@ -24,7 +24,7 @@ move: Vmove(B,4.2,3.7)
 Hints: Some find counting aloud 1 to 8 useful to keep the time and coordinate what to do. The first manipulation is left-handed. The manipulator should turn quickly out to the left of A after placing that substitution to make place for A's pass on beat 4. Then, the manipulator catches two clubs in a row, and B and C can make it easy by throwing them lofty. B starts walking after their pass on beat 5 (or even slightly earlier). The previous A is now the new manipulator, carries the pass, and then substitutes a pass, *while* B is walking, stepping quickly out to the left at the end to open B's passing lane. At the end, the manipulator has two zips (beat 8 and 1) that usually come naturally -- the first zip is often automatic and the second happens when realizing that the next substitution is left-handed. Canonically, one of those two zips should be behind the back.
 
 
-When Zippy became popular, some in the community started exploring variations on the same base pattern, and found [81 variations](https://passing.zone/zippy_1/). Of course, it is also possible to combine various combinations of those for a 5-person pattern, for example, *[Chippy-Zippy](https://passing.zone/chippy-zippy/)*.
+When *Zippy* became popular, some in the community started exploring variations on the same base pattern, and found [81 variations](https://passing.zone/zippy_1/). Of course, it is also possible to combine various combinations of those for a 5-person pattern, for example, *[Chippy-Zippy](https://passing.zone/chippy-zippy/)*.
 
 ## Beyond Zippy
 
@@ -73,7 +73,7 @@ move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,5)
 
 The 5-person pattern is a north-wall pattern with two sides, but the two 4-person patterns again have two passers do the right-handed sequence and two passers do the left-handed sequence.
 
-**MiniEd.** MiniEd is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three-count (C on beat 2 and A on beat 4) as the base pattern. 
+**MiniEd.** *MiniEd* is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three-count (C on beat 2 and A on beat 4) as the base pattern. 
 
 <sync-group video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
 A: 3pB 3pC 3  3pB 3   3 -- B

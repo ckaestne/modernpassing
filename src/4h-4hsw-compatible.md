@@ -19,7 +19,7 @@ Matching compatible siteswaps also helps to stabilize passes for a passing partn
 
 ## Theory: What makes two siteswaps compatible?
 
-Two patterns are compatible if they have the same length and the same sequence of *catching* passes and non-passes. The sequence of catching passes and non-passes is the *interface*. For example, 744 and 768 both require catching one pass followed by two non-passes (interface *pxx*), and 972 and 978 require catching two passes followed by one non-pass (interface *ppx*). 
+Two patterns are compatible if they have the same length and the same sequence of *catching* passes and non-passes. The sequence of catching passes and non-passes is the *interface*. For example, *744* and *768* both require catching one pass followed by two non-passes (interface *pxx*), and *972* and *978* require catching two passes followed by one non-pass (interface *ppx*). 
 
 Importantly, it does not matter when clubs are thrown, but when they land, since it only matters whether an incoming club comes from another passer or one-self. For example, in *maybe* (72786), the passer throws two consecutive singles, but in *maybe not* (96627), the passer throws a double and a single a pass apart -- nevertheless, in both cases the passes arrive on consecutive beats, so they are compatible with the interface *ppxxx*.
 
@@ -47,13 +47,13 @@ Here is a table with the compatibility of some common period 1, 3 and 5 siteswap
 
 ## Even-length siteswaps
 
-In siteswaps of an even length, both passers perform their own sequence. The most common example of this is *8-club one-count on singles versus doubles*, which is simply the siteswap 97:
+In siteswaps of an even length, both passers perform their own sequence. The most common example of this is *8-club one-count on singles versus doubles*, which is simply the siteswap *97*:
 
 <siteswap style='{"iterations": 6, "startingJuggler": 1}'>97</siteswap>
 
 All combinations of two odd-length siteswaps, discussed above, turn into even-length siteswaps. For example, the combination of *maybe* (72786) and *maybe not* (96627) turns into the siteswap **7**2**7**9**6**6**2**7**8**6, as visible in the diagram above. Since it is interleaving the *local* actions of each passer and requires finding the right start, doing this combination manually is nontrivial.
 
-More interestingly, even-length siteswaps open possibilities for combining two sequences that are *not* a valid four-handed siteswap on their own. A typical example is 777726, where the passers throw pass-pass-zip (very good for beginners after one-counts) versus pass-pass-self:
+More interestingly, even-length siteswaps open possibilities for combining two sequences that are *not* a valid four-handed siteswap on their own. A typical example is *777726*, where the passers throw pass-pass-zip (very good for beginners after one-counts) versus pass-pass-self:
 
 <siteswap>777726</siteswap>
 

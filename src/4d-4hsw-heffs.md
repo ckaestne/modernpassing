@@ -12,7 +12,7 @@
 
 <siteswap>78627</siteswap>
 
-There is also a 5-club version (78622) and the similar pattern *not why* (72867).
+There is also a 5-club version (*78622*) and the similar pattern *not why* (72867).
 
 **French three-count (786).** A very common 7-club pattern and a great foundation for many harder siteswaps.
 
@@ -32,4 +32,4 @@ Notice that *French three-count* (786), *five-count popcorn* (78686), and *seven
 
 <siteswap>7778686</siteswap>
 
-**Other similar patterns to try.** 72867 (not why), 72786 (maybe), 8677777 (Mojito), 7868686 (seven-count popcorn), 7888882 (seven-count popcorn variation).
+**Other similar patterns to try.** *not why* (72867), *maybe* (72786), *Mojito* (8677777), *seven-count popcorn* (7868686), *seven-count popcorn* variation (7888882).

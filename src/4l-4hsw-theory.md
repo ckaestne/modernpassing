@@ -4,7 +4,7 @@
 
 <div class="right" style="width:300px">
 
-![Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)](https://upload.wikimedia.org/wikipedia/commons/d/d1/Siteswap_relative_visualized.png)
+![Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)](figures/Siteswap_relative_visualized.png)
 *Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)*
 
 </div>
@@ -46,34 +46,34 @@ The same way we define a four-hand sequence for two passers, we can define a six
 ## Transforming siteswaps
 There are a number of common transformations that can be used to transform a pattern into other patterns.
 
-**Adding/removing clubs.** It is possible to add the length of the siteswap to any individual throw to get a pattern with one more object. For example, the 6-club pattern 972 of length 3, can be transformed into the 7-club pattern 975 (holy grail) by adding 3 to the last throw, and then be transformed into the 8-club pattern 978 by adding 3 to that throw again, which can then be transformed into the 9-club pattern 9a8 by adding 3 to the second throw. Conversely, removing the length of the pattern from any throw yields a pattern with one club less, such as transforming the 6-club pattern 972 into the 5-club patterns 672 (5-club one-count) or 942. 
+**Adding/removing clubs.** It is possible to add the length of the siteswap to any individual throw to get a pattern with one more object. For example, the 6-club pattern *972* of length 3, can be transformed into the 7-club pattern *975* (*holy grail*) by adding 3 to the last throw, and then be transformed into the 8-club pattern *978* by adding 3 to that throw again, which can then be transformed into the 9-club pattern *9a8* by adding 3 to the second throw. Conversely, removing the length of the pattern from any throw yields a pattern with one club less, such as transforming the 6-club pattern *972* into the 5-club patterns *672* (*5-club one-count*) or *942*. 
 
 This transformation is useful in many passing patterns to make them incrementally harder (or easier) without changing the pattern otherwise. In siteswaps of length 3, all zips can be turned into zaps, all zaps can be turned into heffs, all flips into singles, all singles into trelfs, and all selfs into doubles  -- and vice versa. In siteswaps of length 5, all zips can be turned into singles (e.g., 777**2**2 to 777**7**2 and 5**2**585 to 8**7**585), and, in siteswaps of length 7, all zips can be turned into doubles.
 
-It is also possible to add 1 to every throw to add a club to the pattern, for example, turning the 6-club pattern 45678 into the 7-club pattern 56789 and turning 77786 (funky bookends) into 88897. However, this usually changes the character of the pattern substantially.
+It is also possible to add 1 to every throw to add a club to the pattern, for example, turning the 6-club pattern *45678* into the 7-club pattern *56789* and turning *77786* (*funky bookends*) into *88897*. However, this usually changes the character of the pattern substantially.
 
 **Swapping throws.** Siteswaps get their name from a manipulation that *swaps* the landing places of two throw *sites*. Any two throws in a pattern can be changed such that the first throw lands where the second would have landed and the second lands where the first would have landed. This is the logic behind *early doubles:* Throw a higher pass earlier to where the normal pass would have landed and then make up for it with a lower throw later instead of the original pass -- the two throws have swapped their landing sites. Generally two throws *x* and *y* that are *n* beats apart can swap into *y+n* and *x-n* -- for example transforming solo siteswap **44**1 into **53**1 and **5**3**1** into **3**3**3**.
 
 This transformation is commonly useful in four-handed siteswaps to think of compatible variations of a pattern, such as early doubles or extra trelfs, either as a one-time trick throw or as a different pattern.
 In practice, we are usually interested in transformations from the perspective of one passer, thus transform two consecutive throws of one passer, which are two beats apart in the siteswap. For example, we can turn the local sequence single-single into double-zap (e.g., **7**7**7**22 to **9**7**5**22) or heff-pass into double-self (e.g., 77**8**6**7** to 77**9**6**6**).
 
-**Repeating and shifting the pattern.** It is probably obvious at this point, but 7, 77, and 777 are effectively the same pattern, as are 786 and 786786. Also 786, 867, and 678 are the same pattern, just shifting the start. In lists, siteswaps are usually normalized -- without repetitions and starting with the highest throw -- rather than selected for a convenient start.
+**Repeating and shifting the pattern.** It is probably obvious at this point, but *7*, *77*, and *777* are effectively the same pattern, as are *786* and *786786*. Also *786*, *867*, and *678* are the same pattern, just shifting the start. In lists, siteswaps are usually normalized -- without repetitions and starting with the highest throw -- rather than selected for a convenient start.
 
-To create compatible siteswaps it is useful to repeat an odd-length siteswap twice and then manipulate the resulting even-length siteswap with another transformation. For example, 786**7**8**6** can be transformed by swapping the landings of beat 4 and 6, resulting in 786**8**8**5**, that is, creating the compatible siteswaps 786 and 858.
+To create compatible siteswaps it is useful to repeat an odd-length siteswap twice and then manipulate the resulting even-length siteswap with another transformation. For example, 786**7**8**6** can be transformed by swapping the landings of beat 4 and 6, resulting in 786**8**8**5**, that is, creating the compatible siteswaps *786* and *858*.
 
 ## Diagrams
 
 Several diagrams are common to depict siteswaps, usually developed for solo siteswaps. For example, just like we illustrate passer A and passer B on separate lines, in a solo siteswap a diagram may show the alternating actions of the right and left hand in two lines.
 
-Moreover, there are two common ways of showing the throws in a pattern as lines: ladder diagrams and causal diagrams. In a *ladder diagram*, a line illustrates the path of an object from where it is thrown to where it is thrown again next. This is a ladder diagram for French three-count (786):
+Moreover, there are two common ways of showing the throws in a pattern as lines: ladder diagrams and causal diagrams. In a *ladder diagram*, a line illustrates the path of an object from where it is thrown to where it is thrown again next. This is a ladder diagram for *French three-count* (786):
 
 <siteswap style='{"showLines": true, "lineKind": "ladder", "iterations":6, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>786</siteswap>  
 
-In such diagram, we can observe the path that a club takes, for example, that the self in 786 is always the same club and that all heffs turn into a passes.
+In such diagram, we can observe the path that a club takes, for example, that the self in *786* is always the same club and that all heffs turn into a passes.
 
 Note that a throw lands quite a bit before it gets thrown again. It lands somewhere between the beat it is thrown again and the previous action of the same hand happening 4 beats earlier in a four-handed siteswap. This previous action is necessary to empty the hand to catch the incoming throw -- we say that that action was *caused* by the incoming throw.
 
-A *causal diagram* illustrates how throws cause the passer to do other actions to empty their hands, that is, they illustrate which throw triggers which other throw rather than illustrating the path of individual objects. This is the causal diagram for the same pattern French three-count (786):
+A *causal diagram* illustrates how throws cause the passer to do other actions to empty their hands, that is, they illustrate which throw triggers which other throw rather than illustrating the path of individual objects. This is the causal diagram for the same pattern *French three-count* (786):
 
 <siteswap style='{"showLines": true, "lineKind": "causal", "iterations":6, "lineWidth":3,"lineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
 
@@ -83,27 +83,27 @@ In the passing community, ladder diagrams are rarely used other than for determi
 
 ## How to start a pattern
 
-**Determining starting hands.** In a ladder diagram, it is very easy to see which hand starts with how many clubs, simply by counting the beats in the beginning without incoming lines. In the ladder diagram for French three-count diagram above, we can see that passer A throws four throws (two right and two left handed) before throwing the first caught club (a self) and passer B throws three throws before rethrowing a caught club.
+**Determining starting hands.** In a ladder diagram, it is very easy to see which hand starts with how many clubs, simply by counting the beats in the beginning without incoming lines. In the ladder diagram for *French three-count* diagram above, we can see that passer A throws four throws (two right and two left handed) before throwing the first caught club (a self) and passer B throws three throws before rethrowing a caught club.
 
-This also works for less intuitive starts like the start of 972, where we can see that passer A has only one right-handed throw without an incoming club but two left-handed throws:
+This also works for less intuitive starts like the start of *972*, where we can see that passer A has only one right-handed throw without an incoming club but two left-handed throws:
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>972</siteswap>  
 
 Similarly, we can count the hand without incoming lines in causal diagram and add one club to each hand (one less if the very first action is a zip).
 
-**Avoid skipping initial beats.** Some common patterns are often taught with starts that skip the first beat for the second passer. For example, it is common to start 7-club three-count with a right-handed straight double, and for the other passer to start "as late as possible" with a right-handed crossing double, which should be *three beats later*. This works but requires to practice a new timing. We argue it is better to start all four-handed siteswaps one beat apart, that is, passer A should start with a crossing double from the right hand and passer B should start just afterward with a self from the right hand, followed by a straight double from the left hand as clearly indicated by the notation:
+**Avoid skipping initial beats.** Some common patterns are often taught with starts that skip the first beat for the second passer. For example, it is common to start *7-club three-count* with a right-handed straight double, and for the other passer to start "as late as possible" with a right-handed crossing double, which should be *three beats later*. This works but requires to practice a new timing. We argue it is better to start all four-handed siteswaps one beat apart, that is, passer A should start with a crossing double from the right hand and passer B should start just afterward with a self from the right hand, followed by a straight double from the left hand as clearly indicated by the notation:
 
 <siteswap>966</siteswap>
 
 **Selecting a beat to start.** Since siteswaps can be shifted, it is possible to start on every beat. There is no single right way to start a siteswap, but some starts are usually better than others.
 
-We usually do not consider starts where a club would need to be caught with a non-empty hand, such as the first throw of starting 972 on the 2:
+We usually do not consider starts where a club would need to be caught with a non-empty hand, such as the first throw of starting *972* on the 2:
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder", "iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>297</siteswap>  
 
 Beyond that, we usually prefer starts where (1) the first throw of passer A is a pass, (2) the first throw of passer B is a pass, (3) the number of starting clubs is the same in both hands or the right hand has one more club, and (4) the number of starting clubs are relatively balanced between the passers. 
 
-It is not always possible to satisfy all four preferences. For example, among the two remaining starts of 972, both violate at least one preference: Starting with the double requires passer A to start with two clubs in the left hand (violating preference 3). Starting with the single requires passer B to start with a non-pass, with two clubs in the right and an empty left hand (violating preferences 2 and 3). Despite not satisfying all preferences, the start with the double seems overall the better start.
+It is not always possible to satisfy all four preferences. For example, among the two remaining starts of *972*, both violate at least one preference: Starting with the double requires passer A to start with two clubs in the left hand (violating preference 3). Starting with the single requires passer B to start with a non-pass, with two clubs in the right and an empty left hand (violating preferences 2 and 3). Despite not satisfying all preferences, the start with the double seems overall the better start.
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>729</siteswap>
 
@@ -125,4 +125,4 @@ A *trelf* is a more recent attempt to disambiguate triple selfs from triple pass
 
 The *zap* was originally discovered when playing with the early passing animator [JoePass!](http://koelnvention.de/w/?page_id=151) Based on the software's name, they were sometimes called *joe passes,* but now the name zap is much more common.
 
-In this book, I use *passer A* and *passer B* and assume that passer A starts and throws straight single passes and crossing zaps and doubles. This is arbitrary. When agreeing on a side, it is common to negotiate who is throwing straight and crossing passes. As a running gag, some in the community have adopted *"James"* as the name for the passer with straight singles and *"Not James"* as the name for the passer with crossing singles. Alternatively, some have suggested *"James"* and *"Jims,"* because the latter throws crossing singles as in Jim's three-count.
+In this book, I use *passer A* and *passer B* and assume that passer A starts and throws straight single passes and crossing zaps and doubles. This is arbitrary. When agreeing on a side, it is common to negotiate who is throwing straight and crossing passes. As a running gag, some in the community have adopted *"James"* as the name for the passer with straight singles and *"Not James"* as the name for the passer with crossing singles. Alternatively, some have suggested *"James"* and *"Jims,"* because the latter throws crossing singles as in *Jim's three-count*.

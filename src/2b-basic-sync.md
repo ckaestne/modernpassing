@@ -21,7 +21,7 @@ In *two-count* every right-hand throw is a pass; the left hand only throws selfs
 
 <crossreference>For a more modern version, try *6-club three-count* or *6-club one-count* instead, or the [beginner four-handed siteswaps](4b-4hsw-beginner.md).</crossreference>
 
-**6-club one-count.** The 6-club one-count from [learning to pass](1-learn-teach.md) (also known as *ultimates*, old name *thundershower*) is the easiest synchronous pattern for beginners to learn when they have a stronger passer as partner, because all throws are the same. Both passers pass from their right hand at the same time and then again from the left hand at the same time.
+**6-club one-count.** The *6-club one-count* from [learning to pass](1-learn-teach.md) (also known as *ultimates*, old name *thundershower*) is the easiest synchronous pattern for beginners to learn when they have a stronger passer as partner, because all throws are the same. Both passers pass from their right hand at the same time and then again from the left hand at the same time.
 
 **6-club three-count (pass-self-self).** A good pattern to introduce selfs after one-count is *three-count* (old name *waltz*) with both passers counting pass-self-self. The pattern is ambidextrous, so has both right-hand and left-hand passes. Note that two clubs are always passed and the other clubs are always selfed – each club received as a pass gets thrown back as a pass again. Using two clubs of a different color to highlight the passes can help beginners remember when to pass.
 
@@ -40,7 +40,7 @@ The same idea also works with triple passes. Any self-self-pass combination can 
 
 When first learning doubles and triples, focus on throwing them high and at the same distance as the singles. Again, avoid spinning clubs from the wrist – if the pass arrives underspun, add height from moving the entire lower arm.
 
-**Variations on selfs.** As solo jugglers might know, every two selfs can be replaced by heff-flip (as in solo siteswap 342) and every three selfs can be replaced by trelf-self-zip or heff-heff-zip (as in solo siteswaps 531 and 441). These can be easily integrated as tricks in *three-count* and *four-count*.
+**Variations on selfs.** As solo jugglers might know, every two selfs can be replaced by heff-flip (as in solo siteswap *342*) and every three selfs can be replaced by trelf-self-zip or heff-heff-zip (as in solo siteswaps *531* and *441*). These can be easily integrated as tricks in *three-count* and *four-count*.
 
 <sync style='{"emphasizeThrows": [[0,4],[0,5],[1,4],[1,5]], "iterations": 1 }'>3p33 3p33 3p33,3p33 3p42 3p33</sync>
 

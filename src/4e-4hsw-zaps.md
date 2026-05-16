@@ -22,7 +22,7 @@ Once this is stable, replace the *wait-wait* with a *self-zip* (56662) to make i
 
 <siteswap>564</siteswap>
 
-**552, 522, and 5.** Nice warm-up patterns to lean into zaps with 4, 3, and 5 clubs. In 522, try doing one of the zips behind the back. 5 is simply a very fast one-count with 5 clubs.
+**552, 522, and 5.** Nice warm-up patterns to lean into zaps with 4, 3, and 5 clubs. In *522*, try doing one of the zips behind the back. *5* is simply a very fast one-count with 5 clubs.
 
 <siteswap>552</siteswap>
 
@@ -30,4 +30,4 @@ Once this is stable, replace the *wait-wait* with a *self-zip* (56662) to make i
 
 <siteswap>756</siteswap>
 
-**Other patterns to try.** 56252, 75666, Katzi (75724), Funky magazine rack (55564), 75625.
+**Other patterns to try.** *56252*, *75666*, *Katzi* (75724), *Funky magazine rack* (55564), *75625*.

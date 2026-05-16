@@ -11,7 +11,7 @@
 
 </progressions>
 
-Ambeled patterns are extra-club versions of scrambled patterns, juggled on double passes. They are all based on the [extra-club rotating feed](5d-moving.md) in two-count vs four-count. Since the extra club is distributed across three, not two passers, ambled patterns are more approachable than [extra-club roundabout](6d-roundabout-variations.md) patterns.
+Ambled patterns are extra-club versions of scrambled patterns, juggled on double passes. They are all based on the [extra-club rotating feed](5d-moving.md) in *two-count* vs *four-count*. Since the extra club is distributed across three, not two passers, ambled patterns are more approachable than [extra-club roundabout](6d-roundabout-variations.md) patterns.
 
 
 ## Ambled V
@@ -34,7 +34,7 @@ Several other scrambled patterns work with the same base pattern, for example *A
 
 ## Ambled 3
 
-The double passes, timing differences, and the extra beat create some challenges, so that not all patterns can be translated into ambled patterns easily, and some not at all. Ambled 3 is one of those patterns that needed a new solution.
+The double passes, timing differences, and the extra beat create some challenges, so that not all patterns can be translated into ambled patterns easily, and some not at all. *Ambled 3* is one of those patterns that needed a new solution.
 
 <TODO-manipulator-sync >
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B
@@ -54,6 +54,7 @@ This can be difficult to read this all in the Aidan notation. The problem is tha
 ## Unicorn Charge (5 Persons)
  
 Just as multiple scrambled manipulators can be combined in the same pattern, the same can be done for ambled patterns. The most common one is *Unicorn Charge*, which is the extra-club version of [*Scrambled 3-V*](6f-aidan-patterns.md), combining the manipulators of *Ambled V* and *Ambled 3*.
+
 
 <TODO-manipulator-sync video="https://juggling.tv/16543">
 A: 4pBx3  4pCx3  4pBx3  4pCx -- B

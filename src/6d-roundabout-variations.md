@@ -9,13 +9,13 @@
 </progressions>
 
 
-There are many variations of Roundabout, patterns that incorporate Roundabout in larger group patterns, and patterns that are conceptually similar to the traditional Roundabout.
+There are many variations of *Roundabout*, patterns that incorporate *Roundabout* in larger group patterns, and patterns that are conceptually similar to the traditional *Roundabout*.
 
 
 
 ## Conceptually Related Patterns
 
-After the standard Roundabout, there are a number of other 3-person patterns that are one-sided with all right-handed manipulations, each followed by a zip, that are good next patterns with only gently increased difficulty.
+After the standard *Roundabout*, there are a number of other 3-person patterns that are one-sided with all right-handed manipulations, each followed by a zip, that are good next patterns with only gently increased difficulty.
 
 **Chopabout.** The *Chopabout* is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B on the first beat (highlighted), the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. The same happens in the opposite direction on the fifth beat. The passer throwing the chop usually needs to prepare a beat early with a narrow self, but in a pinch a reverse spin zap or even a pelf or normal zap will do instead of a chop. The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but with some practice, the manipulator has enough time to look back to check and improve their placement.
 
@@ -27,7 +27,7 @@ M: SBcz SAlz SAcz SAlz IAv . CA
 
 All spinning in *Chopabout* is clockwise, including the German turn at the end (as in *Roundabout*) and on the carry (opposite to *Roundabout*). The manipulator spins continuously except for the substituted self after the first chop. Usually the carry is placed with the left hand, so that no zip is needed to catch the chop just afterward.
 
-**Three-count roundabouts.** Beyond [Nicki's three-count roundabout](6a-intro.md), there are two classic one-sided, right-handed *Roundabout* versions based on 6-club three-count.
+**Three-count roundabouts.** Beyond [Nicki's three-count roundabout](6a-intro.md), there are two classic one-sided, right-handed *Roundabout* versions based on *6-club three-count*.
 
 <!-- TODO: this breaks the assumptions of the automated carry computation, because the new B throws an unforced pass? -->
 
@@ -48,7 +48,7 @@ M: CB↺↑  z SBl↑ z   IB↺
 
 This one is fairly straightforward, except that there is little space to place the club for the substitution, because B throws a left-handed pass at that point. Therefore, the manipulator typically places the substitution from below, even though it is a self.
 
-**Champi.** Champi is a short, one-sided takeout pattern based on 6-club pass-pass-self that includes a chop on the fifth beat (see *Chopabout* above).
+**Champi.** *Champi* is a short, one-sided takeout pattern based on *6-club pass-pass-self* that includes a chop on the fifth beat (see *Chopabout* above).
 
 <sync-group video="https://passing.zone/champi/"  style='{"emphasizeThrows":[[1,4]]}'>
 A: 3pB 3pB 3   3pB 3pB 3 -- B
@@ -69,7 +69,7 @@ As many passers know the classic *Roundabout* so well, there are several more or
 
 <video link="https://passing.zone/roundabout-with-isolated-person/"></video>
 
-**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (192 beats, since each club goes through all positions in Roundabout in a single orbit), but it is a fun and silly exercise to try any segment of it.
+**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (192 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
 
 <video></video>
 
@@ -85,7 +85,7 @@ M: SBe z SBl z IBvo . CB↺ z
 N: SAe z SAl z IAvo . CA↺ z
 </sync-group>
 
-**Shooting star with Roundabout (5 to 7 passers).** A manipulator doing the Roundabout manipulation can be integrated into the moving pattern [Shooting star](5d-moving.md) in the variation where a passer walks after every other pass with *one* club. The manipulator simply does the roundabout sequence between C and A, swapping out the target passer who then does the roundabout sequence on the next segment of the star.
+**Shooting star with Roundabout (5 to 7 passers).** A manipulator doing the *Roundabout* manipulation can be integrated into the moving pattern [Shooting star](5d-moving.md) in the variation where a passer walks after every other pass with *one* club. The manipulator simply does the roundabout sequence between C and A, swapping out the target passer who then does the roundabout sequence on the next segment of the star.
 
 <sync-group>
 A: 3pD 333 3pD 333   -- C
@@ -108,7 +108,7 @@ Variations:
 
 
 
-**Bounceabout (4 passers).** Bounceabout is a fairly easy Roundabout-style pattern for four passers doing a kind of two-count vs. four-count feed in a [triangle formation](5c-static-groups.md). The takeout sequence is Roundabout-like but two beats longer, substituting a second pass (i.e., bounding off of one corner to the next) before substituting the self and swapping roles.
+**Bounceabout (4 passers).** *Bounceabout* is a fairly easy *Roundabout*-style pattern for four passers doing a kind of *two-count* vs. *four-count* feed in a [triangle formation](5c-static-groups.md). The takeout sequence is Roundabout-like but two beats longer, substituting a second pass (i.e., bounding off of one corner to the next) before substituting the self and swapping roles.
 
 
 <sync-group>

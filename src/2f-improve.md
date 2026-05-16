@@ -4,7 +4,7 @@
 There are a number of common problems in passing patterns and a number of tips and exercises to improve.
 
 
-**Slow down.** Most patterns become easier to juggle if the pattern is slower and passes are lofty. Go back to 5-club one-count (see [learning to pass](1-learn-teach.md)) to practice lofty single passes and experiment with early doubles (see [basic synchronous patterns](2b-basic-sync.md)) to practice double passes. Similarly, beginners often throw heffs and trelfs fairly low and thus fast, rushing the rest of the pattern.
+**Slow down.** Most patterns become easier to juggle if the pattern is slower and passes are lofty. Go back to *5-club one-count* (see [learning to pass](1-learn-teach.md)) to practice lofty single passes and experiment with early doubles (see [basic synchronous patterns](2b-basic-sync.md)) to practice double passes. Similarly, beginners often throw heffs and trelfs fairly low and thus fast, rushing the rest of the pattern.
 
 About 110 to 120 beats per minute is a typical reasonable speed for synchronous 6-club patterns, 90 beats per minute is possible to deliberately slow down, and 130–160 beats per minute would be on the fast end. For galloped patterns these higher speeds are common, and for [fully synchronized patterns](2e-beyond.md), 100–120 beats per minute is normal (i.e., effectively twice the speed of a normal pattern).
 

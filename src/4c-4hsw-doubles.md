@@ -19,7 +19,7 @@
 
 <siteswap>9964966</siteswap>
 
-**972.** A great pattern to combine singles and doubles, one of them crossing, so both thrown to the same hand ("stacks"). Note: Juggler A starts with one club in the right hand and two in the left.
+**972.** A great pattern to combine singles and doubles, one of them crossing, so both thrown to the same hand ("stacks"). Note: Passer A starts with one club in the right hand and two in the left.
 
 <siteswap>972</siteswap>
 
@@ -35,4 +35,4 @@
 
 <siteswap>996</siteswap>
 
-**Other similar patterns to try.** *96627* (Maybe not), 9647772 (Odnom), 9669667 (Placebo), 9797926 (Moscow Mule)
+**Other similar patterns to try.** *Maybe not* (96627), *Odnom* (9647772), *Placebo* (9669667), *Moscow Mule* (9797926)

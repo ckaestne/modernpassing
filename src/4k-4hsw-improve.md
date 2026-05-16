@@ -12,19 +12,19 @@
 
 This is a collection of advice for common problems in four-handed siteswaps.
 
-**Slow down.** The single pass in four-handed siteswaps should be slow and lofty. In particular, the crossing single should be high enough that the partner can comfortably pass below the incoming passes. Return to 5-club one-count (744 or 726) to calibrate singles or practice with increasingly fewer zips from 77722 (Parsnip) to 77772 (Martin's one-count) to 7 (7-club one-count). 
+**Slow down.** The single pass in four-handed siteswaps should be slow and lofty. In particular, the crossing single should be high enough that the partner can comfortably pass below the incoming passes. Return to *5-club one-count* (744 or 726) to calibrate singles or practice with increasingly fewer zips from *Parsnip* (77722) to *Martin's one-count* (77772) to *7-club one-count* (7). 
 
 **Request feedback.** Most passers are not good about giving feedback, at it often gets worse as they get better and can catch more things. Explicitly request feedback, possibly direct feedback on every pass while juggling the pattern.
 
-**Watch your passes land.** Conversely, aim to rely less on feedback by watching your passes land where possible. This will not work for all patterns, but for many. For example, set it as a goal to watch doubles land in siteswaps of length 3 (e.g., 966, 972) -- this is challenging but eventually possible when the incoming passes are decent.
+**Watch your passes land.** Conversely, aim to rely less on feedback by watching your passes land where possible. This will not work for all patterns, but for many. For example, set it as a goal to watch doubles land in siteswaps of length 3 (e.g., *966*, *972*) -- this is challenging but eventually possible when the incoming passes are decent.
 
 **When learning a siteswap, switch starts.** When it is difficult to get a full round of a pattern, it often helps to have both passers start with the same throws but start left-handed. This allows them to practice the second side of the pattern and come afterward to the already-practiced first side.
 
-**Make zips and flips a full beat.** Zips often happen very fast and automatic. Many passers may not even notice that they are doing them, which can make a pattern like *Parsnip* (77722) tricky to learn. Passers who have learned *why not* (78627) and *Jim's two-count* (74667) as synchronous patterns are used to very quick zips. Since zips are so fast, the are often used to fudge the timing, which on the one hand can help make patterns like 972 much more forgiving, but on the other hand can also screw up the timing of a pattern. Try make zips a full beat; to force this try to hand the zip between both hands behind the back. In particular patterns with two consecutive zips, like 77272 and 522, can be fun by handing one zip in the back and the other in the front.
+**Make zips and flips a full beat.** Zips often happen very fast and automatic. Many passers may not even notice that they are doing them, which can make a pattern like *Parsnip* (77722) tricky to learn. Passers who have learned *why not* (78627) and *Jim's two-count* (74667) as synchronous patterns are used to very quick zips. Since zips are so fast, the are often used to fudge the timing, which on the one hand can help make patterns like *972* much more forgiving, but on the other hand can also screw up the timing of a pattern. Try make zips a full beat; to force this try to hand the zip between both hands behind the back. In particular patterns with two consecutive zips, like *77272* and *522*, can be fun by handing one zip in the back and the other in the front.
 
 <siteswap style='{"emphasizeThrows": [[0,2],[0,4],[1,7],[1,9]], "emphasizeLines": [[0,4],[1,9]]}'>77272</siteswap> 
 
-Similarly, patterns with 4s are easier to juggle in a consistent rhythm if the club is flipped rather than just held. For example, actually flip the club in the pause of Jim's three-count (7746666) to juggle the pattern as fully asynchronous siteswap rather than a (nearly) synchronous pattern with hurries.
+Similarly, patterns with 4s are easier to juggle in a consistent rhythm if the club is flipped rather than just held. For example, actually flip the club in the pause of *Jim's three-count* (7746666) to juggle the pattern as fully asynchronous siteswap rather than a (nearly) synchronous pattern with hurries.
 
 <siteswap style='{"emphasizeThrows": [[0,2],[1,9]]}'>7746666</siteswap> 
 

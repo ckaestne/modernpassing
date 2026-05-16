@@ -37,7 +37,7 @@ The same idea also works in passing patters, where the manipulator can steal and
 
 [video]
 
-Before diving into manipulator patterns, it is useful to practice takeouts with a partner or with two partners doing a simple passing pattern, such as 6-club two-count. It can be useful to have two clubs of a different color, one for the manipulator and one for the pattern, to then substitute every right-handed throw of that club. When the manipulator is getting better, they usually can take out every second throw, such as every right-handed self or every pass in two-count. The very old takeout pattern *Wally Walk* ([Video](https://www.youtube.com/watch?v=6IsHw9nd8m4)) does this continuously on a four-count. There is no role switching for these takeout practice patterns, so the passers should take turn who practices the takeouts. 
+Before diving into manipulator patterns, it is useful to practice takeouts with a partner or with two partners doing a simple passing pattern, such as *6-club two-count*. It can be useful to have two clubs of a different color, one for the manipulator and one for the pattern, to then substitute every right-handed throw of that club. When the manipulator is getting better, they usually can take out every second throw, such as every right-handed self or every pass in *two-count*. The very old takeout pattern *Wally Walk* ([Video](https://www.youtube.com/watch?v=6IsHw9nd8m4)) does this continuously on a *four-count*. There is no role switching for these takeout practice patterns, so the passers should take turn who practices the takeouts. 
 
 
 

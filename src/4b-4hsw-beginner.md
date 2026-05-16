@@ -11,7 +11,7 @@
 
 </progressions>
 
-**5-club one-count (744 and 726).** Note how 5-club one-count (from [learn to pass]()) is actually the four-handed siteswap 744
+**5-club one-count (744 and 726).** Note how *5-club one-count* (from [learn to pass]()) is actually the four-handed siteswap *744*
 
 <siteswap>744</siteswap>
 
@@ -33,9 +33,9 @@ When you get more comfortable with the pattern, try flipping the 4s or throw sel
 
 <siteswap>7777266</siteswap>
 
-**Jim's three-count, async (7746666).** An four-handed siteswap version of Jim's three-count (see [Jim's patterns]()) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. (There are siteswap version for all Jim's patterns)
+**Jim's three-count, async (7746666).** An four-handed siteswap version of *Jim's three-count* (see [Jim's patterns]()) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. (There are siteswap version for all Jim's patterns)
 
 <siteswap>7746666</siteswap>
 
-**Other similar patterns to try.** 77272, 774, 77466 (Jim's two-count), 7742744, 7747746
+**Other similar patterns to try.** *77272*, *774*, *Jim's two-count* (77466), *7742744*, *7747746*
 

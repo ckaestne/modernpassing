@@ -31,7 +31,7 @@ When learning *7-club two-count* aim for consistent passes. Since both passers c
 
 The patterns are indeed from the same family. By default, passers in synchronous patterns both start with the same hand and throw their singles straight and their doubles crossing. However, it is also possible to throw singles crossing and doubles straight, when one passer starts with the opposite hand.
 
-Strictly following the theory, the most obvious approach for 7-club two-count would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw, which is a right-handed pass for passer A and a right-handed self for passer B. This is actually a fairly nice pattern to allow one passer to practice left-handed doubles.
+Strictly following the theory, the most obvious approach for *7-club two-count* would be for both passers cross their doubles and for both passers to start at the same time with a right hand throw, which is a right-handed pass for passer A and a right-handed self for passer B. This is actually a fairly nice pattern to allow one passer to practice left-handed doubles.
 
 <sync style='{"iterations":4}'>4p3,34p</sync>
 
@@ -94,7 +94,7 @@ Other variations of *7-club pass-pass-self,* often with one side being substanti
 <crossreference>Try also [*techno*](2e-beyond.md), [*7-club three-count* (966)](4c-4hsw-doubles.md), and [*French three-count* (786)](4d-4hsw-heffs.md) for other three-count patterns with 7 clubs.</crossreference>
 
 
-**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (a three-count), *4p 4p 4* (a pass-pass-self pattern), *4p* (a one-count), and *4p 4 4 4* (a four-count). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
+**8-club patterns (not two-count).** For eight clubs there are obvious sequences of doubles and heffs that mirror standard 6-club patterns: *4p 4 4* (a *three-count*), *4p 4p 4* (a *pass-pass-self* pattern), *4p* (a *one-count*), and *4p 4 4 4* (a *four-count*). These are usually passed with crossing doubles, but can also be passed with straight doubles if one passer starts left-handed. For passers used to 9s in four-handed siteswaps it may be useful to lower the double passes a bit.
 
 <sync>4p44</sync>
 

@@ -90,7 +90,7 @@ positions: V(A,B,C)
 <crossreference>It is also possible to feed [Jim's patterns](2c-jims.md), but we recommend to treat them as four-handed siteswaps, see below.</crossreference>
 
 **Adding clubs to synchronous feeds.**
-It is possible to add extra clubs to a feed. The most common traditional pattern is a feeder passing [7-club two-count](2d-advanced.md) to two feedees passing 7-club four-count on doubles:
+It is possible to add extra clubs to a feed. The most common traditional pattern is a feeder passing [7-club two-count](2d-advanced.md) to two feedees passing *7-club four-count* on doubles:
 
 <sync-group>
 A: 4pBx34pCx3
@@ -122,6 +122,7 @@ There are many common feeds of four-handed siteswaps and it is easy to create mo
 
 **774 vs. 5-club one-count.** To integrate beginner's into a feed it is possible for a more experienced passer to feed two passers in *[5-club one-count](1-learn-teach.md)* with *[774](4b-4hsw-beginner.md)* or three passers in *5-club one-count* with *[7-club one-count](4b-4hsw-beginner.md)*.
 
+
 <siteswap-group>
 A: 7B7C4
 B: ,47A4
@@ -130,7 +131,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 **Mild madness vs. Jim's three-count.**
-Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Martin's mildness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps 7767746 and 7777266:
+Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Martin's mildness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps *7767746* and *7777266*:
 
 <siteswap-group>
 A: 7B7C267B7C6
@@ -140,7 +141,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 
-**Martin's one-count vs. why not.** For more experienced feedees, Martin's one-count (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees to wait for an incoming pass to trigger their heff is the easiest-to-remember start.
+**Martin's one-count vs. why not.** For more experienced feedees, *Martin's one-count* (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees to wait for an incoming pass to trigger their heff is the easiest-to-remember start.
 
 <siteswap-group>
 A: 7B7C7B7C2
@@ -182,7 +183,7 @@ positions: V(A,B,C)
 (It is possible for the feeder to throw both singles and doubles as straight passes if both feedees cross their passes.)
 
 
-**8-club pass-pass-self vs. 7-club three-count.** The siteswap 996 can naturally feed two feedees passing 966 for a total of 11 clubs.
+**8-club pass-pass-self vs. 7-club three-count.** The siteswap *996* can naturally feed two feedees passing *966* for a total of 11 clubs.
 
 <siteswap-group  style='{"flipStraightCrossing": true}'>
 A: 9B9C6
@@ -192,7 +193,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 
-For a challenge, add a club and have the feeder juggle 9-club one-count (on doubles) against against one feedee passing 996 and another passing 966. Or pass 9-club one-count against three feedees each passing 966.
+For a challenge, add a club and have the feeder juggle *9-club one-count* (on doubles) against against one feedee passing *996* and another passing *966*. Or pass *9-club one-count* against three feedees each passing *966*.
 
 
 **Creating custom siteswap feeds.** 

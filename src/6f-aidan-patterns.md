@@ -9,7 +9,7 @@
 </progressions>
 
 
-*Scrambled V* is a standard 4 person manipulator pattern that is widely known and the first that most people learn, just like Roundabout for 3 passers. It is based on a [rotating two-count vs four-count feed](5d-moving.md) where passers stand in a *V* formation. Beyond *Scrambled V*, there are 26 more 4-person patterns based on the same rotating feed with similar takeout actions.
+*Scrambled V* is a standard 4 person manipulator pattern that is widely known and the first that most people learn, just like *Roundabout* for 3 passers. It is based on a [rotating two-count vs four-count feed](5d-moving.md) where passers stand in a *V* formation. Beyond *Scrambled V*, there are 26 more 4-person patterns based on the same rotating feed with similar takeout actions.
 
 ## Scrambed V
 
@@ -31,7 +31,7 @@ Turning back: As in [moving patterns](5d-moving.md) and [other manipulator patte
 
 ## Toast
 
-*Toast* is another common pattern worth learning and remembering, where the manipulator substitutes a pass to B on beat 1, then jumps across the pattern in front of C to intercept the pass to C, from where the old C now starts with a carry to the old manipulator, as in Roundabout.
+*Toast* is another common pattern worth learning and remembering, where the manipulator substitutes a pass to B on beat 1, then jumps across the pattern in front of C to intercept the pass to C, from where the old C now starts with a carry to the old manipulator, as in *Roundabout*.
 
 <sync-group video="https://passing.zone/scrambled-variation-3-7-toast-sb-ic-cc/">
 A: 3pB3 3pC3 3pB3 -- B
@@ -101,7 +101,7 @@ Other combinations of common patterns are *[B on Toast](https://juggling.tv/5363
 
 When adding even more manipulators, there is very little juggling remaining as many throws get manipulated and the number of objects equals or exceeds the number of hands in the pattern, such as in the 6-person pattern *[Scrambled 3-B on Toast](https://juggling.tv/12061)* combining CCSAIB, IBCBSA, and SBICCC. 
 
-Many, but not all patterns can be combined. An obvious conflict occurs when two manipulators would manipulate the same club on the same beat -- for example *Scrambled V* (CBSBIC) and *Postman* (CBSCIC) both try to intercept the same pass. Having two manipulator interact, for example because one intercepts the carry from the other, as in *Scrambled V on Taost*, is possible but unintutive. Without those there are still 162 combinations of two and 190 combinations of three Aidan patterns, most of which have probably never been juggled. Lukas Bonauer created a [spreadsheet](https://docs.google.com/spreadsheets/d/1TkCM-1v-NUdi3ZipEUKCHRox4Q828yTKp4sOyzRprXw/edit?gid=1953212562#gid=1953212562) with all combinations. As a simple conservative heuristic, any two manipulators can be combined if their manipulator actions target distinct roles on each beats.
+Many, but not all patterns can be combined. An obvious conflict occurs when two manipulators would manipulate the same club on the same beat -- for example *Scrambled V* (CBSBIC) and *Postman* (CBSCIC) both try to intercept the same pass. Having two manipulator interact, for example because one intercepts the carry from the other, as in *Scrambled V on Toast*, is possible but unintutive. Without those there are still 162 combinations of two and 190 combinations of three Aidan patterns, most of which have probably never been juggled. Lukas Bonauer created a [spreadsheet](https://docs.google.com/spreadsheets/d/1TkCM-1v-NUdi3ZipEUKCHRox4Q828yTKp4sOyzRprXw/edit?gid=1953212562#gid=1953212562) with all combinations. As a simple conservative heuristic, any two manipulators can be combined if their manipulator actions target distinct roles on each beats.
 
 
 
@@ -111,7 +111,7 @@ Many, but not all patterns can be combined. An obvious conflict occurs when two 
 
 ## History and lore
 
-Scrambled V (like Roundabout) predates any notation for manipulator pattern and the predates the terminology of carry, substitute, and intercept. As far as I know, *Scrambled V* was the first of these patterns, named for the V formation. The patterns *B*, *3*, and *IV* were also very early and named for being the second, third, and fourth pattern in different numbering styles. *Toast* was named for the jump, like toast jumping in a toaster.
+*Scrambled V* (like *Roundabout*) predates any notation for manipulator pattern and the predates the terminology of carry, substitute, and intercept. As far as I know, *Scrambled V* was the first of these patterns, named for the V formation. The patterns *B*, *3*, and *IV* were also very early and named for being the second, third, and fourth pattern in different numbering styles. *Toast* was named for the jump, like toast jumping in a toaster.
 
 Aidan Burns' key insight was that all these patterns share the elements of what became known as carry, substitution, and intercept, and that these manipulator actions happen on every other beat. Around 2012, he suggested (a slightly earlier version) of the now common [Aidan notation](6b-notation.md) and identified that there are 27 different *scrambled* patterns that do the carry, substitute, and intercept actions on right-handed beats: 3 beats when the intercept can happen (first, third, or firth beat), 3 throws that can be intercepted on that beat (A, B, and C), and three passers that receive the substitution 4 beats after the intercept (A, B, and C), resulting in 3 * 3 * 3 = 27 combinations. Note, the recipient of the carry two beats after the intercept is decided by the intercept already: It is replaces the action that the intercepted passer would have done next with their right hand. 
 

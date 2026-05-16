@@ -31,7 +31,7 @@ A four-handed siteswap is written as a sequence of numbers such as *744*, *77722
 | 9    | Double | Double-spin pass; crossing for passer A, straight for passer B |
 | a    | Trelf | Triple-spin self |
 
-The number sequence describes the infinitely-repeating alternating actions of *two* passers; the first digit is the first action of passer A, the second digit is the first action of passer B, the third digit is the second action of passer A and so forth. A common and helpful way to think of (and write) siteswaps is to repeat a siteswap twice and alternate the numbers between two rows. Now we can read the actions of each passer in separate rows -- for example seeing that passer A starts with the sequence 7-8-4-5-6 (single-heff-flip-zap-self) in the siteswap 75864:
+The number sequence describes the infinitely-repeating alternating actions of *two* passers; the first digit is the first action of passer A, the second digit is the first action of passer B, the third digit is the second action of passer A and so forth. A common and helpful way to think of (and write) siteswaps is to repeat a siteswap twice and alternate the numbers between two rows. Now we can read the actions of each passer in separate rows -- for example seeing that passer A starts with the sequence 7-8-4-5-6 (single-heff-flip-zap-self) in the siteswap *75864*:
 
 <siteswap style='{"showLeftRight": false, "showStraightCross": false, "showStartingHands": false}'>75864</siteswap>
 

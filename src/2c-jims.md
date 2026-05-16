@@ -20,7 +20,7 @@ Even with the hurries, both passers should throw passes and selfs at roughly the
 <crossreference>See also the asynchronous version with a flip in [beginner four-handed siteswaps](4b-4hsw-beginner.md).</crossreference>
 
 
-**Jim's four-count and two-count.** The same idea of crossing passes, turns the one-sided four-count and two-count patterns into ambidextrous patterns with hurries. Here is the diagram and hand sequence for Jim's two-count.
+**Jim's four-count and two-count.** The same idea of crossing passes, turns the one-sided *four-count* and *two-count* patterns into ambidextrous patterns with hurries. Here is the diagram and hand sequence for *Jim's two-count*.
 
 <sync  style='{"emphasizeThrows": [[0,1],[1,3],[0,5],[1,7]],"throwTextSize": 22}'>3p3 3p3,3px3 3px3</sync>
 
@@ -36,7 +36,7 @@ pxspx**s**pxspx**s** -->
 <sync  style='{"emphasizeThrows": [[0,1],[1,2],[0,4],[1,6],[0,7],[1,9],[0,11],[1,12],[0,14],[1,16],[0,17],[1,19]],"throwTextSize": 22}'>3p3p33p3 3p3p33p3,3px3px33px3 3px3px33px3</sync>
 
 
-<crossreference>This pattern can be juggled as the four-handed siteswap 7747746677466.</crossreference>
+<crossreference>This pattern can be juggled as the four-handed siteswap *7747746677466*.</crossreference>
 
 
 **Why not.** The pattern *why not* is another popular after-the-basics pattern for many passers. It can be considered as a trick throw in *Jim's two-count:* Instead of the hurried self the passer throws a heff-zip combination with a hurried zip. Rather than fudging the timing in a synchronous pattern, we recommend to learn [*why not* as a four-handed siteswap](4d-4hsw-heffs.md).
