@@ -6,8 +6,10 @@ However, I would like to highlight a few specific contributions that were influe
 
 * Amiel Martin for developing and promoting the way of teaching passing with 5-club one-count, described early in this book
 * Brook and Cameron's workshop on holy grail
-* Brook **TODO consistent last names?**'s workshop on improving siteswaps and Toto's workshop on improving passing generally
-* Aidan Burn for the initial development for takeout notation and Ed for pushing that notation forward
-* Christian **H.** for passist
+* Brook's workshop on improving siteswaps and Toto's workshop on improving passing generally
+* Aidan Burn for the initial development of takeout notation and Ed for pushing that notation forward
+* Christian for passist
+
+<!-- *TODO: consistently use first and last name?* -->
 
 ...

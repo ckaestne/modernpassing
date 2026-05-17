@@ -1,6 +1,6 @@
 # Appendix: Bruno's Variations
 
-For completeness, these are a list of less common [Bruno's nightmare](5d-moving.md) variations.
+For completeness, here is a list of less common [Bruno's nightmare](5d-moving.md) variations.
 
 
 **Five-beat Bruno's.**
@@ -17,7 +17,7 @@ move: move(B,1.9,2)move(B,4.9,3)move(B,8.9,3)move(C,2.9,3)
 
 
 **Pass-pass-self Bruno's.**
-There is sufficient time in standard three-count Bruno's too double up on all passes:
+There is sufficient time in standard three-count Bruno's to double up on all passes:
 
 <sync-group>
 A: 3pB3pB3 3pC3pC3 3pB3pB3 -- B
@@ -27,7 +27,7 @@ positions: Brunos(A,B,C)
 move: Bmove(B,2.9,3)Bmove(B,7.9,4)Bmove(C,4.9,4)
 </sync-group>
 
-A pattern on a more traditional pass-pass-self feed is substantially more challenging, and the walking passer has two passes during their walk across the pattern as in five-beat Bruno's:
+A pattern on a more traditional pass-pass-self feed is substantially more challenging, and the walking passer has two passes during their walk across the pattern, as in five-beat Bruno's:
 
 <sync-group>
 A: 3pB3pC3 3pB3pC3 3pB3pC3 -- B
@@ -68,7 +68,7 @@ move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(
 
 **441 Bruno's.**
 
-Beyond the cascade, the passers can walk in the shape of any other juggling pattern --
+Beyond the cascade, the passers can walk in the shape of any other juggling pattern –
 here is an example of a pattern with walking based conceptually on the solo pattern 441:
 
 <sync-group>

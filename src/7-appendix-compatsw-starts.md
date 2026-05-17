@@ -1,1 +1,0 @@
-TODO: explain how to match the starts of compatible siteswaps (including feeds)
