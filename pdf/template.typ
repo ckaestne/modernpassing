@@ -58,6 +58,10 @@
   scale_figure_images(it, figure_scale.siteswap-group)
 }
 
+#show image.where(source: "figures/advanced.svg"): _ => []
+#show image.where(source: "figures/intermediate.svg"): _ => []
+#show image.where(source: "figures/start-here.svg"): _ => []
+
 
 #align(center, text(17pt)[
   *Modern Club Passing*

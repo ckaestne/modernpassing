@@ -634,6 +634,7 @@ function escapeText(text: string): string {
     return text
         .replaceAll("\\", "\\\\")
         .replaceAll("*", "\\*")
+        .replaceAll("$", "\\$")
         .replaceAll("#", "\\#")
         .replaceAll("[", "\\[")
         .replaceAll("]", "\\]")
