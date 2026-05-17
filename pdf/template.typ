@@ -6,7 +6,7 @@
 )
 
 
-#show link: underline
+// #show link: underline
 
 #show raw.where(block: true): block.with(
   width: 100%,
@@ -56,10 +56,6 @@
 
 #show figure.where(kind: "siteswap-group"): it => {
   scale_figure_images(it, figure_scale.siteswap-group)
-}
-
-#show figure.where(kind: "plain"): it => {
-  scale_figure_images(it, figure_scale.plain)
 }
 
 

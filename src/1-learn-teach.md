@@ -46,7 +46,7 @@ To warm up for *6-club one-count*, first pass three clubs between the teacher's 
 
 ![A figure of two people marked T and S facing each other, with four numbered arrows, one from T's right hand to S's left hand and one opposite of this; another pair between T's left hand and S's right hand](figures/6c-one-count-sequence.svg)
 
-*Illustration of the passes between the teacher (T) and the student (S) in 6-club one-count. Both passers throw at the same time, alternating their right and left hand.* 
+*Illustration of the passes between the teacher (T) and the student (S) in 6-club one-count. Both passers throw at the same time, alternating their right and left hand.*
 
 If the teacher is comfortable with *7-club one-count*, transitioning from *6-club one-count* to *7-club one-count* is a fairly small step for the student. The student continues a one-count pattern with lofty straight single passes, now at a marginally faster pace (most students speed up too much going from 6 to 7 clubs; it is really not much faster). The teacher, however, has to carry the pattern with lofty crossing passes, typically starting with four clubs and a lofty crossing pass from the left hand slightly before the student's right-handed start.
 

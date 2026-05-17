@@ -11,7 +11,12 @@
 
 Feeds are a common and simple way to involve three or more passers. A passer acting as the *feeder* (A) will pass with multiple *feedees* (B, C, ...). Each feedee will only pass with the feeder, but not with other feedees.
 
-<positions>V(A,B,C)</positions>
+<sync-group style='{"components":["layout"]}'>
+A: 3pB33pC3
+B: 3pA333
+C: 333pA3
+positions: V(A,B,C)
+</sync-group>
 
 Feeders and feedees generally juggle different patterns that are compatible when merged together. Feeders usually have the more difficult job as they receive (possibly inconsistently thrown and inconsistently timed) passes from multiple feedees and need to aim their passes at multiple different positions. 
 Unless the intention is to integrate weaker passers in easier positions, it is common to try a feed and then rotate positions clockwise until everybody has tried every position.

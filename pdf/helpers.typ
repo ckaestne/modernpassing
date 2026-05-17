@@ -13,8 +13,8 @@
   plain: 100%,
   siteswap: 40%,
   sync: 40%,
-  sync-group: 100%,
-  siteswap-group: 100%,
+  sync-group: 40%,
+  siteswap-group: 40%,
 )
 
 #let fit_to_available(body, factor: 1.0) = layout(size => {
@@ -33,3 +33,8 @@
   show image: img => fit_to_available(img, factor: factor)
   it
 }
+
+// Side-aligned figure (no text wrap). Width is set on the image itself by
+// the markdown -> typst converter via `<!-- typ-figure: right width: ... -->`.
+#let right_figure(body) = align(right, body)
+#let left_figure(body) = align(left, body)

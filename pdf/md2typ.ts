@@ -35,7 +35,7 @@ export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): str
 
 function normalizeMarkdown(markdown: string): string {
     const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, (match) => {
-        if (/^<!--\s*typ-columns\s*:/i.test(match)) {
+        if (/^<!--\s*typ-(columns|figure)\s*:/i.test(match)) {
             return match
         }
         return ""
@@ -76,11 +76,15 @@ function renderBlocks(tokens: AnyToken[]): string {
     let inProgression = false
     let inWarning = false
     let pendingColumnsHint: string | undefined
+    let pendingFigureHint: string | undefined
 
-    for (const token of tokens) {
+    let i = 0
+    while (i < tokens.length) {
+        const token = tokens[i]
         const html = getHtmlToken(token)
         if (isProgressionStartTag(html)) {
             inProgression = true
+            i += 1
             continue
         }
         if (isProgressionEndTag(html)) {
@@ -90,10 +94,12 @@ function renderBlocks(tokens: AnyToken[]): string {
             if (block.trim().length > 0) {
                 out.push(`#quote(block: true)[\nPattern progression:\n\n${indent(block)}\n]`)
             }
+            i += 1
             continue
         }
         if (isWarningStartTag(html)) {
             inWarning = true
+            i += 1
             continue
         }
         if (inWarning && isWarningEndTag(html)) {
@@ -103,39 +109,62 @@ function renderBlocks(tokens: AnyToken[]): string {
             if (block.trim().length > 0) {
                 out.push(`#quote(block: true)[\n${indent(block)}\n]`)
             }
+            i += 1
+            continue
+        }
+        if (isDivStartTag(html) || isDivEndTag(html)) {
+            i += 1
             continue
         }
 
-        const hint = parseColumnsHint(html)
-        if (hint !== undefined) {
-            pendingColumnsHint = hint
+        const colHint = parseColumnsHint(html)
+        if (colHint !== undefined) {
+            pendingColumnsHint = colHint
+            i += 1
+            continue
+        }
+
+        const figHint = parseFigureHint(html)
+        if (figHint !== undefined) {
+            pendingFigureHint = figHint
+            i += 1
             continue
         }
 
         const tokenType = asString(token.type)
         if (tokenType === "space") {
+            i += 1
             continue
         }
 
         let rendered: string
+        let consumedTo = i
         if (tokenType === "table") {
             rendered = renderTable(token, pendingColumnsHint)
+        } else if (tokenType === "paragraph") {
+            const fig = tryRenderFigureParagraph(tokens, i, pendingFigureHint)
+            if (fig !== null) {
+                rendered = emitFigure(fig)
+                consumedTo = fig.consumedThrough
+            } else {
+                rendered = renderBlockToken(token)
+            }
         } else {
             rendered = renderBlockToken(token)
         }
         pendingColumnsHint = undefined
+        pendingFigureHint = undefined
 
-        if (!rendered || rendered.trim().length === 0) {
-            continue
+        if (rendered && rendered.trim().length > 0) {
+            if (inProgression) {
+                progressionParts.push(rendered)
+            } else if (inWarning) {
+                warningParts.push(rendered)
+            } else {
+                out.push(rendered)
+            }
         }
-
-        if (inProgression) {
-            progressionParts.push(rendered)
-        } else if (inWarning) {
-            warningParts.push(rendered)
-        } else {
-            out.push(rendered)
-        }
+        i = consumedTo + 1
     }
 
     if (inProgression) {
@@ -152,6 +181,16 @@ function renderBlocks(tokens: AnyToken[]): string {
     }
 
     return out.filter((part) => part.trim().length > 0).join("\n\n")
+}
+
+function emitFigure(fig: FigureResult): string {
+    if (fig.placement === "right") {
+        return `#right_figure(${fig.figureExpr})`
+    }
+    if (fig.placement === "left") {
+        return `#left_figure(${fig.figureExpr})`
+    }
+    return `#${fig.figureExpr}`
 }
 
 function renderBlockToken(token: AnyToken): string {
@@ -187,7 +226,7 @@ function renderBlockToken(token: AnyToken): string {
         }
         case "html": {
             const html = getHtmlToken(token)
-            if (!html || isHtmlComment(html) || isProgressionStartTag(html) || isProgressionEndTag(html) || isWarningStartTag(html) || isWarningEndTag(html)) {
+            if (!html || isHtmlComment(html) || isProgressionStartTag(html) || isProgressionEndTag(html) || isWarningStartTag(html) || isWarningEndTag(html) || isDivStartTag(html) || isDivEndTag(html)) {
                 return ""
             }
             return `#raw(${toTypstString(html)}, block: true)`
@@ -295,6 +334,146 @@ function parseColumnsHint(html: string): string | undefined {
     return match[1].trim()
 }
 
+function parseFigureHint(html: string): string | undefined {
+    if (!html) {
+        return undefined
+    }
+    const match = html.match(/^\s*<!--\s*typ-figure\s*:\s*([\s\S]*?)\s*-->\s*$/i)
+    if (!match) {
+        return undefined
+    }
+    return match[1].trim()
+}
+
+type FigureResult = {
+    figureExpr: string
+    placement: "right" | "left" | null
+    consumedThrough: number
+}
+
+function tryRenderFigureParagraph(
+    tokens: AnyToken[],
+    i: number,
+    hint: string | undefined,
+): FigureResult | null {
+    const paragraph = tokens[i]
+    const inline = asTokens(paragraph.tokens)
+    if (inline.length === 0 || asString(inline[0].type) !== "image") {
+        return null
+    }
+
+    const imageToken = inline[0]
+    const hintInfo = parseFigureHintInfo(hint)
+
+    // Pattern A: [image, (whitespace text)..., em] in the same paragraph.
+    if (inline.length >= 2) {
+        const last = inline[inline.length - 1]
+        const middle = inline.slice(1, inline.length - 1)
+        if (asString(last.type) === "em" && middle.every(isWhitespaceText)) {
+            return {
+                figureExpr: buildFigureExpr(imageToken, asTokens(last.tokens), hintInfo.width),
+                placement: hintInfo.placement,
+                consumedThrough: i,
+            }
+        }
+    }
+
+    // Pattern B: lone image paragraph (possibly with trailing whitespace),
+    // optionally followed by a paragraph that is just an em.
+    const rest = inline.slice(1)
+    if (rest.every(isWhitespaceText)) {
+        const nextIdx = findNextNonSpaceIndex(tokens, i + 1)
+        if (nextIdx !== -1) {
+            const next = tokens[nextIdx]
+            if (asString(next.type) === "paragraph") {
+                const nextInline = asTokens(next.tokens)
+                if (nextInline.length === 1 && asString(nextInline[0].type) === "em") {
+                    return {
+                        figureExpr: buildFigureExpr(imageToken, asTokens(nextInline[0].tokens), hintInfo.width),
+                        placement: hintInfo.placement,
+                        consumedThrough: nextIdx,
+                    }
+                }
+            }
+        }
+        return {
+            figureExpr: buildFigureExpr(imageToken, null, hintInfo.width),
+            placement: hintInfo.placement,
+            consumedThrough: i,
+        }
+    }
+
+    return null
+}
+
+function buildFigureExpr(imageToken: AnyToken, captionTokens: AnyToken[] | null, width: string | null): string {
+    const src = asString(imageToken.href)
+    const alt = asString(imageToken.text)
+    const parsed = parseImageAlt(alt)
+    const kind = parsed.kind || inferImageKind(src)
+
+    const imageArgs = [toTypstString(src)]
+    if (width) {
+        imageArgs.push(`width: ${width}`)
+    }
+
+    const figureArgs = [
+        `image(${imageArgs.join(", ")})`,
+        `kind: ${toTypstString(kind)}`,
+        `supplement: none`,
+    ]
+    if (captionTokens && captionTokens.length > 0) {
+        figureArgs.push(`caption: [${renderInline(captionTokens)}]`)
+    }
+    return `figure(${figureArgs.join(", ")})`
+}
+
+function parseFigureHintInfo(hint: string | undefined): { placement: "right" | "left" | null; width: string | null } {
+    if (!hint) return { placement: null, width: null }
+    let placement: "right" | "left" | null = null
+    if (/\bright\b/i.test(hint)) placement = "right"
+    else if (/\bleft\b/i.test(hint)) placement = "left"
+    let width: string | null = null
+    const wMatch = hint.match(/\bwidth\s*[:=]\s*(\S+)/i)
+    if (wMatch) {
+        width = wMatch[1]
+    } else if (placement) {
+        // Sensible default so `<!-- typ-figure: right -->` actually shrinks.
+        width = "35%"
+    }
+    return { placement, width }
+}
+
+function isWhitespaceText(token: AnyToken): boolean {
+    if (asString(token.type) !== "text") {
+        return false
+    }
+    if (asTokens(token.tokens).length > 0) {
+        return false
+    }
+    return /^\s*$/.test(asString(token.text))
+}
+
+function findNextNonSpaceIndex(tokens: AnyToken[], startIdx: number): number {
+    for (let j = startIdx; j < tokens.length; j += 1) {
+        if (asString(tokens[j].type) !== "space") {
+            return j
+        }
+    }
+    return -1
+}
+
+function isDivStartTag(html: string): boolean {
+    if (!html) return false
+    if (isWarningStartTag(html)) return false
+    return /^\s*<div\b[^>]*>\s*$/i.test(html)
+}
+
+function isDivEndTag(html: string): boolean {
+    if (!html) return false
+    return /^\s*<\/div>\s*$/i.test(html)
+}
+
 function formatColumnsSpec(hint: string | undefined, columnCount: number): string {
     if (hint) {
         const widths = hint.split(/\s+/).filter((w) => w.length > 0)
@@ -317,9 +496,15 @@ function renderInline(tokens: AnyToken[]): string {
         const type = asString(token.type)
 
         switch (type) {
-            case "text":
-                out.push(escapeText(asString(token.text)))
+            case "text": {
+                const nested = asTokens(token.tokens)
+                if (nested.length > 0) {
+                    out.push(renderInline(nested))
+                } else {
+                    out.push(escapeText(asString(token.text)))
+                }
                 break
+            }
             case "strong":
                 out.push(`#strong[${renderInline(asTokens(token.tokens))}]`)
                 break

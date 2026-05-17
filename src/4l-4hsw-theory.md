@@ -4,6 +4,8 @@
 
 <div class="right" style="width:300px">
 
+<!-- typ-figure: width: 40% -->
+
 ![Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)](figures/Siteswap_relative_visualized.png)
 *Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)*
 
@@ -21,13 +23,9 @@ Four-handed siteswaps are one way to interpret siteswaps for two passers with fo
 From this, all the standard throws in four-handed siteswaps can be derived: 
 
 * A 4 (flip) gets rethrown four beats later from the same hand, but there is only a single beat from the same passer before then. An 8 (heff) gets rethrown eight beats later from the same hand, while that same hand has another throw before then, four beats later.
-
 * A 6 (self) gets rethrown six beats later from the passer's other hand, a 2 (zip) two beats later with the passer's next throw, and an *a* (trelf) gets rethrown 10 beats later.
-
 * A 7 (single pass) gets rethrown seven beats later by the other passer. The straight/crossing passes approach where passer A throws straight single passes and passer B throws crossing single passes follows directly from the hand sequence: A right-hand single pass from passer A on beat one gets rethrown on beat 8, which is a left-hand throw from passer B, whereas a right-hand single pass from passer B on beat 2 is rethrown on beat 9 which is a right-hand throw from passer A.
-
 * A 5 (zap) and 9 (double pass) are crossing for passer A and straight for passer B, following the same mechanism.
-
 * A 1 would be a very, very fast pass (faster than a zip) that gets immediately rethrown on the next beat by the other passer; there is no plausible way of juggling this. A 3 is a very fast pass, which is technically feasible if slowing everything down a lot, but not commonly juggled. Hence, lists of four-handed siteswaps generally exclude patterns with 1s and 3s.
 
 Assuming that both passers juggle at a normal speed, all numbers are twice as high as in solo (two-handed) siteswaps, as we have twice the number of beats in the same time.
