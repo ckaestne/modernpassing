@@ -10,6 +10,8 @@
 
 There are a number of patterns that generally fit with the theme of traditional synchronous patterns, but they go beyond the original patterns by modifying the throwing rhythm to squeeze the timing, resulting in throws that are lower than in the [initially described notation](2a-intro-notation.md). We use an asterisk to note that these throws are lower than they should be if they were juggled as traditional synchronous patterns:
 
+<!-- typ-columns: 0.8fr 3fr 1.2fr -->
+
 | Symbol | Description     | Solo-siteswap equivalent without fudging the timing |
 | ------ | ---- | ---- |
 | l* | Heffling: Single-spin self to the same hand, like a single-spun heff or a lofty flip (instead of a heff) | 4 |

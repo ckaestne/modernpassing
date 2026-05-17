@@ -22,11 +22,10 @@
   radius: 4pt,
 )
 
-#import "@preview/booktabs:0.0.4": *
+#import "@preview/booktabs:0.0.4": booktabs-default-table-style
+#import "helpers.typ": *
+
 #show: booktabs-default-table-style
-#let heavyrulewidth = 0.8em
-#let lightrulewidth = 0.05em
-#let cmidrulewidth = 0.03em
 
 #show table: set table(
   inset: (x: 0.6em, y: 0.3em),
@@ -41,32 +40,6 @@
   #pagebreak(weak: true)
   #it
 ]
-
-
-#let figure_scale = (
-  plain: 100%,
-  siteswap: 100%,
-  sync: 40%,
-  sync-group: 100%,
-  siteswap-group: 100%,
-)
-
-#let fit_to_available(body, factor: 1.0) = layout(size => {
-  let scaled = scale(x: factor, y: factor, reflow: true, body)
-  let scaled_width = measure(scaled).width
-
-  if scaled_width > size.width {
-    let downscale = size.width / scaled_width * 100%
-    scale(x: downscale, y: downscale, reflow: true, scaled)
-  } else {
-    scaled
-  }
-})
-
-#let scale_figure_images(it, factor) = {
-  show image: img => fit_to_available(img, factor: factor)
-  it
-}
 
 
 #show figure.where(kind: "siteswap"): it => {

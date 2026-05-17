@@ -15,15 +15,20 @@ export function mdToTypst(markdown: string): string {
         return ""
     }
 
-    const prelude = body.includes("toprule()")
-        ? '#import "@preview/booktabs:0.0.4": toprule, midrule, bottomrule\n\n'
-        : ""
+    // Every generated chapter imports helpers.typ so symbols like toprule()
+    // and any future shared helpers are in scope inside the included module.
+    const prelude = '#import "helpers.typ": *\n\n'
 
     return `${prelude}${body}\n`
 }
 
 function normalizeMarkdown(markdown: string): string {
-    const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, "")
+    const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, (match) => {
+        if (/^<!--\s*typ-columns\s*:/i.test(match)) {
+            return match
+        }
+        return ""
+    })
     const withCrossreferences = withoutComments.replace(/<crossreference\b[^>]*>([\s\S]*?)<\/crossreference>/gi, (_match, inner: string) => {
         const content = inner.trim()
         if (!content) {
@@ -59,6 +64,7 @@ function renderBlocks(tokens: AnyToken[]): string {
     const warningParts: string[] = []
     let inProgression = false
     let inWarning = false
+    let pendingColumnsHint: string | undefined
 
     for (const token of tokens) {
         const html = getHtmlToken(token)
@@ -89,7 +95,25 @@ function renderBlocks(tokens: AnyToken[]): string {
             continue
         }
 
-        const rendered = renderBlockToken(token)
+        const hint = parseColumnsHint(html)
+        if (hint !== undefined) {
+            pendingColumnsHint = hint
+            continue
+        }
+
+        const tokenType = asString(token.type)
+        if (tokenType === "space") {
+            continue
+        }
+
+        let rendered: string
+        if (tokenType === "table") {
+            rendered = renderTable(token, pendingColumnsHint)
+        } else {
+            rendered = renderBlockToken(token)
+        }
+        pendingColumnsHint = undefined
+
         if (!rendered || rendered.trim().length === 0) {
             continue
         }
@@ -197,7 +221,7 @@ function renderList(token: AnyToken): string {
     return lines.join("\n")
 }
 
-function renderTable(token: AnyToken): string {
+function renderTable(token: AnyToken, columnsHint?: string): string {
     const headerCells = asTokens(token.header)
     const rows = asTokens(token.rows)
 
@@ -235,8 +259,10 @@ function renderTable(token: AnyToken): string {
         }
     }
 
+    const columnsSpec = formatColumnsSpec(columnsHint, columnCount)
+
     const tableParts = [
-        `columns: ${columnCount}`,
+        `columns: ${columnsSpec}`,
         "toprule()",
         hasHeader ? `table.header(\n${indent(headerBlocks.join(",\n"))}\n)` : "",
         hasHeader ? "midrule()" : "",
@@ -245,6 +271,27 @@ function renderTable(token: AnyToken): string {
     ].filter((part) => part.length > 0)
 
     return `#table(\n${indent(tableParts.join(",\n"))}\n)`
+}
+
+function parseColumnsHint(html: string): string | undefined {
+    if (!html) {
+        return undefined
+    }
+    const match = html.match(/^\s*<!--\s*typ-columns\s*:\s*([\s\S]*?)\s*-->\s*$/i)
+    if (!match) {
+        return undefined
+    }
+    return match[1].trim()
+}
+
+function formatColumnsSpec(hint: string | undefined, columnCount: number): string {
+    if (hint) {
+        const widths = hint.split(/\s+/).filter((w) => w.length > 0)
+        if (widths.length > 0) {
+            return `(${widths.join(", ")})`
+        }
+    }
+    return `${columnCount}`
 }
 
 function hasTokens(tokens: AnyToken[]): boolean {

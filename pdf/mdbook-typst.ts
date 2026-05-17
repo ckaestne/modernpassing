@@ -23,6 +23,7 @@ const book = extractBook(parsed)
 const outputDir = resolveOutputDir()
 fs.mkdirSync(outputDir, { recursive: true })
 copyTemplateTyp(outputDir)
+copyHelpersTyp(outputDir)
 
 const figuresSource = resolveFiguresSource(context)
 if (figuresSource) {
@@ -216,6 +217,21 @@ function copyTemplateTyp(outputDir: string): void {
 
     fs.copyFileSync(source, target)
     console.error(`mdbook-typst copied template from ${source} to ${target}`)
+}
+
+function copyHelpersTyp(outputDir: string): void {
+    const localHelpers = path.resolve(process.cwd(), "helpers.typ")
+    const repoHelpers = path.resolve(process.cwd(), "..", "..", "pdf", "helpers.typ")
+    const source = fs.existsSync(localHelpers) ? localHelpers : repoHelpers
+    const target = path.join(outputDir, "helpers.typ")
+
+    if (isSameFile(source, target)) {
+        console.error(`mdbook-typst using existing helpers ${target}`)
+        return
+    }
+
+    fs.copyFileSync(source, target)
+    console.error(`mdbook-typst copied helpers from ${source} to ${target}`)
 }
 
 function isFrontmatterChapter(chapter: ChapterNode): boolean {

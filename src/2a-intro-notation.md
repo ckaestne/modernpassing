@@ -10,6 +10,8 @@ Learning a specialized notation can make reading and understanding different pat
 
 We use the following symbols for different throws:
 
+<!-- typ-columns: 0.8fr 3fr 1.2fr -->
+
 | Symbol | Description     | Solo-siteswap equivalent |
 | ------ | ---- | ---- |
 | z | Zip / hand-across: Directly handing a club from one hand to the other without throwing it | 1 |
