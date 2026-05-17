@@ -301,7 +301,8 @@ function hasTokens(tokens: AnyToken[]): boolean {
 function renderInline(tokens: AnyToken[]): string {
     const out: string[] = []
 
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i += 1) {
+        const token = tokens[i]
         const type = asString(token.type)
 
         switch (type) {
@@ -319,8 +320,31 @@ function renderInline(tokens: AnyToken[]): string {
                 break
             case "link": {
                 const href = asString(token.href)
+                const rawText = asString(token.text)
                 const label = renderInline(asTokens(token.tokens)) || escapeText(href)
                 out.push(`#link(${toTypstString(href)})[${label}]`)
+
+                const isExternal = /^https?:\/\//i.test(href)
+                if (isExternal && !linkTextMatchesHref(rawText, href)) {
+                    const footnote = `#footnote[${escapeText(href)}]`
+                    const nextToken = tokens[i + 1]
+                    const nextIsPlainText = nextToken
+                        && asString(nextToken.type) === "text"
+                        && asTokens(nextToken.tokens).length === 0
+                    const nextText = nextIsPlainText ? asString(nextToken.text) : ""
+                    const punctMatch = nextText.match(/^([.,;:!?)\]]+)([\s\S]*)$/)
+
+                    if (punctMatch) {
+                        out.push(escapeText(punctMatch[1]))
+                        out.push(footnote)
+                        if (punctMatch[2].length > 0) {
+                            out.push(escapeText(punctMatch[2]))
+                        }
+                        i += 1
+                    } else {
+                        out.push(footnote)
+                    }
+                }
                 break
             }
             case "br":
@@ -363,6 +387,19 @@ function renderInline(tokens: AnyToken[]): string {
     }
 
     return out.join("")
+}
+
+function linkTextMatchesHref(text: string, href: string): boolean {
+    return normalizeUrlForCompare(text) === normalizeUrlForCompare(href)
+}
+
+function normalizeUrlForCompare(value: string): string {
+    return value
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//, "")
+        .replace(/^www\./, "")
+        .replace(/\/+$/, "")
 }
 
 function escapeText(text: string): string {
