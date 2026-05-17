@@ -8,7 +8,7 @@ import { defaultConfig, loadCompatSiteswapList, Pattern } from './load-siteswapl
 
 
 if (process.argv[2] === "supports") {
-    process.exit(process.argv.includes("html") ? 0 : 1);
+    process.exit(process.argv.includes("html") || process.argv.includes("typst") ? 0 : 1);
 }
 
 const file = fs.readFileSync(0, 'utf-8');

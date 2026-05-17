@@ -7,9 +7,11 @@ export type MdToTypstOptions = {
 }
 
 let knownChapterAnchors: Set<string> | null = null
+let skipFootnoteRegexes: RegExp[] | null = null
 
 export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): string {
     knownChapterAnchors = options.knownChapters ?? null
+    skipFootnoteRegexes = collectSkipFootnoteRegexes(markdown)
     try {
         const normalizedMarkdown = normalizeMarkdown(markdown)
 
@@ -30,12 +32,29 @@ export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): str
         return `${prelude}${body}\n`
     } finally {
         knownChapterAnchors = null
+        skipFootnoteRegexes = null
     }
+}
+
+function collectSkipFootnoteRegexes(markdown: string): RegExp[] {
+    const regexes: RegExp[] = []
+    const directive = /<!--\s*typ-no-link-footnote\s*:\s*([\s\S]*?)\s*-->/gi
+    let m: RegExpExecArray | null
+    while ((m = directive.exec(markdown)) !== null) {
+        const pattern = m[1].trim()
+        if (!pattern) continue
+        try {
+            regexes.push(new RegExp(pattern, "i"))
+        } catch (err) {
+            console.error(`typ-no-link-footnote: invalid regex ${JSON.stringify(pattern)}: ${(err as Error).message}`)
+        }
+    }
+    return regexes
 }
 
 function normalizeMarkdown(markdown: string): string {
     const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, (match) => {
-        if (/^<!--\s*typ-(columns|figure)\s*:/i.test(match)) {
+        if (/^<!--\s*typ-(columns|figure|no-link-footnote)\s*:/i.test(match)) {
             return match
         }
         return ""
@@ -92,7 +111,7 @@ function renderBlocks(tokens: AnyToken[]): string {
             const block = progressionParts.filter((part) => part.trim().length > 0).join("\n\n")
             progressionParts.length = 0
             if (block.trim().length > 0) {
-                out.push(`#quote(block: true)[\nPattern progression:\n\n${indent(block)}\n]`)
+                out.push(`#progression[\n${indent(block)}\n]`)
             }
             i += 1
             continue
@@ -127,6 +146,11 @@ function renderBlocks(tokens: AnyToken[]): string {
         const figHint = parseFigureHint(html)
         if (figHint !== undefined) {
             pendingFigureHint = figHint
+            i += 1
+            continue
+        }
+
+        if (isSkipLinkFootnoteHint(html)) {
             i += 1
             continue
         }
@@ -345,6 +369,11 @@ function parseFigureHint(html: string): string | undefined {
     return match[1].trim()
 }
 
+function isSkipLinkFootnoteHint(html: string): boolean {
+    if (!html) return false
+    return /^\s*<!--\s*typ-no-link-footnote\s*:[\s\S]*?-->\s*$/i.test(html)
+}
+
 type FigureResult = {
     figureExpr: string
     placement: "right" | "left" | null
@@ -535,7 +564,8 @@ function renderInline(tokens: AnyToken[]): string {
 
                 out.push(`#link(${toTypstString(href)})[${label}]`)
 
-                if (!linkTextMatchesHref(rawText, href)) {
+                const skipFootnote = skipFootnoteRegexes?.some((re) => re.test(href)) ?? false
+                if (!skipFootnote && !linkTextMatchesHref(rawText, href)) {
                     const footnote = `#footnote[${escapeText(href)}]`
                     const nextToken = tokens[i + 1]
                     const nextIsPlainText = nextToken

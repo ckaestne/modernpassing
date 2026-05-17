@@ -11,8 +11,31 @@ import { mdToTypst } from "./md2typ.ts"
 import { renderSiteswapElements } from "../vizsiteswap/siteswapvis/render-siteswap-elements.ts"
 
 // mdBook probes preprocessors with: <command> supports <renderer>
-if (process.argv[2] === "supports") {
-    process.exit(0)
+// Custom args (e.g. --chapters <regex>) precede mdBook-appended args, so we
+// scan argv rather than checking a fixed index.
+let chapterFilter: RegExp | null = null
+{
+    const args = process.argv.slice(2)
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i]
+        if (arg === "supports") {
+            process.exit(0)
+        }
+        if (arg === "--chapters") {
+            const pattern = args[i + 1]
+            if (pattern === undefined) {
+                console.error("mdbook-typst: --chapters requires a regex argument")
+                process.exit(1)
+            }
+            try {
+                chapterFilter = new RegExp(pattern)
+            } catch (err) {
+                console.error(`mdbook-typst: invalid --chapters regex "${pattern}": ${err}`)
+                process.exit(1)
+            }
+            i++
+        }
+    }
 }
 
 const file = fs.readFileSync(0, "utf-8")
@@ -48,6 +71,9 @@ const partByChapter = loadPartMapping(context)
 
 const knownChapters = new Set<string>()
 forEachChapter(book, (chapter) => {
+    if (!chapterMatchesFilter(chapter)) {
+        return
+    }
     const anchor = chapterAnchorName(chapter)
     if (anchor) {
         knownChapters.add(anchor)
@@ -56,6 +82,9 @@ forEachChapter(book, (chapter) => {
 
 forEachChapter(book, (chapter) => {
     if (typeof chapter.content !== "string") {
+        return
+    }
+    if (!chapterMatchesFilter(chapter)) {
         return
     }
     chapterCount++
@@ -258,6 +287,17 @@ function copyHelpersTyp(outputDir: string): void {
 function isFrontmatterChapter(chapter: ChapterNode): boolean {
     const sourcePath = asString(chapter.source_path).toLowerCase()
     return sourcePath.endsWith("introduction.md")
+}
+
+function chapterMatchesFilter(chapter: ChapterNode): boolean {
+    if (!chapterFilter) {
+        return true
+    }
+    const sourcePath = asString(chapter.source_path)
+    if (!sourcePath) {
+        return false
+    }
+    return chapterFilter.test(path.basename(sourcePath))
 }
 
 function truncateAtMarkdownSeparator(markdown: string): string {

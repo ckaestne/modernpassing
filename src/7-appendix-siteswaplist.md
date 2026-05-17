@@ -4,5 +4,7 @@ The following list contains all four-handed siteswaps with throws up to an *a* a
 
 The website https://www.cs.cmu.edu/~ckaestne/siteswaps.xhtml has a version of this list that can be filtered by throws.
 
+<!-- typ-no-link-footnote: passist -->
+
 $siteswapslist
 

@@ -38,3 +38,19 @@
 // the markdown -> typst converter via `<!-- typ-figure: right width: ... -->`.
 #let right_figure(body) = align(right, body)
 #let left_figure(body) = align(left, body)
+
+#let progression(body) = [
+  #show " —": ":"
+  #set text(style: "italic")
+  #let seen_item = state("progression-seen-item", false)
+  #seen_item.update(false)
+
+  #show strong: it => context {
+    let prefix = if seen_item.get() { [#h(0.5em)|#h(0.5em)] } 
+    seen_item.update(true)
+    [#prefix#it]
+  }
+
+  #show parbreak: none
+  #text(size: 7pt)[#body]
+]
