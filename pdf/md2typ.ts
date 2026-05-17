@@ -11,7 +11,15 @@ export function mdToTypst(markdown: string): string {
     }) as unknown as AnyToken[]
 
     const body = renderBlocks(tokens).trim()
-    return body.length > 0 ? `${body}\n` : ""
+    if (body.length === 0) {
+        return ""
+    }
+
+    const prelude = body.includes("toprule()")
+        ? '#import "@preview/booktabs:0.0.4": toprule, midrule, bottomrule\n\n'
+        : ""
+
+    return `${prelude}${body}\n`
 }
 
 function normalizeMarkdown(markdown: string): string {
@@ -193,39 +201,54 @@ function renderTable(token: AnyToken): string {
     const headerCells = asTokens(token.header)
     const rows = asTokens(token.rows)
 
-    const rowCells: AnyToken[][] = []
-    if (headerCells.length > 0) {
-        rowCells.push(headerCells)
-    }
-    for (const row of rows) {
-        rowCells.push(asTokens(row))
-    }
-
-    if (rowCells.length === 0) {
+    if (headerCells.length === 0 && rows.length === 0) {
         return ""
     }
 
-    const columnCount = rowCells.reduce((max, row) => Math.max(max, row.length), 0)
+    const bodyRows = rows.map((row) => asTokens(row))
+    const allRows = hasTokens(headerCells) ? [headerCells, ...bodyRows] : bodyRows
+
+    const columnCount = allRows.reduce((max, row) => Math.max(max, row.length), 0)
     if (columnCount === 0) {
         return ""
     }
 
-    const cellBlocks: string[] = []
-    for (let rowIndex = 0; rowIndex < rowCells.length; rowIndex += 1) {
-        const row = rowCells[rowIndex]
-        const isHeader = rowIndex === 0 && headerCells.length > 0
+    const hasHeader = headerCells.length > 0
 
+    const headerBlocks: string[] = []
+    for (let col = 0; col < columnCount; col += 1) {
+        const cell = headerCells[col]
+        const tokens = asTokens(cell?.tokens)
+        const text = tokens.length > 0 ? renderInline(tokens) : escapeText(asString(cell?.text))
+        const content = text.trim().length > 0 ? text : " "
+        headerBlocks.push(`[${content}]`)
+    }
+
+    const cellBlocks: string[] = []
+    for (const row of bodyRows) {
         for (let col = 0; col < columnCount; col += 1) {
             const cell = row[col]
             const tokens = asTokens(cell?.tokens)
             const text = tokens.length > 0 ? renderInline(tokens) : escapeText(asString(cell?.text))
             const content = text.trim().length > 0 ? text : " "
-            const body = isHeader ? `#strong[${content}]` : content
-            cellBlocks.push(`[${body}]`)
+            cellBlocks.push(`[${content}]`)
         }
     }
 
-    return `#table(\n${indent(`columns: ${columnCount},\n${cellBlocks.join(",\n")}`)}\n)`
+    const tableParts = [
+        `columns: ${columnCount}`,
+        "toprule()",
+        hasHeader ? `table.header(\n${indent(headerBlocks.join(",\n"))}\n)` : "",
+        hasHeader ? "midrule()" : "",
+        ...cellBlocks,
+        "bottomrule()",
+    ].filter((part) => part.length > 0)
+
+    return `#table(\n${indent(tableParts.join(",\n"))}\n)`
+}
+
+function hasTokens(tokens: AnyToken[]): boolean {
+    return tokens.length > 0
 }
 
 function renderInline(tokens: AnyToken[]): string {

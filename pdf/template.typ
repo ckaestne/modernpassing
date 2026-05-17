@@ -22,10 +22,26 @@
   radius: 4pt,
 )
 
+#import "@preview/booktabs:0.0.4": *
+#show: booktabs-default-table-style
+#let heavyrulewidth = 0.8em
+#let lightrulewidth = 0.05em
+#let cmidrulewidth = 0.03em
+
+#show table: set table(
+  inset: (x: 0.6em, y: 0.3em),
+)
+#show table.cell.where(y: 0): it => {
+  set block(inset: (y: .5em))
+  set block(above: 2.5em)
+  set text(weight: "bold")
+  it
+}
 #show heading.where(level: 1): it => [
   #pagebreak(weak: true)
   #it
 ]
+
 
 #let figure_scale = (
   plain: 100%,
