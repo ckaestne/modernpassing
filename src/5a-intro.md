@@ -9,9 +9,9 @@ These group patterns can be learned in many orders, but static patterns are usua
 
 **Notation.**
 To describe a group pattern, we need two parts: (a) the actions of each passer over time and (b) the positions where the passers stand or move.
-The actions of each passers are usually described using the notation of [synchronous patterns](2a-intro-notation.md) or [four-handed siteswaps](4a-4hsw-notation.md) for two passers. Although it is not always need, we add an index to the notation of all passes indicating which passer to pass to. The positions are usually shown in with diagrams showing locations as seen with a birds-eye view from above; for moving patterns, often multiple diagrams are used to show changing positions throughout the pattern.
+The actions of each passer are usually described using the notation of [synchronous patterns](2a-intro-notation.md) or [four-handed siteswaps](4a-4hsw-notation.md) for two passers. Although it is not always needed, we add an index to the notation of all passes indicating which passer to pass to. The positions are usually shown with diagrams showing locations as seen with a bird's-eye view from above; for moving patterns, often multiple diagrams are used to show changing positions throughout the pattern.
 
-Here is an example, of three passers passing *three-count* in a triangle:
+Here is an example of three passers passing *three-count* in a triangle:
 
 <sync-group>
 A: 3pB333pC33
