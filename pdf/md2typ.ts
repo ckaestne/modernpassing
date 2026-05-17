@@ -2,24 +2,35 @@ import { marked } from "npm:marked"
 
 type AnyToken = Record<string, unknown>
 
-export function mdToTypst(markdown: string): string {
-    const normalizedMarkdown = normalizeMarkdown(markdown)
+export type MdToTypstOptions = {
+    knownChapters?: Set<string>
+}
 
-    const tokens = marked.lexer(normalizedMarkdown, {
-        gfm: true,
-        breaks: false,
-    }) as unknown as AnyToken[]
+let knownChapterAnchors: Set<string> | null = null
 
-    const body = renderBlocks(tokens).trim()
-    if (body.length === 0) {
-        return ""
+export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): string {
+    knownChapterAnchors = options.knownChapters ?? null
+    try {
+        const normalizedMarkdown = normalizeMarkdown(markdown)
+
+        const tokens = marked.lexer(normalizedMarkdown, {
+            gfm: true,
+            breaks: false,
+        }) as unknown as AnyToken[]
+
+        const body = renderBlocks(tokens).trim()
+        if (body.length === 0) {
+            return ""
+        }
+
+        // Every generated chapter imports helpers.typ so symbols like toprule()
+        // and any future shared helpers are in scope inside the included module.
+        const prelude = '#import "helpers.typ": *\n\n'
+
+        return `${prelude}${body}\n`
+    } finally {
+        knownChapterAnchors = null
     }
-
-    // Every generated chapter imports helpers.typ so symbols like toprule()
-    // and any future shared helpers are in scope inside the included module.
-    const prelude = '#import "helpers.typ": *\n\n'
-
-    return `${prelude}${body}\n`
 }
 
 function normalizeMarkdown(markdown: string): string {
@@ -322,10 +333,24 @@ function renderInline(tokens: AnyToken[]): string {
                 const href = asString(token.href)
                 const rawText = asString(token.text)
                 const label = renderInline(asTokens(token.tokens)) || escapeText(href)
-                out.push(`#link(${toTypstString(href)})[${label}]`)
+
+                const chapterAnchor = resolveChapterAnchor(href)
+                if (chapterAnchor) {
+                    out.push(`#link(<${chapterAnchor}>)[${label}]`)
+                    break
+                }
 
                 const isExternal = /^https?:\/\//i.test(href)
-                if (isExternal && !linkTextMatchesHref(rawText, href)) {
+                if (!isExternal) {
+                    // Unknown internal link target (e.g., chapter not in SUMMARY,
+                    // bare fragment) — drop the link and render the label only.
+                    out.push(label)
+                    break
+                }
+
+                out.push(`#link(${toTypstString(href)})[${label}]`)
+
+                if (!linkTextMatchesHref(rawText, href)) {
                     const footnote = `#footnote[${escapeText(href)}]`
                     const nextToken = tokens[i + 1]
                     const nextIsPlainText = nextToken
@@ -387,6 +412,24 @@ function renderInline(tokens: AnyToken[]): string {
     }
 
     return out.join("")
+}
+
+function resolveChapterAnchor(href: string): string | null {
+    if (!href) return null
+    if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return null
+    if (href.startsWith("#")) return null
+
+    const withoutFragment = href.split("#")[0].split("?")[0]
+    const match = withoutFragment.match(/^(?:\.\/)?(?:[^?#]*\/)?([^/?#]+)\.md$/i)
+    if (!match) return null
+
+    const safe = match[1].toLowerCase().replace(/[^a-z0-9_-]/g, "-")
+    if (!safe) return null
+    const anchor = `ch-${safe}`
+    if (knownChapterAnchors && !knownChapterAnchors.has(anchor)) {
+        return null
+    }
+    return anchor
 }
 
 function linkTextMatchesHref(text: string, href: string): boolean {

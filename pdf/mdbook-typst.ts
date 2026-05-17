@@ -46,6 +46,14 @@ const svgOutputDir = path.join(outputDir, "siteswapvis")
 fs.mkdirSync(svgOutputDir, { recursive: true })
 const partByChapter = loadPartMapping(context)
 
+const knownChapters = new Set<string>()
+forEachChapter(book, (chapter) => {
+    const anchor = chapterAnchorName(chapter)
+    if (anchor) {
+        knownChapters.add(anchor)
+    }
+})
+
 forEachChapter(book, (chapter) => {
     if (typeof chapter.content !== "string") {
         return
@@ -71,7 +79,20 @@ forEachChapter(book, (chapter) => {
         markdownContent = truncateAtMarkdownSeparator(markdownContent)
         markdownContent = stripLeadingMarkdownTitle(markdownContent)
     }
-    chapter.content = mdToTypst(markdownContent)
+    chapter.content = mdToTypst(markdownContent, { knownChapters })
+
+    const anchorName = chapterAnchorName(chapter)
+    if (anchorName) {
+        const anchorLine = `#metadata("chapter") <${anchorName}>\n\n`
+        const importMatch = chapter.content.match(/^(#import [^\n]*\n+)/)
+        if (importMatch) {
+            chapter.content = chapter.content.slice(0, importMatch[0].length)
+                + anchorLine
+                + chapter.content.slice(importMatch[0].length)
+        } else {
+            chapter.content = anchorLine + chapter.content
+        }
+    }
 
     const outputFile = chapterFileName(chapter, chapterCount)
     const outputPath = path.join(outputDir, outputFile)
@@ -312,6 +333,14 @@ function resolvePathForCompare(p: string): string {
     } catch {
         return absolute
     }
+}
+
+function chapterAnchorName(chapter: ChapterNode): string {
+    const sourcePath = asString(chapter.source_path)
+    if (!sourcePath) return ""
+    const base = path.basename(sourcePath).replace(/\.md$/i, "")
+    const safe = base.toLowerCase().replace(/[^a-z0-9_-]/g, "-")
+    return safe ? `ch-${safe}` : ""
 }
 
 function chapterFileName(chapter: ChapterNode, index: number): string {

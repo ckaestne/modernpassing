@@ -11,7 +11,7 @@
 
 #let figure_scale = (
   plain: 100%,
-  siteswap: 100%,
+  siteswap: 40%,
   sync: 40%,
   sync-group: 100%,
   siteswap-group: 100%,
