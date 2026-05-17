@@ -83,6 +83,10 @@
   *Modern Club Passing*
 ])
 
+#align(center, text(fill: rgb("#666666"))[
+  #datetime.today().display("[month repr:long] [day], [year]")
+])
+
 
 
 
