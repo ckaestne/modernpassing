@@ -219,8 +219,18 @@ function renderInline(tokens: AnyToken[]): string {
                 break
             case "image": {
                 const src = asString(token.href)
-                const alt = escapeText(asString(token.text))
-                out.push(`#figure(image(${toTypstString(src)}))`)
+                const alt = asString(token.text)
+                const parsed = parseImageAlt(alt)
+                const kind = parsed.kind || inferImageKind(src)
+                const figureArgs = [
+                    `image(${toTypstString(src)})`,
+                    `kind: ${toTypstString(kind)}`,
+                    `supplement: none`,
+                ]
+                // if (parsed.caption) {
+                //     figureArgs.push(`caption: [${escapeText(parsed.caption)}]`)
+                // }
+                out.push(`#figure(${figureArgs.join(", ")})`)
                 break
             }
             case "html": {
@@ -299,6 +309,37 @@ function isWarningStartTag(html: string): boolean {
 
 function isWarningEndTag(html: string): boolean {
     return /^\s*<\/div>\s*$/i.test(html)
+}
+
+function parseImageAlt(alt: string): { kind: string; caption: string } {
+    const trimmed = alt.trim()
+    if (!trimmed) {
+        return { kind: "", caption: "" }
+    }
+
+    // Syntax: ![tag:sync-group | optional caption](path)
+    const tagged = trimmed.match(/^tag:([a-zA-Z0-9_-]+)(?:\s*\|\s*(.*))?$/)
+    if (tagged) {
+        return {
+            kind: tagged[1],
+            caption: (tagged[2] || "").trim(),
+        }
+    }
+
+    return { kind: "", caption: trimmed }
+}
+
+function inferImageKind(src: string): string {
+    const generatedKind = inferGeneratedSiteswapvisKind(src)
+    if (generatedKind) {
+        return generatedKind
+    }
+    return "plain"
+}
+
+function inferGeneratedSiteswapvisKind(src: string): string {
+    const m = src.match(/^siteswapvis\/([a-z][a-z-]*)-\d+\.svg$/i)
+    return m ? m[1].toLowerCase() : ""
 }
 
 if (import.meta.main) {

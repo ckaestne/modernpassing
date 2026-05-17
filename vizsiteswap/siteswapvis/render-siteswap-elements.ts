@@ -5,7 +5,7 @@ import { replaceElement } from "../replace-util.ts"
 
 type GroupRenderConfig = Parameters<typeof renderGroupPattern>[1]
 
-type RenderKind = "siteswap" | "sync" | "group"
+type RenderKind = "siteswap" | "sync" | "sync-group" | "siteswap-group"
 
 export type RenderStats = {
     siteswap: number
@@ -53,12 +53,12 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
 
     contentWithSvgs = replaceElement("sync-group", contentWithSvgs, (_match, p, config, videoLinks) => {
         stats.group++
-        return renderGroup(p, 2, config, videoLinks, stats.group, options)
+        return renderGroup(p, 2, "sync-group", config, videoLinks, stats.group, options)
     })
 
     contentWithSvgs = replaceElement("siteswap-group", contentWithSvgs, (_match, p, config, videoLinks) => {
         stats.group++
-        return renderGroup(p, 4, config, videoLinks, stats.group, options)
+        return renderGroup(p, 4, "siteswap-group", config, videoLinks, stats.group, options)
     })
 
     contentWithSvgs = replaceElement("video", contentWithSvgs, (_match, p) => {
@@ -71,7 +71,7 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
     return { content: contentWithSvgs, stats }
 }
 
-function renderGroup(p: string, nrHands: number, config: GroupRenderConfig, videoLinks: string[], index: number, options: RenderSiteswapElementsOptions): string {
+function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-group", config: GroupRenderConfig, videoLinks: string[], index: number, options: RenderSiteswapElementsOptions): string {
     assert(nrHands === 2 || nrHands === 4, "Only 2 or 4 hands supported for group patterns")
     const gp = createGroupPattern(p, nrHands)
     gp.videoLinks = videoLinks
@@ -84,7 +84,7 @@ function renderGroup(p: string, nrHands: number, config: GroupRenderConfig, vide
             return svgContent + `\n<script>window.addEventListener("load",function(){initializeFromData(${JSON.stringify(initData)})\n})\n</script>`
         }
 
-        return renderOutput(svgContent, "group", index, options)
+        return renderOutput(svgContent, kind, index, options)
     } catch (e) {
         return `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`
     }
