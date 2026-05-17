@@ -36,8 +36,24 @@
   set text(weight: "bold")
   it
 }
+
 #show heading.where(level: 1): it => [
+  #set text(size: 16pt, fill: rgb("#222978"))
   #pagebreak(weak: true)
+  #it
+]
+
+#let unary(.., last) = str(last)+"."
+#show heading.where(level: 1): set heading(numbering: none)
+#show heading.where(level: 2): set heading(numbering: unary)
+  
+#show heading.where(level: 2): it => [
+  #set text(size: 12pt, fill: rgb("#222978"))
+  #it
+]
+
+#show heading.where(level: 3): it => [
+  #set text(fill: rgb("#222978"))
   #it
 ]
 
@@ -63,9 +79,12 @@
 #show image.where(source: "figures/start-here.svg"): _ => []
 
 
-#align(center, text(17pt)[
+#align(center, text(28pt)[
   *Modern Club Passing*
 ])
+
+
+
 
 #include "frontmatter.typ"
 
