@@ -48,7 +48,9 @@ jobs:
       - run: mdbook build
 
       - uses: typst-community/setup-typst@v5
-      
+        with:
+          typst-version: 0.14.2
+
       - name: Build PDF with typst
         run: typst compile book/typst/main.typ book/html/book.pdf
 
