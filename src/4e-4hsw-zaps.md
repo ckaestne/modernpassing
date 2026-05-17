@@ -8,9 +8,9 @@
 
 </progressions>
 
-Zaps are low, fast passes that only spin half a rotation. The open a whole new group of interesting patterns. Look at a [video](https://www.youtube.com/watch?v=fXyLoK-KhxQ) or an [animation](https://passist.org/siteswap/564?jugglers=2) for examples. They are usually thrown with an extended arm, letting the club slide down to the knob, without any spin from the wrist, aiming quite a bit behind the person catching the zap. Most of these patterns do not have commonly used names and are simply known by their numbers.
+Zaps are low, fast passes that only spin half a rotation. They open a whole new group of interesting patterns. Look at a [video](https://www.youtube.com/watch?v=fXyLoK-KhxQ) or an [animation](https://passist.org/siteswap/564?jugglers=2) for examples. They are usually thrown with an extended arm, letting the club slide down to the knob, without any spin from the wrist, aiming quite a bit behind the person catching the zap. Most of these patterns do not have commonly used names and are simply known by their numbers.
 
-**Getting started with zaps (56464).** This is a great warmup pattern to learn and practice zaps. Hold the 4s and think of it at *self-self-zap-wait-wait*, starting with the *self-self* when it is necessary to free a hand to catch the zap. The zap is always the same club and there is plenty of time to watch the throw.
+**Getting started with zaps (56464).** This is a great warmup pattern to learn and practice zaps. Hold the 4s and think of it as *self-self-zap-wait-wait*, starting with the *self-self* when it is necessary to free a hand to catch the zap. The zap is always the same club and there is plenty of time to watch the throw.
 
 <siteswap>56464</siteswap>
 
@@ -18,7 +18,7 @@ Once this is stable, replace the *wait-wait* with a *self-zip* (56662) to make i
 
 <siteswap>56662</siteswap>
 
-**Killer bunny (564).** The next good practice pattern is shorter and slightly more challenging -- think of it as *self-zap-hold* or *self-zap-flip*. Once the pattern is more stable, flipping rather than holding the club will help with timing.
+**Killer bunny (564).** The next good practice pattern is shorter and slightly more challenging – think of it as *self-zap-hold* or *self-zap-flip*. Once the pattern is more stable, flipping rather than holding the club will help with timing.
 
 <siteswap>564</siteswap>
 
@@ -26,7 +26,7 @@ Once this is stable, replace the *wait-wait* with a *self-zip* (56662) to make i
 
 <siteswap>552</siteswap>
 
-**756.** This a well-known 6-club pattern and a great milestone in combining zaps and singles. Each passer throws a zap and then a single (a "stack") to the *same* hand (crossing one of the passes), and then, after a self, a zap and a single to the other hand. Ensure the zaps are fast and the singles are lofty.
+**756.** This is a well-known 6-club pattern and a great milestone in combining zaps and singles. Each passer throws a zap and then a single (a "stack") to the *same* hand (crossing one of the passes), and then, after a self, a zap and a single to the other hand. Ensure the zaps are fast and the singles are lofty.
 
 <siteswap>756</siteswap>
 

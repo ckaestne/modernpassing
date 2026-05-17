@@ -8,7 +8,7 @@
 
 </progressions>
 
-**Why not (78627).** *Why not* is probably the first pattern with heffs for most passers. It is a widely know 6-club pattern, with [lots of videos](https://www.youtube.com/results?search_query=why+not+club+passing+ija) and [good video tutorials](https://www.youtube.com/watch?v=6GKvM23fexE). Many passers fudge the timing with a fast zip (like in [Jim's patterns](2c-jims.md)) and juggle it synchronously. The most common and easiest to learn start is to have passer B start with two clubs and react to the first pass with heff-zip-pass-self-pass.
+**Why not (78627).** *Why not* is probably the first pattern with heffs for most passers. It is a widely known 6-club pattern, with [lots of videos](https://www.youtube.com/results?search_query=why+not+club+passing+ija) and [good video tutorials](https://www.youtube.com/watch?v=6GKvM23fexE). Many passers fudge the timing with a fast zip (like in [Jim's patterns](2c-jims.md)) and juggle it synchronously. The most common and easiest to learn start is to have passer B start with two clubs and react to the first pass with heff-zip-pass-self-pass.
 
 <siteswap>78627</siteswap>
 
@@ -18,7 +18,7 @@ There is also a 5-club version (*78622*) and the similar pattern *not why* (7286
 
 <siteswap>786</siteswap>
 
-**Funky bookends (77786).** Another common, well known pattern.
+**Funky bookends (77786).** Another common, well-known pattern.
 
 <siteswap>77786</siteswap>
 

@@ -7,9 +7,9 @@
 
 </progressions>
 
-In four-handed siteswaps, usually both passers juggle the same sequence, just offset of each other. However, this is not necessary -- just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [basic synchronous patterns](2b-basic-sync.md)). 
+In four-handed siteswaps, usually both passers juggle the same sequence, just offset from each other. However, this is not necessary – just like there are many synchronous passing patterns that match different patterns, such as throwing an early double (see [basic synchronous patterns](2b-basic-sync.md)). 
 
-Matching and easier and a harder four-handed siteswap allows passers with different skills to both juggle interesting patterns. A good example is matching the easy *5-club one-count* (744) against the harder 7-club pattern *French three-count* (786):
+Matching an easier and a harder four-handed siteswap allows passers with different skills to both juggle interesting patterns. A good example is matching the easy *5-club one-count* (744) with the harder 7-club pattern *French three-count* (786):
 
 <siteswap>784746</siteswap>
 
@@ -19,19 +19,19 @@ Matching compatible siteswaps also helps to stabilize passes for a passing partn
 
 ## Theory: What makes two siteswaps compatible?
 
-Two patterns are compatible if they have the same length and the same sequence of *catching* passes and non-passes. The sequence of catching passes and non-passes is the *interface*. For example, *744* and *768* both require catching one pass followed by two non-passes (interface *pxx*), and *972* and *978* require catching two passes followed by one non-pass (interface *ppx*). 
+Two patterns are compatible if they have the same length and the same sequence of *catching* passes and non-passes. The sequence of catching passes and non-passes is the *interface*. For example, *744* and *786* both require catching one pass followed by two non-passes (interface *pxx*), and *972* and *978* require catching two passes followed by one non-pass (interface *ppx*). 
 
-Importantly, it does not matter when clubs are thrown, but when they land, since it only matters whether an incoming club comes from another passer or one-self. For example, in *maybe* (72786), the passer throws two consecutive singles, but in *maybe not* (96627), the passer throws a double and a single a pass apart -- nevertheless, in both cases the passes arrive on consecutive beats, so they are compatible with the interface *ppxxx*.
+Importantly, it does not matter when clubs are thrown, but when they land, since it only matters whether an incoming club comes from another passer or oneself. For example, in *maybe* (72786), the passer throws two consecutive singles, but in *maybe not* (96627), the passer throws a double and a single a pass apart – nevertheless, in both cases the passes arrive on consecutive beats, so they are compatible with the interface *ppxxx*.
 
 <siteswap>7279662786</siteswap>
 
-Note that *ppxxx*, *xppxx*, *xxppx* and so forth are all the same interface, simply by shifting where to start each siteswap.
+Note that *ppxxx*, *xppxx*, *xxppx*, and so forth are all the same interface, simply by shifting where to start each siteswap.
 
-Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper (see [theory](4l-4hsw-theory.md)) -- or simply look it up with a tool like [passist.org](https://passist.org/). Many standard siteswap transformations preserve the interface. Also figuring out how to start is not always obvious and may require some trial and error or scribbling of causal diagrams.
+Unfortunately, figuring out the interface of a siteswap is nontrivial and often requires pen and paper (see [theory](4l-4hsw-theory.md)) – or simply look it up with a tool like [passist.org](https://passist.org/). Many standard siteswap transformations preserve the interface. Figuring out how to start is also not always obvious and may require some trial and error or scribbling of causal diagrams (see [siteswap theory](4l-4hsw-theory.md)).
 
 ## Compatible Common Patterns
 
-Here is a table with the compatibility of some common period 1, 3 and 5 siteswaps -- all patterns in the same row are compatible:
+Here is a table with the compatibility of some common period 1, 3, and 5 siteswaps – all patterns in the same row are compatible:
 
 | Interface | 4 and 5 club patterns                                        | 6 and 7 club patterns                                        | 8 and 9 club patterns |
 | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------- |
@@ -63,7 +63,7 @@ Such patterns are fairly uncommon in the passing community right now, but there 
 
 <siteswap>77a666</siteswap>
 
-To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an even length and exclude any patterns with 1 or 3s. 
+To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an even length and exclude any patterns with 1s or 3s. 
 
 ## Hijacking / Programming
 

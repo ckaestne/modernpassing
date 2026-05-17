@@ -23,11 +23,11 @@ There are lots and lots of 7 and 8-club patterns that include plenty of heffs an
 
 <siteswap>978</siteswap>
 
-**Poem (9969788).** A challenging, well known 8-club pattern.
+**Poem (9969788).** A challenging, well-known 8-club pattern.
 
 <siteswap>9969788</siteswap>
 
-**Other patterns to try.**  *The One to Concentrate* (97428), *Aspirin* (9667867), *Good morning* (9792688), *8-club Vitoria* (9797888)
+**Other patterns to try.** *The One to Concentrate* (97428), *Aspirin* (9667867), *Good morning* (9792688), *8-club Vitoria* (9797888)
 
 ## Zaps and Heffs
 
@@ -57,7 +57,7 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 <siteswap>96956</siteswap>
 
-**a56 to a5555.** Combing zaps with trelfs makes for rather challenging patterns, requiring very reliable trelfs. Especially *a5555* has very limited time to look up -- here, *a555566* is a decent warmup pattern with the self in a strategic location.
+**a56 to a5555.** Combining zaps with trelfs makes for rather challenging patterns, requiring very reliable trelfs. Especially *a5555* has very limited time to look up – here, *a555566* is a decent warmup pattern with the self in a strategic location.
 
 <siteswap>a56</siteswap>
 
@@ -69,11 +69,11 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 ## Sequences
 
-There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throw: for example, *456*, *567*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps, that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
+There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throws: for example, *456*, *567*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
 
 For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each passer passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
 
-**95678.** The sequence *56789* is probably the best known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand -- as in [holy grail](4i-4hsw-holygrail.md). 
+**95678.** The sequence *56789* is probably the best-known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand – as in [holy grail](4i-4hsw-holygrail.md). 
 
 <siteswap>95678</siteswap>
 
@@ -83,7 +83,7 @@ The permutations are *97586* (each passer counting up) and *96857* (each passer 
 
 <siteswap>96857</siteswap>
 
-**Suicide bunny (56784).** This 6-club sequence from 4 to 8 is challenging at first, but usually more for remembering the many different throws more than for the actual physical difficulty.
+**Suicide bunny (56784).** This 6-club sequence from 4 to 8 is challenging at first, but usually more for remembering the many different throws than for the actual physical difficulty.
 
 <siteswap>56784</siteswap>
 
@@ -95,7 +95,7 @@ The permutations are *75864* and *57468*.
 
 The permutations are *97a86* and *a7968*.
 
-**789a456 and 9ab5678.** These long sequences, with 7 clubs from *4* to *a* or and with 8 clubs from *5* to *b*, make the stacking really noticeable. 
+**789a456 and 9ab5678.** These long sequences, with 7 clubs from *4* to *a* or with 8 clubs from *5* to *b*, make the stacking really noticeable. 
 
 <siteswap>789a456</siteswap>
 

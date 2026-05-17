@@ -23,7 +23,7 @@
 
 <siteswap>972</siteswap>
 
-**Not likely (96672).** Doubles in period-5 patterns can be tricky, make sure they are lofty and use the self-zip-self to stabilize.
+**Not likely (96672).** Doubles in period-5 patterns can be tricky; make sure they are lofty and use the self-zip-self to stabilize.
 
 <siteswap>96672</siteswap>
 
@@ -31,7 +31,7 @@
 
 <siteswap>96677</siteswap>
 
-**8-club pass-pass-self (996).** A great introduction to ambidexterious 8 clubs.
+**8-club pass-pass-self (996).** A great introduction to ambidextrous 8 clubs.
 
 <siteswap>996</siteswap>
 
