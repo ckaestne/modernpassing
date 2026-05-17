@@ -17,7 +17,7 @@ There are many variations of *Roundabout*, patterns that incorporate *Roundabout
 
 After the standard *Roundabout*, there are a number of other 3-person patterns that are one-sided with all right-handed manipulations, each followed by a zip, that are good next patterns with only gently increased difficulty.
 
-**Chopabout.** The *Chopabout* is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B on the first beat (highlighted), the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. The same happens in the opposite direction on the fifth beat. The passer throwing the chop usually needs to prepare a beat early with a narrow self, but in a pinch a reverse spin zap or even a pelf or normal zap will do instead of a chop. The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but with some practice, the manipulator has enough time to look back to check and improve their placement.
+**Chopabout.** The *Chopabout* is a longer, more challenging pattern that introduces a new kind of takeout: the chop substitution. When substituting a pass from A to B on the first beat (highlighted), the manipulator faces A and steals the pass thrown as a chop and places the other club behind their back to B. The same happens in the opposite direction on the fifth beat. The passer throwing the chop usually needs to prepare a beat early with a narrow self, but in a pinch, a reverse spin zap or even a pelf or normal zap will do instead of a chop. The chop is caught with the left hand, upside down, catching the body (or the middle) of the club. The manipulator places the club behind them with the right hand, raising the hand high to make it easy for B to grab; B needs to actively look for the club. The placement is often done blind without looking, but with some practice, the manipulator has enough time to look back to check and improve their placement.
 
 <sync-group video="https://www.youtube.com/watch?v=xAqx56CTIZs" todo="highlight the chop throws; fix carry from wrong hand" style='{"emphasizeThrows":[[0,0],[1,4]]}'>
 A: 3pB3 33   3pB3 33   3pB3 33 -- B
@@ -37,7 +37,7 @@ B: 3pA 3 3   3pA 3 3 -- A
 M: SBl z IBl .   Cz
 </sync-group>
 
-In this one, the manipulator intercepts a self, turns around, and passes that intercepted club immediately on the next beat as B with their left hand -- this is very fast for the manipulator.
+In this one, the manipulator intercepts a self, turns around, and passes that intercepted club immediately on the next beat as B with their left hand – this is very fast for the manipulator.
 
 
 <sync-group video="https://youtu.be/94PLxzRh5Ec?si=RpjfOMKeDUPCCuXE&t=34">
@@ -65,7 +65,7 @@ As many passers know the classic *Roundabout* so well, there are several more or
 
 **Long-distance Roundabout.** Sometimes used for games, the idea is to start *Roundabout* at a normal distance but continuously have to move the passers further apart, making the passes longer and longer and requiring the manipulator to cover increasingly long distances.
 
-**Tess-about.** The idea is to isolate one passer in place and have the pattern move around them. This can accommodate passers who cannot or do not want to walk, and can be an interesting challenge in itself. Usually the isolated passer stands (or sits) in one location but can turn. When the isolated passer would wark across the pattern, instead the other two passers walk the opposite direction to move the entire pattern relative to the isolated passer. The sequence is fairly easy to learn and repeats quickly. The general idea can be used to *tessify* any moving and manipulator pattern.
+**Tess-about.** The idea is to isolate one passer in place and have the pattern move around them. This can accommodate passers who cannot or do not want to walk, and can be an interesting challenge in itself. Usually the isolated passer stands (or sits) in one location but can turn. When the isolated passer would walk across the pattern, instead the other two passers walk the opposite direction to move the entire pattern relative to the isolated passer. The sequence is fairly easy to learn and repeats quickly. The general idea can be used to *tessify* any moving and manipulator pattern.
 
 <video link="https://passing.zone/roundabout-with-isolated-person/"></video>
 
@@ -124,7 +124,7 @@ positions: Circle(A,B,C)
 
 There have been several attempts to create *Roundabout*-style patterns that use more clubs and higher passes. Most commonly, the goal is to keep the manipulator sequences as in the base pattern, but have the two passers juggle a harder sequence with an extra club.
 
-**Extra-club roundabout.** The original *extra-club roundabout* is a good example of this strategy. Notice that the manipulator actions are the same as in *Roundabout* and all throws that are stolen  remain unchanged from the base pattern (highlighted), but a lot of other throws are changed to crossing double passes and heffs. Due to quirks of the notation, the intercept is notated one beat earlier, since it is intercepting a double pass thrown one beat earlier, but caught at the same time as in regular roundabout. The base pattern itself is challenging, long synchronous 7-club pattern, specifically designed to keep the manipulator actions unchanged.
+**Extra-club roundabout.** The original *extra-club roundabout* is a good example of this strategy. Notice that the manipulator actions are the same as in *Roundabout* and all throws that are stolen remain unchanged from the base pattern (highlighted), but a lot of other throws are changed to crossing double passes and heffs. Due to quirks of the notation, the intercept is notated one beat earlier, since it is intercepting a double pass thrown one beat earlier, but caught at the same time as in regular roundabout. The base pattern itself is a challenging, long synchronous 7-club pattern, specifically designed to keep the manipulator actions unchanged.
 
 <sync-group style='{"emphasizeThrows":[[0,0],[1,2]]}'>
 A: 3B 4 4 4pB 4 4 4 4pB -- B
@@ -132,7 +132,7 @@ B: 4pA 333 3pA 333 -- A
 M: SBe z SBl IBvo .. CB↺ z
 </sync-group>
 
-**Ronjabout.** *Ronjabout* is a newer and more elegant solution to the problem, making the pattern one beat longer but maintaining simpler base pattern with all straight double passes (with the [usual trick](2d-advanced.md) of having one passer start left-handed).  Here the manipulator is technically substituting a double pass and has more time for the substitution, though it may be barely noticable as they wait for an empty hand anyway.
+**Ronjabout.** *Ronjabout* is a newer and more elegant solution to the problem, making the pattern one beat longer but maintaining a simpler base pattern with all straight double passes (with the [usual trick](2d-advanced.md) of having one passer start left-handed). Here the manipulator is technically substituting a double pass and has more time for the substitution, though it may be barely noticeable as they wait for an empty hand anyway.
 
 <sync-group video="https://passing.zone/ronjabout/" style='{"emphasizeThrows":[[0,0],[1,3]]}'>
 A: 4pBx 3   5 3 4pBx 3   5 3 4pBx -- B

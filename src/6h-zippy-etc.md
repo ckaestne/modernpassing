@@ -8,7 +8,7 @@
 
 </progressions>
 
-All standard scrambled and ambled patterns are right-handed and use *four-count* or *two-count* as the base pattern. *Zippy* is based on a [rotating pass-pass-self feed](5d-moving.md) is a good starting point to explore patterns with more interesting base patterns and even a left-handed takeout.
+All standard scrambled and ambled patterns are right-handed and use *four-count* or *two-count* as the base pattern. *Zippy*, based on a [rotating pass-pass-self feed](5d-moving.md), is a good starting point to explore patterns with more interesting base patterns and even a left-handed takeout.
 
 ## Zippy
 
@@ -21,10 +21,10 @@ positions: V(A,B,C)
 move: Vmove(B,4.2,3.7)
 </sync-group>
 
-Hints: Some find counting aloud 1 to 8 useful to keep the time and coordinate what to do. The first manipulation is left-handed. The manipulator should turn quickly out to the left of A after placing that substitution to make place for A's pass on beat 4. Then, the manipulator catches two clubs in a row, and B and C can make it easy by throwing them lofty. B starts walking after their pass on beat 5 (or even slightly earlier). The previous A is now the new manipulator, carries the pass, and then substitutes a pass, *while* B is walking, stepping quickly out to the left at the end to open B's passing lane. At the end, the manipulator has two zips (beat 8 and 1) that usually come naturally -- the first zip is often automatic and the second happens when realizing that the next substitution is left-handed. Canonically, one of those two zips should be behind the back.
+Hints: Some find counting aloud 1 to 8 useful to keep the time and coordinate what to do. The first manipulation is left-handed. The manipulator should turn quickly out to the left of A after placing that substitution to make place for A's pass on beat 4. Then, the manipulator catches two clubs in a row, and B and C can make it easy by throwing them lofty. B starts walking after their pass on beat 5 (or even slightly earlier). The previous A is now the new manipulator, carries the pass, and then substitutes a pass, *while* B is walking, stepping quickly out to the left at the end to open B's passing lane. At the end, the manipulator has two zips (beat 8 and 1) that usually come naturally – the first zip is often automatic and the second happens when realizing that the next substitution is left-handed. Canonically, one of those two zips should be behind the back.
 
 
-When *Zippy* became popular, some in the community started exploring variations on the same base pattern, and found [81 variations](https://passing.zone/zippy_1/). Of course, it is also possible to combine various combinations of those for a 5-person pattern, for example, *[Chippy-Zippy](https://passing.zone/chippy-zippy/)*.
+When *Zippy* became popular, some in the community started exploring variations on the same base pattern and found [81 variations](https://passing.zone/zippy_1/). Of course, it is also possible to combine various combinations of those for a 5-person pattern, for example, *[Chippy-Zippy](https://passing.zone/chippy-zippy/)*.
 
 ## Beyond Zippy
 
@@ -56,7 +56,7 @@ positions: Brunos(A,B,C)
 move: Bmove(B,1.9,4)Bmove(B,6.9,5)Bmove(C,3.9,4)
 </sync-group>
 
-There is no equivalence of a north-wall pattern for 3 passers and a manipulator where everybody cycles to the pattern both left and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two passers doing the right side of the pattern and two passers doing the left side, without ever swapping.
+There is no equivalent of a north-wall pattern for 3 passers and a manipulator where everybody cycles through the pattern both left- and right-handed. Even period patterns like *Zippy* and *Dumb ways to die* do not flip sides, and odd period patterns like *BrunEd* simply have two passers doing the right side of the pattern and two passers doing the left side, without ever swapping.
 
 **Brunickolf.** *Brunickolf* is a 5-person takeout pattern on the standard *[Bruno's nightmare](5d-moving.md)* base pattern.
 It is composed of two 4-person patterns that have only one of the manipulators each. 
