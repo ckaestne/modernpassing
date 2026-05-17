@@ -27,6 +27,7 @@ additional-js = ["vizsiteswap/dist/animations.js","vizsiteswap/dist/svg.min.js"]
 smart-punctuation = true
 git-repository-url = "https://github.com/ckaestne/modernpassing"
 git-repository-icon = "fab-github"
+edit-url-template = "https://github.com/ckaestne/modernpassing/edit/main/{path}"
 default-theme = "light"
 
 [output.typst]
