@@ -152,6 +152,9 @@ function renderBlockToken(token: AnyToken): string {
         case "list": {
             return renderList(token)
         }
+        case "table": {
+            return renderTable(token)
+        }
         case "hr": {
             //out.push(`#line(length: 100%)`)
             //ignore
@@ -184,6 +187,45 @@ function renderList(token: AnyToken): string {
     })
 
     return lines.join("\n")
+}
+
+function renderTable(token: AnyToken): string {
+    const headerCells = asTokens(token.header)
+    const rows = asTokens(token.rows)
+
+    const rowCells: AnyToken[][] = []
+    if (headerCells.length > 0) {
+        rowCells.push(headerCells)
+    }
+    for (const row of rows) {
+        rowCells.push(asTokens(row))
+    }
+
+    if (rowCells.length === 0) {
+        return ""
+    }
+
+    const columnCount = rowCells.reduce((max, row) => Math.max(max, row.length), 0)
+    if (columnCount === 0) {
+        return ""
+    }
+
+    const cellBlocks: string[] = []
+    for (let rowIndex = 0; rowIndex < rowCells.length; rowIndex += 1) {
+        const row = rowCells[rowIndex]
+        const isHeader = rowIndex === 0 && headerCells.length > 0
+
+        for (let col = 0; col < columnCount; col += 1) {
+            const cell = row[col]
+            const tokens = asTokens(cell?.tokens)
+            const text = tokens.length > 0 ? renderInline(tokens) : escapeText(asString(cell?.text))
+            const content = text.trim().length > 0 ? text : " "
+            const body = isHeader ? `#strong[${content}]` : content
+            cellBlocks.push(`[${body}]`)
+        }
+    }
+
+    return `#table(\n${indent(`columns: ${columnCount},\n${cellBlocks.join(",\n")}`)}\n)`
 }
 
 function renderInline(tokens: AnyToken[]): string {
@@ -256,6 +298,7 @@ function renderInline(tokens: AnyToken[]): string {
 function escapeText(text: string): string {
     return text
         .replaceAll("\\", "\\\\")
+        .replaceAll("*", "\\*")
         .replaceAll("#", "\\#")
         .replaceAll("[", "\\[")
         .replaceAll("]", "\\]")
