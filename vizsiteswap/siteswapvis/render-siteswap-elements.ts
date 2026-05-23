@@ -133,7 +133,7 @@ function renderGroupWithFrames(
     }
 
     const showPattern = config.components === undefined ||
-        config.components.some((c) => c === "aidan" || c === "pattern" || c === "default-pattern") 
+        config.components.some((c) => c === "aidan" || c === "pattern" || c === "default-pattern")
 
     const lines: string[] = []
     if (showPattern) {
