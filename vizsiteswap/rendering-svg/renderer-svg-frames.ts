@@ -20,7 +20,7 @@ export const defaultFrameRenderConfig: FrameRenderConfig = {
     animationCounterFontSize: 24,
     frameBorderWidth: 3,
     frameBorderColor: "grey",
-    animationCounterBeatsNotTime: false,
+    animationCounterBeatsNotTime: true,
 }
 
 export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {

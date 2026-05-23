@@ -611,7 +611,7 @@ function renderInline(tokens: AnyToken[]): string {
                 //     figureArgs.push(`caption: [${escapeText(parsed.caption)}]`)
                 // }
                 const fig = `figure(${figureArgs.join(", ")})`
-                out.push("#" + (parsed.kind === "patternWithFrames" ? `box(${fig})` : fig))
+                out.push("#" + /*(parsed.kind === "patternWithFrames" ? `box(${fig})` :*/ fig)//)
                 break
             }
             case "html": {
