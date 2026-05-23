@@ -139,6 +139,7 @@ function renderGroupWithFrames(
     const lines: string[] = []
     if (showPattern) {
         const limitedConfig: Partial<RendererConfig> = mergePartialConfig({ components: ["default-pattern", "turntable"] }, config)
+        limitedConfig.components = limitedConfig.components?.filter((c) => c !== "layout")
         const [svg] = renderGroupPattern(gp, limitedConfig)
         const filename = options.writeSvgFile(svg.svg(), kind, index)
         lines.push(`![tag:patternWithFrames](${filename})`)

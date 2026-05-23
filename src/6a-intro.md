@@ -17,7 +17,7 @@
 
 <video backup="https://www.youtube.com/watch?v=doqqySruJig">https://juggling.tv/5437</video>
 
-<sync-group>
+<sync-group frames="">
 A: 3pB3 33   3pB3 33 -- B
 B: 3pA3 33   3pA3 33  -- A
 M: SB z SB z  IB . CB↺ z
@@ -68,7 +68,7 @@ In the pattern, two passers with roles A and B pass [*6-club three-count*](2b-ba
 
 Role switching works similarly to [moving patterns](5d-moving.md): The pattern repeats, but with different roles, until everybody is back in their starting role. Here, at the end of six beats, the passer who originally started in role B is now in the role of the manipulator M, the passer who started as manipulator is now in role A, and the passer who started in role A is now in role B.
 
-<sync-group style='{"components": ["layout"], "layoutSize": 300}'>
+<sync-group style='{"components": ["layout"], "layoutSize": 300}' frames="">
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..

@@ -94,7 +94,8 @@ const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig> = {
     ],
     walkingArrowStyle: {
         color: "#555",
-    }
+    },
+    showInAirPasses: false
 }
 
 forEachChapter(book, (chapter) => {
