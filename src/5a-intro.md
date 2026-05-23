@@ -13,7 +13,7 @@ The actions of each passer are usually described using the notation of [synchron
 
 Here is an example of three passers passing *three-count* in a triangle:
 
-<sync-group>
+<sync-group frames="0,3">
 A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33

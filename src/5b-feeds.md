@@ -29,7 +29,7 @@ The basic idea of a feed based on synchronous 6-club patterns is simple: The fee
 **Basic feeds.**
 The traditional standard pattern is to feed two feedees on *[6-club four-count](2b-basic-sync.md)* (starting two beats offset) with *[6-club two-count](2b-basic-sync.md)* alternating between the two feedees:
 
-<sync-group>
+<sync-group frames="0,2">
 A: 3pB33pC3
 B: 3pA333
 C: 333pA3
@@ -38,7 +38,7 @@ positions: V(A,B,C)
 
 As usual, we instead recommend an ambidextrous pattern as a modern starting point: *[6-club three-count](2b-basic-sync.md)* vs *[6-club pass-pass-self](2b-basic-sync.md)*:
 
-<sync-group>
+<sync-group frames="0,1,2">
 A: 3pB3pC3
 B: 3pA33
 C: 33pA3
@@ -49,7 +49,7 @@ positions: V(A,B,C)
 
 For four passers, this can be easily extended to a feeder juggling *[6-club one-count](1-learn-teach.md)* and alternating passes to three feedees each juggling *[6-club three-count](2b-basic-sync.md)*:
 
-<sync-group>
+<sync-group frames="0:6">
 A: 3pB3pC3pD
 B: 3pA33
 C: 33pA3
@@ -63,18 +63,18 @@ As another beginner-friendly feed, a feeder juggling *[6-club one-count](1-learn
 **Chaining multiple feeds.** 
 To integrate more passers, it is possible to have more than one feeder in a pattern, producing N-shaped or W-shaped layouts. For example, here is a pattern with two feeders (B, C):
 
-<sync-group>
+<sync-group frames="0:5">
 A: 3pB33
 B: 3pA3pC3
 C: 3pD3pB3
 D: 3pC33
-positions: Free(A,0.1,0.0,B,0.35,1.0,D,0.85,1.0,C,0.6,0.0)
+positions: Free(A,0.2,0.0,B,0.45,1.0,D,0.95,1.0,C,0.7,0.0)
 </sync-group>
 
 
 **Getting creative.** It is easily possible to come up with various different variations by deciding whether and to whom the feeders should pass on each beat. For example, a feeder juggling *[6-club one-count](1-learn-teach.md)* could pass to one feedee in *[bookends (pass-pass-self-pass-self)](2b-basic-sync.md)* and to two more feedees in *five-count*. To further extend this, one of those feedees could act as a feeder themselves, feeding the first feeder in *five-count* and a fifth passer in *pass-pass-self-self-self*:
 
-<sync-group>
+<sync-group frames="0:5">
 A: 3pB3pB3pC3pB3pD
 B: 3pA3pA33pA3
 C: 333pA33
@@ -97,7 +97,7 @@ positions: V(A,B,C)
 **Adding clubs to synchronous feeds.**
 It is possible to add extra clubs to a feed. The most common traditional pattern is a feeder passing [7-club two-count](2d-advanced.md) to two feedees passing *7-club four-count* on doubles:
 
-<sync-group>
+<sync-group frames="0:4" style='{ "showInAirPasses": false }'>
 A: 4pBx34pCx3
 B: !34pAx33
 C: !3334pAx
@@ -108,7 +108,7 @@ positions: V(A,B,C)
 
 *[8-club pass-pass-self](2d-advanced.md)* can also straightforwardly feed two feedees juggling *[8-club three-count](2d-advanced.md)*:
 
-<sync-group>
+<sync-group frames="">
 A: 4pBx4pCx4
 B: !4pAx44
 C: !44pAx4
@@ -128,7 +128,7 @@ There are many common feeds of four-handed siteswaps and it is easy to create mo
 **774 vs. 5-club one-count.** To integrate beginners into a feed, it is possible for a more experienced passer to feed two passers in *[5-club one-count](1-learn-teach.md)* with *[774](4b-4hsw-beginner.md)* or three passers in *5-club one-count* with *[7-club one-count](4b-4hsw-beginner.md)*.
 
 
-<siteswap-group>
+<siteswap-group frames="0:6">
 A: 7B7C4
 B: ,47A4
 C: ,447A
@@ -138,7 +138,7 @@ positions: V(A,B,C)
 **Mild madness vs. Jim's three-count.**
 Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Martin's mildness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps *7767746* and *7777266*:
 
-<siteswap-group>
+<siteswap-group frames="">
 A: 7B7C267B7C6
 B: ,7A667A466
 C: ,67A667A46
@@ -148,7 +148,7 @@ positions: V(A,B,C)
 
 **Martin's one-count vs. why not.** For more experienced feedees, *Martin's one-count* (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees wait for an incoming pass to trigger their heff is the easiest-to-remember start.
 
-<siteswap-group>
+<siteswap-group frames="">
 A: 7B7C7B7C2
 B: ,827A67A
 C: ,7A827A6
@@ -159,7 +159,7 @@ positions: V(A,B,C)
 
 **Why not vs. five-count popcorn.** This feed is roughly of similar difficulty for all passers; as usual, *five-count popcorn* can be juggled with either [heffs](4d-4hsw-heffs.md) or [trelfs](4f-4hsw-trelfs.md).
 
-<siteswap-group>
+<siteswap-group frames="">
 A: 7B67C82
 B: ,a67A66
 C: ,66a67A
@@ -168,7 +168,7 @@ positions: V(A,B,C)
 
 **7-club one-count vs. funky bookends and why not.** Combining three different patterns, the feeder needs to remember the passing sequence B-B-C-B-C independent of whether throwing with the left or right hand.
 
-<siteswap-group>
+<siteswap-group frames="">
 A: 7B7B7C7B7C
 B: ,7A87A7A6
 C: ,67A827A
@@ -177,7 +177,7 @@ positions: V(A,B,C)
 
 **972 vs. 7-club three-count and French three-count.** In this pattern, the feeder passes double passes with one feedee and single passes with the other.
 
-<siteswap-group>
+<siteswap-group frames="">
 A: 7B   9C    2 
 B: ,  8   7A   6 
 C: ,  6   6    9A
@@ -190,7 +190,7 @@ positions: V(A,B,C)
 
 **8-club pass-pass-self vs. 7-club three-count.** The siteswap *996* can naturally feed two feedees passing *966* for a total of 11 clubs.
 
-<siteswap-group  style='{"flipStraightCrossing": true}'>
+<siteswap-group  frames="" style='{"flipStraightCrossing": true}'>
 A: 9B9C6
 B: ,69A6
 C: ,669A

@@ -8,7 +8,7 @@ Speed passing is speed dating for passers. This is commonly run as a workshop ea
 
 In a long line through the gym, passers meet in pairs. The passers in each pair introduce each other and decide on a pattern to try. An organizer keeps the time and signals to change partners every 60 to 120 seconds (a whistle and a tabata workout timer work well for this). On each partner change, each passer moves a step to the right to pass with the next passer in line. At the end of the line, passers have a break for one round and then continue on the other side on the next partner change. This continues until everybody has passed with everybody else, or time runs out.
 
-<sync-group style='{"renderLayoutOnly": 400}'>
+<sync-group style='{"renderLayoutOnly": 400, "components": [], "showAnimationCounter": false}' frames="0,6">
 A: 3pJ3pJ3pJ3pJ333pI3pI3pI3pI33 -- B
 B: 3pI3pI3pI3pI333pH3pH3pH3pH33 -- C
 C: 3pH3pH3pH3pH333pG3pG3pG3pG33 -- D
@@ -40,7 +40,7 @@ As shown earlier, it is possible to [chain multiple feeds](./5b-feeds.md). The s
 
 The [Feast](./5c-static-groups.md) pattern conceptually works for any number of passers, but with enough passers the circle will be very large and some passes will be exceedingly far while others are very short. One way to solve the problem is to turn the feast pattern into a walking pattern with two lines that maintains all passes at a similar length:
 
-<sync-group style='{"renderLayoutOnly": 400}'>
+<sync-group style='{"renderLayoutOnly": 400, "components": [], "showAnimationCounter": false}' frames="0,1.5">
 A: 3pI3 -- B
 B: 3pH3 -- C
 C: 3pG3 -- D
