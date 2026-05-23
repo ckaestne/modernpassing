@@ -138,14 +138,14 @@ function renderGroupWithFrames(
 
     const lines: string[] = []
     if (showPattern) {
-        const limitedConfig: Partial<RendererConfig> = mergePartialConfig(config, { components: ["default-pattern", "turntable"] })
+        const limitedConfig: Partial<RendererConfig> = mergePartialConfig({ components: ["default-pattern", "turntable"] }, config)
         const [svg] = renderGroupPattern(gp, limitedConfig)
         const filename = options.writeSvgFile(svg.svg(), kind, index)
         lines.push(`![tag:patternWithFrames](${filename})`)
     }
 
     const frameImages = frames.map((time) => {
-        const svg = renderAnimationFrameAsSvg(gp, time, mergePartialConfig<AnyRendererConfig>(config, { showAnimationCounter: true, isAnimationCounterZeroBased: false }))
+        const svg = renderAnimationFrameAsSvg(gp, time, mergePartialConfig<AnyRendererConfig>({ showAnimationCounter: true, isAnimationCounterZeroBased: false }, config))
         const filename = options.writeSvgFile!(svg.svg(), "frame", time)
         return `![tag:frame](${filename})`
     })

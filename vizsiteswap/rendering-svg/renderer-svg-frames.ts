@@ -125,7 +125,7 @@ export function renderAnimationFrame(
         const pos = apFindPosition(layout, jugglerIdx, time)
         const loc = scale.scalep(pos)
         const role = apGetRole(layout, jugglerIdx, time)
-        renderJuggler(canvas, loc, jugglerIdx, initialRoles.indexOf(role), role, config)
+        renderJuggler(canvas, loc, jugglerIdx, initialRoles.indexOf(role), role, config, layout.relabeling.length > 0)
     }
 
     // render passes
@@ -204,9 +204,9 @@ function createRoleColorMappings(config: RenderLayoutConfig, layout: AnimationPl
 //     return size.throwsAreaX + size.throwCircleSize / 2 + time * size.xDist
 // }
 
-function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, roleIdx: number, role: Role, config: RenderLayoutConfig): G {
+function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, roleIdx: number, role: Role, config: RenderLayoutConfig, patternWithRelabeling: boolean): G {
     const [x, y] = pos
-    const style = resolvePasserStyle(config, passerIdx, roleIdx)
+    const style = resolvePasserStyle(config, passerIdx, roleIdx, patternWithRelabeling)
     const g = canvas.group()
     const c = canvas.circle(config.positionCircle - (style.strokeWidth ?? 0))
     applyShapeStyle(c, style)

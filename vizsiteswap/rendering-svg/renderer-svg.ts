@@ -461,7 +461,8 @@ export function createSVG(width?: number, height?: number): Svg {
 }
 
 /** Resolves a juggler circle's style by merging defaultPasserStyle ← passerStyle[passerIdx] ← roleStyle[roleIdx]. */
-export function resolvePasserStyle(config: RenderLayoutConfig, passerIdx: number, roleIdx: number): ShapeStyle {
+export function resolvePasserStyle(config: RenderLayoutConfig, passerIdx: number, roleIdx: number, patternWithRelabeling: boolean): ShapeStyle {
+    if (!patternWithRelabeling) return config.defaultPasserStyle;
     return mergeShapeStyle(
         config.defaultPasserStyle,
         config.passerStyle?.[passerIdx],
@@ -670,7 +671,7 @@ export function renderAnimation(
         const [x, y] = scale.scale(pos.x, pos.y)
         // Initial state only; at time 0 the passer at row r holds role r, so roleIdx === passerIdx here.
         // Subsequent re-styling on relabeling is the runtime's job (not currently implemented for arbitrary style fields).
-        const style = resolvePasserStyle(config, roleIdx, roleIdx)
+        const style = resolvePasserStyle(config, roleIdx, roleIdx, layout.relabeling.length > 0)
         const g = canvas.group()
         const c = canvas.circle(config.positionCircle - (style.strokeWidth ?? 0))
         applyShapeStyle(c, style)
