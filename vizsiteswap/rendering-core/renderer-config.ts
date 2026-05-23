@@ -67,7 +67,17 @@ export interface RendererConfig {
     labelThrows: "siteswap" | "classic" | "simple" | "simpleAllSync" | "none"
     labelPassDestinationRole: boolean // us 3pA instead of 3p to indicate the destination; undefined is the default and means false for 2 passer pattern and true for more passers
 }
-export type RenderComponents = "aidan" | "pattern" | "layout" | "video" | "turntable"
+
+/**
+ * Possible components of a pattern to render:
+ * * "pattern": the pattern; for manipulator patterns this is the "local" version with the manipulator applied
+ * * "aidan": the Aidan notation for manipulator patterns (only)
+ * * "default-pattern": the Aiden notation for manipulator patterns, and the pattern for non-manipulator patterns
+ * * "layout": the layout/animation next to the pattern
+ * * "video": a tab for the video (if available)
+ * * "turntable": the turntable notation below the pattern
+ */
+export type RenderComponents = "aidan" | "pattern" | "layout" | "video" | "turntable" | "default-pattern"
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,

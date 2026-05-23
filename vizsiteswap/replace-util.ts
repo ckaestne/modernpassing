@@ -2,11 +2,12 @@ import { JSDOM } from "jsdom"
 import process from "node:process"
 
 // deno-lint-ignore no-explicit-any
-export function replaceElement(elementName: string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any, videoLinks: string[]) => string): string {
+export function replaceElement(elementName: string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any, videoLinks: string[], attrs: Record<string, string>) => string): string {
     const re = new RegExp(`<${elementName}(.*?)>(.*?)</${elementName}>`, "gms")
     return text.replace(re, (match: string, config: string, inner: string) => {
         let c = {}
         const videoLinks: string[] = []
+        const attrs: Record<string, string> = {}
         if (config) {
             try {
                 const el = JSDOM.fragment(match)
@@ -23,6 +24,7 @@ export function replaceElement(elementName: string, text: string, transform: (en
                 if (attributes) {
                     for (let i = 0; i < attributes.length; i++) {
                         const attr = attributes[i]
+                        attrs[attr.name] = attr.value
                         if (attr.name.startsWith("video")) {
                             videoLinks.push(attr.value)
                         }
@@ -35,7 +37,7 @@ export function replaceElement(elementName: string, text: string, transform: (en
         }
 
         try {
-            return transform(match, inner, c, videoLinks)
+            return transform(match, inner, c, videoLinks, attrs)
         } catch (e) {
             console.error(`Error transforming element <${elementName}>${inner}</${elementName} / ${JSON.stringify(c)}>: ${e}`)
             throw e

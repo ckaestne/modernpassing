@@ -20,7 +20,7 @@ Triangle patterns are conceptually simple and versatile. In contrast to feeds, t
 **Three-count, insides.** 
 A good first pattern is to juggle *three-count* with *inside* throws, that is, right-handed passes go to the left hand of the passer on the left and left-handed passes to the right hand of the passer on the right. Everybody passes at the same time; count out loud if necessary to synchronize timing and avoid collisions. 
 
-<sync-group>
+<sync-group frames="0,3">
 A: 3pB333pC33
 B: 3pC333pA33
 C: 3pA333pB33
@@ -33,7 +33,7 @@ Once this works, there are many more variations to explore that are interestingl
 Stay on the same *three-count* rhythm, but throw the passes *outside*, that is, right-handed passes go to the left hand of the passer on the right and left-handed passes to the right hand of the passer on the left. Outside throws tend to be less collision-prone but harder to watch due to a much wider angle – do not watch the outgoing club but look for the incoming one. 
 Actively provide feedback about incoming passes and where you would like to receive them (usually slightly behind you), as other passers also will not see their passes land.
 
-<sync-group>
+<sync-group frames="0,3">
 A: 3pC333pB33
 B: 3pA333pC33
 C: 3pB333pA33

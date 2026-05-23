@@ -23,10 +23,11 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const tabTitles: string[] = []
     const tabIds: string[] = []
     for (const component of renderConfig.components) {
-        if (component === "pattern") {
+        const isManipulatorPattern = gp.aidanNotation !== undefined && gp.aidanNotation[1].length > 0
+        if (component === "pattern" || (!isManipulatorPattern && component === "default-pattern")) {
             tabTitles.push("Local")
             tabIds.push("pattern")
-        } else if (component === "aidan" && gp.aidanNotation !== undefined && (gp.aidanNotation[1].length > 0)) {
+        } else if (isManipulatorPattern && (component === "aidan" || component === "default-pattern")) {
             tabTitles.push("Aidan")
             tabIds.push("aidan")
         } else if (component === "video" && gp.videoLinks !== undefined && gp.videoLinks.length > 0) {
@@ -425,6 +426,8 @@ export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>)
 
     return svg
 }
+
+export { renderAnimationFrameAsSvg } from "./renderer-svg-frames.ts"
 
 export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow()

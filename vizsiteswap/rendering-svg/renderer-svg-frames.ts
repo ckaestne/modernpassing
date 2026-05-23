@@ -2,7 +2,7 @@ import type { GroupPattern, MovementSegmentSpec } from "@modernpassing/layout"
 import { type AnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, createAnimationPlan, type PassAnimation } from "@modernpassing/layout"
 import type { Role } from "@modernpassing/pattern"
 import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core"
-import { getRenderPatternSize } from "@modernpassing/rendering-svg"
+import { createSVG, getRenderPatternSize } from "@modernpassing/rendering-svg"
 import { scaleup } from "@modernpassing/svg-utils"
 import type { Containable, G, Line, Path, Svg, Text } from "@svgdotjs/svg.js"
 
@@ -24,6 +24,7 @@ type RenderLayoutConfig = {
     roleColors?: string[]
     animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
     showAnimationCounter: boolean
+    isAnimationCounterZeroBased: boolean
 }
 export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     positionCircle: 40,
@@ -31,6 +32,19 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     roleColors: undefined,
     animateRoleColors: false, // this is pretty confusing
     showAnimationCounter: false,
+    isAnimationCounterZeroBased: true
+}
+
+export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig>): Svg {
+    const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
+    const renderConfig: RendererConfig & RenderLayoutConfig = { ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    if (!gp.layout) throw new Error("Cannot render animation frame: pattern has no layout")
+    const size = getRenderPatternSize(gp.pattern, renderConfig)
+    const dim = size.height
+    const animationPlan = createAnimationPlan(gp.layout.animation, dim / renderConfig.positionCircle)
+    const svg = createSVG(dim, dim).viewbox(0, 0, dim, dim)
+    renderAnimationFrame(animationPlan, time, svg, dim, dim, renderConfig)
+    return svg
 }
 
 export function renderAnimationFrames(
@@ -64,7 +78,7 @@ export function renderAnimationFrame(
     canvas.rect(width, height).fill("white").stroke("black").back()
 
     // console.log(config.showAnimationCounter + " " + time)
-    const counter: Text | undefined = config.showAnimationCounter ? canvas.text("_").cx(10).cy(10).fill("black").text("" + time) : undefined
+    const counter: Text | undefined = config.showAnimationCounter ? canvas.text("_").cx(10).cy(10).fill("black").text("" + (config.isAnimationCounterZeroBased ? time : time + 1)) : undefined
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
 
