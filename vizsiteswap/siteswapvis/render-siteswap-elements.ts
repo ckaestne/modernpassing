@@ -77,7 +77,7 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
     gp.videoLinks = videoLinks
 
     try {
-        const frames = options.mode === "markdown-image" ? parseFramesAttr(attrs["frames"]) : []
+        const frames = options.mode === "markdown-image" ? parseFramesAttr(attrs["frames"]) : undefined
         if (frames !== undefined) {
             return renderGroupWithFrames(gp, frames, kind, config, index, options)
         }
@@ -109,11 +109,12 @@ function renderGroupWithFrames(
     options: RenderSiteswapElementsOptions,
 ): string {
     if (!options.writeSvgFile) {
+        console.error(options)
         throw new Error("renderSiteswapElements requires writeSvgFile in markdown-image mode")
     }
 
     const showPattern = config.components === undefined ||
-        config.components.some((c) => c === "aidan" || c === "pattern" || c === "default-pattern") === false
+        config.components.some((c) => c === "aidan" || c === "pattern" || c === "default-pattern") 
 
     const lines: string[] = []
     if (showPattern) {
