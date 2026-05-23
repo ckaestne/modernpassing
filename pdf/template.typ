@@ -69,6 +69,9 @@
 #show figure.where(kind: "sync-group"): it => {
   scale_figure_images(it, figure_scale.sync-group)
 }
+#show figure.where(kind: "patternWithFrames"): it => {
+  scale_figure_images(it, figure_scale.sync-group)
+}
 
 #show figure.where(kind: "siteswap-group"): it => {
   scale_figure_images(it, figure_scale.siteswap-group)

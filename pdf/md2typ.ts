@@ -597,6 +597,10 @@ function renderInline(tokens: AnyToken[]): string {
                 const src = asString(token.href)
                 const alt = asString(token.text)
                 const parsed = parseImageAlt(alt)
+                if (parsed.kind === "frame") {
+                    out.push(`#box(image(${toTypstString(src)}, width: .57in))`)
+                    break
+                }
                 const kind = parsed.kind || inferImageKind(src)
                 const figureArgs = [
                     `image(${toTypstString(src)})`,
@@ -606,7 +610,8 @@ function renderInline(tokens: AnyToken[]): string {
                 // if (parsed.caption) {
                 //     figureArgs.push(`caption: [${escapeText(parsed.caption)}]`)
                 // }
-                out.push(`#figure(${figureArgs.join(", ")})`)
+                const fig = `figure(${figureArgs.join(", ")})`
+                out.push("#" + (parsed.kind === "patternWithFrames" ? `box(${fig})` : fig))
                 break
             }
             case "html": {

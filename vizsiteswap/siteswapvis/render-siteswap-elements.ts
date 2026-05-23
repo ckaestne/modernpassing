@@ -78,7 +78,7 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
 
     try {
         const frames = options.mode === "markdown-image" ? parseFramesAttr(attrs["frames"]) : []
-        if (frames.length > 0) {
+        if (frames!==undefined) {
             return renderGroupWithFrames(gp, frames, kind, config, index, options)
         }
 
@@ -95,9 +95,9 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
     }
 }
 
-function parseFramesAttr(value: string | undefined): number[] {
-    if (!value) return []
-    return value.split(",").map((s) => Number.parseInt(s.trim(), 10)).filter((n) => Number.isFinite(n))
+function parseFramesAttr(value: string | undefined): number[] | undefined {
+    if (value===undefined) return undefined
+    return value.split(",").map((s) => Number.parseFloat(s.trim())).filter((n) => Number.isFinite(n))
 }
 
 function renderGroupWithFrames(
@@ -118,11 +118,10 @@ function renderGroupWithFrames(
 
     const lines: string[] = []
     if (showPattern) {
-        const limitedConfig: GroupRenderConfig = { ...config, components: ["default-pattern"] }
+        const limitedConfig: GroupRenderConfig = { ...config, components: ["default-pattern", "turntable"] }
         const [svg] = renderGroupPattern(gp, limitedConfig)
         const filename = options.writeSvgFile(svg.svg(), kind, index)
-        lines.push(`![](${filename})`)
-        lines.push("")
+        lines.push(`![tag:patternWithFrames](${filename})`)
     }
 
     const frameImages = frames.map((time) => {

@@ -441,12 +441,13 @@ export function createSVG(width?: number, height?: number): Svg {
     return svg
 }
 
-type RenderLayoutConfig = {
+export type RenderLayoutConfig = {
     positionCircle: number
     roleLabelFontSize: number
     roleColors?: string[]
     animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
     showAnimationCounter: boolean
+    isAnimationCounterZeroBased: boolean
 }
 export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     positionCircle: 40,
@@ -454,6 +455,7 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     roleColors: undefined,
     animateRoleColors: false, // this is pretty confusing
     showAnimationCounter: false,
+    isAnimationCounterZeroBased: true
 }
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {

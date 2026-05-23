@@ -52,7 +52,7 @@ The same triangle idea also works for all other base patterns (including *four-c
 **Getting creative.**
 Similar to variations in a feed, it is possible to design many different passing sequences in a triangle. Essentially, the group needs to decide for each beat whether (a) everybody passes in a circle to the left or the right, (b) two passers exchange passes while the other does a self, or (c) everybody does a self. Here is a typical pattern where on beat one each passer passes to the right, on beat two passers A and C pass with each other, and on beat three everybody does a self, resulting in a different sequence for each passer (pass-pass-self feed, pass-pass-self to the right, three-count):
 
-<sync-group>
+<sync-group frames="0,1">
 A: 3pB 3pC 3
 B: 3pC 3   3
 C: 3pA 3pA 3
@@ -66,7 +66,7 @@ To extend this sequence for a more challenging pattern, we can swap roles after 
 **Extra club three-count.** 
 With all passes thrown as crossing doubles, it is easy to add a 10th club to a triangle *three-count* pattern, with double passes all going in a circle in one direction:
 
-<sync-group>
+<sync-group frames="0,1,2,3,4,5" style='{ "showInAirPasses": false }'>
 A: 4pB33   
 B: 34pC3 
 C: 334pA 
@@ -89,7 +89,7 @@ The *feast* is an elegant and scalable pattern that theoretically works with any
 
 The feast is commonly juggled on *four-count* or *two-count*, but we strongly recommend *three-count* or another ambidextrous pattern. Here is the pattern for five passers on *three-count*:
 
-<sync-group>
+<sync-group frames="0,3,6,9,12" >
 A: 3pB33 3pC33 3pD33 3pE33 3  33
 B: 3pA33 3  33 3pC33 3pD33 3pE33
 C: 3pE33 3pA33 3pB33 3  33 3pD33
@@ -104,7 +104,7 @@ positions: Circle(A,B,C,D,E)
 **One-count feast.** 
 Three passers juggling the *feast* in a *one-count* results in an interesting triangle variation: All passers juggle *pass-pass-self* in the typical *inside-inside-self-outside-outside-self* sequence, but on offset beats, so that two passers always exchange passes while the third passer has a self:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB 3pC 3   3pB 3pC 3
 B: 3pA 3   3pC 3pA 3   3pC
 C: 3   3pA 3pB 3   3pA 3pB
@@ -124,7 +124,7 @@ For more than 6 or 7 passers, the length of different passes starts to differ a 
 
 By arranging four passers in a rectangle with two facing the other two, each passer can feed two other passers. The challenge is to find patterns that do not collide in the middle, sometimes involving selective double passes. The most elegant of these patterns is a *double pass-pass-self feed*:
 
-<sync-group>
+<sync-group frames="0,1,2">
 A: 3pD 3   3pC 
 B: 3pC 3pD 3   
 C: 3pB 3   3pA 
@@ -144,7 +144,7 @@ positions: Box(A,B,C,D)
 
 In a square arrangement, everybody can pass with everybody. Aside from feasts (see above), the following pattern combines *two-count* and *three-count* in a somewhat interesting arrangement:
 
-<sync-group>
+<sync-group frames="0,1,2,3,4,5">
 A: 3pD 3 3 3pC 3 3 3pB 3 3 3pC 3 3
 B: 3pC 3 3pD 3 3pD 3 3pA 3 3pD 3 3pD 3
 C: 3pB 3 3 3pA 3 3 3pD 3 3 3pA 3 3
@@ -156,7 +156,7 @@ Again, it is easy to be creative and create many more patterns by deciding who p
 
 This also includes trivial patterns where just two (or more) pairs of passers pass through the same space but do not otherwise interact:
 
-<sync-group>
+<sync-group frames="0,1">
 A: 3pC 3 3
 B: 3 3pD3
 C: 3pA 3   3
@@ -173,7 +173,7 @@ A common pattern for a group of five passers is in a circle where each passer ju
 Here is a standard 5-passer star pattern on three-count with all outside throws:
 
 
-<sync-group>
+<sync-group frames="0">
 A: 3pD33 3pC33
 B: 3pE33 3pD33
 C: 3pA33 3pE33
@@ -198,7 +198,7 @@ Ten-handed siteswaps can be naturally juggled in a star pattern. Actually, by th
 **Chocolate box.**
 Another common setup is two passers A and B facing three passers C, D, and E in a trapeze shape. A common pattern of intermediate difficulty is *chocolate box* where the two passers A and B each juggle *pass-pass-self-self* (which is a synchronous pattern called *chocolate bar*) and the three other passers juggle *three-count*, in the following sequence:
 
-<sync-group>
+<sync-group frames="0,1,2,3,4,5,6,7,8,9,10,11">
 A: 3pC 3pD 3   3   3pD 3pE 3   3   3pE 3pC 3   3
 B: 3   3   3pE 3pC 3   3   3pC 3pD 3   3   3pD 3pE
 C: 3pA 3   3   3pB 3   3   3pB 3   3   3pA 3   3

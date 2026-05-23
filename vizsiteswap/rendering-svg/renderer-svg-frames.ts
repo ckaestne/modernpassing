@@ -2,13 +2,30 @@ import type { GroupPattern, MovementSegmentSpec } from "@modernpassing/layout"
 import { type AnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, createAnimationPlan, type PassAnimation } from "@modernpassing/layout"
 import type { Role } from "@modernpassing/pattern"
 import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core"
-import { createSVG, getRenderPatternSize } from "@modernpassing/rendering-svg"
+import { createSVG, defaultRenderLayoutConfig, getRenderPatternSize, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
 import { scaleup } from "@modernpassing/svg-utils"
 import type { Containable, G, Line, Path, Svg, Text } from "@svgdotjs/svg.js"
 
-export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig>, svg: Svg): G[] {
+
+
+export type FrameRenderConfig = {
+    showInAirPasses: boolean
+    inAirPassesColor: string | undefined // undefined for default
+    animationCounterFontSize: number
+    frameBorderWidth: number
+    frameBorderColor: string
+}
+export const defaultFrameRenderConfig: FrameRenderConfig = {
+    showInAirPasses: true,
+    inAirPassesColor: undefined,
+    animationCounterFontSize: 24,
+    frameBorderWidth: 3,
+    frameBorderColor: "grey",
+}
+
+export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig = { ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
 
     // there are three parts that we may render: the pattern, the aidan notation, and the layout
     // not every pattern has aidan notation, and not every group pattern has a layout
@@ -18,26 +35,11 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     return renderAnimationFrames(animationPlan, svg, size.height, size.height, renderConfig)
 }
 
-type RenderLayoutConfig = {
-    positionCircle: number
-    roleLabelFontSize: number
-    roleColors?: string[]
-    animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
-    showAnimationCounter: boolean
-    isAnimationCounterZeroBased: boolean
-}
-export const defaultRenderLayoutConfig: RenderLayoutConfig = {
-    positionCircle: 40,
-    roleLabelFontSize: 28,
-    roleColors: undefined,
-    animateRoleColors: false, // this is pretty confusing
-    showAnimationCounter: false,
-    isAnimationCounterZeroBased: true
-}
 
-export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig>): Svg {
+
+export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>): Svg {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig = { ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
     if (!gp.layout) throw new Error("Cannot render animation frame: pattern has no layout")
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const dim = size.height
@@ -52,7 +54,7 @@ export function renderAnimationFrames(
     svg: Svg,
     width: number,
     height: number,
-    config: RenderLayoutConfig,
+    config: RenderLayoutConfig & FrameRenderConfig,
 ): G[] {
     const timesOfInterest: Set<number> = new Set([0, layout.mod])
     for (const move of layout.movementAnimations) {
@@ -72,13 +74,13 @@ export function renderAnimationFrame(
     svg: Svg,
     width: number,
     height: number,
-    config: RenderLayoutConfig,
+    config: RenderLayoutConfig & FrameRenderConfig,
 ): G {
     const canvas = svg.group().width(width).height(height)
-    canvas.rect(width, height).fill("white").stroke("black").back()
+    canvas.rect(width, height).fill("white").stroke({ color: config.frameBorderColor, width: config.frameBorderWidth }).back()
 
     // console.log(config.showAnimationCounter + " " + time)
-    const counter: Text | undefined = config.showAnimationCounter ? canvas.text("_").cx(10).cy(10).fill("black").text("" + (config.isAnimationCounterZeroBased ? time : time + 1)) : undefined
+    if (config.showAnimationCounter) canvas.text("" + (config.isAnimationCounterZeroBased ? time : time + 1)).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth*2).y(config.frameBorderWidth).fill("black")
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
 
@@ -103,9 +105,12 @@ export function renderAnimationFrame(
 
     // render passes
     for (const pass of layout.passAnimations) {
-        if (pass.onBeat <= time % layout.mod && time % layout.mod < pass.onBeat + pass.duration) {
-            if (pass.firstIteration === undefined || pass.firstIteration === (time < layout.mod)) {
-                renderPass(canvas, scale.scalePass(pass))
+        if (isTimeWithinDuration(pass.onBeat, pass.duration, time, layout.mod)) {
+            const isInAir = pass.onBeat !== time % layout.mod
+            const skipBecauseInAir = !config.showInAirPasses && isInAir
+            if (!skipBecauseInAir && (pass.firstIteration === undefined || pass.firstIteration === (time < layout.mod))) {
+                    const color = isInAir && config.inAirPassesColor ? config.inAirPassesColor : "black"
+                renderPass(canvas, scale.scalePass(pass), color)
             }
         }
     }
@@ -208,15 +213,24 @@ function genPath(canvas: Containable, segment: MovementSegmentSpec): Path {
     return canvas.path(p.join(" "))
 }
 
-function renderPass(canvas: G, pass: PassAnimation): G {
+function renderPass(canvas: G, pass: PassAnimation, color: string): G {
     // console.log(`renderPass from ${fromRole} to ${toRole} with label ${label}`)
     const g = canvas.group()
-    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, "black")
+    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, color)
     g.add(a)
     if (pass.label) {
         g.add(canvas.text(pass.label).font({ size: 8 }).cx(pass.labelX).cy(pass.labelY).fill("black"))
     }
     return g
+}
+
+function isTimeWithinDuration(onBeat: number, duration: number, time: number, mod: number): boolean {
+    const offset = ((time - onBeat) % mod + mod) % mod
+    if (offset >= duration) return false
+    // suppress passes whose origin beat is before time 0 (wraparound into the first iteration)
+    const originBeat = time - offset
+    if (originBeat < 0) return false
+    return true
 }
 
 function arrow(canvas: G, x1: number, y1: number, x2: number, y2: number, color: string = "blue"): Line {
