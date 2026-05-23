@@ -90,6 +90,9 @@
   #datetime.today().display("[month repr:long] [day], [year]")
 ])
 
+#align(center, text(10pt)[
+  PDF and web version with animations at #link("https://modernpassing.com")
+])
 
 
 
