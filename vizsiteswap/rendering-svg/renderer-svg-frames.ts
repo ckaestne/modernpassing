@@ -6,8 +6,6 @@ import { createSVG, defaultRenderLayoutConfig, getRenderPatternSize, type Render
 import { scaleup } from "@modernpassing/svg-utils"
 import type { Containable, G, Line, Path, Svg, Text } from "@svgdotjs/svg.js"
 
-
-
 export type FrameRenderConfig = {
     showInAirPasses: boolean
     inAirPassesColor: string | undefined // undefined for default
@@ -22,7 +20,7 @@ export const defaultFrameRenderConfig: FrameRenderConfig = {
     animationCounterFontSize: 24,
     frameBorderWidth: 3,
     frameBorderColor: "grey",
-    animationCounterBeatsNotTime: false
+    animationCounterBeatsNotTime: false,
 }
 
 export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {
@@ -36,8 +34,6 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
     return renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig)
 }
-
-
 
 export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>): Svg {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
@@ -67,7 +63,10 @@ export function renderAnimationFrames(
         timesOfInterest.add(pass.onBeat)
     }
 
-    return [...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config)), ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config))]
+    return [
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config)),
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config)),
+    ]
 }
 const strokeWidth = 3
 
@@ -84,7 +83,7 @@ export function renderAnimationFrame(
     canvas.rect(width, height).fill("white").stroke({ color: config.frameBorderColor, width: config.frameBorderWidth }).back()
 
     const counterTime = (config.animationCounterBeatsNotTime ? time % patternLength : time) + (config.isAnimationCounterZeroBased ? 0 : 1)
-    if (config.showAnimationCounter) canvas.text("" + counterTime).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth*2).y(config.frameBorderWidth).fill("black")
+    if (config.showAnimationCounter) canvas.text("" + counterTime).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth * 2).y(config.frameBorderWidth).fill("black")
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
 
@@ -113,7 +112,7 @@ export function renderAnimationFrame(
             const isInAir = pass.onBeat !== time % layout.mod
             const skipBecauseInAir = !config.showInAirPasses && isInAir
             if (!skipBecauseInAir && (pass.firstIteration === undefined || pass.firstIteration === (time < layout.mod))) {
-                    const color = isInAir && config.inAirPassesColor ? config.inAirPassesColor : "black"
+                const color = isInAir && config.inAirPassesColor ? config.inAirPassesColor : "black"
                 renderPass(canvas, scale.scalePass(pass), color)
             }
         }

@@ -455,7 +455,7 @@ export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     roleColors: undefined,
     animateRoleColors: false, // this is pretty confusing
     showAnimationCounter: false,
-    isAnimationCounterZeroBased: true
+    isAnimationCounterZeroBased: true,
 }
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
