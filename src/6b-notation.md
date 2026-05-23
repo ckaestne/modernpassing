@@ -40,7 +40,7 @@ The relabeling for switching manipulators is less obvious to recognize in the no
 
 In *Nicki's three-count roundabout*, the switch between M and B is triggered when M intercepts B's self (highlighted below). The intercepted self is thrown on beat 3 and intercepted on beat 4, so beat 4 is where M and B switch (also highlighted with background colors and changes during the animation). On beat 4, the previous manipulator now has two clubs and takes over the remainder of B's sequence, in this case by also catching the pass that A throws on beat 4 to B. At the same time, the previous passer in the role of B becomes the new manipulator M and starts with a carry on beat 4. At the end of the iteration, the passers in role B (originally M at the start of the iteration) and A swap roles, and the pattern repeats.
 
-<sync-group style='{"components":["aidan","turntable","layout"], "emphasizeLines":[[1,2]],"emphasizeThrows":[[1,2]],"showRoleColorBackground":true, "showRelabel":false}'>
+<sync-group style='{"components":["aidan","turntable","layout"], "emphasizeLines":[[1,2]],"emphasizeThrows":[[1,2]],"showRoleColorBackground":true, "showRelabel":false}' frames="0,2,2.5,3,5,6">
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..
