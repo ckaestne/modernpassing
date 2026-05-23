@@ -1,8 +1,8 @@
-import type { GroupPattern, MovementSegmentSpec } from "@modernpassing/layout"
+import type { BackgroundLayout, GroupPattern, MovementSegmentSpec } from "@modernpassing/layout"
 import { type AnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, createAnimationPlan, type PassAnimation } from "@modernpassing/layout"
 import type { Role } from "@modernpassing/pattern"
 import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core"
-import { createSVG, defaultRenderLayoutConfig, getRenderPatternSize, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
+import { createSVG, defaultRenderLayoutConfig, getRenderPatternSize, renderBackground, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
 import { scaleup } from "@modernpassing/svg-utils"
 import type { Containable, G, Line, Path, Svg, Text } from "@svgdotjs/svg.js"
 
@@ -32,7 +32,7 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
-    return renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig)
+    return renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig, gp.layout!.background)
 }
 
 export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>): Svg {
@@ -43,7 +43,7 @@ export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config
     const dim = size.height
     const animationPlan = createAnimationPlan(gp.layout.animation, dim / renderConfig.positionCircle)
     const svg = createSVG(dim, dim).viewbox(0, 0, dim, dim)
-    renderAnimationFrame(animationPlan, time, svg, dim, dim, gp.pattern.getLength(), renderConfig)
+    renderAnimationFrame(animationPlan, time, svg, dim, dim, gp.pattern.getLength(), renderConfig, gp.layout.background)
     return svg
 }
 
@@ -54,6 +54,7 @@ export function renderAnimationFrames(
     height: number,
     patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
+    background?: BackgroundLayout[],
 ): G[] {
     const timesOfInterest: Set<number> = new Set([0, layout.mod])
     for (const move of layout.movementAnimations) {
@@ -64,8 +65,8 @@ export function renderAnimationFrames(
     }
 
     return [
-        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config)),
-        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config)),
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config, background)),
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config, background)),
     ]
 }
 const strokeWidth = 3
@@ -78,9 +79,11 @@ export function renderAnimationFrame(
     height: number,
     patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
+    background?: BackgroundLayout[],
 ): G {
     const canvas = svg.group().width(width).height(height)
     canvas.rect(width, height).fill("white").stroke({ color: config.frameBorderColor, width: config.frameBorderWidth }).back()
+    if (background) renderBackground(background, width, height, canvas, config)
 
     const counterTime = (config.animationCounterBeatsNotTime ? time % patternLength : time) + (config.isAnimationCounterZeroBased ? 0 : 1)
     if (config.showAnimationCounter) canvas.text("" + counterTime).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth * 2).y(config.frameBorderWidth).fill("black")
