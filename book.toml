@@ -6,7 +6,7 @@ title = "Modern Club Passing"
 
 
 [build]
-extra-watch-dirs = ["vizsiteswap"] 
+extra-watch-dirs = ["vizsiteswap", "pdf"] 
 
 [preprocessor.siteswapsvg]
 command = "deno run -A vizsiteswap/mdbook-siteswapsvg.ts"
