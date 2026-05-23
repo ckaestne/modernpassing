@@ -14,6 +14,7 @@ export type FrameRenderConfig = {
     animationCounterFontSize: number
     frameBorderWidth: number
     frameBorderColor: string
+    animationCounterBeatsNotTime: boolean
 }
 export const defaultFrameRenderConfig: FrameRenderConfig = {
     showInAirPasses: true,
@@ -21,6 +22,7 @@ export const defaultFrameRenderConfig: FrameRenderConfig = {
     animationCounterFontSize: 24,
     frameBorderWidth: 3,
     frameBorderColor: "grey",
+    animationCounterBeatsNotTime: false
 }
 
 export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {
@@ -32,7 +34,7 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
-    return renderAnimationFrames(animationPlan, svg, size.height, size.height, renderConfig)
+    return renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig)
 }
 
 
@@ -45,7 +47,7 @@ export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config
     const dim = size.height
     const animationPlan = createAnimationPlan(gp.layout.animation, dim / renderConfig.positionCircle)
     const svg = createSVG(dim, dim).viewbox(0, 0, dim, dim)
-    renderAnimationFrame(animationPlan, time, svg, dim, dim, renderConfig)
+    renderAnimationFrame(animationPlan, time, svg, dim, dim, gp.pattern.getLength(), renderConfig)
     return svg
 }
 
@@ -54,6 +56,7 @@ export function renderAnimationFrames(
     svg: Svg,
     width: number,
     height: number,
+    patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
 ): G[] {
     const timesOfInterest: Set<number> = new Set([0, layout.mod])
@@ -64,7 +67,7 @@ export function renderAnimationFrames(
         timesOfInterest.add(pass.onBeat)
     }
 
-    return [...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, config)), ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, config))]
+    return [...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config)), ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config))]
 }
 const strokeWidth = 3
 
@@ -74,13 +77,14 @@ export function renderAnimationFrame(
     svg: Svg,
     width: number,
     height: number,
+    patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
 ): G {
     const canvas = svg.group().width(width).height(height)
     canvas.rect(width, height).fill("white").stroke({ color: config.frameBorderColor, width: config.frameBorderWidth }).back()
 
-    // console.log(config.showAnimationCounter + " " + time)
-    if (config.showAnimationCounter) canvas.text("" + (config.isAnimationCounterZeroBased ? time : time + 1)).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth*2).y(config.frameBorderWidth).fill("black")
+    const counterTime = (config.animationCounterBeatsNotTime ? time % patternLength : time) + (config.isAnimationCounterZeroBased ? 0 : 1)
+    if (config.showAnimationCounter) canvas.text("" + counterTime).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth*2).y(config.frameBorderWidth).fill("black")
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
 
