@@ -1,65 +1,37 @@
 import type { BackgroundLayout, GroupPattern, MovementSegmentSpec } from "@modernpassing/layout"
 import { type AnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, createAnimationPlan, type PassAnimation } from "@modernpassing/layout"
 import type { Role } from "@modernpassing/pattern"
-import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core"
+import {
+    type AnyRendererConfig,
+    customRendererConfigDefaults,
+    defaultFrameRenderConfig,
+    defaultRenderLayoutConfig,
+    type FontStyle,
+    type FrameRenderConfig,
+    type LineStyle,
+    mergeConfig,
+    mergeLineStyle,
+    type RenderLayoutConfig,
+    type RendererConfig,
+} from "@modernpassing/rendering-core"
 import {
     applyLineStyle,
     applyShapeStyle,
     createSVG,
-    defaultRenderLayoutConfig,
+    ensurePatternDefs,
     fontAttrs,
-    type FontStyle,
     getRenderPatternSize,
-    type LineStyle,
-    mergeFontStyle,
-    mergeLineStyle,
-    mergeShapeStyle,
     renderBackground,
-    type RenderLayoutConfig,
     resolvePasserStyle,
 } from "@modernpassing/rendering-svg"
 import { scaleup } from "@modernpassing/svg-utils"
 import type { Containable, G, Line, Path, Svg } from "@svgdotjs/svg.js"
 
-export type FrameRenderConfig = {
-    showInAirPasses: boolean
-    inAirPassStyle: LineStyle // style for passes that are in the air (not on the current beat)
-    animationCounterStyle: FontStyle
-    frameBorderStyle: LineStyle
-    animationCounterBeatsNotTime: boolean
-}
-export const defaultFrameRenderConfig: FrameRenderConfig = {
-    showInAirPasses: true,
-    inAirPassStyle: {},
-    animationCounterStyle: { size: 24 },
-    frameBorderStyle: { width: 3, color: "grey" },
-    animationCounterBeatsNotTime: true,
-}
-
-type LayoutFrameConfig = RenderLayoutConfig & FrameRenderConfig
-
-/**
- * After a shallow merge of config layers, re-deep-merge known nested style fields
- * against the original defaults so partial overrides (e.g. defaultPasserStyle:
- * { innerText: { size: 14 } }) don't drop the other default fields.
- */
-function mergeNestedStyles<T extends Partial<LayoutFrameConfig>>(merged: T, overrides: Partial<LayoutFrameConfig>): T {
-    return {
-        ...merged,
-        defaultPasserStyle: mergeShapeStyle(defaultRenderLayoutConfig.defaultPasserStyle, overrides.defaultPasserStyle),
-        passStyle: mergeLineStyle(defaultRenderLayoutConfig.passStyle, overrides.passStyle),
-        passLabelStyle: mergeFontStyle(defaultRenderLayoutConfig.passLabelStyle, overrides.passLabelStyle),
-        walkingArrowStyle: mergeLineStyle(defaultRenderLayoutConfig.walkingArrowStyle, overrides.walkingArrowStyle),
-        backgroundLineStyle: mergeLineStyle(defaultRenderLayoutConfig.backgroundLineStyle, overrides.backgroundLineStyle),
-        inAirPassStyle: mergeLineStyle(defaultFrameRenderConfig.inAirPassStyle, overrides.inAirPassStyle),
-        animationCounterStyle: mergeFontStyle(defaultFrameRenderConfig.animationCounterStyle, overrides.animationCounterStyle),
-    }
-}
-
-export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {
+export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<AnyRendererConfig>, svg: Svg): G[] {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = mergeNestedStyles(
-        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config },
+    const renderConfig = mergeConfig<AnyRendererConfig>(
+        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern) },
+        changedRenderDefaults,
         config,
     )
 
@@ -68,13 +40,16 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
-    return renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig, gp.layout!.background)
+    const frames = renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig, gp.layout!.background)
+    ensurePatternDefs(svg)
+    return frames
 }
 
-export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>): Svg {
+export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<AnyRendererConfig>): Svg {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = mergeNestedStyles(
-        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config },
+    const renderConfig = mergeConfig<AnyRendererConfig>(
+        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern) },
+        changedRenderDefaults,
         config,
     )
     if (!gp.layout) throw new Error("Cannot render animation frame: pattern has no layout")
@@ -83,6 +58,7 @@ export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config
     const animationPlan = createAnimationPlan(gp.layout.animation, dim / renderConfig.positionCircle)
     const svg = createSVG(dim, dim).viewbox(0, 0, dim, dim)
     renderAnimationFrame(animationPlan, time, svg, dim, dim, gp.pattern.getLength(), renderConfig, gp.layout.background)
+    ensurePatternDefs(svg)
     return svg
 }
 

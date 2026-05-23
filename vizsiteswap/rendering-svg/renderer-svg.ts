@@ -1,8 +1,9 @@
 import type { AnimationInitData, AnimationPositionInitData, BackgroundLayout, GroupPattern, TabInitData } from "@modernpassing/layout"
 import { type AnimationPlan, createAnimationPlan } from "@modernpassing/layout"
 import { Hand, type ManipulatorAction, type Pattern, type Role } from "@modernpassing/pattern"
-import { customRendererConfigDefaults, getThrowsFromManipulatorPattern, getThrowsFromPattern, type RenderedThrow, type RendererConfig } from "@modernpassing/rendering-core"
+import { customRendererConfigDefaults, defaultRenderLayoutConfig, type FontStyle, getThrowsFromManipulatorPattern, getThrowsFromPattern, type LineStyle, mergeConfig, mergeLineStyle, mergeShapeStyle, type RenderedThrow, type RendererConfig, type RenderLayoutConfig, type ShapeStyle } from "@modernpassing/rendering-core"
 import { scaleup } from "@modernpassing/svg-utils"
+import { getFillPatternSvg } from "./svg-fill-patterns.ts"
 import { type Container, type G, type Line, registerWindow, SVG, type Svg, type Text } from "@svgdotjs/svg.js"
 import { assert } from "node:console"
 import { createSVGWindow } from "svgdom"
@@ -14,7 +15,7 @@ export type GroupPatternInitData = {
 
 export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererConfig>): [Svg, GroupPatternInitData] {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig = { ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig = mergeConfig(customRendererConfigDefaults(gp.pattern), changedRenderDefaults, config)
 
     // there are three parts that we may render: the pattern, the aidan notation, and the layout
     // not every pattern has aidan notation, and not every group pattern has a layout
@@ -92,6 +93,7 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
         turntableCanvas.transform({ translate: [0, size.height + tabHeight] })
     }
 
+    ensurePatternDefs(svg)
     return [svg, {
         tabs: tabData,
         animations: animationResult,
@@ -424,10 +426,27 @@ export function renderPlainPattern(p: Pattern, config?: Partial<RendererConfig>)
     const patternCanvas = svg.group()
     renderInternal(patternCanvas, p, p.getInitialRoles(), getThrowsFromPattern(p, renderConfig.iterations, renderConfig), getRelabel(p), renderConfig)
 
+    ensurePatternDefs(svg)
     return svg
 }
 
 export { renderAnimationFrameAsSvg } from "./renderer-svg-frames.ts"
+// Re-export config types and merge helpers (moved to rendering-core) for back-compat with existing import paths.
+export {
+    type AnyRendererConfig,
+    defaultFrameRenderConfig,
+    defaultRenderLayoutConfig,
+    type FontStyle,
+    type FrameRenderConfig,
+    type LineStyle,
+    mergeConfig,
+    mergeFontStyle,
+    mergeLineStyle,
+    mergePartialConfig,
+    mergeShapeStyle,
+    type RenderLayoutConfig,
+    type ShapeStyle,
+} from "@modernpassing/rendering-core"
 
 export function createSVG(width?: number, height?: number): Svg {
     const window = createSVGWindow()
@@ -439,103 +458,6 @@ export function createSVG(width?: number, height?: number): Svg {
         svg.size(width, height)
     }
     return svg
-}
-
-export type FontStyle = {
-    size?: number
-    color?: string
-    weight?: string
-    family?: string
-}
-
-export type ShapeStyle = {
-    fill?: string
-    stroke?: string
-    strokeWidth?: number
-    fillPattern?: string
-    innerText?: FontStyle // style for text rendered inside the shape
-}
-
-export type LineStyle = {
-    color?: string
-    width?: number
-    dash?: string
-}
-
-export type RenderLayoutConfig = {
-    positionCircle: number
-    defaultPasserStyle: ShapeStyle
-    roleStyle?: ShapeStyle[] // style for circles representing a role (applied after passerStyle)
-    passerStyle?: ShapeStyle[] // style for circles representing a person (applied before roleStyle)
-    passStyle: LineStyle // style for lines representing passes
-    passLabelStyle: FontStyle // style for pass labels (text next to pass lines)
-    walkingArrowStyle: LineStyle // style for lines representing walking
-    backgroundLineStyle: LineStyle // fallback style for lines in the background layout
-    animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
-    //FIX: roleColors has been replaced by roleStyle.fill
-    roleColors?: string[] // colors keyed by role index (sourced from RendererConfig when merged)
-    showAnimationCounter: boolean
-    isAnimationCounterZeroBased: boolean
-}
-export const defaultRenderLayoutConfig: RenderLayoutConfig = {
-    positionCircle: 40,
-    defaultPasserStyle: {
-        fill: "white",
-        stroke: "black",
-        strokeWidth: 3,
-        innerText: { size: 28, color: "black", weight: "bold" },
-    },
-    roleStyle: undefined,
-    passerStyle: undefined,
-    passStyle: { color: "black", width: 1 },
-    passLabelStyle: { size: 8, color: "black" },
-    walkingArrowStyle: { color: "lightgrey", width: 4 },
-    backgroundLineStyle: { color: "black", width: 1 },
-    animateRoleColors: false, // this is pretty confusing
-    showAnimationCounter: false,
-    isAnimationCounterZeroBased: true,
-}
-
-/** Field-by-field merge of FontStyle layers; later layers override earlier ones. */
-export function mergeFontStyle(...layers: (FontStyle | undefined)[]): FontStyle {
-    const out: FontStyle = {}
-    for (const l of layers) {
-        if (!l) continue
-        if (l.size !== undefined) out.size = l.size
-        if (l.color !== undefined) out.color = l.color
-        if (l.weight !== undefined) out.weight = l.weight
-        if (l.family !== undefined) out.family = l.family
-    }
-    return out
-}
-
-/** Field-by-field merge of ShapeStyle layers (innerText merged recursively); later layers override earlier ones. */
-export function mergeShapeStyle(...layers: (ShapeStyle | undefined)[]): ShapeStyle {
-    const out: ShapeStyle = {}
-    const innerLayers: (FontStyle | undefined)[] = []
-    for (const l of layers) {
-        if (!l) continue
-        if (l.fill !== undefined) out.fill = l.fill
-        if (l.stroke !== undefined) out.stroke = l.stroke
-        if (l.strokeWidth !== undefined) out.strokeWidth = l.strokeWidth
-        if (l.fillPattern !== undefined) out.fillPattern = l.fillPattern
-        innerLayers.push(l.innerText)
-    }
-    const inner = mergeFontStyle(...innerLayers)
-    if (Object.keys(inner).length > 0) out.innerText = inner
-    return out
-}
-
-/** Field-by-field merge of LineStyle layers; later layers override earlier ones. */
-export function mergeLineStyle(...layers: (LineStyle | undefined)[]): LineStyle {
-    const out: LineStyle = {}
-    for (const l of layers) {
-        if (!l) continue
-        if (l.color !== undefined) out.color = l.color
-        if (l.width !== undefined) out.width = l.width
-        if (l.dash !== undefined) out.dash = l.dash
-    }
-    return out
 }
 
 /** Resolves a juggler circle's style by merging defaultPasserStyle ← passerStyle[passerIdx] ← roleStyle[roleIdx]. */
@@ -574,14 +496,42 @@ export function applyLineStyle(target: Strokable, style: LineStyle): void {
 
 /**
  * Apply only the fill/stroke attributes that are explicitly set on the style.
+ * If fillPattern is set, it wins over fill and the shape is filled with url(#<name>);
+ * the matching <pattern> definition is later injected by ensurePatternDefs.
  * innerText is not applied here; render the text element separately with fontAttrs(style.innerText).
  */
 export function applyShapeStyle(target: Strokable & Fillable, style: ShapeStyle): void {
-    if (style.fill !== undefined) target.fill(style.fill)
+    if (style.fillPattern !== undefined) target.fill(`url(#${style.fillPattern})`)
+    else if (style.fill !== undefined) target.fill(style.fill)
     const stroke: Record<string, string | number> = {}
     if (style.stroke !== undefined) stroke.color = style.stroke
     if (style.strokeWidth !== undefined) stroke.width = style.strokeWidth
     if (Object.keys(stroke).length > 0) target.stroke(stroke)
+}
+
+/**
+ * Post-processing step: scan the SVG for fill="url(#name)" references and inject
+ * the corresponding <pattern> definitions into the root <defs>. Idempotent: skips
+ * any pattern id that is already defined.
+ */
+export function ensurePatternDefs(svg: Svg): void {
+    const referenced = new Set<string>()
+    svg.find("[fill^='url(#']").each((el) => {
+        const fill = el.attr("fill") as string | undefined
+        const m = fill && /^url\(#([^)]+)\)$/.exec(fill)
+        if (m) referenced.add(m[1])
+    })
+    if (referenced.size === 0) return
+    const defs = svg.defs()
+    const existing = new Set<string>()
+    defs.children().forEach((c) => {
+        const id = c.attr("id") as string | undefined
+        if (id) existing.add(id)
+    })
+    for (const name of referenced) {
+        if (existing.has(name)) continue
+        defs.svg(getFillPatternSvg(name))
+    }
 }
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {

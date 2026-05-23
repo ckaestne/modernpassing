@@ -1,9 +1,10 @@
 import { createGroupPattern, createSiteswapPattern, createSyncPattern } from "@modernpassing/parsing"
-import { renderAnimationFrameAsSvg, renderGroupPattern, renderPlainPattern } from "@modernpassing/rendering-svg"
+import { type AnyRendererConfig, mergePartialConfig, renderAnimationFrameAsSvg, renderGroupPattern, RenderLayoutConfig, renderPlainPattern, type FrameRenderConfig } from "@modernpassing/rendering-svg"
+import { type RendererConfig } from "@modernpassing/rendering-core"
 import { assert } from "node:console"
 import { replaceElement } from "../replace-util.ts"
 
-type GroupRenderConfig = Parameters<typeof renderGroupPattern>[1]
+
 
 type RenderKind = "siteswap" | "sync" | "sync-group" | "siteswap-group" | "frame"
 
@@ -27,7 +28,7 @@ type RenderSiteswapElementsResult = {
     stats: RenderStats
 }
 
-export function renderSiteswapElements(content: string, options: RenderSiteswapElementsOptions): RenderSiteswapElementsResult {
+export function renderSiteswapElements(content: string, options: RenderSiteswapElementsOptions, renderingDefaultsConfig: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig> = {}): RenderSiteswapElementsResult {
     const stats: RenderStats = { siteswap: 0, sync: 0, group: 0 }
     let contentWithSvgs = content
 
@@ -37,7 +38,7 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
         if (!pattern.isValid()) {
             throw new Error(`Invalid siteswap: ${inner}: \n${pattern.getValidationError()}`)
         }
-        const svg = renderPlainPattern(pattern, config)
+        const svg = renderPlainPattern(pattern, mergePartialConfig(renderingDefaultsConfig, config))
         return renderOutput(svg.svg(), "siteswap", stats.siteswap, options)
     })
 
@@ -47,18 +48,18 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
         if (!pattern.isValid()) {
             throw new Error(`Invalid sync siteswap: ${p}: \n${pattern.getValidationError()}`)
         }
-        const svg = renderPlainPattern(pattern, config)
+        const svg = renderPlainPattern(pattern, mergePartialConfig(renderingDefaultsConfig, config))
         return renderOutput(svg.svg(), "sync", stats.sync, options)
     })
 
     contentWithSvgs = replaceElement("sync-group", contentWithSvgs, (_match, p, config, videoLinks, attrs) => {
         stats.group++
-        return renderGroup(p, 2, "sync-group", config, videoLinks, stats.group, attrs, options)
+        return renderGroup(p, 2, "sync-group", mergePartialConfig(renderingDefaultsConfig, config), videoLinks, stats.group, attrs, options)
     })
 
     contentWithSvgs = replaceElement("siteswap-group", contentWithSvgs, (_match, p, config, videoLinks, attrs) => {
         stats.group++
-        return renderGroup(p, 4, "siteswap-group", config, videoLinks, stats.group, attrs, options)
+        return renderGroup(p, 4, "siteswap-group", mergePartialConfig(renderingDefaultsConfig, config), videoLinks, stats.group, attrs, options)
     })
 
     contentWithSvgs = replaceElement("video", contentWithSvgs, (_match, p) => {
@@ -71,7 +72,7 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
     return { content: contentWithSvgs, stats }
 }
 
-function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-group", config: GroupRenderConfig, videoLinks: string[], index: number, attrs: Record<string, string>, options: RenderSiteswapElementsOptions): string {
+function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-group", config: Partial<RendererConfig>, videoLinks: string[], index: number, attrs: Record<string, string>, options: RenderSiteswapElementsOptions): string {
     assert(nrHands === 2 || nrHands === 4, "Only 2 or 4 hands supported for group patterns")
     const gp = createGroupPattern(p, nrHands)
     gp.videoLinks = videoLinks
@@ -124,7 +125,7 @@ function renderGroupWithFrames(
     gp: ReturnType<typeof createGroupPattern>,
     frames: number[],
     kind: "sync-group" | "siteswap-group",
-    config: GroupRenderConfig,
+    config: Partial<RendererConfig>,
     index: number,
     options: RenderSiteswapElementsOptions,
 ): string {
@@ -137,14 +138,14 @@ function renderGroupWithFrames(
 
     const lines: string[] = []
     if (showPattern) {
-        const limitedConfig: GroupRenderConfig = { ...config, components: ["default-pattern", "turntable"] }
+        const limitedConfig: Partial<RendererConfig> = mergePartialConfig(config, { components: ["default-pattern", "turntable"] })
         const [svg] = renderGroupPattern(gp, limitedConfig)
         const filename = options.writeSvgFile(svg.svg(), kind, index)
         lines.push(`![tag:patternWithFrames](${filename})`)
     }
 
     const frameImages = frames.map((time) => {
-        const svg = renderAnimationFrameAsSvg(gp, time, { ...config, showAnimationCounter: true, isAnimationCounterZeroBased: false })
+        const svg = renderAnimationFrameAsSvg(gp, time, mergePartialConfig<AnyRendererConfig>(config, { showAnimationCounter: true, isAnimationCounterZeroBased: false }))
         const filename = options.writeSvgFile!(svg.svg(), "frame", time)
         return `![tag:frame](${filename})`
     })

@@ -129,6 +129,186 @@ export const defaultRendererConfig: RendererConfig = {
     labelPassDestinationRole: true,
 }
 
+export type FontStyle = {
+    size?: number
+    color?: string
+    weight?: string
+    family?: string
+}
+
+export type ShapeStyle = {
+    fill?: string
+    stroke?: string
+    strokeWidth?: number
+    fillPattern?: string
+    innerText?: FontStyle // style for text rendered inside the shape
+}
+
+export type LineStyle = {
+    color?: string
+    width?: number
+    dash?: string
+}
+
+/** Field-by-field merge of FontStyle layers; later layers override earlier ones. */
+export function mergeFontStyle(...layers: (FontStyle | undefined)[]): FontStyle {
+    const out: FontStyle = {}
+    for (const l of layers) {
+        if (!l) continue
+        if (l.size !== undefined) out.size = l.size
+        if (l.color !== undefined) out.color = l.color
+        if (l.weight !== undefined) out.weight = l.weight
+        if (l.family !== undefined) out.family = l.family
+    }
+    return out
+}
+
+/** Field-by-field merge of ShapeStyle layers (innerText merged recursively); later layers override earlier ones. */
+export function mergeShapeStyle(...layers: (ShapeStyle | undefined)[]): ShapeStyle {
+    const out: ShapeStyle = {}
+    const innerLayers: (FontStyle | undefined)[] = []
+    for (const l of layers) {
+        if (!l) continue
+        if (l.fill !== undefined) out.fill = l.fill
+        if (l.stroke !== undefined) out.stroke = l.stroke
+        if (l.strokeWidth !== undefined) out.strokeWidth = l.strokeWidth
+        if (l.fillPattern !== undefined) out.fillPattern = l.fillPattern
+        innerLayers.push(l.innerText)
+    }
+    const inner = mergeFontStyle(...innerLayers)
+    if (Object.keys(inner).length > 0) out.innerText = inner
+    return out
+}
+
+/** Field-by-field merge of LineStyle layers; later layers override earlier ones. */
+export function mergeLineStyle(...layers: (LineStyle | undefined)[]): LineStyle {
+    const out: LineStyle = {}
+    for (const l of layers) {
+        if (!l) continue
+        if (l.color !== undefined) out.color = l.color
+        if (l.width !== undefined) out.width = l.width
+        if (l.dash !== undefined) out.dash = l.dash
+    }
+    return out
+}
+
+export type RenderLayoutConfig = {
+    positionCircle: number
+    defaultPasserStyle: ShapeStyle
+    roleStyle?: ShapeStyle[] // style for circles representing a role (applied after passerStyle)
+    passerStyle?: ShapeStyle[] // style for circles representing a person (applied before roleStyle)
+    passStyle: LineStyle // style for lines representing passes
+    passLabelStyle: FontStyle // style for pass labels (text next to pass lines)
+    walkingArrowStyle: LineStyle // style for lines representing walking
+    backgroundLineStyle: LineStyle // fallback style for lines in the background layout
+    animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
+    //FIX: roleColors has been replaced by roleStyle.fill
+    roleColors?: string[] // colors keyed by role index (sourced from RendererConfig when merged)
+    showAnimationCounter: boolean
+    isAnimationCounterZeroBased: boolean
+}
+export const defaultRenderLayoutConfig: RenderLayoutConfig = {
+    positionCircle: 40,
+    defaultPasserStyle: {
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 3,
+        innerText: { size: 28, color: "black", weight: "bold" },
+    },
+    roleStyle: undefined,
+    passerStyle: undefined,
+    passStyle: { color: "black", width: 1 },
+    passLabelStyle: { size: 8, color: "black" },
+    walkingArrowStyle: { color: "lightgrey", width: 4 },
+    backgroundLineStyle: { color: "black", width: 1 },
+    animateRoleColors: false, // this is pretty confusing
+    showAnimationCounter: false,
+    isAnimationCounterZeroBased: true,
+}
+
+export type FrameRenderConfig = {
+    showInAirPasses: boolean
+    inAirPassStyle: LineStyle // style for passes that are in the air (not on the current beat)
+    animationCounterStyle: FontStyle
+    frameBorderStyle: LineStyle
+    animationCounterBeatsNotTime: boolean
+}
+export const defaultFrameRenderConfig: FrameRenderConfig = {
+    showInAirPasses: true,
+    inAirPassStyle: {},
+    animationCounterStyle: { size: 24 },
+    frameBorderStyle: { width: 3, color: "grey" },
+    animationCounterBeatsNotTime: true,
+}
+
+/** Union of every renderer config type — operand for the unified merge helpers below.
+ * Intersection (not union) so `keyof AnyRendererConfig` enumerates all fields and partial
+ * callers can mix fields from any of the three configs in a single object. */
+export type AnyRendererConfig = RendererConfig & RenderLayoutConfig & FrameRenderConfig
+
+/**
+ * Per-field deep-merger registry. The mapped type forces every entry's value
+ * to be a merger whose signature matches the field's type — e.g. assigning
+ * `defaultPasserStyle: mergeLineStyle` would be a compile error.
+ */
+type NestedStyleMergers = {
+    [K in keyof AnyRendererConfig]?: (...layers: (AnyRendererConfig[K] | undefined)[]) => AnyRendererConfig[K]
+}
+
+const NESTED_STYLE_MERGERS: NestedStyleMergers = {
+    defaultPasserStyle: mergeShapeStyle,
+    passStyle: mergeLineStyle,
+    passLabelStyle: mergeFontStyle,
+    walkingArrowStyle: mergeLineStyle,
+    backgroundLineStyle: mergeLineStyle,
+    inAirPassStyle: mergeLineStyle,
+    animationCounterStyle: mergeFontStyle,
+    frameBorderStyle: mergeLineStyle,
+}
+
+/**
+ * Merge one field across all layers using its registered merger.
+ * Generic in K so the merger's argument and result types stay linked to the field.
+ */
+function mergeNestedField<K extends keyof AnyRendererConfig>(
+    key: K,
+    layers: readonly Partial<AnyRendererConfig>[],
+): AnyRendererConfig[K] | undefined {
+    const merger = NESTED_STYLE_MERGERS[key]
+    if (!merger) return undefined
+    const present = layers.map((l) => l[key]).filter((s): s is NonNullable<typeof s> => s !== undefined)
+    return present.length > 0 ? merger(...present) : undefined
+}
+
+/**
+ * Merge two or more partial configs, later layers overriding earlier ones.
+ * Known nested style fields (see NESTED_STYLE_MERGERS) are merged field-by-field
+ * across all layers; all other fields are shallow-replaced.
+ *
+ * Generic in T so callers pick the config shape they care about — any one of
+ * RendererConfig / RenderLayoutConfig / FrameRenderConfig, an intersection of
+ * two, or AnyRendererConfig (all three). Registry entries not present in T are
+ * silently skipped at runtime.
+ */
+export function mergePartialConfig<T extends Partial<AnyRendererConfig>>(...layers: Partial<T>[]): Partial<T> {
+    const result: Partial<AnyRendererConfig> = {}
+    for (const layer of layers) Object.assign(result, layer)
+    for (const key of Object.keys(NESTED_STYLE_MERGERS) as (keyof AnyRendererConfig)[]) {
+        const merged = mergeNestedField(key, layers)
+        // Dynamic-key dispatch: TS collapses Partial<AnyRendererConfig>[union-of-keys]
+        // to `undefined` (the only value safely assignable to *all* fields). The
+        // per-field type relationship was already verified inside mergeNestedField,
+        // so a single localized cast is sound here.
+        if (merged !== undefined) (result as Record<string, unknown>)[key] = merged
+    }
+    return result as Partial<T>
+}
+
+/** Merge a full config base with one or more partial overrides, returning the same config shape. */
+export function mergeConfig<T extends Partial<AnyRendererConfig>>(base: T, ...overrides: Partial<T>[]): T {
+    return mergePartialConfig<T>(base, ...overrides) as T
+}
+
 export function customRendererConfigDefaults(pattern: Pattern): RendererConfig {
     assert(pattern.throws, "Pattern must have throws defined")
     const allSync = pattern.throws.some((value, index, array) => array.findIndex((item) => item.fromOppositeHand !== value.fromOppositeHand && item.fromPasserIdx === value.fromPasserIdx && item.throwBeat === value.throwBeat) >= 0)

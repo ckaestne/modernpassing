@@ -9,6 +9,8 @@ import path from "node:path"
 import process from "node:process"
 import { mdToTypst } from "./md2typ.ts"
 import { renderSiteswapElements } from "../vizsiteswap/siteswapvis/render-siteswap-elements.ts"
+import { type RendererConfig } from "@modernpassing/rendering-core"
+import { type FrameRenderConfig, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
 
 // mdBook probes preprocessors with: <command> supports <renderer>
 // Custom args (e.g. --chapters <regex>) precede mdBook-appended args, so we
@@ -80,6 +82,21 @@ forEachChapter(book, (chapter) => {
     }
 })
 
+const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig> = {
+    passerStyle: [
+        { fill: "white" },
+        { fillPattern: "checker", fill: "white" },
+        { fill: "#bbb" },
+        { fillPattern: "dots", fill: "white" },
+        { fillPattern: "crosshatch", fill: "white" },
+        { fillPattern: "stripes-135", fill: "white" },
+        { fillPattern: "stripes-45", fill: "white" },
+    ],
+    walkingArrowStyle: {
+        color: "#555",
+    }
+}
+
 forEachChapter(book, (chapter) => {
     if (typeof chapter.content !== "string") {
         return
@@ -101,7 +118,7 @@ forEachChapter(book, (chapter) => {
             return `siteswapvis/${filename}`
         },
         formatVideoLink: (url) => `Video: [${url}](${url})`,
-    })
+    }, bookRenderingConfig)
 
     let markdownContent = rendered.content
     if (isFrontmatter) {
