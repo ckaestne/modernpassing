@@ -2,30 +2,66 @@ import type { BackgroundLayout, GroupPattern, MovementSegmentSpec } from "@moder
 import { type AnimationPlan, apFindOngoingMovement, apFindPosition, apGetRole, createAnimationPlan, type PassAnimation } from "@modernpassing/layout"
 import type { Role } from "@modernpassing/pattern"
 import { customRendererConfigDefaults, type RendererConfig } from "@modernpassing/rendering-core"
-import { createSVG, defaultRenderLayoutConfig, getRenderPatternSize, renderBackground, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
+import {
+    applyLineStyle,
+    applyShapeStyle,
+    createSVG,
+    defaultRenderLayoutConfig,
+    fontAttrs,
+    type FontStyle,
+    getRenderPatternSize,
+    type LineStyle,
+    mergeFontStyle,
+    mergeLineStyle,
+    mergeShapeStyle,
+    renderBackground,
+    type RenderLayoutConfig,
+    resolvePasserStyle,
+} from "@modernpassing/rendering-svg"
 import { scaleup } from "@modernpassing/svg-utils"
-import type { Containable, G, Line, Path, Svg, Text } from "@svgdotjs/svg.js"
+import type { Containable, G, Line, Path, Svg } from "@svgdotjs/svg.js"
 
 export type FrameRenderConfig = {
     showInAirPasses: boolean
-    inAirPassesColor: string | undefined // undefined for default
-    animationCounterFontSize: number
-    frameBorderWidth: number
-    frameBorderColor: string
+    inAirPassStyle: LineStyle // style for passes that are in the air (not on the current beat)
+    animationCounterStyle: FontStyle
+    frameBorderStyle: LineStyle
     animationCounterBeatsNotTime: boolean
 }
 export const defaultFrameRenderConfig: FrameRenderConfig = {
     showInAirPasses: true,
-    inAirPassesColor: undefined,
-    animationCounterFontSize: 24,
-    frameBorderWidth: 3,
-    frameBorderColor: "grey",
+    inAirPassStyle: {},
+    animationCounterStyle: { size: 24 },
+    frameBorderStyle: { width: 3, color: "grey" },
     animationCounterBeatsNotTime: true,
+}
+
+type LayoutFrameConfig = RenderLayoutConfig & FrameRenderConfig
+
+/**
+ * After a shallow merge of config layers, re-deep-merge known nested style fields
+ * against the original defaults so partial overrides (e.g. defaultPasserStyle:
+ * { innerText: { size: 14 } }) don't drop the other default fields.
+ */
+function mergeNestedStyles<T extends Partial<LayoutFrameConfig>>(merged: T, overrides: Partial<LayoutFrameConfig>): T {
+    return {
+        ...merged,
+        defaultPasserStyle: mergeShapeStyle(defaultRenderLayoutConfig.defaultPasserStyle, overrides.defaultPasserStyle),
+        passStyle: mergeLineStyle(defaultRenderLayoutConfig.passStyle, overrides.passStyle),
+        passLabelStyle: mergeFontStyle(defaultRenderLayoutConfig.passLabelStyle, overrides.passLabelStyle),
+        walkingArrowStyle: mergeLineStyle(defaultRenderLayoutConfig.walkingArrowStyle, overrides.walkingArrowStyle),
+        backgroundLineStyle: mergeLineStyle(defaultRenderLayoutConfig.backgroundLineStyle, overrides.backgroundLineStyle),
+        inAirPassStyle: mergeLineStyle(defaultFrameRenderConfig.inAirPassStyle, overrides.inAirPassStyle),
+        animationCounterStyle: mergeFontStyle(defaultFrameRenderConfig.animationCounterStyle, overrides.animationCounterStyle),
+    }
 }
 
 export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>, svg: Svg): G[] {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = mergeNestedStyles(
+        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config },
+        config,
+    )
 
     // there are three parts that we may render: the pattern, the aidan notation, and the layout
     // not every pattern has aidan notation, and not every group pattern has a layout
@@ -37,7 +73,10 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
 
 export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config: Partial<RendererConfig & RenderLayoutConfig & FrameRenderConfig>): Svg {
     const changedRenderDefaults: Partial<RendererConfig> = { iterations: 1, showPasserRoles: true }
-    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config }
+    const renderConfig: RendererConfig & RenderLayoutConfig & FrameRenderConfig = mergeNestedStyles(
+        { ...defaultFrameRenderConfig, ...defaultRenderLayoutConfig, ...customRendererConfigDefaults(gp.pattern), ...changedRenderDefaults, ...config },
+        config,
+    )
     if (!gp.layout) throw new Error("Cannot render animation frame: pattern has no layout")
     const size = getRenderPatternSize(gp.pattern, renderConfig)
     const dim = size.height
@@ -69,8 +108,6 @@ export function renderAnimationFrames(
         ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config, background)),
     ]
 }
-const strokeWidth = 3
-
 export function renderAnimationFrame(
     layout: AnimationPlan,
     time: number,
@@ -82,11 +119,15 @@ export function renderAnimationFrame(
     background?: BackgroundLayout[],
 ): G {
     const canvas = svg.group().width(width).height(height)
-    canvas.rect(width, height).fill("white").stroke({ color: config.frameBorderColor, width: config.frameBorderWidth }).back()
+    canvas.rect(width, height).fill("white").stroke(config.frameBorderStyle).back()
     if (background) renderBackground(background, width, height, canvas, config)
 
     const counterTime = (config.animationCounterBeatsNotTime ? time % patternLength : time) + (config.isAnimationCounterZeroBased ? 0 : 1)
-    if (config.showAnimationCounter) canvas.text("" + counterTime).font({ size: config.animationCounterFontSize }).x(config.frameBorderWidth * 2).y(config.frameBorderWidth).fill("black")
+    if (config.showAnimationCounter) {
+        canvas.text("" + counterTime)
+            .font(fontAttrs(config.animationCounterStyle ?? {}))
+            .x((config.frameBorderStyle.width ?? 0) * 2).y(config.frameBorderStyle.width ?? 0)
+    }
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
 
@@ -98,15 +139,17 @@ export function renderAnimationFrame(
     // if somebody is walking, render the path
     for (let jugglerIdx = 0; jugglerIdx < layout.initialPositions.length; jugglerIdx++) {
         const mov = apFindOngoingMovement(layout, jugglerIdx, time)
-        if (mov) renderMovePath(canvas, scale.scaleSegment(mov.movementSpec))
+        if (mov) renderMovePath(canvas, scale.scaleSegment(mov.movementSpec), config.walkingArrowStyle)
     }
+
+    const initialRoles = layout.initialPositions.map((p) => p.initialRole)
 
     // render jugglers
     for (let jugglerIdx = 0; jugglerIdx < layout.initialPositions.length; jugglerIdx++) {
         const pos = apFindPosition(layout, jugglerIdx, time)
         const loc = scale.scalep(pos)
         const role = apGetRole(layout, jugglerIdx, time)
-        renderJuggler(canvas, loc, jugglerIdx, role, config)
+        renderJuggler(canvas, loc, jugglerIdx, initialRoles.indexOf(role), role, config)
     }
 
     // render passes
@@ -115,8 +158,8 @@ export function renderAnimationFrame(
             const isInAir = pass.onBeat !== time % layout.mod
             const skipBecauseInAir = !config.showInAirPasses && isInAir
             if (!skipBecauseInAir && (pass.firstIteration === undefined || pass.firstIteration === (time < layout.mod))) {
-                const color = isInAir && config.inAirPassesColor ? config.inAirPassesColor : "black"
-                renderPass(canvas, scale.scalePass(pass), color)
+                const lineStyle = isInAir ? mergeLineStyle(config.passStyle, config.inAirPassStyle) : config.passStyle
+                renderPass(canvas, scale.scalePass(pass), lineStyle, config.passLabelStyle)
             }
         }
     }
@@ -185,18 +228,19 @@ function createRoleColorMappings(config: RenderLayoutConfig, layout: AnimationPl
 //     return size.throwsAreaX + size.throwCircleSize / 2 + time * size.xDist
 // }
 
-function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, role: Role, config: RenderLayoutConfig): G {
+function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, roleIdx: number, role: Role, config: RenderLayoutConfig): G {
     const [x, y] = pos
+    const style = resolvePasserStyle(config, passerIdx, roleIdx)
     const g = canvas.group()
-    const c = canvas.circle(config.positionCircle - strokeWidth).stroke({ color: "black", width: strokeWidth })
+    const c = canvas.circle(config.positionCircle - (style.strokeWidth ?? 0))
+    applyShapeStyle(c, style)
+    // animateRoleColors still wins for fill if configured (back-compat with existing behavior)
     if (config.animateRoleColors && config.roleColors && config.roleColors[passerIdx]) {
         c.fill(config.roleColors[passerIdx])
-    } else {
-        c.fill("white")
     }
     c.center(x, y)
     const l = canvas.text(role)
-        .font({ size: config.roleLabelFontSize, "text-anchor": "middle", fill: "black", "dominant-baseline": "middle", "font-weight": "bold" })
+        .font(fontAttrs(style.innerText ?? {}, { "text-anchor": "middle", "dominant-baseline": "middle" }))
         .center(x, y)
     g.add(c).add(l)
     //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways
@@ -204,11 +248,16 @@ function renderJuggler(canvas: G, pos: [number, number], passerIdx: number, role
     return g
 }
 
-function renderMovePath(canvas: G, path: MovementSegmentSpec): Path {
-    // gray arrow for the moving path in the background
-    const color = "lightgrey"
-    const marker = canvas.marker(5, 5, (add) => add.path("M0,0 L5,2.5 L0,5").fill(color))
-    return genPath(canvas, path).stroke({ color, width: 4 }).marker("end", marker).fill("none")
+function renderMovePath(canvas: G, path: MovementSegmentSpec, style: LineStyle): Path {
+    const p = genPath(canvas, path).fill("none")
+    applyLineStyle(p, style)
+    const marker = canvas.marker(5, 5, (add) => {
+        const p = add.path("M0,0 L5,2.5 L0,5")
+        if (style.color) p.fill(style.color!)
+        return p
+    })
+    p.marker("end", marker)
+    return p
 }
 
 function genPath(canvas: Containable, segment: MovementSegmentSpec): Path {
@@ -219,13 +268,12 @@ function genPath(canvas: Containable, segment: MovementSegmentSpec): Path {
     return canvas.path(p.join(" "))
 }
 
-function renderPass(canvas: G, pass: PassAnimation, color: string): G {
-    // console.log(`renderPass from ${fromRole} to ${toRole} with label ${label}`)
+function renderPass(canvas: G, pass: PassAnimation, lineStyle: LineStyle, labelStyle: FontStyle): G {
     const g = canvas.group()
-    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, color)
+    const a = arrow(canvas, pass.fromX, pass.fromY, pass.toX, pass.toY, lineStyle)
     g.add(a)
     if (pass.label) {
-        g.add(canvas.text(pass.label).font({ size: 8 }).cx(pass.labelX).cy(pass.labelY).fill("black"))
+        g.add(canvas.text(pass.label).font(fontAttrs(labelStyle)).cx(pass.labelX).cy(pass.labelY))
     }
     return g
 }
@@ -239,9 +287,14 @@ function isTimeWithinDuration(onBeat: number, duration: number, time: number, mo
     return true
 }
 
-function arrow(canvas: G, x1: number, y1: number, x2: number, y2: number, color: string = "blue"): Line {
-    const line = canvas.line(x1, y1, x2, y2).stroke({ color })
-    const marker = canvas.marker(5, 5, (add) => add.path("M0,0 L5,2.5 L0,5").fill(color))
+function arrow(canvas: G, x1: number, y1: number, x2: number, y2: number, style: LineStyle): Line {
+    const line = canvas.line(x1, y1, x2, y2)
+    applyLineStyle(line, style)
+    const marker = canvas.marker(5, 5, (add) => {
+        const p = add.path("M0,0 L5,2.5 L0,5")
+        if (style.color) p.fill(style.color!)
+        return p
+    })
     line.marker("end", marker)
     return line
 }

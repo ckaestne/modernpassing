@@ -441,21 +441,147 @@ export function createSVG(width?: number, height?: number): Svg {
     return svg
 }
 
+export type FontStyle = {
+    size?: number
+    color?: string
+    weight?: string
+    family?: string
+}
+
+export type ShapeStyle = {
+    fill?: string
+    stroke?: string
+    strokeWidth?: number
+    fillPattern?: string
+    innerText?: FontStyle // style for text rendered inside the shape
+}
+
+export type LineStyle = {
+    color?: string
+    width?: number
+    dash?: string
+}
+
 export type RenderLayoutConfig = {
     positionCircle: number
-    roleLabelFontSize: number
-    roleColors?: string[]
+    defaultPasserStyle: ShapeStyle
+    roleStyle?: ShapeStyle[] // style for circles representing a role (applied after passerStyle)
+    passerStyle?: ShapeStyle[] // style for circles representing a person (applied before roleStyle)
+    passStyle: LineStyle // style for lines representing passes
+    passLabelStyle: FontStyle // style for pass labels (text next to pass lines)
+    walkingArrowStyle: LineStyle // style for lines representing walking
+    backgroundLineStyle: LineStyle // fallback style for lines in the background layout
     animateRoleColors: boolean // whether to show colors for passers in the animation corresponding to their role
+    //FIX: roleColors has been replaced by roleStyle.fill
+    roleColors?: string[] // colors keyed by role index (sourced from RendererConfig when merged)
     showAnimationCounter: boolean
     isAnimationCounterZeroBased: boolean
 }
 export const defaultRenderLayoutConfig: RenderLayoutConfig = {
     positionCircle: 40,
-    roleLabelFontSize: 28,
-    roleColors: undefined,
+    defaultPasserStyle: {
+        fill: "white",
+        stroke: "black",
+        strokeWidth: 3,
+        innerText: { size: 28, color: "black", weight: "bold" },
+    },
+    roleStyle: undefined,
+    passerStyle: undefined,
+    passStyle: { color: "black", width: 1 },
+    passLabelStyle: { size: 8, color: "black" },
+    walkingArrowStyle: { color: "lightgrey", width: 4 },
+    backgroundLineStyle: { color: "black", width: 1 },
     animateRoleColors: false, // this is pretty confusing
     showAnimationCounter: false,
     isAnimationCounterZeroBased: true,
+}
+
+/** Field-by-field merge of FontStyle layers; later layers override earlier ones. */
+export function mergeFontStyle(...layers: (FontStyle | undefined)[]): FontStyle {
+    const out: FontStyle = {}
+    for (const l of layers) {
+        if (!l) continue
+        if (l.size !== undefined) out.size = l.size
+        if (l.color !== undefined) out.color = l.color
+        if (l.weight !== undefined) out.weight = l.weight
+        if (l.family !== undefined) out.family = l.family
+    }
+    return out
+}
+
+/** Field-by-field merge of ShapeStyle layers (innerText merged recursively); later layers override earlier ones. */
+export function mergeShapeStyle(...layers: (ShapeStyle | undefined)[]): ShapeStyle {
+    const out: ShapeStyle = {}
+    const innerLayers: (FontStyle | undefined)[] = []
+    for (const l of layers) {
+        if (!l) continue
+        if (l.fill !== undefined) out.fill = l.fill
+        if (l.stroke !== undefined) out.stroke = l.stroke
+        if (l.strokeWidth !== undefined) out.strokeWidth = l.strokeWidth
+        if (l.fillPattern !== undefined) out.fillPattern = l.fillPattern
+        innerLayers.push(l.innerText)
+    }
+    const inner = mergeFontStyle(...innerLayers)
+    if (Object.keys(inner).length > 0) out.innerText = inner
+    return out
+}
+
+/** Field-by-field merge of LineStyle layers; later layers override earlier ones. */
+export function mergeLineStyle(...layers: (LineStyle | undefined)[]): LineStyle {
+    const out: LineStyle = {}
+    for (const l of layers) {
+        if (!l) continue
+        if (l.color !== undefined) out.color = l.color
+        if (l.width !== undefined) out.width = l.width
+        if (l.dash !== undefined) out.dash = l.dash
+    }
+    return out
+}
+
+/** Resolves a juggler circle's style by merging defaultPasserStyle ← passerStyle[passerIdx] ← roleStyle[roleIdx]. */
+export function resolvePasserStyle(config: RenderLayoutConfig, passerIdx: number, roleIdx: number): ShapeStyle {
+    return mergeShapeStyle(
+        config.defaultPasserStyle,
+        config.passerStyle?.[passerIdx],
+        config.roleStyle?.[roleIdx],
+    )
+}
+
+/** Converts a FontStyle to an SVG.js font() attributes object, omitting any unset fields; `extra` is merged on top. */
+export function fontAttrs(font: FontStyle, extra: Record<string, string | number> = {}): Record<string, string | number> {
+    const attrs: Record<string, string | number> = {}
+    if (font.size !== undefined) attrs.size = font.size
+    if (font.color !== undefined) attrs.fill = font.color
+    if (font.weight !== undefined) attrs["font-weight"] = font.weight
+    if (font.family !== undefined) attrs.family = font.family
+    return { ...attrs, ...extra }
+}
+
+type Strokable = { stroke: (attrs: Record<string, string | number>) => unknown }
+type Fillable = { fill: (color: string) => unknown }
+
+/**
+ * Apply only the stroke attributes that are explicitly set on the style.
+ * Skips the .stroke() call entirely if no attribute is set, so SVG.js defaults remain.
+ */
+export function applyLineStyle(target: Strokable, style: LineStyle): void {
+    const stroke: Record<string, string | number> = {}
+    if (style.color !== undefined) stroke.color = style.color
+    if (style.width !== undefined) stroke.width = style.width
+    if (style.dash !== undefined) stroke.dasharray = style.dash
+    if (Object.keys(stroke).length > 0) target.stroke(stroke)
+}
+
+/**
+ * Apply only the fill/stroke attributes that are explicitly set on the style.
+ * innerText is not applied here; render the text element separately with fontAttrs(style.innerText).
+ */
+export function applyShapeStyle(target: Strokable & Fillable, style: ShapeStyle): void {
+    if (style.fill !== undefined) target.fill(style.fill)
+    const stroke: Record<string, string | number> = {}
+    if (style.stroke !== undefined) stroke.color = style.stroke
+    if (style.strokeWidth !== undefined) stroke.width = style.strokeWidth
+    if (Object.keys(stroke).length > 0) target.stroke(stroke)
 }
 
 // function renderLayout(layout: GroupPatternStaticLayout, width: number, height: number, canvas: G, config: RenderLayoutConfig) {
@@ -527,13 +653,21 @@ export function renderBackground(layouts: BackgroundLayout[], width: number, hei
     // console.log(`rendering background ${width} ${height} ${w} ${left} ${top}`)
     const scale = scaleup(left, top, w)
 
+    // Each layout's own stroke values take precedence; backgroundLineStyle fills in gaps.
+    const lineStyleFor = (s: string | undefined, w: number | undefined): LineStyle => mergeLineStyle(config.backgroundLineStyle, { color: s, width: w })
     for (const layout of layouts) {
         if (layout.type === "circle") {
-            canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scale.scalex(layout.x), scale.scaley(layout.y)).fill(layout.fill).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            const el = canvas.ellipse(layout.r * 2 * w, layout.r * 2 * h).center(scale.scalex(layout.x), scale.scaley(layout.y))
+            if (layout.fill !== undefined) el.fill(layout.fill)
+            applyLineStyle(el, lineStyleFor(layout.stroke, layout.strokeWidth))
         } else if (layout.type === "line") {
-            canvas.line(scale.scalex(layout.x1), scale.scaley(layout.y1), scale.scalex(layout.x2), scale.scaley(layout.y2)).stroke({ color: layout.stroke, width: layout.strokeWidth })
+            applyLineStyle(
+                canvas.line(scale.scalex(layout.x1), scale.scaley(layout.y1), scale.scalex(layout.x2), scale.scaley(layout.y2)),
+                lineStyleFor(layout.stroke, layout.strokeWidth),
+            )
         } else if (layout.type === "path") {
-            canvas.path(scale.scalePath(layout.segments).join(" ")).fill("none").stroke({ color: layout.stroke, width: layout.strokeWidth })
+            const el = canvas.path(scale.scalePath(layout.segments).join(" ")).fill("none")
+            applyLineStyle(el, lineStyleFor(layout.stroke, layout.strokeWidth))
         } else {
             throw new Error(`unknown background layout type ${layout}`)
         }
@@ -568,9 +702,9 @@ export function renderAnimation(
     const s = Math.min(width, height) - config.positionCircle
     const left = config.positionCircle / 2
     const top = config.positionCircle / 2
-    const strokeWidth = 3
     const scale = scaleup(left, top, s)
     const positionData: AnimationPositionInitData[] = []
+    const initialRoles = layout.initialPositions.map((p) => p.initialRole)
 
     // //shift the layout to the center
     // const topMost = layout.initialPositions.reduce((acc, pos) => Math.min(acc, pos.y * s), 0)
@@ -584,18 +718,19 @@ export function renderAnimation(
     for (let roleIdx = 0; roleIdx < layout.initialPositions.length; roleIdx++) {
         const pos = layout.initialPositions[roleIdx]
         const [x, y] = scale.scale(pos.x, pos.y)
-        // const c = canvas.circle(config.positionCircle - strokeWidth).center(x, y).fill("white").stroke({ color: config.colors[roleIdx], width: strokeWidth })
-        // const l = canvas.text(pos.label).font({ size: config.roleLabelFontSize }).cx(x).cy(y).fill("black")
+        // Initial state only; at time 0 the passer at row r holds role r, so roleIdx === passerIdx here.
+        // Subsequent re-styling on relabeling is the runtime's job (not currently implemented for arbitrary style fields).
+        const style = resolvePasserStyle(config, roleIdx, roleIdx)
         const g = canvas.group()
-        const c = canvas.circle(config.positionCircle - strokeWidth).stroke({ color: "black", width: strokeWidth })
+        const c = canvas.circle(config.positionCircle - (style.strokeWidth ?? 0))
+        applyShapeStyle(c, style)
+        // animateRoleColors still wins for fill if configured (back-compat with existing behavior)
         if (config.animateRoleColors && config.roleColors && config.roleColors[roleIdx]) {
             c.fill(config.roleColors[roleIdx])
-        } else {
-            c.fill("white")
         }
         c.center(x, y)
         const l = canvas.text(pos.initialRole)
-            .font({ size: config.roleLabelFontSize, "text-anchor": "middle", fill: "black", "dominant-baseline": "middle", "font-weight": "bold" })
+            .font(fontAttrs(style.innerText ?? {}, { "text-anchor": "middle", "dominant-baseline": "middle" }))
             .center(x, y)
         g.add(c).add(l)
         //no idea why this is needed; it sets x for the tspan attribute (not y) and then doesn't move sideways

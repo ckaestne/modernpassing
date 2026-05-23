@@ -134,7 +134,7 @@ function renderFrames(pattern: string, filename: string, nrHands: number = 2) {
     fs.mkdirSync(path.dirname(filename), { recursive: true })
 
     const svg = createSVG(420, 1200)
-    const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true, positionCircle: 25, roleLabelFontSize: 14 }, svg)
+    const frames = renderGroupPatternLayoutFrames(gp, { showAnimationCounter: true, animateRoleColors: true, positionCircle: 25, defaultPasserStyle: { innerText: { size: 14 } } }, svg)
     svg.height(220 * frames.length / 2)
     for (let i = 0; i < frames.length / 2; i++) {
         frames[i].y(220 * i)
