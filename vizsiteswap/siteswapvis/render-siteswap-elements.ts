@@ -97,7 +97,27 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
 
 function parseFramesAttr(value: string | undefined): number[] | undefined {
     if (value === undefined) return undefined
-    return value.split(",").map((s) => Number.parseFloat(s.trim())).filter((n) => Number.isFinite(n))
+    const result: number[] = []
+    for (const part of value.split(",")) {
+        const trimmed = part.trim()
+        if (trimmed === "") continue
+        if (trimmed.includes(":")) {
+            const pieces = trimmed.split(":").map((s) => s.trim())
+            const from = Number.parseFloat(pieces[0])
+            const to = Number.parseFloat(pieces[1])
+            const step = pieces.length >= 3 && pieces[2] !== "" ? Number.parseFloat(pieces[2]) : 1
+            if (!Number.isFinite(from) || !Number.isFinite(to) || !Number.isFinite(step) || step === 0) continue
+            if (step > 0) {
+                for (let i = from; i < to; i += step) result.push(i)
+            } else {
+                for (let i = from; i > to; i += step) result.push(i)
+            }
+        } else {
+            const n = Number.parseFloat(trimmed)
+            if (Number.isFinite(n)) result.push(n)
+        }
+    }
+    return result
 }
 
 function renderGroupWithFrames(
@@ -109,7 +129,6 @@ function renderGroupWithFrames(
     options: RenderSiteswapElementsOptions,
 ): string {
     if (!options.writeSvgFile) {
-        console.error(options)
         throw new Error("renderSiteswapElements requires writeSvgFile in markdown-image mode")
     }
 
