@@ -20,7 +20,7 @@ Just like four-handed siteswaps, they are truly ambidextrous. Each passer cycles
 
 For passers with a stable *[756](4e-4hsw-zaps.md)* (on both sides, straight and crossing singles), *567-about* is probably the best entry into siteswap takeouts. It is fairly easy to learn and a good foundation for many others. (Passers without stable zaps might find *Catch the carrot* described below more approachable.)
 
-<siteswap-group video="https://www.youtube.com/watch?v=c0eQDUlhovU">
+<siteswap-group video="https://www.youtube.com/watch?v=c0eQDUlhovU" frames="4,5,6,13,14,15,22,23,24,31,32,33,40">
 A: 7 6 5 7 6 -- B
 B:, 5 7 6 5  -- A
 M:, . IAb,Co
@@ -46,7 +46,7 @@ The exact same takeout sequence on single passes from *567-about* can be straigh
 
 **Catch the carrot.** Fairly easy and short pattern based on [Jim’s three-count, async](4b-4hsw-beginner.md) with useful color coding: one for the only club that gets passed (first throw of A) and two for the clubs that get intercepted with a pop ("the carrots"). The video is very helpful.
 
-<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/catch-the-carrot/">
+<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/catch-the-carrot/" frames="">
 A: 7 4 6 6 -- B
 B:, 7 6 6  -- A
 M: C ,IB
@@ -54,7 +54,7 @@ M: C ,IB
 
 **Killer-bunny-about.** Based on [*564 (killer bunny)*](4e-4hsw-zaps.md), with an intercept on the flip: The intercepted passer flips the club over and gives it to the manipulator next to them. This pattern (like all patterns that intercept flips or zips) does not have a carry since the new manipulator is already down to a single club; instead the new manipulator directly walks across the pattern to stand next to the other passer to intercept the next flip. In one direction, the manipulator walks straight; in the other they walk through the pattern crossing. In practice, the passers effectively stand in 3 corners of a rectangle and the manipulator always walks to the empty corner next. Again, watching the video is very helpful.
 
-<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/killer-bunny-about/">
+<siteswap-group style='{"components":["aidan","pattern","video"]}' video="https://passing.zone/killer-bunny-about/" frames="">
 A: 5 4 6 5 4 -- B
 B:, 6 5 4 6 -- A
 M: . IA
@@ -77,7 +77,7 @@ M:  SB. IB,C
 
 **What's that about.** Probably the oldest siteswap takeout pattern (from 2014). The manipulator intercepts a heff, which is commonly thrown as a heffling (single spin). The pattern is fairly slow, with a long wait before the intercept.
 
-<siteswap-group video="https://www.youtube.com/watch?v=omz7Vj7LblE">
+<siteswap-group video="https://www.youtube.com/watch?v=omz7Vj7LblE" frames="">
 A: 7 6 7 8 2 7 6 7 -- B
 B:, 8 2 7 6 7 8 2  -- A
 M: , IBo. C

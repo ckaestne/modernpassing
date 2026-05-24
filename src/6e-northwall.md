@@ -46,12 +46,12 @@ There are two somewhat unusual parts. First, the fast substitute-intercept seque
 Hints: Slow and lofty passes will help a lot, especially for the challenging turn after catching the pop, but also for the rest of the pattern. The manipulator should stay in the middle of the pattern, walking between the two passing lanes. The manipulator starts facing north, the pop is always on the north side, and the carry is always on the south side. The canonical form of the pattern has no zips.
 
 
-# Dolby Söround
+## Dolby Söround
 
 This pattern leaves out the last self of the *Roundabout* sequence to turn *Roundabout* into a 7-beat-long north-wall pattern. The pattern essentially consists of juggling the *Roundabout* right-handed in one direction (e.g., going east) and left-handed the other direction. In theory, it is very easy to learn, because it is so similar to *Roundabout*, but at the same time it can be very challenging to do the *Roundabout* parts left-handed. It can be a fun challenge for passers who deeply know *Roundabout* but rarely do takeouts that are not fully right-handed.
 
 
-<sync-group video="https://juggling.tv/1742">
+<sync-group video="https://juggling.tv/1742" frames="0,2,4,5,7,9,11,12,14">
 A: 3pB333 3pB33 -- B
 B: 3pA333 3pA33 -- A
 M: SBezSBlz IBv CBz
@@ -64,11 +64,11 @@ It can be helpful to simply practice left-handed *Roundabout* first to learn tak
 The same idea to switch directions by leaving out the last self and carrying to the opposite hand also works for other *Roundabout*-style patterns, such as *Chopabout*.
 
 
-# Opernball (5 Person)
+## Opernball (5 Person)
 
 *Opernball* is a five-person version of the *Phoenicean Waltz* with 3 manipulators all going through the *Phoenicean Waltz* sequence, but with offset starting points. This results in a pattern that feels like *Phoenicean Waltz* locally, but without ever pausing in a *pass-pass-self* sequence for long. Also, all but a single pass that is going back and forth across the pattern are manipulated.
 
-<sync-group video="https://passing.zone/gottinger-opernball/">
+<sync-group video="https://passing.zone/gottinger-opernball/" frames="0:10">
 A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBloz   zf  SBloz   .   IBvb CA  . 

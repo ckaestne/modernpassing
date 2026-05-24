@@ -23,7 +23,7 @@ and (5) it is entirely right-handed with many more interesting patterns to move 
 It is now so common that it has recently made it into juggling games at the IJA and ECJ festivals. 
 
 
-<sync-group video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4">
+<sync-group video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4" frames="auto">
 A: 3pB333 3pB333 -- B
 B: 3pA333 3pA333 -- A
 M: SBe↑ z SBl↓ z IBvo . CB↺↑ z

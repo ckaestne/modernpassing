@@ -12,7 +12,7 @@ All standard scrambled and ambled patterns are right-handed and use *four-count*
 
 ## Zippy
 
-<sync-group video="https://passing.zone/zippy/">
+<sync-group video="https://passing.zone/zippy/" frames="0,1,2,3,4,4.5,5,6,7,8">
 A: 3pC 3pB 3  3pC 3pB 3  3pC 3 -- B
 B: 3   3pA 3  3   3pA 3  3   3 -- C
 C: 3pA 3   3  3pA 3   3  3pA 3 -- A
@@ -34,7 +34,7 @@ After *Zippy*, some more patterns explored synchronous ambidextrous base pattern
 
 **Dumb ways to die.** *Dumb ways to die* is a pattern based on what's called a *civil war feed* as the base pattern. There is no walking here in the base pattern, but positions rotate due to three manipulator switches within the sequence.
 
-<sync-group video="https://passing.zone/dumb-ways-to-die/">
+<sync-group video="https://passing.zone/dumb-ways-to-die/" frames="0:13">
 A: 3pB 3pC 3  3pB 3pC 3  3pC 3pB 3 3pC 3pB 3 -- A
 B: 3pA 3   3  3pA 3   3  3   3pA 3 3   3pA 3 -- B
 C: 3   3pA 3  3   3pA 3  3pA 3   3 3pA 3   3 -- C
@@ -47,7 +47,7 @@ positions: V(A,B,C)
 
 **BrunEd.** *BrunEd* was an early attempt to have a 4-person pattern with the *[MinuEd](6e-northwall.md)* manipulator sequence, using a pass-pass-self version of *[Bruno's nightmare](7-appendix-brunos.md)* as a base pattern. This one is very challenging for the feeder, who needs to pass around the manipulator to various different locations. It has not caught on.
 
-<sync-group video="https://passing.zone/bruned/">
+<sync-group video="https://passing.zone/bruned/" frames="0:12">
 A: 3pB 3pC 3  3pB 3pC 3  3pB 3pC 3 -- B
 B: 3pA 3   3  3pA 3   3  3pA 3   3 -- C
 C: 3   3pA 3  3   3pA 3  3   3pA 3 -- A
@@ -61,7 +61,7 @@ There is no equivalent of a north-wall pattern for 3 passers and a manipulator w
 **Brunickolf.** *Brunickolf* is a 5-person takeout pattern on the standard *[Bruno's nightmare](5d-moving.md)* base pattern.
 It is composed of two 4-person patterns that have only one of the manipulators each. 
 
-<sync-group video="https://passing.zone/brunickolf/" video2="https://passing.zone/brunicki/">
+<sync-group video="https://passing.zone/brunickolf/" video2="https://passing.zone/brunicki/" frames="0:10">
 A: 3pB 3 3  3pC 3 3  3pB 3 3 -- B
 B: 3pA 3 3  3   3 3  3pA 3 3 -- C
 C: 3   3 3  3pA 3 3  3   3 3 -- A
@@ -75,7 +75,7 @@ The 5-person pattern is a north-wall pattern with two sides, but the two 4-perso
 
 **MiniEd.** *MiniEd* is another attempt of a 4-person pattern with a part of the *[MinuEd](6e-northwall.md)* manipulator sequence, this one based on a very fast pass-pass-self feed with *two* passers walking clockwise on a three-count (C on beat 2 and A on beat 4) as the base pattern. 
 
-<sync-group video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/">
+<sync-group video="https://www.youtube.com/watch?v=Z9Sht3IieKI" video2="https://passing.zone/minied/" frames="0:6,5.5,6,7,8">
 A: 3pB 3pC 3  3pB 3   3 -- B
 B: 3pA 3   3  3pA 3pC 3 -- C
 C: 3   3pA 3  3   3pB 3 -- A

@@ -11,7 +11,7 @@
 
 Feeds are a common and simple way to involve three or more passers. A passer acting as the *feeder* (A) will pass with multiple *feedees* (B, C, ...). Each feedee will only pass with the feeder, but not with other feedees.
 
-<sync-group style='{"components":["layout"]}'>
+<sync-group style='{"components":["layout"]}' frames="">
 A: 3pB33pC3
 B: 3pA333
 C: 333pA3
@@ -85,7 +85,7 @@ positions: Free(A, 0.4, 0.1, B, 0.0, 0.9, C, 0.4,1, D, 0.8, 0.9,E,1.0,0.1)
 
 It is similarly possible to introduce (crossing) double passes as [early doubles](2b-basic-sync.md), either as a trick throw or continuously. For example:
 
-<sync-group>
+<sync-group frames="0,1">
 A: 3pB3pC3
 B: 3pA33
 C: 4pA23

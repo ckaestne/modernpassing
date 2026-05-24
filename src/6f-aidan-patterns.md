@@ -14,7 +14,7 @@
 ## Scrambled V
 
 
-<sync-group video="https://juggling.tv/12753">
+<sync-group video="https://juggling.tv/12753" frames="0:8">
 A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
@@ -33,7 +33,7 @@ Turning back: As in [moving patterns](5d-moving.md) and [other manipulator patte
 
 *Toast* is another common pattern worth learning and remembering, where the manipulator substitutes a pass to B on beat 1, then jumps across the pattern in front of C to intercept the pass to C, from where the old C now starts with a carry to the old manipulator, as in *Roundabout*.
 
-<sync-group video="https://passing.zone/scrambled-variation-3-7-toast-sb-ic-cc/">
+<sync-group video="https://passing.zone/scrambled-variation-3-7-toast-sb-ic-cc/" frames="0:8">
 A: 3pB3 3pC3 3pB3 -- B
 B: 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   -- A
@@ -87,7 +87,7 @@ Clean and consistent recordings of all these 27 patterns can be found at [passin
 It is possible to have two or even more manipulators in a scrambled pattern that each do different manipulator sequences. The best known among these is *Scrambled 3-V* that has both a *Scrambled V* manipulator (CBSBIC) and a *3* manipulator (CCSAIB):
 
 
-<sync-group video="https://www.youtube.com/watch?v=i2Dizji4VL8">
+<sync-group video="https://www.youtube.com/watch?v=i2Dizji4VL8" frames="0:7">
 A: 3pB3  3pC3  3pB3  -- B
 B: 3pA3  3  3  3pA3  -- C
 C: 3 3   3pA3  3  3  -- A

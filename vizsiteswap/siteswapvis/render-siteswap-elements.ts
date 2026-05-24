@@ -3,6 +3,7 @@ import { type AnyRendererConfig, mergePartialConfig, renderAnimationFrameAsSvg, 
 import { type RendererConfig } from "@modernpassing/rendering-core"
 import { assert } from "node:console"
 import { replaceElement } from "../replace-util.ts"
+import { GroupPattern } from "@modernpassing/layout"
 
 
 
@@ -78,7 +79,7 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
     gp.videoLinks = videoLinks
 
     try {
-        const frames = options.mode === "markdown-image" ? parseFramesAttr(attrs["frames"]) : undefined
+        const frames = options.mode === "markdown-image" ? (attrs["frames"] ==="auto" || attrs["frames"] === undefined ? getAutoFramesFromPattern(gp) : parseFramesAttr(attrs["frames"])) : undefined
         if (frames !== undefined) {
             return renderGroupWithFrames(gp, frames, kind, config, index, options)
         }
@@ -94,6 +95,29 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
     } catch (e) {
         return `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`
     }
+}
+
+function getAutoFramesFromPattern(gp: GroupPattern): number[] {
+    // get every time there is a pass and every time where a movement starts
+    const animation = gp.layout?.animation
+    if (!animation) return [0]
+
+    const patternLength = gp.pattern.getLength()
+    const frames = new Set<number>()
+    for (const pass of animation.passAnimations) {
+        frames.add(pass.onBeat % patternLength)
+    }
+    for (const trigger of animation.baseMovementTriggers) {
+        frames.add(trigger.onBeat % patternLength)
+    }
+    for (const movement of animation.relativeMovements) {
+        frames.add(movement.onBeat % patternLength)
+    }
+    const sorted = [...frames].sort((a, b) => a - b)
+    if (sorted.length > 0)
+        sorted.push(sorted[0] + patternLength) // add one cycle to show the transition back to the initial state    
+
+    return sorted
 }
 
 function parseFramesAttr(value: string | undefined): number[] | undefined {
@@ -139,7 +163,9 @@ function renderGroupWithFrames(
     const lines: string[] = []
     if (showPattern) {
         const limitedConfig: Partial<RendererConfig> = mergePartialConfig({ components: ["default-pattern", "turntable"] }, config)
-        limitedConfig.components = limitedConfig.components?.filter((c) => c !== "layout")
+        limitedConfig.components = limitedConfig.components?.filter((c) => c !== "layout" && c!=="video")
+        if (limitedConfig.components && limitedConfig.components.includes("pattern") && limitedConfig.components.includes("aidan")) 
+            limitedConfig.components = limitedConfig.components.filter((c) => c !== "pattern")
         const [svg] = renderGroupPattern(gp, limitedConfig)
         const filename = options.writeSvgFile(svg.svg(), kind, index)
         lines.push(`![tag:patternWithFrames](${filename})`)
