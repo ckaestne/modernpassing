@@ -14,9 +14,10 @@ There are many ways to juggle 8-club one-count, scattered through several chapte
   * Alternating hands or throwing left and right synchronously
   * Various lanes, e.g., all inside vs all outside, inside-outside, inside-inside-outside-outside, both hands passing left/right of all incoming passes, ...
 * Blinky -- Synchronous left and right hand passes from passer B
-<siteswap-group style='{"iterations":4}'>
+<siteswap-group style='{"iterations":4, "components":["pattern"]}' frames="">
 A:  9Bx 7B
 B: , (9A 7Ax)
+positions: Line(A,B)
 </siteswap-group>
 * Blinky variations
   * Straight and crossing

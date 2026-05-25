@@ -7,7 +7,7 @@ For completeness, here is a list of less common [Bruno's nightmare](5d-moving.md
 
 A longer version of Bruno's has the walking passer pass twice to the feeder while walking:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB3 3pC3 3pB3 3pC3 3pB3 -- B
 B: 3pA3 3  3 3pA3 33   3pA3 -- C
 C: 33   3pA3 33   3pA3 33   -- A
@@ -19,7 +19,7 @@ move: move(B,1.9,2)move(B,4.9,3)move(B,8.9,3)move(C,2.9,3)
 **Pass-pass-self Bruno's.**
 There is sufficient time in standard three-count Bruno's to double up on all passes:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB3pB3 3pC3pC3 3pB3pB3 -- B
 B: 3pA3pA3 333   3pA3pA3 -- C
 C: 333   3pA3pA3 333   -- A
@@ -29,7 +29,7 @@ move: Bmove(B,2.9,3)Bmove(B,7.9,4)Bmove(C,4.9,4)
 
 A pattern on a more traditional pass-pass-self feed is substantially more challenging, and the walking passer has two passes during their walk across the pattern, as in five-beat Bruno's:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB3pC3 3pB3pC3 3pB3pC3 -- B
 B: 3pA33   3pA33   3pA33 -- C
 C: 33pA3   33pA3 33pA3   -- A
@@ -41,7 +41,7 @@ move: move(B,0.9,2)move(B,3.9,2)move(B,6.9,2)move(C,1.9,2)
 
 A much faster version (though not as fast as Bruno's one-count) is a feed in pass-pass-self-pass-self:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB33pC3pB3 -- B
 B: 3pA33  3pA3 -- C
 C: 333pA33   -- A
@@ -54,7 +54,7 @@ move: Bmove(B,1.3,1.6)Bmove(B,3.9,3)Bmove(C,2.9,2)
 
 Magermix on one-count vs two-count is a very challenging pattern for six passers:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB 3pC 3pB 3pC 3   3pC -- C
 B: 3pA 3   3pA 3   3pF 3   -- D
 C: 3   3pA 3   3pA 3pE 3pA -- B
@@ -71,7 +71,7 @@ move: move(E,1.3,.6)move(F,1.6,1.3)move(E,2.9,1) move(D,3.9,1)move(D,5.9,1)move(
 Beyond the cascade, the passers can walk in the shape of any other juggling pattern –
 here is an example of a pattern with walking based conceptually on the solo pattern 441:
 
-<sync-group>
+<sync-group  frames="0:39:3">
 A: 3pB33 3pC33 3pB33 3pC33 333   3pC33 -- C
 B: 3pA33 333   3pA33 333   3pC33 333   -- A
 C: 333   3pA33 333   3pA33 3pB33 3pA33 -- B
@@ -84,7 +84,7 @@ move: move(B,0.9,5)move(C,3.9,5)move(A,9.9,5)move(C,12.9,2)move(B,12.9,5)
 
 This 441-based pattern can also be passed in one-count vs. two-count:
 
-<sync-group>
+<sync-group frames="">
 A: 3pB 3pC 3pB 3pC 3   3pC -- C
 B: 3pA 3   3pA 3   3pC 3   -- A
 C: 3  3pA 3   3pA 3pB 3pA -- B
