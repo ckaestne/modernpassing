@@ -31,4 +31,4 @@ edit-url-template = "https://github.com/ckaestne/modernpassing/edit/main/{path}"
 default-theme = "light"
 
 [output.typst]
-command = "deno run -A ../../pdf/mdbook-typst.ts --chapters '^([i1245]|7-appendix-site)'"
+command = "deno run -A ../../pdf/mdbook-typst.ts --chapters '^([i12456]|7-appendix)'"
