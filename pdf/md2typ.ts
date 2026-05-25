@@ -304,8 +304,30 @@ function renderList(token: AnyToken): string {
             return `${marker} ${escapeText(asString(item.text))}`
         }
 
-        const oneLine = renderInline(bodyTokens).trim()
-        return `${marker} ${oneLine}`
+        const inlineTokens: AnyToken[] = []
+        const blockTokens: AnyToken[] = []
+        for (const child of bodyTokens) {
+            const t = asString(child.type)
+            if (t === "list" || t === "blockquote" || t === "code" || t === "table" || t === "heading" || t === "hr" || t === "paragraph") {
+                blockTokens.push(child)
+            } else {
+                inlineTokens.push(child)
+            }
+        }
+
+        const inlineText = renderInline(inlineTokens).trim()
+        const blockParts = blockTokens.map((b) => {
+            if (asString(b.type) === "paragraph") {
+                return renderInline(asTokens(b.tokens)).trim()
+            }
+            return renderBlockToken(b)
+        }).filter((p) => p.length > 0)
+
+        const head = inlineText.length > 0 ? `${marker} ${inlineText}` : `${marker}`
+        if (blockParts.length === 0) {
+            return head
+        }
+        return [head, ...blockParts.map((p) => indent(p))].join("\n")
     })
 
     return lines.join("\n")
