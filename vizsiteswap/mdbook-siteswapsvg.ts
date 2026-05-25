@@ -24,7 +24,7 @@ forEachChapter(book, (chapter) => {
     try {
         if (typeof chapter.content === "string") {
             const result = renderSiteswapElements(chapter.content, {
-                mode: "html",
+                mode: "html:inline-svg+js",
                 renderGroupInitScript: true,
                 formatVideoLink: (url) => `<crossreference>Video: <a href="${url}" target="_blank">${url}</a></crossreference>`,
             })

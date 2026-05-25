@@ -109,15 +109,15 @@ forEachChapter(book, (chapter) => {
     const isFrontmatter = isFrontmatterChapter(chapter)
 
     const rendered = renderSiteswapElements(chapter.content, {
-        mode: "markdown-image",
+        mode: "static:inline-svg-for-typst",
         renderGroupInitScript: false,
-        writeSvgFile: (svg, kind) => {
-            renderedSvgCount++
-            const filename = `${kind}-${renderedSvgCount.toString().padStart(4, "0")}.svg`
-            const filepath = path.join(svgOutputDir, filename)
-            fs.writeFileSync(filepath, svg, "utf-8")
-            return `siteswapvis/${filename}`
-        },
+        // writeSvgFile: (svg, kind) => {
+        //     renderedSvgCount++
+        //     const filename = `${kind}-${renderedSvgCount.toString().padStart(4, "0")}.svg`
+        //     const filepath = path.join(svgOutputDir, filename)
+        //     fs.writeFileSync(filepath, svg, "utf-8")
+        //     return `siteswapvis/${filename}`
+        // },
         formatVideoLink: (url) => `Video: [${url}](${url})`,
     }, bookRenderingConfig)
 

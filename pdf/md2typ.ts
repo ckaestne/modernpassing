@@ -135,6 +135,22 @@ function renderBlocks(tokens: AnyToken[]): string {
             i += 1
             continue
         }
+        if (containsSvg(html)) {
+            const parts: string[] = []
+            for (const svg of splitTopLevelSvgs(html)) {
+                const classes = getSvgClasses(svg)
+                if (!classes.includes("frame")) {
+                    parts.push(`#figure(image(bytes(${toTypstString(svg)})), kind: "siteswap", supplement: none)`)
+                } else if (classes.includes("frame")) {
+                    parts.push(`#box(image(bytes(${toTypstString(svg)}), width: .57in))`)
+                }
+            }
+            if (parts.length > 0) {
+                out.push(parts.join(" "))
+            }
+            i += 1
+            continue
+        }
 
         const colHint = parseColumnsHint(html)
         if (colHint !== undefined) {
@@ -760,4 +776,34 @@ if (import.meta.main) {
     const markdown = await new Response(Deno.stdin.readable).text()
     const typst = mdToTypst(markdown)
     await Deno.stdout.write(new TextEncoder().encode(typst))
+}
+
+function containsSvg(html: string): boolean {
+    return /<svg\b[^>]*>[\s\S]*?<\/svg>/i.test(html)
+}
+
+function splitTopLevelSvgs(html: string): string[] {
+    const out: string[] = []
+    const re = /<svg\b|<\/svg>/gi
+    let depth = 0
+    let start = -1
+    let m: RegExpExecArray | null
+    while ((m = re.exec(html)) !== null) {
+        if (m[0].toLowerCase() === "</svg>") {
+            if (depth > 0 && --depth === 0) {
+                out.push(html.slice(start, m.index + m[0].length))
+                start = -1
+            }
+        } else {
+            if (depth === 0) start = m.index
+            depth++
+        }
+    }
+    return out
+}
+
+function getSvgClasses(svg: string): string[] {
+    const m = svg.match(/^\s*<svg\b[^>]*\bclass\s*=\s*["']([^"']*)["']/i)
+    if (!m) return []
+    return m[1].trim().split(/\s+/).filter((cls) => cls.length > 0)
 }

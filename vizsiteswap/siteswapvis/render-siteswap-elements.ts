@@ -4,6 +4,7 @@ import { type RendererConfig } from "@modernpassing/rendering-core"
 import { assert } from "node:console"
 import { replaceElement } from "../replace-util.ts"
 import { GroupPattern } from "@modernpassing/layout"
+import { Svg } from "@svgdotjs/svg.js"
 
 
 
@@ -15,7 +16,15 @@ export type RenderStats = {
     group: number
 }
 
-type RenderMode = "html" | "markdown-image"
+type RenderMode = "html:inline-svg+js" | "static:svg-file+markdown-image" | "static:inline-svg-for-typst"
+
+function isStaticMode(mode: RenderMode): boolean {
+    return mode === "static:svg-file+markdown-image" || mode === "static:inline-svg-for-typst"
+}
+
+function escapeForTypstString(s: string): string {
+    return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
+}
 
 type RenderSiteswapElementsOptions = {
     mode: RenderMode
@@ -40,7 +49,7 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
             throw new Error(`Invalid siteswap: ${inner}: \n${pattern.getValidationError()}`)
         }
         const svg = renderPlainPattern(pattern, mergePartialConfig(renderingDefaultsConfig, config))
-        return renderOutput(svg.svg(), "siteswap", stats.siteswap, options)
+        return renderOutput(svg, "siteswap", stats.siteswap, options, "siteswap")
     })
 
     contentWithSvgs = replaceElement("sync", contentWithSvgs, (_match, p, config) => {
@@ -50,7 +59,7 @@ export function renderSiteswapElements(content: string, options: RenderSiteswapE
             throw new Error(`Invalid sync siteswap: ${p}: \n${pattern.getValidationError()}`)
         }
         const svg = renderPlainPattern(pattern, mergePartialConfig(renderingDefaultsConfig, config))
-        return renderOutput(svg.svg(), "sync", stats.sync, options)
+        return renderOutput(svg, "sync", stats.sync, options, "sync")
     })
 
     contentWithSvgs = replaceElement("sync-group", contentWithSvgs, (_match, p, config, videoLinks, attrs) => {
@@ -79,7 +88,7 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
     gp.videoLinks = videoLinks
 
     try {
-        const frames = options.mode === "markdown-image" ? (attrs["frames"] ==="auto" || attrs["frames"] === undefined ? getAutoFramesFromPattern(gp) : parseFramesAttr(attrs["frames"])) : undefined
+        const frames = isStaticMode(options.mode) ? (attrs["frames"] ==="auto" || attrs["frames"] === undefined ? getAutoFramesFromPattern(gp) : parseFramesAttr(attrs["frames"])) : undefined
         if (frames !== undefined) {
             return renderGroupWithFrames(gp, frames, kind, config, index, options)
         }
@@ -87,11 +96,11 @@ function renderGroup(p: string, nrHands: number, kind: "sync-group" | "siteswap-
         const [svg, initData] = renderGroupPattern(gp, config)
         const svgContent = svg.svg()
 
-        if (options.mode === "html" && options.renderGroupInitScript !== false) {
+        if (options.mode === "html:inline-svg+js" && options.renderGroupInitScript !== false) {
             return svgContent + `\n<script>window.addEventListener("load",function(){initializeFromData(${JSON.stringify(initData)})\n})\n</script>`
         }
 
-        return renderOutput(svgContent, kind, index, options)
+        return renderDynamicOutput(svgContent, kind, index, options)
     } catch (e) {
         return `<pre>ERROR rendering syncgroup:\n${p}: ${e}</pre>`
     }
@@ -153,10 +162,6 @@ function renderGroupWithFrames(
     index: number,
     options: RenderSiteswapElementsOptions,
 ): string {
-    if (!options.writeSvgFile) {
-        throw new Error("renderSiteswapElements requires writeSvgFile in markdown-image mode")
-    }
-
     const showPattern = config.components === undefined ||
         config.components.some((c) => c === "aidan" || c === "pattern" || c === "default-pattern")
 
@@ -164,30 +169,43 @@ function renderGroupWithFrames(
     if (showPattern) {
         const limitedConfig: Partial<RendererConfig> = mergePartialConfig({ components: ["default-pattern", "turntable"] }, config)
         limitedConfig.components = limitedConfig.components?.filter((c) => c !== "layout" && c!=="video")
-        if (limitedConfig.components && limitedConfig.components.includes("pattern") && limitedConfig.components.includes("aidan")) 
+        if (limitedConfig.components && limitedConfig.components.includes("pattern") && limitedConfig.components.includes("aidan"))
             limitedConfig.components = limitedConfig.components.filter((c) => c !== "pattern")
         const [svg] = renderGroupPattern(gp, limitedConfig)
-        const filename = options.writeSvgFile(svg.svg(), kind, index)
-        lines.push(`![tag:patternWithFrames](${filename})`)
+        lines.push(renderStaticOutput(svg, kind, index, options, "patternWithFrames"))
     }
 
     const frameImages = frames.map((time) => {
         const svg = renderAnimationFrameAsSvg(gp, time, mergePartialConfig<AnyRendererConfig>({ showAnimationCounter: true, isAnimationCounterZeroBased: false }, config))
-        const filename = options.writeSvgFile!(svg.svg(), "frame", time)
-        return `![tag:frame](${filename})`
+        return renderStaticOutput(svg, "frame", time, options, "frame")
     })
     lines.push(frameImages.join(" "))
 
     return lines.join("\n")
 }
 
-function renderOutput(svg: string, kind: RenderKind, index: number, options: RenderSiteswapElementsOptions): string {
-    if (options.mode === "html") {
-        return svg
+function renderStaticOutput(svg: Svg, kind: RenderKind, index: number, options: RenderSiteswapElementsOptions, tag: string): string {
+    if (options.mode === "static:inline-svg-for-typst") {
+        svg.addClass(tag)
+        return svg.svg()
     }
     if (!options.writeSvgFile) {
-        throw new Error("renderSiteswapElements requires writeSvgFile in markdown-image mode")
+        throw new Error("renderSiteswapElements requires writeSvgFile in static:svg-file+markdown-image mode")
     }
-    const filename = options.writeSvgFile(svg, kind, index)
-    return `![](${filename})`
+    const filename = options.writeSvgFile(svg.svg(), kind, index)
+    return tag ? `![tag:${tag}](${filename})` : `![](${filename})`
+}
+
+function renderOutput(svg: Svg, kind: RenderKind, index: number, options: RenderSiteswapElementsOptions, tag: string): string {
+    if (options.mode === "html:inline-svg+js") {
+        return svg.svg()
+    }
+    return renderStaticOutput(svg, kind, index, options, tag)
+}
+
+function renderDynamicOutput(svg: string, kind: RenderKind, index: number, options: RenderSiteswapElementsOptions): string {
+    if (options.mode === "html:inline-svg+js") {
+        return svg
+    }
+    throw new Error("Dynamic output is not supported in static mode")
 }
