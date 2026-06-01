@@ -69,7 +69,7 @@ As many passers know the classic *Roundabout* so well, there are several more or
 
 <video link="https://passing.zone/roundabout-with-isolated-person/"></video>
 
-**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (192 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
+**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (168 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
 
 <video></video>
 
