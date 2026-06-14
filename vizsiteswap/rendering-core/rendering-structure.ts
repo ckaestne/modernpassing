@@ -108,9 +108,16 @@ function getAnnotation(p: Pattern, t: Throw, iteration: number): string {
     return ""
 }
 
+function labelSiteswapNumber(throwLength: number): string {
+    // converts 10 into a, 11 into b and so forth
+    if (throwLength<10 || Math.floor(throwLength)!==throwLength)
+        return throwLength.toString()
+    return throwLength.toString(36)
+}
+
 export function convertToLabel(throwLength: number, isSelf: boolean, isCrossing: boolean, targetRole: string, rendererConfig: RendererConfig): string {
     if (rendererConfig.labelThrows === "none") return ""
-    if (rendererConfig.labelThrows === "siteswap") return throwLength.toString() + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
+    if (rendererConfig.labelThrows === "siteswap") return labelSiteswapNumber(throwLength) + (rendererConfig.labelPassDestinationRole && !isSelf ? targetRole : "")
     const expectCrossing = throwLength % 2 === 1
 
     if (rendererConfig.labelThrows === "simple" || rendererConfig.labelThrows === "simpleAllSync") {
