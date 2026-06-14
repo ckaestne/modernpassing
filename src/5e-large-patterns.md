@@ -6,7 +6,7 @@ For large groups of passers, it is almost always better to break up into smaller
 
 Speed passing is speed dating for passers. This is commonly run as a workshop early in a juggling festival so that passers find who else attending the festival is interested in passing.
 
-In a long line through the gym, passers meet in pairs. The passers in each pair introduce each other and decide on a pattern to try. An organizer keeps the time and signals to change partners every 60 to 120 seconds (a whistle and a tabata workout timer work well for this). On each partner change, each passer moves a step to the right to pass with the next passer in line. At the end of the line, passers have a break for one round and then continue on the other side on the next partner change. This continues until everybody has passed with everybody else, or time runs out.
+In a long line through the gym, passers meet in pairs. The passers in each pair introduce themselves and decide on a pattern to try. An organizer keeps the time and signals to change partners every 60 to 120 seconds (a whistle and a tabata workout timer work well for this). On each partner change, each passer moves a step to the right to pass with the next passer in line. At the end of the line, passers have a break for one round and then continue on the other side on the next partner change. This continues until everybody has passed with everybody else, or time runs out.
 
 <sync-group style='{"renderLayoutOnly": 400, "components": [], "showAnimationCounter": false}' frames="0,6">
 A: 3pJ3pJ3pJ3pJ333pI3pI3pI3pI33 -- B

@@ -4,7 +4,7 @@ The first manipulator patterns were written down as lengthy wordy descriptions, 
 
 ## The Aidan Notation
 
-The basic idea of the Aidan notation is as follows: A base pattern is described with a conventional passing notation, such as [basic synchronous throws](2b-basic-sync.md) or [moving group patterns](5d-moving.md). In addition, the action of each manipulator is described on a separate line below the base pattern. A manipulator's actions are described in terms of the three concepts *carry* (C), *substitution* (S), and *intercept* (I). To identify which throw is carried, substituted, or intercepted, we usually need two pieces of information: the time when it is thrown and the passer who will receive it. We notate this with the letters C, S, and I on the throw beats and use a subscript to identify the role of the passer who would receive it (sometimes additionally a superfix is added indicating the role where the pass is coming from).
+The basic idea of the Aidan notation is as follows: A base pattern is described with a conventional passing notation, such as [basic synchronous throws](2b-basic-sync.md) or [moving group patterns](5d-moving.md). In addition, the action of each manipulator is described on a separate line below the base pattern. A manipulator's actions are described in terms of the three concepts *carry* (C), *substitution* (S), and *intercept* (I). To identify which throw is carried, substituted, or intercepted, we usually need two pieces of information: the time when it is thrown and the passer who will receive it. We notate this with the letters C, S, and I on the throw beats and use a subscript to identify the role of the passer who would receive it (sometimes additionally a superscript is added indicating the role where the pass is coming from).
 
 In this notation, *Nicki's three-count roundabout* can be written as:
 
@@ -62,7 +62,7 @@ Manipulator patterns usually inherit some movements from a base pattern, none in
 
 There is also no common notation for describing the location of the manipulator or *how* they steal and place clubs (see the description of early vs late steals and placement from below vs above in our [introduction to manipulator patterns](6a-intro.md)). Some patterns have canonical forms that are passed verbally or through videos, but it is equally common that passers will just experiment and figure out what works. For example, for *Nicki's three-count roundabout*, I would recommend late steals for both substitution and intercept, placement from below for carry and substitution, and the manipulator moving to the left of the pattern when intercepting the self, but there are also videos of the pattern with other movements.
 
-For this book, we experiment with optional superfix symbols for intercepts and passes to indicate common conventions. We use:
+For this book, we experiment with optional superscript symbols for intercepts and passes to indicate common conventions. We use:
 * `e` for early steals
 * `l` for late steals
 * `v` for very late steals

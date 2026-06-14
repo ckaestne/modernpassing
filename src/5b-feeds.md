@@ -136,7 +136,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 **Mild madness vs. Jim's three-count.**
-Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Martin's mildness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps *7767746* and *7777266*:
+Many passers learning *[Jim's three-count](2c-jims.md)* then learn that it can be fed with *[Mild madness](4b-4hsw-beginner.md)* (pass-pass-self-pass-pass-zip-self). This works well when considering both of them as the four-handed siteswaps *7767746* and *7777266*:
 
 <siteswap-group frames="">
 A: 7B7C267B7C6

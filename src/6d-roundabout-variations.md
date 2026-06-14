@@ -69,7 +69,7 @@ As many passers know the classic *Roundabout* so well, there are several more or
 
 <video link="https://passing.zone/roundabout-with-isolated-person/"></video>
 
-**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (192 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
+**Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (168 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
 
 <video></video>
 
@@ -101,14 +101,14 @@ move: Cmove(C,4.9,2.5,144,1)
 
 Variations:
 * Additionally or alternatively, additional manipulators can do the roundabout sequence between D and B and between A and D, supporting up to three Roundabout manipulators in the pattern at the same time.
-* Furthermore, in what's called *Shooting star with manipulator and chaser,* when manipulating between C and A, rather than waiting with two clubs for their last pass, C can follow the manipulator M across the pattern when M substitutes the pass to A and bring the manipulator the intercepted pass, to then run to their position behind A (on the outside of the circle). 
+* Furthermore, in what's called *Shooting star with manipulator and chaser* (or just *Chaseabout*) when manipulating between C and A, rather than waiting with two clubs for their last pass, C can follow the manipulator M across the pattern when M substitutes the pass to A and bring the manipulator the intercepted pass, to then run to their position behind A (on the outside of the circle). 
 
 <video>todo</video>
 
 
 
 
-**Bounceabout (4 passers).** *Bounceabout* is a fairly easy *Roundabout*-style pattern for four passers doing a kind of *two-count* vs. *four-count* feed in a [triangle formation](5c-static-groups.md). The takeout sequence is Roundabout-like but two beats longer, substituting a second pass (i.e., bounding off of one corner to the next) before substituting the self and swapping roles.
+**Bounceabout (4 passers).** *Bounceabout* is a fairly easy *Roundabout*-style pattern for four passers doing a kind of *two-count* vs. *four-count* feed in a [triangle formation](5c-static-groups.md). The takeout sequence is Roundabout-like but two beats longer, substituting a second pass (i.e., bouncing off of one corner to the next) before substituting the self and swapping roles.
 
 
 <sync-group frames="auto">
