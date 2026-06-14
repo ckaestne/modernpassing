@@ -2,7 +2,7 @@
 
 <div class="warning">This is an incomplete draft of the book and very much work in progress. Feedback is welcome.</div>
 
-**A printable PDF is available at [ckaestne.github.io/modernpassing/book.pdf](https://ckaestne.github.io/modernpassing/book.pdf)**
+**A printable PDF is available at [https://modernpassing.com/book.pdf](https://modernpassing.com/book.pdf)**
 
 With this short book (and corresponding website), my goal is to provide an opinionated introduction to the fascinating world of modern club passing. Like many areas of juggling, club passing has its own community that continuously pushes the field and invents and shares new patterns and new styles of passing. I have learned many things from this community and tremendously enjoy patterns that go beyond traditional 6-club four-count ("every others"), 7-club two-count, and two-count/four-count feeds. In passing corners at juggling festivals and at festivals dedicated to passing, it is now common to find ambidextrous 4-handed siteswaps with zaps and triple selfs, and Roundabout-style manipulator patterns of various difficulty with 3 to 5 people.
 
