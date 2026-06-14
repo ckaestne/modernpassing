@@ -16,9 +16,11 @@ Siteswap notation dates back to the 1980s. It describes a sequence of throws wit
 Traditional siteswaps assume a single juggler with two hands who alternates throws from both hands, so a siteswap *441* would be read as a right-handed 4 throw, followed by a left-handed 4 throw, followed by a right-handed 1 throw, then repeating on the other side. As a consequence, any odd-numbered throw crosses from one hand to the other (i.e., it gets rethrown an odd number of beats later when it is the other hand's turn) and all even-numbered throws return to the same hand. 
 
 ## N-handed siteswaps
-Nothing in the siteswap notation or theory requires juggling with two hands. Siteswaps merely describe after how many beats an object is thrown again, and based on which hand's turn it is on that beat, we figure out where we need to throw the object. Patterns can be juggled with 1 hand, 3 hands, or 16 hands; we do not even need to assume that the hands always alternate. 
+Nothing in the siteswap notation or theory requires juggling with two hands. Siteswaps merely describe after how many beats an object is thrown again, and we simply assume by default that two hands alternate in solo siteswaps. Patterns can be juggled with 1 hand, 3 hands, or 16 hands, and hands do not even need to alternate in a regular way (irregular hand orders such as right-left-left are known has *handswaps* and very confusing). 
 
 Four-handed siteswaps are one way to interpret siteswaps for two passers with four hands total: We assume two passers facing each other with passer A throwing with the right hand on beat 1, passer B throwing with the right hand on beat 2, passer A throwing with the left hand on beat 3, and passer B throwing with the left hand on beat 4, before it all repeats on beats 5, 6, 7, and 8 – as shown in the diagram below. That is, all odd beats are thrown by passer A and all even beats by passer B. 
+
+![Illustration of the beat sequence and various throws in four-handed siteswaps](figures/4hsw-beats.svg)
 
 From this, all the standard throws in four-handed siteswaps can be derived: 
 
@@ -30,7 +32,6 @@ From this, all the standard throws in four-handed siteswaps can be derived:
 
 Assuming that both passers juggle at a normal speed, all numbers are twice as high as in solo (two-handed) siteswaps, as we have twice the number of beats in the same time.
 
-![Illustration of the beat sequence and various throws in four-handed siteswaps](figures/4hsw-beats.svg)
 
 
 The same way we define a four-hand sequence for two passers, we can define a six-hand sequence for three passers, an eight-hand sequence for four passers, and so forth. We now have much higher numbers, as there are even more beats in the same amount of time. In the following, we illustrate the hand sequence and the throws that represent selfs and single passes. For example, as a start, try the 6-handed siteswaps *a899* and *aa79* or the 8-handed siteswap *fcc* ("three-count friction").
@@ -38,7 +39,7 @@ The same way we define a four-hand sequence for two passers, we can define a six
 
 ![Illustration of the beat sequence, passes, and selfs in six and eight-handed siteswaps](figures/68hsw.svg)
 
-
+**[TODO: fix diagram, left handed passes missing, last pass each wrong]**
 
 
 ## Transforming siteswaps
@@ -61,7 +62,7 @@ To create compatible siteswaps, it is useful to repeat an odd-length siteswap tw
 
 ## Diagrams
 
-Several diagrams are common to depict siteswaps, usually developed for solo siteswaps. For example, just like we illustrate passer A and passer B on separate lines, in a solo siteswap a diagram may show the alternating actions of the right and left hand in two lines.
+Several diagrams are common to depict siteswaps, usually developed for solo siteswaps. For example, just like we illustrate passer A and passer B on separate lines, in a solo siteswap, a diagram may show the alternating actions of the right and left hand in two lines.
 
 Moreover, there are two common ways of showing the throws in a pattern as lines: ladder diagrams and causal diagrams. In a *ladder diagram*, a line illustrates the path of an object from where it is thrown to where it is thrown again next. This is a ladder diagram for *French three-count* (786):
 
@@ -109,7 +110,7 @@ With a siteswap animator like [passist.org](https://passist.org/) it is easy to 
 
 ## Orbits and color coding
 
-Following a pass in a ladder diagram identifies its orbit, that is, the sequence of throws until the club repeats the same path through the pattern. Clubs that always repeat only a single action are called magic and can be highlighted by using a club of a different color. Zaps and trelfs in siteswaps of length 5 are always magic, and so are selfs and doubles in siteswaps of length 3 and singles in siteswaps of length 7. 
+Following a pass in a ladder diagram identifies its orbit, that is, the sequence of throws until the club repeats the same path through the pattern. Clubs that always repeat only a single action are called magic and can be highlighted by using a club of a different color. Throws a multiple of the length of the pattern are always magic: Zaps and trelfs in siteswaps of length 5 are always magic, and so are selfs and doubles in siteswaps of length 3 and singles in siteswaps of length 7. 
 
 <siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[[0,0],[1,5],[0,10],[1,15]], "emphasizeLines":[[0,0],[1,5],[0,10],[1,15]]}'>56784</siteswap>
 

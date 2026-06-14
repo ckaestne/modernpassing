@@ -29,7 +29,7 @@ When you get more comfortable with the pattern, try flipping the 4s or throw sel
 
 **7-club one-count (7).** Now add another club and leave out the zips. Especially the crossing singles should be lofty. If you drop a club, continue in *77772*; if you drop another one, continue in *77722* or *77272*.
 
-**Mild madness (7777266).** A well-known juggling pattern, often juggled synchronously with fudged timing, makes a nice easy sideswap with selfs.
+**Mild madness (7777266).** A well-known juggling pattern, often juggled synchronously with fudged timing, makes a nice easy siteswap with selfs.
 
 <siteswap>7777266</siteswap>
 

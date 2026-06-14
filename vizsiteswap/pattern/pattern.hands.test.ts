@@ -357,7 +357,7 @@ Deno.test("hands, 756", () => {
 })
 
 Deno.test("hands, 756756", () => {
-    // different modeling with even length sideswap: rows do not change, hands flip here (since period mod 4 !=0)
+    // different modeling with even length siteswap: rows do not change, hands flip here (since period mod 4 !=0)
     const pattern = createPattern(
         [
             { fromPasserIdx: 0, fromOppositeHand: false, flipCrossing: false, throwBeat: 0, throwLength: 7, toPasserIdxAtCausal: 1 },

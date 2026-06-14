@@ -32,4 +32,4 @@ Notice that *French three-count* (786), *five-count popcorn* (78686), and *seven
 
 <siteswap>7778686</siteswap>
 
-**Other similar patterns to try.** *not why* (72867), *maybe* (72786), *Mojito* (8677777), *seven-count popcorn* (7868686), *seven-count popcorn* variation (7888882).
+**Other similar patterns to try.** *maybe* (72786), *Mojito* (8677777), *seven-count popcorn* variation (7888882).

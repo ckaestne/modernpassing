@@ -63,7 +63,7 @@ Such patterns are fairly uncommon in the passing community right now, but there 
 
 <siteswap>77a666</siteswap>
 
-To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an even length and exclude any patterns with 1s or 3s. 
+To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an length of 6, 10, or 14 and exclude any patterns with 1s or 3s. 
 
 ## Hijacking / Programming
 

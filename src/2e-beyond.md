@@ -92,10 +92,11 @@ This is also compatible with various *scratch your head* patterns (see below). A
 <crossreference>Also see the many other 8-club one-count variations in the [appendix](7-appendix-8c1c.md).</crossreference>
 
 
-**9-club two-count on doubles.** A traditional one-sided pattern can be thrown fully synchronous or slightly galloped.
+**9-club two-count on doubles.** A traditional one-sided pattern can be thrown with synchronous double pass and self or slightly galloped.
 
 <sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"iterations":8,"yDist":50,"throwTextSize": 22}'>(6px 4x)</sync>
 
+**[TODO: fix pattern]**
 
 **Scratch your head.** Throw a single pass and a heff at the same time; one passer is crossing (this can technically be seen as a siteswap transformation in *techno*, replacing self-self with heff-flip, though the flip is usually just held). While technically all synchronous, the actions of both passers alternate since they only hold a club on the off-beat and only throw every other beat.
 

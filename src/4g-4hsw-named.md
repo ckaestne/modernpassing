@@ -69,11 +69,11 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 ## Sequences
 
-There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throws: for example, *456*, *567*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
+There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throws: for example, *456*, *567*, *678*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
 
 For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each passer passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
 
-**95678.** The sequence *56789* is probably the best-known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand – as in [holy grail](4i-4hsw-holygrail.md). 
+**95678.** The sequence *56789* is probably the best-known sequence pattern. This 7-club pattern produces a large stack: a sequence of zap, single, and double pass, all to the same hand – as in [*holy grail*](4i-4hsw-holygrail.md). 
 
 <siteswap>95678</siteswap>
 
