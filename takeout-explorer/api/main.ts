@@ -1,5 +1,4 @@
 import { Application, Router } from "@oak/oak";
-import { transpile } from "@deno/emit";
 import type { GroupPattern, RuntimeInitData } from "@modernpassing/layout";
 import { createGroupPattern } from "@modernpassing/parsing";
 import {
@@ -84,24 +83,6 @@ function renderPattern({ content, patternType }: RenderRequest): RenderResult {
   return result;
 }
 
-// Generate animations.js once at startup by transpiling runtime/animations.ts.
-async function buildAnimationsJs(): Promise<string> {
-  const url = new URL(
-    "../../vizsiteswap/runtime/animations.ts",
-    import.meta.url,
-  );
-  const source = await Deno.readTextFile(url);
-  const sourceWithoutImports = source.replace(/^import.*$/gm, "");
-  const u = new URL(
-    `data:text/typescript,${encodeURIComponent(sourceWithoutImports)}`,
-  );
-  const result = await transpile(u);
-  const code = result.get(u.href)?.replaceAll("export", "") ?? "";
-  return "// GENERATED CODE. DO NOT MODIFY //\n" + code;
-}
-
-const animationsJs = await buildAnimationsJs();
-
 const router = new Router();
 
 router.post("/api/render", async (ctx) => {
@@ -122,11 +103,6 @@ router.post("/api/render", async (ctx) => {
     ctx.response.body = createEmptyRenderResult(message);
   }
   ctx.response.type = "application/json";
-});
-
-router.get("/animations.js", (ctx) => {
-  ctx.response.body = animationsJs;
-  ctx.response.type = "application/javascript";
 });
 
 const app = new Application();

@@ -3,9 +3,10 @@
     "exclude": [".vite", "node_modules"]
   },
   "tasks": {
-    "dev": "deno run -A --node-modules-dir npm:vite & deno task api:dev",
+    "gen-animations": "deno run -A ../vizsiteswap/runtime/convert.ts --input ../vizsiteswap/runtime/animations.ts --output public/animations.js",
+    "dev": "deno task gen-animations && deno run -A --node-modules-dir npm:vite & deno task api:dev",
     "api:dev": "deno run -A --watch ./api/main.ts",
-    "build": "deno run -A --node-modules-dir npm:vite build",
+    "build": "deno task gen-animations && deno run -A --node-modules-dir npm:vite build",
     "serve": "deno task build && deno run -A ./api/main.ts",
     "preview": "deno run -A --node-modules-dir npm:vite preview"
   },
