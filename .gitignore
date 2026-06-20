@@ -20,3 +20,4 @@ vizsiteswap/AGENTS.md
 vizsiteswap/*.svg
 vizsiteswap/layout/*.svg
 vizsiteswap/layout/location-manager/*.svg
+vizsiteswap/.claude/settings.local.json
