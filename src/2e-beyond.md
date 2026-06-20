@@ -61,7 +61,7 @@ See [Will Murray's pattern collection](https://home.csulb.edu/~wmurray/jugglingA
 There are several patterns where a passer's left and right hand always throw at the same time – similar to [synchronous throws in solo siteswaps](https://en.wikipedia.org/wiki/Siteswap#Synchronous). That is, all four hands always throw at the same time. This effectively doubles the speed, as there are two actions on every beat, rather than one; passers usually compensate with lofty selfs and lofty passes to slow down to a manageable speed.
 
 
-**Techno.** In this *7-club three-count* variation, a single pass and a self are thrown from both hands at the same time, followed by a single self on the next beat, before it all repeats on the other side. One passer crosses their passes. This pattern is helped by throwing very lofty passes and delaying passer B's start as long as possible. Technically, all hands from both passers throw at the same time, though in practice a slight gallop might help to learn the pattern.
+**Techno.** In this *7-club three-count* variation, a single pass and a self are thrown from both hands at the same time, followed by a single self on the next beat, before it all repeats on the other side. One passer crosses their passes. This pattern is helped by throwing very lofty passes; having passer B start with the self as the same time as passer A starts with a pass helps with timing. Technically, all hands from both passers throw at the same time, though in practice a slight gallop might help to learn the pattern.
 
 <sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"yDist":50,"throwTextSize": 22}'>(4p 4x)(4x 2)(4x 4p)(2 4x),(4x 2)(4x 4px)(2 4x)(4px 4x)</sync>
 
@@ -92,11 +92,8 @@ This is also compatible with various *scratch your head* patterns (see below). A
 <crossreference>Also see the many other 8-club one-count variations in the [appendix](7-appendix-8c1c.md).</crossreference>
 
 
-**9-club two-count on doubles.** A traditional one-sided pattern can be thrown with synchronous double pass and self or slightly galloped.
+**9-club two-count on doubles.** A traditional one-sided pattern, which is thrown with a synchronous double pass and self (or slightly galloped). Passer B starts a beat after passer A.
 
-<sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"iterations":8,"yDist":50,"throwTextSize": 22}'>(6px 4x)</sync>
-
-**[TODO: fix pattern]**
 
 **Scratch your head.** Throw a single pass and a heff at the same time; one passer is crossing (this can technically be seen as a siteswap transformation in *techno*, replacing self-self with heff-flip, though the flip is usually just held). While technically all synchronous, the actions of both passers alternate since they only hold a club on the off-beat and only throw every other beat.
 
@@ -105,11 +102,7 @@ This is also compatible with various *scratch your head* patterns (see below). A
 
 <video>https://www.juggle.org/tricks-in-three-count-causal-diagrams/</video>
 
-[TODO: add mini-scratch-your head with flip and self]
 
-<!-- This five-club version with a flip instead of a heff is a good warmup and easy to learn: 
+There are a number of variations found and collected by Will Murray and described on his [web page](https://web.archive.org/web/20240514045342/https://home.csulb.edu/~wmurray/jugglingArticles/ScratchYourHead/scratch.doc), including a beginner-friendly 5-club version (single pass and flip at the same time, *"mini-scratch-your head"*), a challenging 9-club version (double pass and heff at the same time). Further variations are *scratch your nose* (7 clubs, pass and crossing double selfs at the same time) and *"mini-scratch-your-nose"* (5 clubs, pass and self at the same time). The *mini-scratch-your-head/nose* patterns are actually good, very approachable, yet interesting early patterns quite doable after learning *5-club one-count*.
 
-<--sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":false,"iterations":2,"yDist":50,"throwTextSize": 22}'>(4px 4x)(2 2)(4x 4px)(2 2), (2 2)(4p 4x)(2 2)(4x 4p)</sync> -->
-
-There are a number of variations found and collected by Will Murray and described on his [web page](https://home.csulb.edu/~wmurray/), including a 5-club version (single pass and flip at the same time), a 9-club version (double pass and heff at the same time), and *scratch your nose* (one-sided with all straight passes, but crossing double selfs instead of heffs).
 
