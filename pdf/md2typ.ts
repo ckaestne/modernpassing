@@ -654,6 +654,31 @@ function renderInline(tokens: AnyToken[]): string {
             }
             case "html": {
                 const html = asString(token.raw) || asString(token.text)
+                const wrap = matchInlineWrapTag(html)
+                if (wrap) {
+                    // Collect inline tokens up to the matching closing tag and
+                    // wrap them in the Typst equivalent (e.g. <sub>x</sub> -> #sub[x]).
+                    const closeRe = new RegExp(`^\\s*</${wrap.tag}>\\s*$`, "i")
+                    const inner: AnyToken[] = []
+                    let j = i + 1
+                    let found = false
+                    while (j < tokens.length) {
+                        const candidate = tokens[j]
+                        const candidateHtml = asString(candidate.raw) || asString(candidate.text)
+                        if (asString(candidate.type) === "html" && closeRe.test(candidateHtml)) {
+                            found = true
+                            break
+                        }
+                        inner.push(candidate)
+                        j += 1
+                    }
+                    if (found) {
+                        out.push(`#${wrap.fn}[${renderInline(inner)}]`)
+                        i = j
+                        break
+                    }
+                    // Unbalanced tag: fall through to the raw handling below.
+                }
                 if (html && !isHtmlComment(html) && !isProgressionStartTag(html) && !isProgressionEndTag(html) && !isWarningStartTag(html) && !isWarningEndTag(html)) {
                     out.push(`#raw(${toTypstString(html)})`)
                 }
@@ -741,6 +766,13 @@ function asNumber(value: unknown, defaultValue: number): number {
 
 function getHtmlToken(token: AnyToken): string {
     return asString(token.raw) || asString(token.text)
+}
+
+function matchInlineWrapTag(html: string): { tag: string; fn: string } | null {
+    const m = html.match(/^\s*<(sub|sup)>\s*$/i)
+    if (!m) return null
+    const tag = m[1].toLowerCase()
+    return { tag, fn: tag === "sup" ? "super" : "sub" }
 }
 
 function isHtmlComment(html: string): boolean {
