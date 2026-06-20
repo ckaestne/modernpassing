@@ -13,7 +13,7 @@ Actions can but do not need to be separated with spaces. Use `.` to indicate bea
 `IAB` -- intercept throw from A to B (target required, source only required if ambiguous otherwise)
 `CAB` -- carry throw from A to B (target and source both optional)
 `3` / `3pA` -- any normal throw notation, starting with a number or lowercase letter (but passes need a destination)
-`(3 iA)` -- two actions on the same beat (here a self and an intercept) [^2]
+`(3 iA)` -- two actions on the same beat, first left than right hand (here a self and an intercept) [^2]
 
 Not yet implemented:
 `'` -- a negative half beat for four-handed siteswaps -- e.g. `SA ' SB` indicates two substitutions a half beat apart rather than one beat apart

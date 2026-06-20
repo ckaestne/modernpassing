@@ -1,7 +1,7 @@
 # Throw notation
 
 ```
-throw: '(' atomicthrow ',' atomicthrow ')' | atomicthrow
+throw: '(' atomicthrow atomicthrow ')' | atomicthrow
 atomicthrow: [0-9a-y](p)?[A-Z]?(x)?
 ```
 
@@ -9,7 +9,7 @@ Patterns are written as sequences of throws. A throw starts with a digit or lowe
 A `p` after the height indicates a pass; an uppercase letter indicates the role of the receiver at the time the throw is thrown (e.g., `3A` or `3pA` indicates a pass to `A`).
 A trailing `x` indicates a throw that's crossing hands opposite of what would be expected from the siteswap height (e.g. `4x` is a `4` to the other hand, `3px` is a crossing pass).
 
-As special throws `.` indicates a skipped beat.
+As special throws `.` (or alternatively `-`) indicates a skipped beat.
 
 Parentheses can be used to express pairs of throws where the first throw in the pair is the right hand and the second the left hand, e.g. `(4p 4x)`.
 
@@ -74,13 +74,13 @@ passerrow: rowlabel? leftstart? prefix? throw+ relabel? \n
 rowlabel: [A-Z] ':'
 leftstart: '!'
 prefix: throw+ '|'
-relabel: '--' [A-Z]⇆?X?
+relabel: ('--' | '→') [A-Z] ('offset:' [0-9])?
 ```
 
 A manipulator row is the same as a passer row, but does not allow a prefix and has [manipulator throws](manipulator%20notation.md) instead of normal throws.
 
 The optional position row starts with `positions:` followed by one of a set of predefined positions with roles as arguments.
-The optional movement rows each starts with `movement:` followed by one or more movement instructions from a predefined set with comma separated arguments.
+The optional movement rows each starts with `move:` followed by one or more movement instructions from a predefined set with comma separated arguments.
 
 
 If the row labels are not provided, rows are implicitly labeled with roles A to Z.
@@ -104,8 +104,8 @@ at the end of the iteration. For example, an odd-period sync pattern would expec
 with the opposite hand, but an offset of 1 ensures every iteration starts with the same hand. In four-handed siteswaps
 offsets from 1 to 3 are possible to shift an RRLL start into RLLR, LLRR, or LRRL for the next iteration.
 By default 0 offset is used and if that is not a valid pattern, 1, 2, and 3 are tried.
-To explicitly indicate an offset, add `[1]` after any of the relabeling instructions. For debugging, also `[0]` can
-be used to ensure that no alternative offsets are tried.
+To explicitly indicate an offset, add `offset: 1` after any of the relabeling instructions (e.g., `-- B offset: 1`).
+For debugging, also `offset: 0` can be used to ensure that no alternative offsets are tried.
 
 ## Prefix
 

@@ -28,7 +28,7 @@ atomicthrow: [0-9a-y](p)?[A-Z]?(x)?`}</code></pre> */
           <code>.</code> means skipped beat.
         </li>
         <li>
-          Pair notation <code>(right,left)</code>{" "}
+          Pair notation <code>(right left)</code>{" "}
           means first throw right hand, second left hand.
         </li>
         <li>
