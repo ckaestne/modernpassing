@@ -126,10 +126,14 @@ forEachChapter(book, (chapter) => {
         markdownContent = truncateAtMarkdownSeparator(markdownContent)
         markdownContent = stripLeadingMarkdownTitle(markdownContent)
     }
-    chapter.content = mdToTypst(markdownContent, { knownChapters })
-
     const anchorName = chapterAnchorName(chapter)
-    if (anchorName) {
+    chapter.content = mdToTypst(markdownContent, { knownChapters, chapterAnchor: anchorName })
+
+    // mdToTypst attaches the anchor to the chapter's first heading (so it can
+    // be referenced for its section number). If the chapter has no heading,
+    // the anchor wasn't emitted, so fall back to a metadata anchor that at
+    // least serves as a #link target.
+    if (anchorName && !chapter.content.includes(`<${anchorName}>`)) {
         const anchorLine = `#metadata("chapter") <${anchorName}>\n\n`
         const importMatch = chapter.content.match(/^(#import [^\n]*\n+)/)
         if (importMatch) {

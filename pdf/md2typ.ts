@@ -4,13 +4,18 @@ type AnyToken = Record<string, unknown>
 
 export type MdToTypstOptions = {
     knownChapters?: Set<string>
+    chapterAnchor?: string
 }
 
 let knownChapterAnchors: Set<string> | null = null
 let skipFootnoteRegexes: RegExp[] | null = null
+// Anchor label to attach to this chapter's first heading so it can be
+// `#ref`-erenced for its section number. Cleared once emitted.
+let pendingChapterAnchor: string | null = null
 
 export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): string {
     knownChapterAnchors = options.knownChapters ?? null
+    pendingChapterAnchor = options.chapterAnchor ?? null
     skipFootnoteRegexes = collectSkipFootnoteRegexes(markdown)
     try {
         const normalizedMarkdown = normalizeMarkdown(markdown)
@@ -32,6 +37,7 @@ export function mdToTypst(markdown: string, options: MdToTypstOptions = {}): str
         return `${prelude}${body}\n`
     } finally {
         knownChapterAnchors = null
+        pendingChapterAnchor = null
         skipFootnoteRegexes = null
     }
 }
@@ -242,7 +248,15 @@ function renderBlockToken(token: AnyToken): string {
         case "heading": {
             const depth = asNumber(token.depth, 1)
             const inline = renderInline(asTokens(token.tokens))
-            return `#heading(level: ${depth + 1})[${inline}]`
+            // Attach the chapter anchor to the first heading so the heading
+            // (which carries a section number) can be `#ref`-erenced. A label
+            // on a `#metadata` element cannot be referenced for its number.
+            let anchor = ""
+            if (pendingChapterAnchor) {
+                anchor = ` <${pendingChapterAnchor}>`
+                pendingChapterAnchor = null
+            }
+            return `#heading(level: ${depth + 1})[${inline}]${anchor}`
         }
         case "paragraph": {
             return renderInline(asTokens(token.tokens))
@@ -588,7 +602,7 @@ function renderInline(tokens: AnyToken[]): string {
 
                 const chapterAnchor = resolveChapterAnchor(href)
                 if (chapterAnchor) {
-                    out.push(`#link(<${chapterAnchor}>)[${label}]`)
+                    out.push(`#link(<${chapterAnchor}>)[${label}] (Sec.~#ref(<${chapterAnchor}>, supplement: none))`)
                     break
                 }
 
