@@ -30,7 +30,7 @@ For a number of one-sided patterns, it is common to juggle them lower than stand
 
 <sync style='{"gallop": true, "iterations":4}'>4px| !34px,.|4px3</sync>
 
-(Technically, we fudge the timing and throw lofty singles instead of doubles. By default, we would expect crossing passes, but just as in [7-club two-count on doubles](2d-advanced.md), it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands.)
+(Technically, we fudge the timing and throw lofty singles instead of doubles. By default, we would expect crossing passes, but just as in [*7-club two-count on doubles*](2d-advanced.md), it is most common to throw all straight passes from the right hand for both passers by swapping straight and crossing and starting hands.)
 
 *8-club two-count* follows the same idea:
 
@@ -88,7 +88,7 @@ This is also compatible with various *scratch your head* patterns (see below). A
 
 ![Two diagrams with two passers from above, throwing all straight passes](figures/8c1c-lanes.svg)
 *Example of two possible lanes for 8-club one-count synchronously; consider alternating between them.*
-
+ 
 <crossreference>Also see the many other 8-club one-count variations in the [appendix](7-appendix-8c1c.md).</crossreference>
 
 

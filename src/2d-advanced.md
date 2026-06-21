@@ -53,7 +53,7 @@ In practice, passer B often leaves out that first left-handed self to start on a
 
 <sync style=''>4px33353,!3534px33</sync>
 
-<crossreference>See [five-count popcorn with heffs](4d-4hsw-heffs.md) and [five-count popcorn with trelfs](4f-4hsw-trelfs.md) for ambidextrous versions.</crossreference>
+<crossreference>See [*five-count popcorn with heffs*](4d-4hsw-heffs.md) and [*five-count popcorn with trelfs*](4f-4hsw-trelfs.md) for ambidextrous versions.</crossreference>
 
 
 **7-club pass-pass-self.** With odd-length patterns, there are no synchronous patterns where both passers throw the same sequence. The most common *7-club pass-pass-self* pattern has passer A throw *single-double-self* and passer B throw *double-self-double* (3p 4p 3 vs. 4p 3 4p):
@@ -78,7 +78,7 @@ Other variations of *7-club pass-pass-self,* often with one side being substanti
 
 <!-- In the [appendix](), we list a few more patterns with triple passes. -->
 
-<crossreference>See *8-club pass-pass-self* in both the synchronous version below and the four-handed siteswap [996](4c-4hsw-doubles.md) for pass-pass-self patterns that are the same for both passers.</crossreference>
+<crossreference>In 8-club versions of *pass-pass-self,* both the synchronous version below and the four-handed siteswap [996](4c-4hsw-doubles.md), both passers have the same sequence.</crossreference>
 
 
 **7-club synchronous three-counts.** For three-counts that are not [four-handed siteswaps](4c-4hsw-doubles.md), there are many possible variations that again combine two different throw sequences; none of them are common patterns:

@@ -17,7 +17,7 @@ Jim's patterns are a common variation on basic synchronous patterns that mess wi
 
 Even with the hurries, both passers should throw passes and selfs at roughly the same time. The pattern is synchronous and simply fudges the timing by rushing two throws from the same hand. It is also possible to throw the pattern as a four-handed siteswap without hurries, but with time for a flip, as shown among the [beginner four-handed siteswaps](4b-4hsw-beginner.md).
 
-<crossreference>See also the asynchronous version with a flip in [beginner four-handed siteswaps](4b-4hsw-beginner.md).</crossreference>
+<crossreference>Throwing this asynchronously as a [four-handed siteswaps](4b-4hsw-beginner.md) eliminates the hurry with time for a flip.</crossreference>
 
 
 **Jim's four-count and two-count.** The same idea of crossing passes turns the one-sided *four-count* and *two-count* patterns into ambidextrous patterns with hurries. Here is the diagram and hand sequence for *Jim's two-count*.
@@ -28,7 +28,7 @@ Even with the hurries, both passers should throw passes and selfs at roughly the
 p**s**psp**s**ps
 pxspx**s**pxspx**s** -->
 
-<crossreference>*Jim's two-count* is compatible with *why not* (see below) and can be useful to stabilize the pattern when learning *why not*. There are also 7-club versions of both that change sides with a hurry after every three double passes.</crossreference>
+<crossreference>*Jim's two-count* is compatible with *why not* (see below). It can be used to stabilize the pattern when learning *why not*. There are also 7-club versions of both that change sides with a hurry after every third double pass.</crossreference>
 
 
 **Brainstorming (Jim's pass-pass-self-pass-self).** This pattern is a tricky milestone for many passers. It may not be physically hard, but it requires a lot of concentration. It is a long sequence that only repeats after 20 beats. Rather than memorizing the entire sequence, just count the pass-pass-self-pass-self sequence (aloud) and make those throws regardless of which hand is next.
