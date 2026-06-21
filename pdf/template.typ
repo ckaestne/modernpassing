@@ -117,9 +117,17 @@
   columns: 2,
   margin: (x: 1in, y: 1in),
   header: context {
-    if counter(page).get().first() > 1 [
-      #align(right)[#text(8pt)[#emph[Modern Club Passing]]]
-    ]
+    if counter(page).get().first() > 1 {
+      let cur-page = counter(page).get().first()
+      let secs = query(heading.where(level: 2)).filter(h =>
+        counter(page).at(h.location()).first() <= cur-page)
+      let sec = if secs.len() > 0 {
+        let h = secs.last()
+        let num = numbering(h.numbering, ..counter(heading).at(h.location()))
+        [ | Section #num #h.body]
+      }
+      align(right)[#text(8pt)[#emph[Modern Club Passing #sec]]]
+    }
   },
   footer: context {
     if counter(page).get().first() > 1 [
