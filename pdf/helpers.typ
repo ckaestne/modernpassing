@@ -63,6 +63,7 @@
 )
 
 #let progression(body) = [
+  #v(.2em)
   #show " —": ":"
   #set text(style: "italic")
   #let seen_item = state("progression-seen-item", false)
