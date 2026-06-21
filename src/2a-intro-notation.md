@@ -1,6 +1,6 @@
 # Introduction to synchronous passing & notation
 
-Most traditional passing patterns, including *6-club four-count*, *three-count*, and *pass-pass-self*, as well as *7-club two-count*, are synchronous patterns in that both passers throw at the same time. This is where a lot of people start passing, though we recommend a different first pattern (see [learning to pass](1-learn-teach.md)).
+Most traditional passing patterns, including *6-club four-count*, *three-count*, and *pass-pass-self*, as well as *7-club two-count*, are synchronous patterns in that both passers throw at the same time. This is where a lot of people start passing, though we recommend a different first pattern, as described in [*learning to pass*](1-learn-teach.md).
 
 Many passers explore only a small number of traditional synchronous patterns, usually with many selfs and with most or all passes thrown from the right hand, making it harder only by adding more clubs. It is not surprising that many soon find this boring. But there are many synchronous patterns to explore, both one-sided (e.g., [*six-count popcorn*](2d-advanced.md)) and ambidextrous (e.g., [*Jim's three-count*](2c-jims.md)), and then there is also the whole world of [four-handed siteswaps](4a-4hsw-notation.md). 
 
