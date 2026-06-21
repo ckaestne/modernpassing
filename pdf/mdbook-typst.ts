@@ -11,6 +11,7 @@ import { mdToTypst } from "./md2typ.ts"
 import { renderSiteswapElements } from "../vizsiteswap/siteswapvis/render-siteswap-elements.ts"
 import { type RendererConfig } from "@modernpassing/rendering-core"
 import { type FrameRenderConfig, type RenderLayoutConfig } from "@modernpassing/rendering-svg"
+import { Buffer } from "node:buffer"
 
 // mdBook probes preprocessors with: <command> supports <renderer>
 // Custom args (e.g. --chapters <regex>) precede mdBook-appended args, so we
@@ -292,9 +293,7 @@ function copyTemplateTyp(outputDir: string): void {
 }
 
 function copyHelpersTyp(outputDir: string): void {
-    const localHelpers = path.resolve(process.cwd(), "helpers.typ")
-    const repoHelpers = path.resolve(process.cwd(), "..", "..", "pdf", "helpers.typ")
-    const source = fs.existsSync(localHelpers) ? localHelpers : repoHelpers
+    const source = path.resolve(process.cwd(), "..", "..", "pdf", "helpers.typ")
     const target = path.join(outputDir, "helpers.typ")
 
     if (isSameFile(source, target)) {
@@ -353,7 +352,16 @@ function stripLeadingMarkdownTitle(markdown: string): string {
 function isSameFile(a: string, b: string): boolean {
     const resolvedA = resolvePathForCompare(a)
     const resolvedB = resolvePathForCompare(b)
-    return resolvedA === resolvedB
+
+    try {
+        if (!fs.existsSync(resolvedA) || !fs.existsSync(resolvedB)) return false
+        const aBuf = fs.readFileSync(resolvedA)
+        const bBuf = fs.readFileSync(resolvedB)
+        if (typeof (aBuf as any).equals === "function") return (aBuf as Buffer).equals(bBuf)
+        return aBuf.length === bBuf.length && aBuf.toString() === bBuf.toString()
+    } catch (_) {
+        return false
+    }
 }
 
 function resolveFiguresSource(context: Record<string, unknown>): string | null {

@@ -59,8 +59,17 @@ function collectSkipFootnoteRegexes(markdown: string): RegExp[] {
 }
 
 function normalizeMarkdown(markdown: string): string {
-    const withoutComments = markdown.replace(/<!--[\s\S]*?-->/g, (match) => {
-        if (/^<!--\s*typ-(columns|figure|no-link-footnote)\s*:/i.test(match)) {
+    // Output-dependent text (see "style conventions and glossary.md"):
+    //  - `<!-- pdf: ... -->` is invisible in HTML (it's a comment) but its
+    //    content is rendered in the PDF. We unwrap it here so the rest of the
+    //    pipeline lexes the inner markdown normally.
+    //  - `<html-only>...</html-only>` renders on the website (the browser shows
+    //    an unknown tag's children) but is dropped from the PDF entirely.
+    const withPdfOnly = markdown.replace(/<!--\s*pdf:\s*([\s\S]*?)\s*-->/gi, (_match, inner: string) => inner)
+    const withoutHtmlOnly = withPdfOnly.replace(/<html-only>([\s\S]*?)<\/html-only>/gi, "")
+
+    const withoutComments = withoutHtmlOnly.replace(/<!--[\s\S]*?-->/g, (match) => {
+        if (/^<!--\s*typ-(columns|figure|no-link-footnote)\s*:/i.test(match) || /^<!--\s*typst\s*:/i.test(match)) {
             return match
         }
         return ""
@@ -168,6 +177,21 @@ function renderBlocks(tokens: AnyToken[]): string {
         const figHint = parseFigureHint(html)
         if (figHint !== undefined) {
             pendingFigureHint = figHint
+            i += 1
+            continue
+        }
+
+        const typstCode = parseTypstDirective(html)
+        if (typstCode !== undefined) {
+            if (typstCode.length > 0) {
+                if (inProgression) {
+                    progressionParts.push(typstCode)
+                } else if (inWarning) {
+                    warningParts.push(typstCode)
+                } else {
+                    out.push(typstCode)
+                }
+            }
             i += 1
             continue
         }
@@ -421,6 +445,20 @@ function parseFigureHint(html: string): string | undefined {
     return match[1].trim()
 }
 
+// `<!-- typst: ... -->` injects raw Typst markup. Unlike `<!-- pdf: ... -->`
+// (which is unwrapped and re-lexed as markdown), the inner content is emitted
+// verbatim, so `#` is not escaped and it is not processed as markdown.
+function parseTypstDirective(html: string): string | undefined {
+    if (!html) {
+        return undefined
+    }
+    const match = html.match(/^\s*<!--\s*typst\s*:\s*([\s\S]*?)\s*-->\s*$/i)
+    if (!match) {
+        return undefined
+    }
+    return match[1].trim()
+}
+
 function isSkipLinkFootnoteHint(html: string): boolean {
     if (!html) return false
     return /^\s*<!--\s*typ-no-link-footnote\s*:[\s\S]*?-->\s*$/i.test(html)
@@ -668,6 +706,13 @@ function renderInline(tokens: AnyToken[]): string {
             }
             case "html": {
                 const html = asString(token.raw) || asString(token.text)
+                const typstCode = parseTypstDirective(html)
+                if (typstCode !== undefined) {
+                    if (typstCode.length > 0) {
+                        out.push(typstCode)
+                    }
+                    break
+                }
                 const wrap = matchInlineWrapTag(html)
                 if (wrap) {
                     // Collect inline tokens up to the matching closing tag and
