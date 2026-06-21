@@ -18,10 +18,10 @@
 
 #let figure_scale = (
   plain: 100%,
-  siteswap: 40%,
-  sync: 40%,
-  sync-group: 40%,
-  siteswap-group: 40%,
+  siteswap: 50%,
+  sync: 50%,
+  sync-group: 50%,
+  siteswap-group: 50%,
 )
 
 #let fit_to_available(body, factor: 1.0) = layout(size => {

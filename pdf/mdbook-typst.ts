@@ -83,7 +83,7 @@ forEachChapter(book, (chapter) => {
     }
 })
 
-const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig> = {
+const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig & RendererConfig> = {
     passerStyle: [
         { fill: "white" },
         { fillPattern: "checker", fill: "white" },
@@ -96,7 +96,10 @@ const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig> = {
     walkingArrowStyle: {
         color: "#555",
     },
-    showInAirPasses: false
+    showInAirPasses: false,
+
+    xDist: 48,
+    yDist: 42,
 }
 
 forEachChapter(book, (chapter) => {
