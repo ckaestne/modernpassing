@@ -10,6 +10,8 @@
 
 The most effective way to teach beginners passing is to teach them *5-club one-count*. Especially if one passer is more experienced, it is possible to teach almost everybody passing within minutes and get them to experience success, even if they have never tried to juggle clubs before. As it allows for more control and feedback and trains both hands equally, this approach is much more effective than the traditional approach of first requiring a solo cascade pattern and then learning [6-club four-count](2b-basic-sync.md) as the first pattern. This approach was first introduced by Amiel Martin and published on [passingpedagogy.com](https://www.passingpedagogy.com/). It has since been widely taught in workshops.
 
+<!-- typst: #qr_with_label("https://modernpassing.com", [passingpedagogy.com]) -->
+
 In the following, I assume a more experienced *teacher* and a less experienced *student*. While it is easier to get to success with a more experienced *teacher*, who can throw good passes and recover from weak responses, the same sequence also works with two beginners.
 
 **Step 1: Practicing passing throws in isolation.** The teacher has a single club, the student has two empty hands. The teacher throws a lofty crossing pass from the right hand with a single spin. Ideally the student can catch the club comfortably with the right hand at about shoulder height. The student then throws a lofty straight pass back to the teacher, from the student's right hand to the teacher's left hand. This is followed by a lofty crossing pass from the teacher's left hand to the student's left hand, and finally followed by a lofty straight pass from the student's left hand to the teacher's right hand.

@@ -1,3 +1,4 @@
+
 // Helpers and re-exports used by both template.typ and generated chapter files.
 //
 // Why this file exists: Typst's `#include` does NOT import `#let` bindings
@@ -50,6 +51,16 @@
 // the markdown -> typst converter via `<!-- typ-figure: right width: ... -->`.
 #let right_figure(body) = align(right, body)
 #let left_figure(body) = align(left, body)
+
+// QR code with a label next to it, vertically centered. `size` controls the
+// width/height of the QR code; `label` is arbitrary content shown on the right.
+#let qr_with_label(data, label, size: 1cm, gutter: 0.6em) = grid(
+  columns: (size, auto),
+  column-gutter: gutter,
+  align: horizon,
+  qrcode(data, width: size),
+  label,
+)
 
 #let progression(body) = [
   #show " —": ":"
