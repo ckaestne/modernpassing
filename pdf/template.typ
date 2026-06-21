@@ -21,11 +21,13 @@
   radius: 4pt,
 )
 
-#show quote.where(block: true): block.with(
+#show quote.where(block: true): it => block(
   width: 100%,
-  fill: rgb("#f1f6f9"),
-  inset: 10pt,
+  fill: rgb("#dce1e4"),
+  inset: (x: 0pt, y: 1em),
   radius: 4pt,
+  above: .9em,
+  text(size: smallFontSize, it),
 )
 
 
