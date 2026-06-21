@@ -399,7 +399,7 @@ function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], rende
         if (!config.separateleftRightRows) {
             for (let passerIdx = 0; passerIdx < pattern.nrRows; passerIdx++) {
                 const startingHands = hands[passerIdx]
-                canvas.text("").plain(startingHands.join("|"))
+                canvas.text("").plain(startingHands[0] + "R|"+startingHands[1] + "L")
                     .amove(config.xMargin + config.startingHandsOffset / 2 + (config.showPasserRoles ? config.passerRolesOffset : 0), yo(passerIdx, null))
                     .addClass("starting-hands")
                     .font({ size: config.startingHandsTextSize, "text-anchor": "middle", fill: config.annotationTextColor, "dominant-baseline": "central" })
