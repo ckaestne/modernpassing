@@ -1,6 +1,12 @@
+#import "helpers.typ": *
+#import "@preview/booktabs:0.0.4": booktabs-default-table-style
+
+
+
+
 #set text(
   lang: "en",
-  size: 8pt,
+  size: defaultFontSize,
   font: "noto sans"
 
 )
@@ -22,8 +28,6 @@
   radius: 4pt,
 )
 
-#import "@preview/booktabs:0.0.4": booktabs-default-table-style
-#import "helpers.typ": *
 
 #show: booktabs-default-table-style
 
@@ -82,21 +86,29 @@
 #show image.where(source: "figures/start-here.svg"): _ => []
 
 
+
+#figure(image("figures/7-1-count.png", width: 40%))
+
 #align(center, text(28pt)[
   *Modern Club Passing*
 ])
+ 
 
 #align(center, text(fill: rgb("#666666"))[
   #datetime.today().display("[month repr:long] [day], [year]")
 ])
 
-#align(center, text(10pt)[
-  PDF and web version with animations at #link("https://modernpassing.com")
-])
-
-
 
 #include "frontmatter.typ"
+
+#v(2em)
+
+#align(center, text(weight: "bold")[
+  PDF and web version with animations at #link("https://modernpassing.com")
+
+  #qrcode("https://modernpassing.com", width: 2cm)
+
+])
 
 
 #set page(

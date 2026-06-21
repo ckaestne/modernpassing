@@ -1,8 +1,11 @@
 # Modern Club Passing 
 
-<div class="warning">This is an incomplete draft of the book and very much work in progress. Feedback is welcome.</div>
 
-**A printable PDF is available at [https://modernpassing.com/book.pdf](https://modernpassing.com/book.pdf)**
+<html-only>
+
+[**<i class="fa-solid fa-download"></i> Download printable PDF**](https://modernpassing.com/book.pdf)
+
+</html-only>
 
 With this short book (and corresponding website), my goal is to provide an opinionated introduction to the fascinating world of modern club passing. Like many areas of juggling, club passing has its own community that continuously pushes the field and invents and shares new patterns and new styles of passing. I have learned many things from this community and tremendously enjoy patterns that go beyond traditional 6-club four-count ("every others"), 7-club two-count, and two-count/four-count feeds. In passing corners at juggling festivals and at festivals dedicated to passing, it is now common to find ambidextrous 4-handed siteswaps with zaps and triple selfs, and Roundabout-style manipulator patterns of various difficulty with 3 to 5 people.
 
@@ -12,9 +15,13 @@ I try to curate and guide in a short book, rather than create a comprehensive re
 
 *What is modern club passing?* Modern club passing is ambidextrous. Modern club passing combines passes at different heights (zaps, singles, doubles) with zips, flips, heffs, and triple selfs. Modern club passing is about slowing down and controlling the pattern. Modern club passing embraces manipulator and walking patterns with 3 or more people. Modern club passing is for the passer and not for an audience. Modern club passing constantly pushes the boundaries and tries more challenging patterns, even when they all look the same from the outside. Modern club passing is not a fixed concept but a term I embrace for the kind of passing that I and many others in the community enjoy.
 
+*This is book is still work in progress. Feedback is welcome.*
+
 <!-- typ-no-link-footnote: cmu -->
 
 – [Christian Kästner](https://www.cs.cmu.edu/~ckaestne/)
+
+
 
 ---
 

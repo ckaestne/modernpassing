@@ -7,7 +7,13 @@
 // file unconditionally; template.typ also imports from it so the symbols are
 // defined in exactly one place.
 
+
+#let defaultFontSize = 9pt
+#let smallFontSize = 8pt
+
+
 #import "@preview/booktabs:0.0.4": toprule, midrule, bottomrule
+#import "@preview/zebra:0.1.0": qrcode
 
 #let figure_scale = (
   plain: 100%,
@@ -58,5 +64,5 @@
   }
 
   #show parbreak: none
-  #text(size: 7pt)[#body]
+  #text(size: smallFontSize)[#body]
 ]
