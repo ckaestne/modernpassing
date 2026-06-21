@@ -34,6 +34,12 @@
   it
 }
 
+// Reference a chapter/section by its anchor label, rendering just the bare
+// section number as a clickable link. We can't use `#ref`/`@` here because the
+// heading numbering is `unary` (`str(last) + "."`), so a normal reference would
+// carry a trailing period (e.g. "5."). Format the counter directly instead.
+#let secref(lbl) = link(lbl, context numbering("1", counter(heading).at(lbl).last()))
+
 // Side-aligned figure (no text wrap). Width is set on the image itself by
 // the markdown -> typst converter via `<!-- typ-figure: right width: ... -->`.
 #let right_figure(body) = align(right, body)

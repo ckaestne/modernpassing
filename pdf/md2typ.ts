@@ -602,7 +602,7 @@ function renderInline(tokens: AnyToken[]): string {
 
                 const chapterAnchor = resolveChapterAnchor(href)
                 if (chapterAnchor) {
-                    out.push(`#link(<${chapterAnchor}>)[${label}] (Sec.~#ref(<${chapterAnchor}>, supplement: none))`)
+                    out.push(`#link(<${chapterAnchor}>)[${label}] (Sec.~#secref(<${chapterAnchor}>))`)
                     break
                 }
 
