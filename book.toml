@@ -20,6 +20,7 @@ follow-web-links = false
 exclude = [ 'juggling\.tv' ]
 warning-policy = "warn"
 optional=true
+renderer=["html"]
 
 [output.html]
 additional-css = ["css/svgstyle.css", "css/bookstyle.css"]
