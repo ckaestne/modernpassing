@@ -11,7 +11,6 @@
 
 #let defaultFontSize = 9pt
 #let smallFontSize = 8pt
-#let animationFrameWidth = 24%
 
 
 #import "@preview/booktabs:0.0.4": toprule, midrule, bottomrule
@@ -80,7 +79,7 @@
 // as 3+2 and 6 as 3+3. The uniform frame width is derived from `cols` and
 // `gutter` so a full row of `cols` frames fills the available width; shorter
 // rows keep that same width and are centered.
-#let frame_grid(..items, cols: 4, gutter: 0.25em) = {
+#let frame_grid(..items, cols: 4, gutter: 0.5em, border-width: 2pt, border-color: gray) = {
   let imgs = items.pos()
   let n = imgs.len()
   if n == 0 { return }
@@ -95,7 +94,7 @@
     let row = imgs.slice(idx, idx + count)
     idx += count
     rowBlocks.push(align(center, stack(dir: ltr, spacing: gutter,
-      ..row.map(im => box(width: width, im)))))
+      ..row.map(im => box(width: width, stroke: border-width + border-color, im)))))
   }
   // vertical spacing between rows matches the horizontal gutter
   stack(dir: ttb, spacing: gutter, ..rowBlocks)

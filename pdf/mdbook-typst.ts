@@ -99,7 +99,7 @@ const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig & Rend
     showInAirPasses: false,
     frameBorderStyle: {
         color: "#555",
-        width: 1,
+        width: 0,
     },
 
     xDist: 48,
