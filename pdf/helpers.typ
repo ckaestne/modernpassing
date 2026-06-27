@@ -11,6 +11,7 @@
 
 #let defaultFontSize = 9pt
 #let smallFontSize = 8pt
+#let animationFrameWidth = 24%
 
 
 #import "@preview/booktabs:0.0.4": toprule, midrule, bottomrule
@@ -73,6 +74,32 @@
   qr_with_label(data1, label1, size: size, gutter: gutter),
   qr_with_label(data2, label2, size: size, gutter: gutter),
 )
+
+// Lay out a series of animation frame images in balanced, centered rows.
+// `cols` is the max frames per row; rows are balanced so e.g. 5 frames render
+// as 3+2 and 6 as 3+3. The uniform frame width is derived from `cols` and
+// `gutter` so a full row of `cols` frames fills the available width; shorter
+// rows keep that same width and are centered.
+#let frame_grid(..items, cols: 4, gutter: 0.25em) = {
+  let imgs = items.pos()
+  let n = imgs.len()
+  if n == 0 { return }
+  let width = (100% - (cols - 1) * gutter) / cols
+  let rows = calc.ceil(n / cols)
+  let base = calc.floor(n / rows)
+  let extra = calc.rem(n, rows)
+  let idx = 0
+  let rowBlocks = ()
+  for r in range(rows) {
+    let count = base + (if r < extra { 1 } else { 0 })
+    let row = imgs.slice(idx, idx + count)
+    idx += count
+    rowBlocks.push(align(center, stack(dir: ltr, spacing: gutter,
+      ..row.map(im => box(width: width, im)))))
+  }
+  // vertical spacing between rows matches the horizontal gutter
+  stack(dir: ttb, spacing: gutter, ..rowBlocks)
+}
 
 #let progression(body) = [
   #v(.2em)

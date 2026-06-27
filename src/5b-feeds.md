@@ -63,7 +63,7 @@ As another beginner-friendly feed, a feeder juggling *[6-club one-count](1-learn
 **Chaining multiple feeds.** 
 To integrate more passers, it is possible to have more than one feeder in a pattern, producing N-shaped or W-shaped layouts. For example, here is a pattern with two feeders (B, C):
 
-<sync-group frames="0:5">
+<sync-group frames="0:6">
 A: 3pB33
 B: 3pA3pC3
 C: 3pD3pB3
@@ -123,7 +123,7 @@ Beyond this, extra-club synchronous feeds become a bit obscure. Any 6-club or 8-
 
 ## Feeding four-handed siteswaps
 
-There are many common feeds of four-handed siteswaps and it is easy to create more. N-shaped and W-shaped patterns with more than one feeder are possible, but not common. Who throws straight and who throws crossing passes can be negotiated – usually the feeder gets to throw the (easier) straight passes and the feedees throw crossing passes (which can be harder as they may require extra wide angles to go all the way across the pattern).
+There are many common feeds of four-handed siteswaps and it is easy to create more. N-shaped and W-shaped patterns with more than one feeder are possible, but not common. Who throws straight passes and who throws crossing passes can be negotiated – usually the feeder gets to throw the (easier) straight passes and the feedees throw crossing passes (which can be harder as they may require extra wide angles to go all the way across the pattern).
 
 **774 vs. 5-club one-count.** To integrate beginners into a feed, it is possible for a more experienced passer to feed two passers in *[5-club one-count](1-learn-teach.md)* with *[774](4b-4hsw-beginner.md)* or three passers in *5-club one-count* with *[7-club one-count](4b-4hsw-beginner.md)*.
 
@@ -146,7 +146,7 @@ positions: V(A,B,C)
 </siteswap-group>
 
 
-**Martin's one-count vs. why not.** For more experienced feedees, *Martin's one-count* (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. Having the feeder start with 5 clubs and the feedees wait for an incoming pass to trigger their heff is the easiest-to-remember start.
+**Martin's one-count vs. why not.** For more experienced feedees, *Martin's one-count* (pass-pass-pass-pass-zip) feeding two passers passing [why not](4d-4hsw-heffs.md) (or the asynchronous [Jim's two-count](4b-4hsw-beginner.md)) is a good introduction to feeding with four-handed siteswaps. 
 
 <siteswap-group frames="">
 A: 7B7C7B7C2
@@ -155,7 +155,6 @@ C: ,7A827A6
 positions: V(A,B,C)
 </siteswap-group>
 
-[TODO: change shown start]
 
 **Why not vs. five-count popcorn.** This feed is roughly of similar difficulty for all passers; as usual, *five-count popcorn* can be juggled with either [heffs](4d-4hsw-heffs.md) or [trelfs](4f-4hsw-trelfs.md).
 

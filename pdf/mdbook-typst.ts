@@ -97,6 +97,10 @@ const bookRenderingConfig: Partial<RenderLayoutConfig & FrameRenderConfig & Rend
         color: "#555",
     },
     showInAirPasses: false,
+    frameBorderStyle: {
+        color: "#555",
+        width: 1,
+    },
 
     xDist: 48,
     yDist: 42,
@@ -169,11 +173,9 @@ const mainContentPath = path.join(outputDir, "maincontent.typ")
 const mainContent = buildMainContent(mainContentFiles, partByChapter)
 fs.writeFileSync(mainContentPath, mainContent, "utf-8")
 
-console.error(`mdbook-typst converted ${chapterCount} chapters`)
-console.error(`mdbook-typst rendered ${renderedSvgCount} siteswap SVGs to ${svgOutputDir}`)
-console.error(`mdbook-typst wrote ${mainContentFiles.length + (frontmatterFile ? 1 : 0)} chapter files to ${outputDir}`)
-console.error(`mdbook-typst wrote frontmatter file ${frontmatterPath}`)
-console.error(`mdbook-typst wrote main content file ${mainContentPath}`)
+console.error(`mdbook-typst converted ${chapterCount} chapters, rendered ${renderedSvgCount} siteswap SVGs, wrote ${mainContentFiles.length + (frontmatterFile ? 1 : 0)} chapter files to ${outputDir}`)
+// console.error(`mdbook-typst wrote frontmatter file ${frontmatterPath}`)
+// console.error(`mdbook-typst wrote main content file ${mainContentPath}`)
 
 function buildMainContent(entries: { file: string; sourcePath: string }[], partByChapter: Map<string, string>): string {
     const lines: string[] = []

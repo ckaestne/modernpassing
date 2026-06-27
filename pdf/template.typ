@@ -112,6 +112,9 @@
 
 ])
 
+#set text(
+  hyphenate: true
+)
 
 #set page(
   columns: 2,

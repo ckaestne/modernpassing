@@ -152,13 +152,19 @@ function renderBlocks(tokens: AnyToken[]): string {
         }
         if (containsSvg(html)) {
             const parts: string[] = []
+            const frameImages: string[] = []
             for (const svg of splitTopLevelSvgs(html)) {
                 const classes = getSvgClasses(svg)
                 if (!classes.includes("frame")) {
                     parts.push(`#figure(image(bytes(${toTypstString(svg)})), kind: "siteswap", supplement: none)`)
                 } else if (classes.includes("frame")) {
-                    parts.push(`#box(image(bytes(${toTypstString(svg)}), width: .57in))`)
+                    frameImages.push(`image(bytes(${toTypstString(svg)}))`)
                 }
+            }
+            if (frameImages.length > 0) {
+                // frame_grid (helpers.typ) balances the frames into centered
+                // rows and applies the uniform animationFrameWidth to each.
+                parts.push(`#frame_grid(${frameImages.join(", ")})`)
             }
             if (parts.length > 0) {
                 out.push(parts.join(" "))
