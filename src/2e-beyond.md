@@ -54,9 +54,21 @@ tstststs -->
 <!-- qstsdsqstsdsqstsds // render gallop
 tsdsqstsdsqstsdsqs -->
 
-See [Will Murray's pattern collection](https://home.csulb.edu/~wmurray/jugglingArticles/WillPatterns.pdf) for many more galloped patterns and theory of how to create more of them.
+<!-- typ-no-link-footnote: passist.org -->
+<!-- typ-no-link-footnote: archive.org -->
+<!-- typ-no-link-footnote: csulb.edu -->
+
+See [Will Murray's pattern collection](https://web.archive.org/web/20240513211140/https://home.csulb.edu/~wmurray/jugglingArticles/WillPatterns.pdf) for many more galloped patterns and theory of how to create more of them.
+
+
+<!-- typst: #qr_with_label("https://web.archive.org/web/20240513211140/https://home.csulb.edu/~wmurray/jugglingArticles/WillPatterns.pdf", [Will Murray's pattern collection (PDF)]) -->
+
+
 
 ## Fully synchronized patterns
+
+<!-- typ-no-link-footnote: wikipedia.org -->
+
 
 There are several patterns where a passer's left and right hand always throw at the same time – similar to [synchronous throws in solo siteswaps](https://en.wikipedia.org/wiki/Siteswap#Synchronous). That is, all four hands always throw at the same time. This effectively doubles the speed, as there are two actions on every beat, rather than one; passers usually compensate with lofty selfs and lofty passes to slow down to a manageable speed.
 
@@ -78,9 +90,9 @@ There are several patterns where a passer's left and right hand always throw at 
 
 As a variation, throw a crossing pass and a heffling (a self to the same hand/a single-spin heff) at the same time. This can be done as a trick throw or continuously. For example, alternating between straight and crossing passes provides an ambidextrous pattern that is compatible with right-handed *8-club two-count*.
 
-<sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":true,"iterations":4,"yDist":50,"throwTextSize": 22}'>(4px 4x)(4px 4x),(4px 4x)(4 4p)</sync>
+<!-- <sync style='{"separateleftRightRows":true,"useAllSyncLabels":true,"showLeftRight":false,"showStraightCross":true,"iterations":4,"yDist":50,"throwTextSize": 22}'>(4px 4x)(4px 4x),(4px 4x)(4 4p)</sync>
 
-[TODO: more clearly visualize straight and crossing]
+[TODO: more clearly visualize straight and crossing] -->
 
 This is also compatible with various *scratch your head* patterns (see below). As usual, all straight passes can be turned into crossing passes and vice versa (see theory in [advanced synchronous patterns](2d-advanced.md)).
 

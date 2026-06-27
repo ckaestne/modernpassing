@@ -761,7 +761,18 @@ function renderInline(tokens: AnyToken[]): string {
         }
     }
 
-    return out.join("")
+    return mergeTrailingSecref(out.join(""))
+}
+
+// When a link with an appended "(Sec. X)" reference is immediately followed by
+// a closing paren — e.g. "(see [Jim's patterns] (Sec. 4))" — the nested parens
+// read poorly. Rewrite "… (Sec.~#secref(<a>)))" to "…\; Sec.~#secref(<a>))" so it
+// renders as "(see Jim's patterns; Sec. 4)". The semicolon must be escaped: a
+// bare ";" right after a "#link(…)[…]" markup expression is consumed by Typst as
+// an expression terminator and would not print. Idempotent: the result no longer
+// matches, so re-running on nested joins is harmless.
+function mergeTrailingSecref(text: string): string {
+    return text.replace(/ \(Sec\.~#secref\((<[^<>]+>)\)\)\)/g, "\\; Sec.~#secref($1))")
 }
 
 function resolveChapterAnchor(href: string): string | null {

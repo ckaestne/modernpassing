@@ -33,7 +33,7 @@ When you get more comfortable with the pattern, try flipping the 4s or throw sel
 
 <siteswap>7777266</siteswap>
 
-**Jim's three-count, async (7746666).** A four-handed siteswap version of *Jim's three-count* (see [Jim's patterns](2c-jims.md)) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. (There are siteswap versions for all Jim's patterns.)
+**Jim's three-count, async (7746666).** A four-handed siteswap version of *Jim's three-count* (see [Jim's patterns](2c-jims.md)) without a hurry. Notice the extra time for a flip after every second pass from the asynchronous nature of four-handed siteswaps. There are siteswap versions for all Jim's patterns.
 
 <siteswap>7746666</siteswap>
 

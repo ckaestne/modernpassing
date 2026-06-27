@@ -19,11 +19,11 @@
 
 <siteswap>9964966</siteswap>
 
-**972.** A great pattern to combine singles and doubles, one of them crossing, so both thrown to the same hand ("stacks"). Note: Passer A starts with one club in the right hand and two in the left.
+**972.** A great pattern to combine singles and doubles, one of them crossing, so both thrown to the same hand ("stacks"). Notice the unconventional start with one club in Passer A's right hand.
 
 <siteswap>972</siteswap>
 
-**Not likely (96672).** Doubles in period-5 patterns can be tricky; make sure they are lofty and use the self-zip-self to stabilize.
+**Not likely (96672).** Doubles in period-5 patterns can be tricky and this is a good pattern to practice; make sure they are lofty and use the self-zip-self to stabilize.
 
 <siteswap>96672</siteswap>
 

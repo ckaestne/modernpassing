@@ -4,6 +4,7 @@ import assert from "node:assert"
 export interface RendererConfig {
     //basic layout
     xDist: number
+    xDistMultiplier: number // optional adjustment for xDist for async patterns etc
     yDist: number
     xMargin: number
     yMargin: number
@@ -35,6 +36,7 @@ export interface RendererConfig {
     lineWidth: number
     lineDash: string
     lineBendOrientation: number[] // one orientation for each passer, 0 = straight, -1 = bend top, 1 = bend bottom, can be scaled (e.g. 2=more bend)
+    lineBendFactor: number
 
     //emphasis
     emphasizeThrows: [number, number][] // identified by rowId and beat
@@ -81,6 +83,7 @@ export type RenderComponents = "aidan" | "pattern" | "layout" | "video" | "turnt
 
 export const defaultRendererConfig: RendererConfig = {
     xDist: 64,
+    xDistMultiplier: 1,
     yDist: 40,
     yHandDist: 34,
     xMargin: 4,
@@ -91,6 +94,7 @@ export const defaultRendererConfig: RendererConfig = {
     showLines: false,
     lineKind: "causal",
     lineBendOrientation: [-1, 1],
+    lineBendFactor: 1,
     showLeftRight: true,
     showStraightCross: true,
     showStartingHands: true,
@@ -317,7 +321,7 @@ export function customRendererConfigDefaults(pattern: Pattern): RendererConfig {
         labelThrows: pattern.nrHands === 4 ? "siteswap" : allSync ? "simpleAllSync" : "simple",
         labelPassDestinationRole: pattern.nrRows > 2,
         separateleftRightRows: allSync,
-        xDist: defaultRendererConfig.xDist / (allSync || pattern.nrHands === 4 ? 2 : 1),
+        xDistMultiplier: (allSync || pattern.nrHands === 4 ? .5 : 1),
         showLeftRight: allSync ? false : defaultRendererConfig.showLeftRight,
     }
 }

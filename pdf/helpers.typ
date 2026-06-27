@@ -62,6 +62,18 @@
   label,
 )
 
+// Two QR-code-with-label units shown side by side, vertically centered.
+#let qr_with_label_pair(
+  data1, label1, data2, label2,
+  size: 1cm, gutter: 0.6em, pair-gutter: 1.5em,
+) = grid(
+  columns: (50%, 50%),
+  column-gutter: pair-gutter,
+  align: horizon,
+  qr_with_label(data1, label1, size: size, gutter: gutter),
+  qr_with_label(data2, label2, size: size, gutter: gutter),
+)
+
 #let progression(body) = [
   #v(.2em)
   #show " —": ":"

@@ -308,7 +308,7 @@ function renderInternal(canvas: G, pattern: Pattern, initialRoles: Role[], rende
             const dir = config.lineBendOrientation[t.fromPasserIdx] ?? 1
             const xDiff = xo(endTime) - xo(startTime)
             //backward arrows are straight, the rest follows some heuristic
-            const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist * bendAdjustment
+            const bendOffset = xDiff <= 0 ? 0 : config.yDist / 5.5 * xDiff / config.xDist*config.xDistMultiplier * bendAdjustment * config.lineBendFactor
 
             canvas.path(
                 `M ${xo(startTime)} ${yo(t.fromPasserIdx, t.fromHand)} C ${xo(startTime) + bendOffset} ${yo(t.fromPasserIdx, t.fromHand) + dir * bendOffset}, ${xo(endTime) - bendOffset} ${yo(t.toPasserIdx, t.toHand) + dir * bendOffset}, ${xo(endTime)} ${
@@ -793,7 +793,7 @@ export function getRenderPatternSize(p: Pattern, config: RendererConfig): Patter
     const startingHandsWidth = config.showStartingHands ? config.startingHandsOffset : 0
 
     const throwCircleSize = config.throwCircleSize
-    const throwCircleSeparation = config.xDist - throwCircleSize
+    const throwCircleSeparation = config.xDist * config.xDistMultiplier - throwCircleSize
     const nrThrows = p.getPrefixLength() + p.getLength() * config.iterations
     const throwsAreaX = startingHandsX + startingHandsWidth
     const throwsAreaWidth = throwCircleSize * nrThrows + throwCircleSeparation * (nrThrows - 1)
@@ -818,7 +818,7 @@ export function getRenderPatternSize(p: Pattern, config: RendererConfig): Patter
         width,
         height,
         xMargin,
-        xDist: config.xDist,
+        xDist: config.xDist * config.xDistMultiplier,
         roleLabelWidth,
         roleLabelX,
         startingHandsX,

@@ -4,11 +4,11 @@
 
 <div class="right" style="width:300px">
 
-<!-- typ-figure: width: 40% -->
+<!-- typ-no-link-footnote: wikimedia.org -->
+<!-- typ-figure: width: 50% -->
 
 ![Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)](figures/Siteswap_relative_visualized.png)
-*Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)*
-
+*Visualization of traditional solo siteswap throws by [Hyacinth](https://commons.wikimedia.org/wiki/File:Siteswap_relative_visualized.png)<!-- pdf: ~(Wikipedia) -->*
 </div>
 
 ## Siteswap basics
@@ -33,15 +33,15 @@ From this, all the standard throws in four-handed siteswaps can be derived:
 Assuming that both passers juggle at a normal speed, all numbers are twice as high as in solo (two-handed) siteswaps, as we have twice the number of beats in the same time.
 
 
+<!-- typ-no-link-footnote: passist.org -->
 
-The same way we define a four-hand sequence for two passers, we can define a six-hand sequence for three passers, an eight-hand sequence for four passers, and so forth. We now have much higher numbers, as there are even more beats in the same amount of time. In the following, we illustrate the hand sequence and the throws that represent selfs and single passes. For example, as a start, try the 6-handed siteswaps *a899* and *aa79* or the 8-handed siteswap *fcc* ("three-count friction").
+The same way we define a four-hand sequence for two passers, we can define a six-hand sequence for three passers, an eight-hand sequence for four passers, and so forth. We now have much higher numbers, as there are even more beats in the same amount of time. In the following, we illustrate the hand sequence and the throws that represent selfs and single passes. For example, as a start, try the 6-handed siteswaps *[a899](https://passist.org/siteswap/a899?jugglers=3)* and *[aa79](https://passist.org/siteswap/aa79?jugglers=3)* or the 8-handed siteswap *[fcc](https://passist.org/siteswap/fcc?jugglers=4)* ("three-count friction").
 
 
 ![Illustration of the beat sequence, passes, and selfs in six and eight-handed siteswaps](figures/68hsw.svg)
 
-**[TODO: fix diagram, left handed passes missing, last pass each wrong]**
-
-
+<!-- typst: #qr_with_label_pair("https://passist.org/siteswap/a899?jugglers=3", [Passist animation for _a899_], "https://passist.org/siteswap/fcc?jugglers=4", [Passist animation for _fcc_]) -->
+ 
 ## Transforming siteswaps
 There are a number of common transformations that can be used to transform a pattern into other patterns.
 
@@ -66,7 +66,7 @@ Several diagrams are common to depict siteswaps, usually developed for solo site
 
 Moreover, there are two common ways of showing the throws in a pattern as lines: ladder diagrams and causal diagrams. In a *ladder diagram*, a line illustrates the path of an object from where it is thrown to where it is thrown again next. This is a ladder diagram for *French three-count* (786):
 
-<siteswap style='{"showLines": true, "lineKind": "ladder", "iterations":6, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>786</siteswap>  
+<siteswap style='{"showLines": true, "lineKind": "ladder", "lineBendFactor": 3, "iterations":5, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10}'>786</siteswap>  
 
 In such a diagram, we can observe the path that a club takes, for example, that the self in *786* is always the same club and that all heffs turn into passes.
 
@@ -74,7 +74,7 @@ Note that a throw lands quite a bit before it gets thrown again. It lands somewh
 
 A *causal diagram* illustrates how throws cause the passer to do other actions to empty their hands, that is, they illustrate which throw triggers which other throw rather than illustrating the path of individual objects. This is the causal diagram for the same pattern *French three-count* (786):
 
-<siteswap style='{"showLines": true, "lineKind": "causal", "iterations":6, "lineWidth":3,"lineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
+<siteswap style='{"showLines": true, "lineKind": "causal", "lineBendFactor": 3, "iterations":5, "lineWidth":3,"lineColor":"blue","yDist":60,"yMargin":10}'>786</siteswap>  
 
 We can see that we always throw a single pass to catch an incoming single pass (i.e., 7 causes 7), and we always throw a self to catch a heff (8 causes 6) and vice versa. The fact that singles cause singles in patterns of length 3 (and doubles cause doubles in patterns of length 5) is why these patterns easily fall apart when those passes are too low and fast (see [Improve your siteswap passing](4k-4hsw-improve.md)).
 
@@ -112,7 +112,7 @@ With a siteswap animator like [passist.org](https://passist.org/) it is easy to 
 
 Following a pass in a ladder diagram identifies its orbit, that is, the sequence of throws until the club repeats the same path through the pattern. Clubs that always repeat only a single action are called magic and can be highlighted by using a club of a different color. Throws a multiple of the length of the pattern are always magic: Zaps and trelfs in siteswaps of length 5 are always magic, and so are selfs and doubles in siteswaps of length 3 and singles in siteswaps of length 7. 
 
-<siteswap style='{"showLines": true,  "lineKind": "ladder","iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[[0,0],[1,5],[0,10],[1,15]], "emphasizeLines":[[0,0],[1,5],[0,10],[1,15]]}'>56784</siteswap>
+<siteswap style='{"showLines": true,  "lineKind": "ladder", "lineBendFactor": 4, "iterations":4, "lineWidth":3,"lineColor":"green","yDist":60,"yMargin":10, "emphasizeThrows":[[0,0],[1,5],[0,10],[1,15]], "emphasizeLines":[[0,0],[1,5],[0,10],[1,15]]}'>56784</siteswap>
 
 ## Terminology
 

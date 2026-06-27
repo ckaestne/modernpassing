@@ -8,9 +8,13 @@
 
 </progressions>
 
+<!-- typ-no-link-footnote: youtube.com -->
+
 **Why not (78627).** *Why not* is probably the first pattern with heffs for most passers. It is a widely known 6-club pattern, with [lots of videos](https://www.youtube.com/results?search_query=why+not+club+passing+ija) and [good video tutorials](https://www.youtube.com/watch?v=6GKvM23fexE). Many passers fudge the timing with a fast zip (like in [Jim's patterns](2c-jims.md)) and juggle it synchronously. The most common and easiest to learn start is to have passer B start with two clubs and react to the first pass with heff-zip-pass-self-pass.
 
 <siteswap>78627</siteswap>
+
+<!-- typst: #qr_with_label("https://www.youtube.com/watch?v=6GKvM23fexE", [Tutorial video]) -->
 
 There is also a 5-club version (*78622*) and the similar pattern *not why* (72867).
 

@@ -9,7 +9,7 @@
 </progressions>
 
 
-Once comfortable with basic siteswaps and multiple additional kinds of throws, like zaps, heffs, doubles, and trelfs, there is a whole world of siteswaps that combine these. The following is far from comprehensive but highlights common popular patterns, many with names:
+Once comfortable with basic siteswaps and multiple additional kinds of throws, like zaps, heffs, doubles, and trelfs, there is a whole world of siteswaps that combine these. The following is far from comprehensive but highlights common popular patterns.
 
 ## Heffs and Doubles
 
@@ -39,7 +39,7 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 <siteswap>852</siteswap>
 
-**585 and 858.** More challenging 6 and 7 club patterns that require precise zaps and stable heffs. Most passers prefer straight zaps wide (to throw heffs inside) and crossing zaps narrow (to throw heffs outside), but check with your partner.
+**585 and 858.** More challenging 6 and 7 club patterns that require precise zaps and stable heffs. Most passers prefer straight zaps wide (to throw heffs inside) and crossing zaps narrow (to throw heffs outside), but check with your partner. 
 
 <siteswap>585</siteswap>
 
@@ -61,15 +61,15 @@ Many patterns combining zaps and heffs require very stable heffs that can be cau
 
 <siteswap>a56</siteswap>
 
-<siteswap>a555566</siteswap>
+<!-- <siteswap>a555566</siteswap> -->
 
 <siteswap>a5555</siteswap>
 
-**Other patterns to try.** *89562* and see [holy grail](4i-4hsw-holygrail.md) patterns for more tricky combinations of zaps and doubles.
+**Other patterns to try.** *89562* and [holy grail patterns](4i-4hsw-holygrail.md).
 
 ## Sequences
 
-There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throws: for example, *456*, *567*, *678*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps that all tend to stack passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
+There are a large number of patterns that consist of a sequence of increasing numbers including all kinds of throws: for example, *456*, *567*, *678*, *789*, *45678*, *56789*, *6789a*, *456789a*, and *56789ab*. Those all make valid siteswaps that all tend passes and selfs. They are usually interesting to pass, because they combine so many different throws. 
 
 For each siteswap sequence of 5 consecutive numbers, there are actually two additional permutations that make valid siteswaps too: one where each passer passes the sequence counting up (locally) and one where they pass the sequence (locally) counting down; for longer periods there are even more permutations.
 

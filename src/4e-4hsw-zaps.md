@@ -8,7 +8,12 @@
 
 </progressions>
 
+<!-- typ-no-link-footnote: youtube.com -->
+<!-- typ-no-link-footnote: passist.org -->
+
 Zaps are low, fast passes that only spin half a rotation. They open a whole new group of interesting patterns. Look at a [video](https://www.youtube.com/watch?v=fXyLoK-KhxQ) or an [animation](https://passist.org/siteswap/564?jugglers=2) for examples. They are usually thrown with an extended arm, letting the club slide down to the knob, without any spin from the wrist, aiming quite a bit behind the person catching the zap. Most of these patterns do not have commonly used names and are simply known by their numbers.
+
+<!-- typst: #qr_with_label_pair("https://www.youtube.com/watch?v=fXyLoK-KhxQ", [Video], "https://passist.org/siteswap/564?jugglers=2", [Passist animation]) -->
 
 **Getting started with zaps (56464).** This is a great warmup pattern to learn and practice zaps. Hold the 4s and think of it as *self-self-zap-wait-wait*, starting with the *self-self* when it is necessary to free a hand to catch the zap. The zap is always the same club and there is plenty of time to watch the throw.
 
