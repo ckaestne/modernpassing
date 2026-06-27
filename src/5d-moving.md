@@ -16,7 +16,7 @@ Movement adds interesting variations and challenges to group passing patterns. W
 
 ## Notation and Relabeling
 
-To notate the pattern, we usually rely on a sequence of diagrams of passer positions from above that illustrate the positions and movement. In the notation, we underline the beats where movement happens. 
+To notate the pattern, we usually rely on a sequence of diagrams of passer positions from above that illustrate the positions and movement. There is no established standard notation for indicating who moves when and where.
 
 In most patterns, it takes a while until all passers cycle through all positions, to get back to the original start. 
 However, conceptually, the pattern is usually composed of smaller repeating steps, similarly to how siteswaps repeat over and over again even if we write the most compact version showing only the first half of the pattern.
@@ -35,7 +35,7 @@ move: Vmove(B,4.9,3)Vmove(A,10.9,3)Vmove(C,16.9,3)
 
 **Relabeling.**
 The standard approach to notate those patterns compactly is to describe only one transition, but then explain how the roles change. 
-That is, the same passer (identified with a colored circle in the diagram) will go through all three roles – in this pattern, first A, then B, then C. The role changes (how passers are relabeled) are indicated as arrows at the end of each line in the notation.
+That is, the same passer (identified by a specific circle <!-- pdf:  with a shaded background--> in the diagram) will go through all three roles – in this pattern, first A, then B, then C. In the diagrams, the same circle has different labels over time. The role changes (how passers are relabeled) are indicated as arrows at the end of each line in the notation.
 While the relabeling approach makes patterns much more compact to notate, it can require some practice to read the notation and follow how roles change for each passer during the pattern.
 
 <sync-group frames="0,2,4,6,8,10,12,14,16,18" style='{"animationCounterBeatsNotTime":true}'>
@@ -54,32 +54,55 @@ Look at role changes in the notation. Identify which role gets relabeled *to* yo
 For teaching more complicated patterns, after turning back, the passer who previously held a role can typically explain well what to do to the new passer in that role.
 
 
+## Shooting Star (4 passers)
+
+
+The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). These moving patterns are  particularly approachable because the movement happens without juggling while moving. 
+
+Since one passer is missing, one passer (role C) will not receive clubs and one passer (role B) would pass into a hole. In the standard four-count version, passer B, who would pass into the hole, starts with two clubs and skips the first pass, whereas passer C, who does not receive clubs, walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
+
+<sync-group frames="0,1,4,5,8,9,12,13,16">
+A: 3pD 333   -- C
+B: 2 333-- D
+C: 3pA   222   -- B
+D: 3pB   333 -- A
+positions: Circle(A,B,C,D,_)
+move: Cmove(C,0.9,2.5,144,1)
+</sync-group>
+
+
+*Variations:* It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. 
+* Walking with one club: Removing one more club, passer B (facing the hole) starts with *one* club and passer C (not receiving clubs) passes until they are down to a single club for walking. 
+* Walking the last pass: As before, passer B starts with one club. After their first pass, passer C is down to two clubs and walks their last pass to passer A, to then walk (run) around behind A with their last club to their target position in the hole.
+* Walking without clubs: Passer B (facing the hole) starts without clubs and passer C (not receiving clubs) walks without any clubs after passing their last club. This slows down the pattern and results in walking only every other or every third pass. 
+
+
+
+**Two-count shooting star.** In the two-count version of the shooting star, the person moving stops in the middle to let passes go by before making it to the hole. Typically they walk when they have one club, but they can also walk to the middle with two and pass a last one from the middle.
 
 
 
 ## Rotating Y (4 passers)
 
-![starter pattern](figures/start-here.svg)
 
 
-A good beginner pattern with easy movement is the *Rotating Y*. The Y is a formation of two passers next to each other facing two passers behind each other (a feed with an extra passer behind the feeder). The rightmost passer throws a long pass to the passer in the back, who throws a long pass to the passer on the left, who throws a much shorter pass to the feeder in the middle, who then throws another short pass to the rightmost passer. For movement, consider that the two passers standing next to each other are on the left and right of a circle, whereas the other two passers are in the front and back of another circle; for each movement, each passer moves a quarter position counter-clockwise on their circle (all walking at the same time), yielding another Y. Note that after movement, everybody still passes to the same passer (now in a different location, possibly with a different distance) and receives from the same passer.
+An good beginner pattern with easy movement is the *Rotating Y*. The Y is a formation of two passers next to each other facing two passers behind each other (a feed with an extra passer behind the feeder). The rightmost passer throws a long pass to the passer in the back, who throws a long pass to the passer on the left, who throws a much shorter pass to the feeder in the middle, who then throws another short pass to the rightmost passer. For movement, consider that the two passers standing next to each other are on the left and right of a circle, whereas the other two passers are in the front and back of another circle; for each movement, each passer moves a quarter position counter-clockwise on their circle (all walking at the same time), yielding another Y. Note that after movement, everybody still passes to the same passer (now in a different location, possibly with a different distance) and receives from the same passer.
 
 The rotating Y is commonly juggled in [four-count](2b-basic-sync.md) with movement after every other pass or after every pass. To learn the pattern, it is common to try every position without moving during the pattern, and move to the new positions between attempts when resetting. When moving during the pattern, only fairly little movement is needed, typically only a step or two without turning, making this a good beginner pattern.
 
-<sync-group frames="0,4,5,7.8,8" style='{"animationCounterBeatsNotTime":true}'>
+<sync-group frames="0,4,5,7,8" style='{"animationCounterBeatsNotTime":true}'>
 A: 3pC333 3pC333 -- D
 B: 3pD333 3pD333 -- C
 C: 3pB333 3pB333 -- A
 D: 3pA333 3pA333 -- B
 positions: Y(A,B,C,D)
-move: move(A,4.9,3)move(B,4.9,3)move(C,4.9,3)move(D,4.9,3)
+move: move(A,5,2.1)move(B,5,2.1)move(C,5,2.1)move(D,5,2.1)
 </sync-group>
 
 
 
 ## Rotating Feeds (3 passers)
 
-![starter pattern](figures/start-here.svg)
 
 
 The rotating feed is a good introduction to walking and turning on a four-count (usually), which is an important foundation for many other walking and takeout patterns. So even though the rotating feed on two-count versus four-count can be rather boring, it is an important milestone.
@@ -104,7 +127,6 @@ move: Vmove(B,4.9,3)
 
 Walking and turning while juggling can initially be somewhat challenging. Usually the passer walking will walk immediately after their pass and catch the incoming pass somewhat along the way (ask the feeder to throw it shorter if necessary). It is possible to practice walking and turning while juggling alone, simply walking around while maintaining a 3-club cascade. Less confident passers can also collect all clubs and walk across the pattern holding all three clubs to then restart with a pass on the other side.
 
-![intermediate pattern](figures/intermediate.svg)
 
 
 **Pass-pass-self feeds.**
@@ -162,7 +184,6 @@ move: Vmove(A,4.9,2)Vmove(B,2.9,2)
 
 ## Extra Club Rotating Feed (3 passers)
 
-![intermediate pattern](figures/intermediate.svg)
 
 
 The two-count vs. four-count feed with 10 clubs (see [Feeds](5b-feeds.md)) can also be turned into a walking rotating pattern, similar to other feeds.
@@ -183,9 +204,8 @@ With a bit of galloping, this pattern can also be juggled on single passes (see 
 
 ## Bruno's Nightmare (3 passers)
 
-![starter pattern](figures/start-here.svg)
 
-The conceptual idea behind all "Bruno's" patterns is that the passers move as if they were balls thrown by a giant. In the basic Bruno's nightmare pattern, the passers move in a simple cascade pattern, being "thrown" to one side of the room and then "falling" back down to the other (see the diagram below). Many other patterns, including passing patterns, are possible beyond a simple three-ball cascade. While the passers are moving in the shape of a juggling pattern, they exchange clubs.
+The conceptual idea behind all "Bruno's" patterns is that the passers move as if they were balls thrown by a giant. In the basic Bruno's nightmare pattern, the passers move in a simple cascade pattern, being "thrown" to one side of the room and then "falling" back down to the other (see the diagram below). While the passers are moving in the shape of the giant's juggling pattern, they pass clubs.
 
 In the basic Bruno's nightmare pattern, the passers start in a V shape and one feedee walks *through* the middle of the pattern to arrive at the opposite side of the former feeder to where they would have walked in a rotating feed; during that time the other feedee "falls down" to take the place of the feedee who just walked from where they will feed next. The initial feeder first throws to the feedee walking, then to the other feedee, and then once more to the feedee walking while they are in the middle of the pattern. From here the pattern repeats with the previous feeder now walking through the pattern, the previous "falling" feedee now feeding, and the passer who previously walked falling down.
 
@@ -206,7 +226,7 @@ The pattern can also be juggled on many other baseline beats. Feeding two-count 
 
 
 
-**Beyond the cascade.** The idea of a giant juggling passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as *423*, *441*, *33441*, and the box for three passers, or *534* and *531* for four passers (see the [appendix](7-appendix-brunos.md) for an example).
+**Beyond the cascade.** The idea of a giant juggling the passers can be conceptually extended to other base patterns. Walking can follow any solo pattern as a base pattern, such as *423*, *441*, *33441*, and the box for three passers, or *534* and *531* for four passers (see the [appendix](7-appendix-brunos.md) for an example).
 There is no principled way to decide when to pass and to whom to pass (that I am aware of), so it is easy to create lots of different patterns by first picking a pattern for the walking and then fitting passes in there.
 
 This is an easy pattern based on the five-ball cascade:
@@ -251,7 +271,6 @@ move: Bmove(B,1.9,2)Bmove(B,4.9,3)Bmove(C,2.9,1)
 
 
 
-![advanced pattern](figures/advanced.svg)
 
 
 **Bruno's one-count.** A particularly challenging variation of Bruno's nightmare is Bruno's nightmare on one-count vs. two-count, usually known as *Bruno's one-count*. This pattern usually requires very lofty passes and lofty selfs, fast turns under a single self, and fairly precise passes. 
@@ -273,7 +292,6 @@ This pattern is very difficult to learn from scratch. By far the best way to lea
 
 
 
-![advanced pattern](figures/advanced.svg)
 
 **Extra club Bruno's.** Similar to the rotating feed, it is possible to add a club and juggle the entire pattern on doubles.
 However, since this is juggled on a four-handed siteswap feed, the walking and notation is somewhat unusual:
@@ -292,7 +310,6 @@ move: Bmove(B,4.9,8)Bmove(B,15.9,5)Bmove(C,9.9,5)
 
 ## El Niño (4 passers)
 
-![intermediate pattern](figures/intermediate.svg)
 
 *El Niño* is a version of a rotating feed for 4 passers, based on the feeder passing *one-count* to three feedees in *three-count*.
 The feeder feeds the feedees in the following order: middle feedee, left feedee, right feedee, and middle feedee. First the left feedee walks in three-count after their pass, and then the middle feedee after their second pass, turning the right feedee into the new feeder. The pattern is usually started left-handed so that all walking happens after right-hand passes.
@@ -307,7 +324,7 @@ positions: V(A,B,C,D)
 move: Vmove(B,1.9,2),Vmove(C,3.9,2)
 </sync-group>
 
-And a much faster version of the same idea (requires walking both on left and right-handed passes):
+<!-- And a much faster version of the same idea (requires walking both on left and right-handed passes):
 
 
 <sync-group frames="0:5">
@@ -317,41 +334,18 @@ C: 3  3pA   -- D
 D: 3   3      -- A
 positions: V(A,B,C,D)
 move: Vmove(B,0.9,2),Vmove(C,1.9,2)
-</sync-group>
+</sync-group> -->
 
 
-## Shooting Star (4 passers)
-
-![starter pattern](figures/start-here.svg)
-
-The shooting star describes a family of patterns in which one passer is missing from a standard 5-person [star pattern](5c-static-groups.md). Since one passer is missing, one passer (role C) will not receive clubs and one passer (role B) would pass into a hole. In the standard four-count version, passer B, who would pass into the hole, starts with two clubs and skips the first pass, whereas passer C, who does not receive clubs, walks immediately after their first pass through the middle of the pattern to the hole while holding two clubs; they receive the next pass there when they arrive. On the next beat, another passer does not receive a club and walks to the hole, and so forth.
-
-<sync-group frames="0,1,4,5,8,9,12,13,16">
-A: 3pD 333   -- C
-B: 2 333-- D
-C: 3pA   222   -- B
-D: 3pB   333 -- A
-positions: Circle(A,B,C,D,_)
-move: Cmove(C,0.9,2.5,144,1)
-</sync-group>
-
-Note: The passer with role C starts with two clubs.
-
-*Variations:* It is possible to remove clubs and walk with one club or no clubs to slow down the pattern. 
-* Walking with one club: Removing one more club, passer B (facing the hole) starts with *one* club and passer C (not receiving clubs) passes until they are down to a single club for walking. 
-* Walking the last pass: As before, passer B starts with one club. After their first pass, passer C is down to two clubs and walks their last pass to passer A, to then walk (run) around behind A with their last club to their target position in the hole.
-* Walking without clubs: Passer B (facing the hole) starts without clubs and passer C (not receiving clubs) walks without any clubs after passing their last club. This slows down the pattern and results in walking only every other or every third pass. 
-
-
-
-**Two-count shooting star.** In the two-count version of the shooting star, the person moving stops in the middle to let passes go by before making it to the hole. Typically they walk when they have one club, but they can also walk to the middle with two and pass a last one from the middle.
 
 
 ## Other Classic Patterns (4 passers)
 
+<!-- typ-no-link-footnote: madjugglers.com -->
+
 The [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/) has a huge number of walking patterns, including *Turbo* and *El Niño* discussed above. Here are two more common patterns from that collection that are also the basis for many other variations. 
 
-![starter pattern](figures/start-here.svg)
+<!-- typst: #qr_with_label("https://madjugglers.com/majpatternbook/", [Madison Area Jugglers Pattern Book]) -->
 
 **3-leaf clover.**
 In this pattern, all passers continuously walk in and out of the middle of the pattern, through three loops (see diagram below). Essentially, a feeder throws two-count to three feedees in six-count. The Madison book has many more variations, including ambidextrous ones.
