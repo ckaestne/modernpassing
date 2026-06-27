@@ -65,16 +65,33 @@ Such patterns are fairly uncommon in the passing community right now, but there 
 
 <!-- typ-no-link-footnote: passist.org -->
 
-To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with an length of 6, 10, or 14 and exclude any patterns with 1s or 3s. 
+To find more patterns, use any siteswap generator (such as [passist.org](https://passist.org/siteswap-generator)) to generate patterns with a length of 6, 10, or 14 and exclude any patterns with 1s or 3s. 
 
-## Hijacking / Programming
+## Hijacking
 
-**TODO**
+In siteswaps of length 5, every single pass can be replaced with a zip to get a pattern with one fewer club (the same works for doubles in siteswaps of length 7; this is a standard [siteswap transformation](4l-4hsw-theory.md)). It is fairly intuitive to continue a pattern after dropping a club by replacing a pass with a zip if the next hand would be empty otherwise. 
 
-7->77772->77722
+A classic sequence is to start in *7-club one-count* (77777), dropping down to *Martin's one-count* (77772) when dropping a club (by accident or intentionally), dropping further down to *parsnip* (77722) or *77272*, and so forth. The inverse direction is possible by adding a club to a pattern (e.g., tugged between the legs), replacing a zip with a pass. It is possible to intentionally go from *77777* down all the way to *72222* and then back up by tucking clubs.
 
-77[s,h,7...]
+The same automatism of intuitively replacing an action with a zip for a missing incoming pass is also the foundation for hijacking patterns: Hijacking is an idea where one passer changes their pattern into one with one more club, which forces the other passer into a compatible pattern with fewer clubs (introducing a zip for the missing incoming pass). Conversely, they can throw an extra pass to arrive at a time where the other passer would have zipped into the hand, to force them to pass that club and switch into a pattern with one more club -- the latter is mostly done to restore from the pattern after hijacking to the original one.
 
-common combination
+The classic example is hijacking from *6-club why not* (77862) into the 7-club pattern *five-count popcorn* (78686), forcing the other passer into the compatible *5-club why not* (78622).
+* Hijacking: A passer forces the transition with a *self* instead of a pass, throwing pass-*self*-self-heff-heff instead of pass-self-*pass*-heff-zip. The skipped pass forces the other passer to compensate with a zip which replaces a pass they would otherwise do -- which again is a fairly natural and intuitive transition. From here, the pattern is stable with two different compatible siteswaps.
+* Transitioning back: The passer with *five-count popcorn* (78686) throws an extra pass at the time of the forced zip in the other passer's pattern: pass-self-*pass*-heff-zip instead of pass-self-*self*-heff-heff. The other passer has a fairly intuitive transition from *5-club why not* to regular *why not*.
+
+
+<siteswap style='{"iterations": 1, "emphasizeThrows": [[0,14],[1,19],[0,24],[1,29]]}'>78627 78627 7862 6 786827862 778627</siteswap>
+
+Another well-known hijacking pattern is from *Martin's one-count* (77772) into *funky bookends* (77786) versus *parsnip* (77722). Here the hijacking passer skips a pass by throwing pass-*heff*-pass-pass-self rather than pass-*pass*-pass-pass-zip, which forces the other passer to transition from pass-zip-pass-pass-pass to pass-zip-pass-*zip*-pass. The hijacker can transition back by simply returning from pass-*heff*-pass-pass-self to pass-*pass*-pass-pass-zip.
+
+Using *Martin's one-count* (77772) as a base pattern actually affords a different style of hijacking (or programming). Instead of pass-pass-pass-pass-zip, one passer can throw *pass-pass-self* to force *pass-pass-zip*, *pass-heff* to force *pass-zip*, a *trelf* to force a *zip* and *pass-pass-pass-flip* to force *pass-pass-pass-zip*. Any of these sequences can be chained, so funky bookends vs parsnip follows simply as the combination of *pass-pass-self* and *pass-heff*.
+
+<!-- typ-no-link-footnote: passing.zone -->
+
+
+Aidan Burns' [Highgate Collection](https://passing.zone/wp-content/uploads/highgate.pdf) describes a couple of these patterns and their transitions (page 36ff) and Ed Clark explains the mechanics more generally with many additional patterns on [passing.zone/hijacking](https://passing.zone/hijacking/).
+
+
+<!-- typst: #qr_with_label_pair("https://passing.zone/wp-content/uploads/highgate.pdf", [Highgate Collection], "https://passing.zone/hijacking/", [Hijacking article on passing.zone]) -->
 
 

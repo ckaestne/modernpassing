@@ -12,7 +12,7 @@ export class FourHandedSiteswap {
     sw_: number[]
 
     constructor(sw: string) {
-        this.sw_ = Array.from(sw).map(parseBeat)
+        this.sw_ = Array.from(sw).filter(c => c !== " ").map(parseBeat)
     }
 
     isValid() {
