@@ -39,8 +39,10 @@ export function renderGroupPatternLayoutFrames(gp: GroupPattern, config: Partial
     // not every pattern has aidan notation, and not every group pattern has a layout
     // in addition, the configuration could specify only to render a subset of these
     const size = getRenderPatternSize(gp.pattern, renderConfig)
-    const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / renderConfig.positionCircle)
-    const frames = renderAnimationFrames(animationPlan, svg, size.height, size.height, gp.pattern.getLength(), renderConfig, gp.layout!.background)
+    const layoutSize = renderConfig.layoutSize || size.height
+    const crop = cropMargins(renderConfig, layoutSize)
+    const animationPlan = createAnimationPlan(gp.layout!.animation, layoutSize / renderConfig.positionCircle)
+    const frames = renderAnimationFrames(animationPlan, svg, layoutSize, layoutSize, gp.pattern.getLength(), renderConfig, gp.layout!.background, crop)
     ensurePatternDefs(svg)
     return frames
 }
@@ -54,12 +56,21 @@ export function renderAnimationFrameAsSvg(gp: GroupPattern, time: number, config
     )
     if (!gp.layout) throw new Error("Cannot render animation frame: pattern has no layout")
     const size = getRenderPatternSize(gp.pattern, renderConfig)
-    const dim = size.height
-    const animationPlan = createAnimationPlan(gp.layout.animation, dim / renderConfig.positionCircle)
-    const svg = createSVG(dim, dim).viewbox(0, 0, dim, dim)
-    renderAnimationFrame(animationPlan, time, svg, dim, dim, gp.pattern.getLength(), renderConfig, gp.layout.background)
+    const layoutSize = renderConfig.layoutSize || size.height
+    const crop = cropMargins(renderConfig, layoutSize)
+    const layoutWidth = layoutSize - crop.left - crop.right
+    const layoutHeight = layoutSize - crop.top - crop.bottom
+    const animationPlan = createAnimationPlan(gp.layout.animation, layoutSize / renderConfig.positionCircle)
+    const svg = createSVG(layoutWidth, layoutHeight).viewbox(crop.left, crop.top, layoutWidth, layoutHeight)
+    renderAnimationFrame(animationPlan, time, svg, layoutSize, layoutSize, gp.pattern.getLength(), renderConfig, gp.layout.background, crop)
     ensurePatternDefs(svg)
     return svg
+}
+
+/** Converts the cropLayout percentages ([top, right, bottom, left]) into pixel margins relative to layoutSize. */
+function cropMargins(config: RendererConfig, layoutSize: number): { top: number; right: number; bottom: number; left: number } {
+    const [top, right, bottom, left] = (config.cropLayout ?? [0, 0, 0, 0]).map((p) => (p / 100) * layoutSize)
+    return { top, right, bottom, left }
 }
 
 export function renderAnimationFrames(
@@ -70,6 +81,7 @@ export function renderAnimationFrames(
     patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
     background?: BackgroundLayout[],
+    crop: { top: number; right: number; bottom: number; left: number } = { top: 0, right: 0, bottom: 0, left: 0 },
 ): G[] {
     const timesOfInterest: Set<number> = new Set([0, layout.mod])
     for (const move of layout.movementAnimations) {
@@ -80,8 +92,8 @@ export function renderAnimationFrames(
     }
 
     return [
-        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config, background)),
-        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config, background)),
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t, svg, width, height, patternLength, config, background, crop)),
+        ...Array.from(timesOfInterest).sort((a, b) => a - b).map((t) => renderAnimationFrame(layout, t + layout.mod, svg, width, height, patternLength, config, background, crop)),
     ]
 }
 export function renderAnimationFrame(
@@ -93,16 +105,23 @@ export function renderAnimationFrame(
     patternLength: number,
     config: RenderLayoutConfig & FrameRenderConfig,
     background?: BackgroundLayout[],
+    crop: { top: number; right: number; bottom: number; left: number } = { top: 0, right: 0, bottom: 0, left: 0 },
 ): G {
-    const canvas = svg.group().width(width).height(height)
-    canvas.rect(width, height).fill("white").stroke(config.frameBorderStyle).back()
+    // width/height are the full (uncropped) layout square used for all scaling; the visible frame box is
+    // the cropped window inside it. Callers additionally offset the svg viewbox by (crop.left, crop.top).
+    const boxX = crop.left
+    const boxY = crop.top
+    const boxW = width - crop.left - crop.right
+    const boxH = height - crop.top - crop.bottom
+    const canvas = svg.group().width(boxW).height(boxH)
+    canvas.rect(boxW, boxH).move(boxX, boxY).fill("white").stroke(config.frameBorderStyle).back()
     if (background) renderBackground(background, width, height, canvas, config)
 
     const counterTime = (config.animationCounterBeatsNotTime ? time % patternLength : time) + (config.isAnimationCounterZeroBased ? 0 : 1)
     if (config.showAnimationCounter) {
         canvas.text("" + counterTime)
             .font(fontAttrs(config.animationCounterStyle ?? {}))
-            .x((config.frameBorderStyle.width ?? 0) * 2).y(config.frameBorderStyle.width ?? 0)
+            .x(boxX + (config.frameBorderStyle.width ?? 0) * 2).y(boxY + (config.frameBorderStyle.width ?? 0))
     }
 
     const roleColors: [Role, string][] = createRoleColorMappings(config, layout)
