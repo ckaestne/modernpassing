@@ -64,7 +64,7 @@ move:move(*,0.9,1)
 <!-- typ-no-link-footnote: madjugglers.com -->
 <!-- typ-no-link-footnote: jugglingedge.com -->
 
-Beyond these, the [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/) and the he [Passing Patterns Compendium](https://jugglingedge.com/pdf/passingpatternscompendium.pdf) have many more patterns for large groups of passers. 
+Beyond these, the [Madison Area Jugglers Pattern Book](https://madjugglers.com/majpatternbook/) and the  [Passing Patterns Compendium](https://jugglingedge.com/pdf/passingpatternscompendium.pdf) have many more patterns for large groups of passers. 
 
 
 <!-- typst: #qr_with_label_pair("https://madjugglers.com/majpatternbook/", [Madison Area Jugglers Pattern Book], "https://jugglingedge.com/pdf/passingpatternscompendium.pdf", [Passing Patterns Compendium]) -->
