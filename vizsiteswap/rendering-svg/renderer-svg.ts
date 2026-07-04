@@ -49,11 +49,16 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     const tabHeight = tabTitles.length > 1 ? TAB_HEIGHT + TAB_BORDER_WIDTH : 0
     const withLayout: boolean = renderConfig.components.includes("layout") && gp.layout !== undefined
     const onlyLayout = renderConfig.components.length === 1 && renderConfig.components[0] === "layout"
+    // the layout is always computed and scaled to a square of layoutSize x layoutSize; cropLayout then
+    // optionally trims a fraction off each side so only a smaller window (layoutWidth x layoutHeight) is shown
     const layoutSize = withLayout ? renderConfig.layoutSize || size.height : 0
+    const [cropTop, cropRight, cropBottom, cropLeft] = (renderConfig.cropLayout ?? [0, 0, 0, 0]).map((p) => (p / 100) * layoutSize)
+    const layoutWidth = layoutSize - cropLeft - cropRight
+    const layoutHeight = layoutSize - cropTop - cropBottom
 
     const layoutGap = 10
-    const width = onlyLayout ? layoutSize : size.width + layoutSize + layoutGap
-    const height = onlyLayout ? layoutSize : Math.max(size.height + tabHeight + turntableHeight, layoutSize)
+    const width = onlyLayout ? layoutWidth : size.width + layoutWidth + layoutGap
+    const height = onlyLayout ? layoutHeight : Math.max(size.height + tabHeight + turntableHeight, layoutHeight)
     const svg = createSVG(width, height).viewbox(0, 0, width, height).addClass("passingpattern")
 
     const [panels, tabData] = createTabs(svg, tabTitles)
@@ -79,13 +84,16 @@ export function renderGroupPattern(gp: GroupPattern, config: Partial<RendererCon
     if (withLayout) {
         const layoutCanvas = svg.group().addClass("layout-canvas")
         if (gp.layout!.background) {
-            renderBackground(gp.layout!.background, size.height, size.height, layoutCanvas, defaultRenderLayoutConfig)
+            renderBackground(gp.layout!.background, layoutSize, layoutSize, layoutCanvas, defaultRenderLayoutConfig)
         }
         const beatIndicator = onlyLayout ? undefined : svg.line(0, 0, 0, size.height + tabHeight).stroke({ color: "lightgrey", width: 4 }).back().hide() // TODO: make this configurable
         const beatXOffsets: number[] = [...Array(gp.pattern.getLength() + 1).keys()].map((i) => getXOffset(size, i))
-        const animationPlan = createAnimationPlan(gp.layout!.animation, size.height / defaultRenderLayoutConfig.positionCircle)
-        animationResult = renderAnimation(animationPlan, size.height, size.height, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
-        if (!onlyLayout) layoutCanvas.transform({ translate: [size.width + layoutGap, tabHeight] })
+        const animationPlan = createAnimationPlan(gp.layout!.animation, layoutSize / defaultRenderLayoutConfig.positionCircle)
+        animationResult = renderAnimation(animationPlan, layoutSize, layoutSize, layoutCanvas, { ...defaultRenderLayoutConfig, ...renderConfig }, gp.pattern.getLength(), beatIndicator, beatXOffsets, gp.pattern.nrHands / 2)
+        // shift the (full layoutSize) canvas so that the cropped window sits at the intended position
+        const layoutX = (onlyLayout ? 0 : size.width + layoutGap) - cropLeft
+        const layoutY = (onlyLayout ? 0 : tabHeight) - cropTop
+        layoutCanvas.transform({ translate: [layoutX, layoutY] })
     }
     if (withTurntable) {
         const turntableCanvas = svg.group().addClass("turntable")

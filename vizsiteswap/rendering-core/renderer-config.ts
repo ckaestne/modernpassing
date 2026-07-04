@@ -62,6 +62,7 @@ export interface RendererConfig {
     //layout and animation options
     components: RenderComponents[]
     layoutSize?: number // undefined/0 picks a default size; any other number is taken as width and height of the layout
+    cropLayout: number[] // [top, right, bottom, left] crop margins for the layout (in %)
     turntableTextSize: number
     showManipulatorModifiers: boolean
 
@@ -123,6 +124,7 @@ export const defaultRendererConfig: RendererConfig = {
 
     components: ["aidan", "pattern", "video", "layout", "turntable"],
     layoutSize: undefined, //default
+    cropLayout: [0, 0, 0, 0], 
     roleColors: ["lightblue", "lightgreen", "lightcoral", "lightgoldenrodyellow", "lightpink", "lightcyan", "lightgray", "lightseagreen", "lightsalmon", "lightsteelblue", "lightyellow", "lightblueviolet", "lightcoral"],
     showRoleColorBackground: false,
     turntableTextSize: 16,
