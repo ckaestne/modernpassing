@@ -12,7 +12,7 @@
 </progressions>
 
 
-All 3-person *Roundabout*-style patterns on base patterns with an *odd period* are symmetric in that they have a left side and a right side; every passer goes through all passing and manipulator positions both left-handed and right-handed before the pattern repeats after six iterations.
+All 3-person *Roundabout*-style patterns on base patterns with an *odd period* are symmetric in that they have a left side and a right side; every passer goes through all passing and manipulator positions both left-handed and right-handed before the pattern repeats after six segments.
 
 These patterns are often called *north-wall patterns* because actions relate to fixed directions in a room: Assume that passers A and B stand in the east and west position of the room; specific actions always happen on the north or south side of the room. For example, a carry would always happen at the north side – the left-handed club when carrying west to east and the right-handed club when carrying east to west. It is often easier to remember whether an action happens on the north or the south side, rather than whether it is left- or right-handed in each direction. That is, after each iteration, the pattern repeats after *flipping* it, rather than *rotating* it by 180 degrees as even-period *Roundabout*-style patterns do.
 
@@ -26,20 +26,25 @@ B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: SBlo z   zf  SBlo z   .   IBvb CA  . 
 </sync-group>
 
+<!-- typst: #qr_with_label("https://passing.zone/phoenician-waltz/", [Phoenicean Waltz Video on passing.zone]) -->
+
+
 The substitutions happen from outside the pattern, the first on the south side facing north, and the second after walking through the pattern on the north side facing south. The intercept is caught on the south side from behind B, and the new manipulator carries the next club on the south side and steps out of the pattern to start the next segment by substituting a pass on the south side in the same direction as the carry (catching with the same hand that just placed the carry, which is the opposite hand and in the opposite direction compared to the previous cycle). Notice that the manipulator needs to flip their club between the two substitutions while walking through the pattern.
 
 
-**Turning back.** North-wall patterns tend to be long – for example, *Phoenicean Waltz* repeats after 54 beats compared to *Roundabout*'s 24 beats – because they repeat after six segments rather than three. As usual, it is a good idea to learn a segment and then turn backward to learn the previous segment, which then connects to the previously practiced start. In north-wall patterns, we can turn back as usual using the turntable (see [notation](6b-notation.md)), but the previous segment starts with the opposite hand (i.e., left-handed start rather than right-handed and vice versa) and the manipulator faces the *same* direction in the room as the manipulator in the previous segment (standing south of the pattern, facing north, in *Phoenicean Waltz*). To turn back three segments at once, that is, half the pattern, all passers keep their positions and simply switch which hand they start with.
+**Turning back.** North-wall patterns tend to be long – for example, *Phoenicean Waltz* repeats after 54 beats compared to *Roundabout*'s 24 beats – because they repeat after six segments rather than three. As usual, it is a good idea to learn a segment and then turn backward to learn the previous segment, which then connects to the previously practiced start. In north-wall patterns, we can turn back as usual using the turntable (see [notation](6b-notation.md)), but the previous segment starts with the opposite hand (i.e., left-handed start rather than right-handed and vice versa) and the manipulator faces the *same* direction in the room as the manipulator in the previous segment (e.g., standing south of the pattern, facing north, in *Phoenicean Waltz*). To turn back three segments at once, that is, half the pattern, all passers keep their positions and simply switch which hand they start with.
 
 ## MinuEd
 
 *MinuEd* is another popular pattern based on *pass-pass-self*, which is substantially more challenging than most *Roundabout*-style patterns.
 
-<sync-group video="https://juggling.tv/15002" video2="https://passing.zone/minued/">
+<sync-group video="https://drive.google.com/file/d/0B_CV9sJJ8CtAS2paaGJPNFphclE/view?usp=sharing&resourcekey=0-F-3zOaFAa0fiMwFTTEcucg" video2="https://passing.zone/minued/">
 A: 3pB 3pB 3   3pB 3pB 3   3pB 3pB 3 -- B
 B: 3pA 3pA 3   3pA 3pA 3   3pA 3pA 3 -- A
 M: .   SBl IB↻ CA  .   .   SBe .   SBe 
 </sync-group>
+
+<!-- typst: #qr_with_label("https://drive.google.com/file/d/0B_CV9sJJ8CtAS2paaGJPNFphclE/view?usp=sharing&resourcekey=0-F-3zOaFAa0fiMwFTTEcucg", [Ed's juggling.tv video of MinuEd]) -->
 
 There are two somewhat unusual parts. First, the fast substitute-intercept sequence is known as a *pop*: The receiving passer throws ("pops") a pelf almost as a flat and the manipulator hands in the substitution from below and catches the pop in the same upward motion. Second, the pattern does not use zips for the first two substitutions, but instead catches the second substitution early with the "wrong" hand (catching the self on the north side with the hand on the south side); this results in two consecutive placements into the south hand from different hands for what is known as the "shuffle" or the "macarena".
 
@@ -48,7 +53,7 @@ Hints: Slow and lofty passes will help a lot, especially for the challenging tur
 
 ## Dolby Söround
 
-This pattern leaves out the last self of the *Roundabout* sequence to turn *Roundabout* into a 7-beat-long north-wall pattern. The pattern essentially consists of juggling the *Roundabout* right-handed in one direction (e.g., going east) and left-handed the other direction. In theory, it is very easy to learn, because it is so similar to *Roundabout*, but at the same time it can be very challenging to do the *Roundabout* parts left-handed. It can be a fun challenge for passers who deeply know *Roundabout* but rarely do takeouts that are not fully right-handed.
+This pattern leaves out the last self of the *Roundabout* sequence to turn *Roundabout* into a 7-beat-long north-wall pattern. The pattern essentially consists of juggling the *Roundabout* right-handed in one direction (e.g., going east) and left-handed the other direction. In theory, it is very easy to learn, because it is so similar to *Roundabout*, but at the same time it can be very challenging to do the *Roundabout* parts left-handed. It can be a fun challenge for passers who know *Roundabout* well but rarely do takeouts that are not fully right-handed.
 
 
 <sync-group video="https://juggling.tv/1742" frames="0,2,4,5,7,9,11,12,14">
@@ -62,6 +67,14 @@ Aside from having to juggle the *Roundabout* left-handed, the main difference is
 It can be helpful to simply practice left-handed *Roundabout* first to learn takeouts with the other hand and get used to spinning the other direction.
 
 The same idea to switch directions by leaving out the last self and carrying to the opposite hand also works for other *Roundabout*-style patterns, such as *Chopabout*.
+
+<html-only>
+<div class="warning">
+
+The pattern above is apparently not the original *Dolby Söround*, but is what's known as *Dolby Surround* in North America because that is how I have been teaching it there. The pattern in this [passing.zone video](https://passing.zone/pattern/dolby-soeround/) intercepts rather than substitutes the self -- very similar to the first of the [*3-count Roundabouts*](6d-roundabout-variations.md). And just like that pattern, it breaks our assumptions of how carries work and so I cannot currently render a notation or animation. The manipulator row should read "SB z IB - - CB z".
+
+</div>
+</html-only>
 
 
 ## Opernball (5 Person)
@@ -77,5 +90,6 @@ O: IBvb CA  .   SAlo z   zf  SAlo z   .
 positions: Line(A,B,0.14)
 </sync-group>
 
+<!-- typ-no-link-footnote: . -->
 
-There are many more north-wall patterns to explore, but they are less common. Examples include, [Vashon Roundabout](https://www.youtube.com/watch?v=D9xAs14m9T8), [Chopsticks](https://passing.zone/chopsticks/), [ChopDolby](https://passing.zone/chopdolby/), and [Dolby 5.1](https://passing.zone/dolby-5-1-mit-einzel-und-doppelganger/). [Passing.zone](https://passing.zone/) is a great source collecting most of them with notation and videos. 
+There are many more north-wall patterns to explore, but they are less common. Examples include, [*Vashon Roundabout*](https://www.youtube.com/watch?v=D9xAs14m9T8), [*Chopsticks*](https://passing.zone/chopsticks/), [*ChopDolby*](https://passing.zone/chopdolby/), and [*Dolby 5.1*](https://passing.zone/dolby-5-1-mit-einzel-und-doppelganger/). [Passing.zone](https://passing.zone/) is a great source collecting most of them with notation and videos. 

@@ -32,9 +32,9 @@ All spinning in *Chopabout* is clockwise, including the German turn at the end (
 
 **Three-count roundabouts.** Beyond [Nicki's three-count roundabout](6a-intro.md), there are two classic one-sided, right-handed *Roundabout* versions based on *6-club three-count*.
 
-<!-- TODO: this breaks the assumptions of the automated carry computation, because the new B throws an unforced pass? -->
+<!-- TODO: this breaks the assumptions of the automated carry computation, because the new B throws an unforced pass? The carry should go to B, not A! -->
 
-<sync-group  style='{"components":["aidan","video"]}' video="https://youtu.be/94PLxzRh5Ec?si=6z2O5qaDtiMI8x2w&t=8" frames="">
+<sync-group  style='{"components":["aidan","video"]}' video="https://youtu.be/94PLxzRh5Ec?t=8" frames="">
 A: 3pB 3 3   3pB 3 3 -- B
 B: 3pA 3 3   3pA 3 3 -- A
 M: SBl z IBl .   Cz
@@ -42,8 +42,11 @@ M: SBl z IBl .   Cz
 
 In this one, the manipulator intercepts a self, turns around, and passes that intercepted club immediately on the next beat as B with their left hand – this is very fast for the manipulator.
 
+<div class="warning">
+This pattern breaks common assumptions about how carries work, hence I cannot render it correctly. The actual manipulator sequence is SB IB CB (not CA).
+<div>
 
-<sync-group video="https://youtu.be/94PLxzRh5Ec?si=RpjfOMKeDUPCCuXE&t=34" frames="auto">
+<sync-group video="https://youtu.be/94PLxzRh5Ec?t=34" frames="auto">
 A: 3pB 3 3   3pB 3 3 -- B
 B: 3pA 3 3   3pA 3 3 -- A
 M: CB↺↑  z SBl↑ z   IB↺

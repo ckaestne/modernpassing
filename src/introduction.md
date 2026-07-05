@@ -15,7 +15,9 @@ I try to curate and guide in a short book, rather than create a comprehensive re
 
 *What is modern club passing?* Modern club passing is ambidextrous. Modern club passing combines passes at different heights (zaps, singles, doubles) with zips, flips, heffs, and triple selfs. Modern club passing is about slowing down and controlling the pattern. Modern club passing embraces manipulator and walking patterns with 3 or more people. Modern club passing is for the passer and not for an audience. Modern club passing constantly pushes the boundaries and tries more challenging patterns, even when they all look the same from the outside. Modern club passing is not a fixed concept but a term I embrace for the kind of passing that I and many others in the community enjoy.
 
-*This is book is still work in progress. Feedback is welcome.*
+<!-- typ-no-link-footnote: deno.net -->
+
+*This is book is still work in progress. Feedback is welcome.* For those interested in rendering and animating their own pattern: [https://takeout-explorer.modernpassing.deno.net](https://takeout-explorer.modernpassing.deno.net)
 
 <!-- typ-no-link-footnote: cmu -->
 

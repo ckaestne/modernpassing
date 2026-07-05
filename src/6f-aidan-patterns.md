@@ -50,36 +50,42 @@ There are a total of 27 manipulator patterns in the style of *Scrambled V* and *
 
 By convention, these patterns are simply notated with 6 letters describing the manipulator actions, such as "C<sub>B</sub>S<sub>B</sub>I<sub>C</sub>" for *Scrambled V*, whereas everything else is implied, including the actions and movement of the other passers in a two-count vs four-count rotating feed. To learn a pattern, it is usually useful to first track what the manipulator does in each step and where the manipulator switches with one of the other passers (at the intercept). The notation does not describe where the manipulator should stand, or how they should steal or place a club, or where the passers can help with pelfs – many passers enjoy the challenge of identifying what works and finding solutions for how to navigate a tight spot, for example, performing a substitution with a chop (as in [Chopabout](6d-roundabout-variations.md)) to avoid extra spinning or throwing a zap instead of properly placing a manipulated club to reduce the manipulator's walking. Alternatively, feel free to look up videos of these patterns online.
 
-Here is the full list, linked with the video from the [aidanburnsproject](https://juggling.tv/16092) (see below):
-* C<sub>A</sub>S<sub>A</sub>I<sub>A</sub> [Pirouettes go crazy](https://www.facebook.com/video.php?v=637975432989132)
-* C<sub>A</sub>S<sub>B</sub>I<sub>A</sub> [Casbia](http://juggling.tv/14498)
-* C<sub>A</sub>S<sub>C</sub>I<sub>A</sub> [Cascia](http://juggling.tv/14482)
-* C<sub>C</sub>S<sub>A</sub>I<sub>B</sub> [3](http://juggling.tv/14617)
-* C<sub>C</sub>S<sub>B</sub>I<sub>B</sub> [Wrong one](http://juggling.tv/14515)
-* C<sub>C</sub>S<sub>C</sub>I<sub>B</sub> [Zig Zag](http://juggling.tv/15101)
-* C<sub>B</sub>S<sub>A</sub>I<sub>C</sub> [chopped up V](http://juggling.tv/15834)
-* C<sub>B</sub>S<sub>B</sub>I<sub>C</sub> [Scrambled V](https://drive.google.com/file/d/0BwtCrnkvKtScRE9jVkk0QlNrd2M/view?usp=sharing)
-* C<sub>B</sub>S<sub>C</sub>I<sub>C</sub> [Postmen](http://juggling.tv/15472)
-* I<sub>A</sub>C<sub>C</sub>S<sub>A</sub> [Around the World](http://juggling.tv/14542)
-* I<sub>A</sub>C<sub>C</sub>S<sub>B</sub> [Unscrambled LB](http://juggling.tv/15007)
-* I<sub>A</sub>C<sub>C</sub>S<sub>C</sub> [Ivy](http://juggling.tv/14500)
-* I<sub>B</sub>C<sub>B</sub>S<sub>A</sub> [Unscrambled B](http://juggling.tv/15908)
-* I<sub>B</sub>C<sub>B</sub>S<sub>B</sub> [Chopped up B](http://juggling.tv/14612)
-* I<sub>B</sub>C<sub>B</sub>S<sub>C</sub> [Gentle Romble](http://juggling.tv/14489)
-* I<sub>C</sub>C<sub>A</sub>S<sub>A</sub> [Moonwalk](http://juggling.tv/15835)
-* I<sub>C</sub>C<sub>A</sub>S<sub>B</sub> [3 variation](https://passing.zone/pattern/scrambled-variation-2-8-3-variation-ic-ca-sb-2/)
-* I<sub>C</sub>C<sub>A</sub>S<sub>C</sub> [Wankle Engine](http://juggling.tv/15097)
-* S<sub>B</sub>I<sub>A</sub>C<sub>B</sub> [Anna-Maria](http://juggling.tv/14708)
-* S<sub>C</sub>I<sub>A</sub>C<sub>B</sub> [Panto](http://juggling.tv/14480)
-* S<sub>A</sub>I<sub>A</sub>C<sub>B</sub> [Buddy Check](http://juggling.tv/14615)
-* S<sub>B</sub>I<sub>B</sub>C<sub>A</sub> [Last one](http://juggling.tv/14611)
-* S<sub>C</sub>I<sub>B</sub>C<sub>A</sub> [WUST](http://juggling.tv/14949)
-* S<sub>A</sub>I<sub>B</sub>C<sub>A</sub> [Saibca](http://juggling.tv/15003)
-* S<sub>B</sub>I<sub>C</sub>C<sub>C</sub> [Toast](https://juggling.tv/15021)
-* S<sub>C</sub>I<sub>C</sub>C<sub>C</sub> [Right One](http://juggling.tv/14610)
-* S<sub>A</sub>I<sub>C</sub>C<sub>C</sub> [Vegemite Toast](https://www.youtube.com/watch?v=SatcKI9caMQ)
+Here is the full list:
+* C<sub>A</sub>S<sub>A</sub>I<sub>A</sub> Pirouettes go crazy
+* C<sub>A</sub>S<sub>B</sub>I<sub>A</sub> Casbia
+* C<sub>A</sub>S<sub>C</sub>I<sub>A</sub> Cascia
+* C<sub>C</sub>S<sub>A</sub>I<sub>B</sub> 3
+* C<sub>C</sub>S<sub>B</sub>I<sub>B</sub> Wrong one
+* C<sub>C</sub>S<sub>C</sub>I<sub>B</sub> Zig Zag
+* C<sub>B</sub>S<sub>A</sub>I<sub>C</sub> chopped up V
+* C<sub>B</sub>S<sub>B</sub>I<sub>C</sub> Scrambled V
+* C<sub>B</sub>S<sub>C</sub>I<sub>C</sub> Postmen
+* I<sub>A</sub>C<sub>C</sub>S<sub>A</sub> Around the World
+* I<sub>A</sub>C<sub>C</sub>S<sub>B</sub> Unscrambled LB
+* I<sub>A</sub>C<sub>C</sub>S<sub>C</sub> Ivy
+* I<sub>B</sub>C<sub>B</sub>S<sub>A</sub> Unscrambled B
+* I<sub>B</sub>C<sub>B</sub>S<sub>B</sub> Chopped up B
+* I<sub>B</sub>C<sub>B</sub>S<sub>C</sub> Gentle Romble
+* I<sub>C</sub>C<sub>A</sub>S<sub>A</sub> Moonwalk
+* I<sub>C</sub>C<sub>A</sub>S<sub>B</sub> 3 variation
+* I<sub>C</sub>C<sub>A</sub>S<sub>C</sub> Wankle Engine
+* S<sub>B</sub>I<sub>A</sub>C<sub>B</sub> Anna-Maria
+* S<sub>C</sub>I<sub>A</sub>C<sub>B</sub> Panto
+* S<sub>A</sub>I<sub>A</sub>C<sub>B</sub> Buddy Check
+* S<sub>B</sub>I<sub>B</sub>C<sub>A</sub> Last one
+* S<sub>C</sub>I<sub>B</sub>C<sub>A</sub> WUST
+* S<sub>A</sub>I<sub>B</sub>C<sub>A</sub> Saibca
+* S<sub>B</sub>I<sub>C</sub>C<sub>C</sub> Toast
+* S<sub>C</sub>I<sub>C</sub>C<sub>C</sub> Right One
+* S<sub>A</sub>I<sub>C</sub>C<sub>C</sub> Vegemite Toast
 
+<!-- typ-no-link-footnote: drive.google -->
+<!-- typ-no-link-footnote: passing.zone.27 -->
+
+Most patterns were originally recorded and named as part of the [aidanburnsproject](https://drive.google.com/file/d/0B_CV9sJJ8CtAUjlCcUJkUTV3RTQ/view?usp=sharing&resourcekey=0--i7U6wfv13i23b1qxxKD6w).
 Clean and consistent recordings of all these 27 patterns can be found at [passing.zone](https://passing.zone/27-scrambleds/).
+
+<!-- typst: #qr_with_label_pair("https://drive.google.com/file/d/0B_CV9sJJ8CtAUjlCcUJkUTV3RTQ/view?usp=sharing&resourcekey=0--i7U6wfv13i23b1qxxKD6w", [Original recordings from aidanburnsproject], "https://passing.zone/27-scrambleds/", [passing.zone recordings of all 27 patterns]) -->
 
 
 ## Combining Scrambles (5+ Persons)
@@ -97,12 +103,17 @@ positions: V(A,B,C)
 move: Vmove(B,4.9,3)
 </sync-group>
 
+<!-- typ-no-link-footnote: juggling.tv -->
+<!-- typ-no-link-footnote: docs.google.com -->
+
+
 Other combinations of common patterns are *[B on Toast](https://juggling.tv/5363)*, *3 on Toast*, and *Scrambled V-B*.
 
 When adding even more manipulators, there is very little juggling remaining as many throws get manipulated and the number of objects equals or exceeds the number of hands in the pattern, such as in the 6-person pattern *[Scrambled 3-B on Toast](https://juggling.tv/12061)* combining C<sub>C</sub>S<sub>A</sub>I<sub>B</sub>, I<sub>B</sub>C<sub>B</sub>S<sub>A</sub>, and S<sub>B</sub>I<sub>C</sub>C<sub>C</sub>. 
 
 Many, but not all patterns can be combined. An obvious conflict occurs when two manipulators would manipulate the same club on the same beat – for example *Scrambled V* (C<sub>B</sub>S<sub>B</sub>I<sub>C</sub>) and *Postman* (C<sub>B</sub>S<sub>C</sub>I<sub>C</sub>) both try to intercept the same pass. Having two manipulators interact, for example because one intercepts the carry from the other, as in *Scrambled V on Toast*, is possible but unintuitive. Without those there are still 162 combinations of two and 190 combinations of three Aidan patterns, most of which have probably never been juggled. Lukas Bonauer created a [spreadsheet](https://docs.google.com/spreadsheets/d/1TkCM-1v-NUdi3ZipEUKCHRox4Q828yTKp4sOyzRprXw/edit?gid=1953212562#gid=1953212562) with all combinations. As a simple conservative heuristic, any two manipulators can be combined if their manipulator actions target distinct roles on each beat.
 
+<!-- typst: #qr_with_label("https://docs.google.com/spreadsheets/d/1TkCM-1v-NUdi3ZipEUKCHRox4Q828yTKp4sOyzRprXw/edit?gid=1953212562#gid=1953212562", [Spreadsheet of scrambles combinations]) -->
 
 
 
@@ -115,6 +126,8 @@ Many, but not all patterns can be combined. An obvious conflict occurs when two 
 
 Aidan Burns' key insight was that all these patterns share the elements of what became known as carry, substitution, and intercept, and that these manipulator actions happen on every other beat. Around 2012, he suggested (a slightly earlier version) of the now common [Aidan notation](6b-notation.md) and identified that there are 27 different *scrambled* patterns that do the carry, substitute, and intercept actions on right-handed beats: 3 beats when the intercept can happen (first, third, or fifth beat), 3 throws that can be intercepted on that beat (A, B, and C), and three passers that receive the substitution 4 beats after the intercept (A, B, and C), resulting in 3 * 3 * 3 = 27 combinations. Note, the recipient of the carry two beats after the intercept is decided by the intercept already: it replaces the action that the intercepted passer would have done next with their right hand. 
 
-By the time of Aidan's [untimely death](http://ezine.juggle.org/2014/10/15/an-obituary-to-aidan-burns/) in 2014, most of these 27 patterns had not been juggled or named. The community decided to embark on a distributed project to name and film two rounds of each pattern, which resulted in one video with all of them: [aidanburnsproject](https://juggling.tv/16092) and the names listed above. Since then, several groups have juggled all of them.
+<!-- original aidanburnsproject: https://juggling.tv/16092 -->
+
+By the time of Aidan's [untimely death](http://ezine.juggle.org/2014/10/15/an-obituary-to-aidan-burns/) in 2014, most of these 27 patterns had not been juggled or named. The community decided to embark on a distributed project to name and film two rounds of each pattern, which resulted in one video with all of them: [aidanburnsproject](https://drive.google.com/file/d/0B_CV9sJJ8CtAUjlCcUJkUTV3RTQ/view?usp=sharing&resourcekey=0--i7U6wfv13i23b1qxxKD6w) and the names listed above. Since then, several groups have juggled all of them.
 
 Aidan, when he introduced the notation, made many assumptions that were true for *Roundabout* and *Scrambled V* but that are not necessary, such as that all manipulator actions happen on right-handed beats and that they are always two beats apart. The next chapters introduce some of the more recent developments that break with these assumptions.
