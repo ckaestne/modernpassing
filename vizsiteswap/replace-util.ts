@@ -3,6 +3,17 @@ import process from "node:process"
 
 // deno-lint-ignore no-explicit-any
 export function replaceElement(elementName: string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any, videoLinks: string[], attrs: Record<string, string>) => string): string {
+    // Elements inside HTML comments are not content and must stay untouched:
+    // transforming them can inject a nested `-->` that terminates the outer
+    // comment early. Split on comments and only transform the segments between.
+    const segments = text.split(/(<!--[\s\S]*?-->)/)
+    return segments
+        .map((segment, i) => i % 2 === 1 ? segment : replaceElementInSegment(elementName, segment, transform))
+        .join("")
+}
+
+// deno-lint-ignore no-explicit-any
+function replaceElementInSegment(elementName: string, text: string, transform: (entireElement: string, innerText: string, styleConfig: any, videoLinks: string[], attrs: Record<string, string>) => string): string {
     const re = new RegExp(`<${elementName}(.*?)>(.*?)</${elementName}>`, "gms")
     return text.replace(re, (match: string, config: string, inner: string) => {
         let c = {}
