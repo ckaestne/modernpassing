@@ -126,7 +126,10 @@ forEachChapter(book, (chapter) => {
         //     fs.writeFileSync(filepath, svg, "utf-8")
         //     return `siteswapvis/${filename}`
         // },
-        formatVideoLink: (url) => `<!-- typst: #qr_with_label(${JSON.stringify(url)}, [Video: ${url}]) -->`,
+        formatVideoLink: (url) => {
+            const label = url.length > 40 ? "Video" : "Video:" +url;
+            return `<!-- typst: #qr_with_label(${JSON.stringify(url)}, [${label}]) -->`
+        },
     }, bookRenderingConfig)
 
     let markdownContent = rendered.content

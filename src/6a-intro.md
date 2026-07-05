@@ -15,7 +15,7 @@
 <!-- <a href="https://juggling.tv/5437" target="_blank"><video width="100%" controls preload="metadata" poster="https://juggling.tv/thumb/l-0_5437.jpg"><source src="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4" type="video/mp4" /></video></a> -->
 
 
-<video backup="https://www.youtube.com/watch?v=doqqySruJig">https://juggling.tv/5437</video>
+<video original="https://juggling.tv/5437">https://drive.google.com/file/d/0B_CV9sJJ8CtAVmw3UEotUE4wVVU/view?usp=sharing&resourcekey=0-wmjpvKaiaf-TFug2WUdgXA</video>
 
 <sync-group frames="">
 A: 3pB3 33   3pB3 33 -- B
@@ -31,13 +31,14 @@ The new actions in manipulator patterns are *stealing* and *placing* clubs. A se
 The most basic version of a takeout, that most jugglers learn first, is a manipulator standing in front of a juggler juggling a 3-club solo cascade with a single club held upside down on the body in their right hand. The manipulator then steals a right-handed throw from the juggler's cascade with the left hand (usually when it is moving up through the pattern) and places the held club into the juggler's left hand at the time that the stolen club would have landed. Afterward the manipulator usually hands the stolen club over to their right hand (a [zip](2a-intro-notation.md)), flipping it over in the motion, so that they are ready to steal another club. Conversely, left-hand throws are stolen with the manipulator's right hand.
 
 
-[video]
-
 The same idea also works in passing patterns, where the manipulator can steal and replace a club thrown as a pass just as well as steal and replace a club thrown as a self.
 
-[video]
+<html-only>This passing.zone article has good video illustrations: <a href="https://passing.zone/basic-elements-for-take-out-passing-workshop/">https://passing.zone/basic-elements-for-take-out-passing-workshop/</a></html-only>
 
-Before diving into manipulator patterns, it is useful to practice takeouts with a partner or with two partners doing a simple passing pattern, such as *6-club two-count*. It can be useful to have two clubs of a different color, one for the manipulator and one for the pattern, to then substitute every right-handed throw of that club. When the manipulator is getting better, they usually can take out every second throw, such as every right-handed self or every pass in *two-count*. The very old takeout pattern *Wally Walk* ([Video](https://www.youtube.com/watch?v=6IsHw9nd8m4)) does this continuously on a *four-count*. There is no role switching for these takeout practice patterns, so the passers should take turns practicing the takeouts. 
+<!-- typst: #qr_with_label("https://passing.zone/basic-elements-for-take-out-passing-workshop/", [passing.zone article with good video illustrations]) -->
+
+
+Before diving into manipulator patterns, it is useful to practice takeouts with a partner or with two partners doing a simple passing pattern, such as *6-club two-count*. It can be useful to have two clubs of a different color, one for the manipulator and one for the pattern, to then substitute every right-handed throw of that club. When the manipulator is getting better, they usually can take out every second throw, such as every right-handed self or every pass in *two-count*. The very old takeout pattern [*Wally Walk*](https://www.youtube.com/watch?v=6IsHw9nd8m4) does this continuously on a *four-count*. There is no role switching for these takeout practice patterns, so the passers should take turns practicing the takeouts. 
 
 
 
@@ -45,18 +46,18 @@ Before diving into manipulator patterns, it is useful to practice takeouts with 
 
 From the perspective of a manipulator, there are three actions that form the building blocks of all manipulator patterns:
 
-* **Substitution:** The manipulator performs a takeout by stealing a club and placing another club where the original club would have landed. In most patterns, the manipulator has one club before and one different club after the substitution.
-* **Intercept:** The manipulator steals a club and does not replace it. That is, they have just gained a club whereas the passer to whom that club was originally thrown is now down a club. An intercepted throw triggers a role switch where the manipulator has gained a club and replaces the passer who would have received that club; that passer now becomes the new manipulator, usually starting with two clubs since one was stolen.
-* **Carry:** The manipulator places a club in the pattern, without stealing one first. A carry is usually the first action of a new manipulator after a club was stolen from them with an intercept from the previous manipulator. Usually, the manipulator flips both their initial clubs, places one, and then continues the rest of the manipulation sequence with one club.
+* **Substitution:** The manipulator performs a takeout by stealing a club and placing another club where the original club would have landed. Typically, the manipulator has one club before and one different club after the substitution, which they then zip to the other hand to reset.
+* **Intercept:** The manipulator steals a club and does not replace it. That is, they have just gained a club whereas the passer to whom that club was originally thrown is now down a club. An intercepted throw triggers a role switch where the manipulator has gained a club and replaces the passer who would have received that club; that passer now becomes the new manipulator, typically starting with two clubs since one was stolen.
+* **Carry:** The manipulator places a club in the pattern, without stealing one first. A carry is typically the first action of a new manipulator after a club was stolen from them with an intercept from the previous manipulator. In many patterns, the manipulator flips both their initial clubs, places one, zips the other, and then continues the rest of the manipulation sequence with one club.
 
 In the standard manipulator pattern, the manipulator always starts with two clubs, first does a carry action to go down to one club, then does any number of substitution actions, and finally intercepts a club to trigger a switch with another passer who will then be the next manipulator.
 
 
 ## The First Manipulator Pattern: Nicki's 3-Count Roundabout
 
-While other patterns are more popular, *Nicki's 3-Count Roundabout* is a good first pattern that is easier to learn than most other ones because it does not require zips. Zips are not necessarily hard, but the extra actions can be overwhelming to beginners, and most experienced passers are bad at explaining where they are needed.
+While other patterns are more popular, *Nicki's 3-Count Roundabout* is a good first manipulator pattern. It is easier to learn than most others because it does not require zips. Zips are not necessarily hard, but the extra actions can be overwhelming to beginners, and most experienced passers are bad at explaining where they are needed.
 
-<video todo="this like most other videos start on the carry, which is not ideal for teaching, record new video?">https://www.youtube.com/watch?v=OB3mwD08Hck</video>
+<video todo="this like most other videos start on the carry, which is not ideal for teaching, record new video?">https://youtu.be/OB3mwD08Hck</video>
 
 In the pattern, two passers with roles A and B pass [*6-club three-count*](2b-basic-sync.md). A manipulator M stands in the middle of the pattern (between the passing lanes) with a single club in the right hand (upside down).
 
@@ -68,7 +69,7 @@ In the pattern, two passers with roles A and B pass [*6-club three-count*](2b-ba
 
 Role switching works similarly to [moving patterns](5d-moving.md): The pattern repeats, but with different roles, until everybody is back in their starting role. Here, at the end of six beats, the passer who originally started in role B is now in the role of the manipulator M, the passer who started as manipulator is now in role A, and the passer who started in role A is now in role B.
 
-<sync-group style='{"components": ["layout"], "layoutSize": 300}' frames="">
+<sync-group style='{"components": ["layout"], "layoutSize": 200, "cropLayout": [30, 0, 30, 0]}' frames="">
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SB.IB↻   C↻..

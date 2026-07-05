@@ -14,16 +14,16 @@
 
 
 The *Roundabout* is the first manipulator pattern many passers learn.
-It is kind of the *6-club four-count* of manipulator patterns: 
+It is the *6-club four-count* of manipulator patterns: 
 (1) it is universally known and relatively easy to find passing partners who can do it,
 (2) it is easy to juggle and visually appealing for performances,
-(3) it is the first manipulator pattern that many passers learn, but not a great intro pattern (we recommend [Nicki's three-count roundabout](6a-intro.md) as the first manipulator pattern to learn), 
+(3) it is the first manipulator pattern that many passers learn, but not a great intro pattern ([Nicki's three-count roundabout](6a-intro.md) is a better starting point), 
 (4) it has many [variations](6d-roundabout-variations.md) and tricks to explore,
 and (5) it is entirely right-handed with many more interesting patterns to move on to afterward.
-It is now so common that it has recently made it into juggling games at the IJA and ECJ festivals. 
+It is now so common that it has recently made it into juggling games at the IJA and EJC festivals. 
 
 
-<sync-group video="https://juggling.tv/video/encoded/roundabout-berlin-JTV-i5437.mp4" frames="auto">
+<sync-group video="https://drive.google.com/file/d/0B_CV9sJJ8CtAVmw3UEotUE4wVVU/view?usp=sharing&resourcekey=0-wmjpvKaiaf-TFug2WUdgXA" frames="auto">
 A: 3pB333 3pB333 -- B
 B: 3pA333 3pA333 -- A
 M: SBe↑ z SBl↓ z IBvo . CB↺↑ z
@@ -33,7 +33,7 @@ positions: Line(A,B)
 
 The *Roundabout* is based on *6-club four-count* and the manipulator has the following actions on right-handed beats: 
 * Beat 1: Starting in the middle of the pattern between the passing lanes, M substitutes a pass from A to B. The canonical version is to steal the pass early with the left hand and place the other club with M's right hand into B's left hand from below. After the substitution M zips the stolen club to the right hand, holding it on the body, to get ready for the next step.
-* Beat 3: Now standing in front of B, M substitutes B's right-hand self. The canonical version is for M to steal the self late catching the handle, and then to spin out clockwise to the right side of B (the rotation following the hand movement that steals the self), placing the other club in M's right hand into B's left hand after the turn when standing next to B (this is commonly known as the *German turn*). B usually helps by throwing an underspun, easy-to-catch self (a *[pelf](6a-intro.md)*). Again, after the substitution, M zips their remaining club from their left to the right hand, holding it on the handle, to get ready for the next step.
+* Beat 3: Now standing in front of B, M substitutes B's right-hand self. The canonical version is for M to steal the self late catching the handle, and then to spin out clockwise to the right side of B (the rotation following the hand movement that steals the self), placing the other club in M's right hand into B's left hand after the turn when standing next to B (this is commonly known as the *German turn*). B usually helps by throwing an underspun, easy-to-catch self -- a [*pelf*](6a-intro.md). Again, after the substitution, M zips their remaining club from their left to the right hand, holding it on the handle, to get ready for the next step.
 * Beat 5: On this beat both A and B pass, but M intercepts the pass that would have gone to B, catching it with their left hand. Usually A helps by throwing the pass wider as M stands next to B. After this, the passer previously in the B role becomes the new manipulator.
 * Beat 7: The new manipulator carries B's self by stepping forward and flipping both clubs to hold them on the body, turning 180 degrees counter-clockwise to face the new B, and placing the club from their right hand into B's left hand. The previous manipulator, now B, simply holds both clubs and steps to the right to take B's position; optionally they can flip the right club. Their first action is a self from the left hand to receive the carry. After the carry, the new manipulator zips the club from their left to their right hand, holding the club on the body, and continues turning counter-clockwise by 90 degrees to get ready for the substitution on beat 1. 
 

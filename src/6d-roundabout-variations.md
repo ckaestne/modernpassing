@@ -25,6 +25,9 @@ B: 3pA3 33   3pA3 33   3pA3 33 -- A
 M: SBcz SAlz SAcz SAlz IAv . CA 
 </sync-group>
 
+<!-- typst: #qr_with_label("https://www.youtube.com/watch?v=xAqx56CTIZs", [Chopabout Video]) -->
+
+
 All spinning in *Chopabout* is clockwise, including the German turn at the end (as in *Roundabout*) and on the carry (opposite to *Roundabout*). The manipulator spins continuously except for the substituted self after the first chop. Usually the carry is placed with the left hand, so that no zip is needed to catch the chop just afterward.
 
 **Three-count roundabouts.** Beyond [Nicki's three-count roundabout](6a-intro.md), there are two classic one-sided, right-handed *Roundabout* versions based on *6-club three-count*.
@@ -67,11 +70,10 @@ As many passers know the classic *Roundabout* so well, there are several more or
 
 **Tess-about.** The idea is to isolate one passer in place and have the pattern move around them. This can accommodate passers who cannot or do not want to walk, and can be an interesting challenge in itself. Usually the isolated passer stands (or sits) in one location but can turn. When the isolated passer would walk across the pattern, instead the other two passers walk the opposite direction to move the entire pattern relative to the isolated passer. The sequence is fairly easy to learn and repeats quickly. The general idea can be used to *tessify* any moving and manipulator pattern.
 
-<video link="https://passing.zone/roundabout-with-isolated-person/"></video>
+<video>https://passing.zone/roundabout-with-isolated-person/</video>
 
 **Clubabout.** Instead of isolating a passer, here a club is isolated and the pattern moves around the club. That is, if the club would be passed, it is just thrown straight up, and all passers move relative to the club. Typically the club is isolated only in the direction between the passers, allowing some wiggle room for movement between the left and the right hand; a line on the floor is usually used to indicate the position. The pattern is exceedingly long (168 beats, since each club goes through all positions in *Roundabout* in a single orbit), but it is a fun and silly exercise to try any segment of it.
 
-<video></video>
 
 
 ## 4 and 5 Person Patterns based on Roundabout
@@ -97,13 +99,13 @@ positions: Circle(A,B,C,D,_)
 move: Cmove(C,4.9,2.5,144,1)
 </sync-group>
 
-<video>todo</video>
+<!-- <video>todo</video> -->
 
 Variations:
 * Additionally or alternatively, additional manipulators can do the roundabout sequence between D and B and between A and D, supporting up to three Roundabout manipulators in the pattern at the same time.
 * Furthermore, in what's called *Shooting star with manipulator and chaser* (or just *Chaseabout*) when manipulating between C and A, rather than waiting with two clubs for their last pass, C can follow the manipulator M across the pattern when M substitutes the pass to A and bring the manipulator the intercepted pass, to then run to their position behind A (on the outside of the circle). 
 
-<video>todo</video>
+<!-- <video>todo</video> -->
 
 
 
@@ -140,8 +142,11 @@ B: !3   4pAx 3 3 3   4pAx 3 3 3 -- A
 M: SBe! . 1x     SBl IBv.. CB↺  -- M
 </sync-group>
 
+<!-- typ-no-link-footnote: vimeo.com -->
+<!-- typ-no-link-footnote: passing.zone -->
 
 **Beyond.** While not common, there are challenging extra-club versions of many common patterns and also patterns that add two clubs (e.g., [*9-club Roundabout*](https://passing.zone/9-club-roundabout/)), with triple passes and trelfs. Cameron Ford created an excellent [video explaining concepts and showing examples](https://vimeo.com/1046051913). For other takeout patterns on more challenging base patterns of seven and more clubs explore [takeouts in four-handed siteswaps](6i-siteswap-takeouts.md). 
 
+<!-- typst: #qr_with_label_pair("https://passing.zone/9-club-roundabout/", [9-club Roundabout on passing.zone], "https://vimeo.com/1046051913", [Cameron's explainer video: https://vimeo.com/1046051913]) -->
 
 

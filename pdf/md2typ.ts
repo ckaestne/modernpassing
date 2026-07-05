@@ -646,7 +646,7 @@ function renderInline(tokens: AnyToken[]): string {
 
                 const chapterAnchor = resolveChapterAnchor(href)
                 if (chapterAnchor) {
-                    const secref = `Sec.~#secref(<${chapterAnchor}>)`
+                    const secref = `Ch.~#secref(<${chapterAnchor}>)`
                     if (label.endsWith(")")) {
                         // Label already ends with a parenthetical (e.g. "foo (bar)");
                         // merge the section reference into it: "foo (bar; Sec. X)".

@@ -1,6 +1,6 @@
 # Manipulator Pattern Notation
 
-The first manipulator patterns were written down as lengthy wordy descriptions, similar to the description of [Nicki's three-count roundabout](6a-intro.md) in the previous chapter, but a common notation has emerged that allows us to capture the essence of these patterns compactly. This notation was originally suggested by Aidan Burns, and while it has evolved quite a bit with contributions from many in the community, it is widely called the Aidan notation.
+The first manipulator patterns were written down as lengthy wordy descriptions, similar to the description of *Nicki's three-count roundabout* in the [previous chapter](6a-intro.md). Since then, a common notation has emerged that allows us to capture the essence of these patterns compactly. This notation was originally suggested by Aidan Burns, and while it has evolved quite a bit with contributions from many in the community, it is generally called the *Aidan notation.*
 
 ## The Aidan Notation
 
@@ -34,7 +34,7 @@ For common base patterns, especially for the [rotating two-count vs. four-count 
 
 ## Changing Roles
 One thing that makes the Aidan notation somewhat challenging to read is *relabeling*, where passers switch roles.
-There are now two forms of relabeling: (1) The relabeling in the base pattern as described for [moving patterns](5d-moving.md) and (2) relabeling when the manipulator switches with a passer in the base pattern. Only the former is explicitly written down in the Aidan notation, with arrows at the end of a row.
+There are now two places where relabeling happens: (1) The relabeling of the base pattern after the last beat, as described for [moving patterns](5d-moving.md), and (2) relabeling when the manipulator switches with a passer in the base pattern. Only the former is explicitly written down in the Aidan notation, with arrows at the end of a row.
 
 The relabeling for switching manipulators is less obvious to recognize in the notation. It happens when the manipulator takes over the role of another passer *triggered by intercepting* a throw to that passer, often in the middle of the pattern. At the time the throw is intercepted, the passer who would otherwise have caught that throw becomes the new manipulator and continues with the manipulator's actions. 
 
@@ -51,24 +51,24 @@ Having both explicit relabeling at the end of the pattern and implicit relabelin
 and can make it tedious to identify how roles change in the previous or next iteration of the pattern. 
 Hence, it is now common to write a *turntable* about how roles change at the end of the pattern, like the "A → B → M → A" for *Nicki's three-count roundabout*. This shows that the passer with the role A will start the next iteration in role B, the passer in role B will start as M, and the passer in role M will start as A. 
 
-When turning back to learn the previous iteration (usually a very good strategy to learn new patterns, see the corresponding explanation in [moving patterns](5d-moving.md)), we simply follow those arrows backward.
+When turning back to learn the previous iteration -- which is usually a great strategy to learn new patterns, see the corresponding explanation in [moving patterns](5d-moving.md) -- we simply follow those arrows backward.
 
-When the turntable is not available for a pattern and deriving this from the notation is inconvenient, here is another practical approach for turning back after having learned one or two iterations of a pattern: Juggle the pattern as a group for one iteration and stop. Everybody should now recognize which role they have (e.g., in *Nicki's three-count roundabout* B would recognize that they now do M's actions). Everybody now points to the person who previously had that role. The pointing should form a circle – the equivalent of the turntable above. To move back one iteration, everybody goes to the starting position of the person *who points at them*.
+When the turntable is not available for a pattern and deriving this from the notation is inconvenient, here is another practical approach for turning back after having learned one or two iterations of a pattern: Juggle the pattern as a group for one iteration and stop. Everybody should now recognize which role they have (e.g., in *Nicki's three-count roundabout* B would recognize that they now do M's actions). Everybody now points to the person who previously had that role. The pointing should form a circle – the equivalent of the turntable above. To move back one iteration, everybody goes to the starting position of the person who points *at them*.
 
 ## Movement
 As for [moving patterns](5d-moving.md), the Aidan notation does not describe how passers move, only when things happen.
 
-Manipulator patterns usually inherit some movements from a base pattern, none in *Nicki's three-count roundabout* because the base pattern has only two stationary passers, but [walking feeds](5d-moving.md) are common as a base pattern for manipulator patterns with four or more passers. This is usually described together with the pattern.
+Manipulator patterns usually inherit some movements from a base pattern. The base pattern of *Nicki's three-count roundabout* is a stationary three-count between two passers, so it has no movement beyond the manipulator. [Walking feeds](5d-moving.md) are common as a base pattern for manipulator patterns with four or more passers. Movement is usually described outside the notation.
 
-There is also no common notation for describing the location of the manipulator or *how* they steal and place clubs (see the description of early vs late steals and placement from below vs above in our [introduction to manipulator patterns](6a-intro.md)). Some patterns have canonical forms that are passed verbally or through videos, but it is equally common that passers will just experiment and figure out what works. For example, for *Nicki's three-count roundabout*, I would recommend late steals for both substitution and intercept, placement from below for carry and substitution, and the manipulator moving to the left of the pattern when intercepting the self, but there are also videos of the pattern with other movements.
+There is also no common notation for describing the location of the manipulator or *how* they steal and place clubs, that is, whether to steal early or late and whether to place from below or above as described in our [introduction to manipulator patterns](6a-intro.md). Some patterns have canonical forms that are passed verbally or through videos, but it is equally common that passers will just experiment and figure out what works. For example, for *Nicki's three-count roundabout*, I would recommend *late* steals for both substitution and intercept, placement from below for carry and substitution, and the manipulator moving to the left of the pattern when intercepting the self, but there are also [videos of the pattern with other movements](https://passing.zone/pattern/nickis-3-count-roundabout/).
 
-For this book, we experiment with optional superscript symbols for intercepts and passes to indicate common conventions. We use:
+For this book, since we need the information for computing animations anyway, we experiment with optional superscript symbols for intercepts and passes to indicate common conventions. We use:
 * `e` for early steals
 * `l` for late steals
 * `v` for very late steals
 * `↑` for placement from below
 * `↓` for placement from above
-* `c` for a steal caught as a chop (see [Chopabout](6d-roundabout-variations.md))
+* `c` for a steal caught as a chop, as in [Chopabout](6d-roundabout-variations.md)
 * `o` for an action standing on the outside of the passing lane
 * `x` for an action standing on the outside of the *opposite* passing lane
 * `b` for an action standing behind the original receiver of a throw
@@ -77,7 +77,7 @@ For this book, we experiment with optional superscript symbols for intercepts an
 
 With this, *Nicki's three-count roundabout* indicates late steals, placement from below, and clockwise movement when B and M swap can be written as follows:
 
-<sync-group style='{"components":["aidan"]}'>
+<sync-group style='{"components":["aidan"]}' frames="">
 A: 3pB333pB33 -- B
 B: 3pA333pA33 -- A
 M: SBl↑.IBl↑↻   C↻..
@@ -86,6 +86,8 @@ M: SBl↑.IBl↑↻   C↻..
 
 
 ## Local Notation (experimental)
+
+<html-only>
 
 <div class="warning">
 
@@ -117,3 +119,7 @@ An intercept is now also just a pass to the manipulator. In our example, passer 
 A carry is now also a pass, in our example, the pass from the second passer (initially row B) to the first passer.
 
 The notation also fills all empty spots with empty hands (empty circle) or beats where a club is just held (and could be flipped). In our example, the manipulator has time after the substitution until intercepting the self on beat 3 and they could zip and flip a club in that time (in practice they usually have less time, because usually they place the substitution later than indicated and intercept the self earlier than indicated; in our explanation of the pattern we also recommend avoiding a zip and catching the club with the opposite hand, since this is easier to learn). Similarly, the new manipulator has two beats after the carry, where they could flip a club and wait briefly with an empty hand or zip their club twice.
+
+</html-only>
+
+<!-- typst: The web version of this book includes a description and an alternative rendering of each manipulator pattern in an experimental #emph([local]) notation. To not render each pattern in two different notations, we omit this from the pdf. -->
